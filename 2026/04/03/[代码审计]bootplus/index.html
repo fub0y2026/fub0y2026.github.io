@@ -1,0 +1,845 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    [代码审计]bootplus |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="环境搭建 JoeyBling&#x2F;bootplus: 基于SpringBoot + Shiro + MyBatisPlus的权限管理框架 创建bootplus数据库 导入sql文件 修改数据库配置后用jdk8版本启动：    项目结构&#x2F;介绍 bootplus是基于SpringBoot + Shiro + MyBatisPlus的权限管理框架 项目结构： 12345678910111213141516">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[代码审计]bootplus">
+<meta property="og:url" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="环境搭建 JoeyBling&#x2F;bootplus: 基于SpringBoot + Shiro + MyBatisPlus的权限管理框架 创建bootplus数据库 导入sql文件 修改数据库配置后用jdk8版本启动：    项目结构&#x2F;介绍 bootplus是基于SpringBoot + Shiro + MyBatisPlus的权限管理框架 项目结构： 12345678910111213141516">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403202914501.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403203019708.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403204602054.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403205201613.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403211842983.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403212732697.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403212926281.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403213731830.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403214127240.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403214249812.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403214438339.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403214940329.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403215929531.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403215957477.png">
+<meta property="og:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403220134158.png">
+<meta property="article:published_time" content="2026-04-03T11:39:17.000Z">
+<meta property="article:modified_time" content="2026-04-03T14:04:47.249Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="代码审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403202914501.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="[代码审计]bootplus">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">[代码审计]bootplus</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">1.</span> <span class="toc-text"> 环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.</span> <span class="toc-text"> 项目结构&#x2F;介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.</span> <span class="toc-text"> 权限控制审计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#api%E8%B7%AF%E7%94%B1%E5%AE%A1%E8%AE%A1"><span class="toc-number">4.</span> <span class="toc-text"> API路由审计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#apicontroller"><span class="toc-number">4.1.</span> <span class="toc-text"> ApiController</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#qrcodecontroller"><span class="toc-number">4.2.</span> <span class="toc-text"> QrCodeController</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sysfilecontroller"><span class="toc-number">4.3.</span> <span class="toc-text"> SysFileController</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%B8%80%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">4.3.1.</span> <span class="toc-text"> 漏洞一：任意文件上传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%B8%80%E4%BF%AE%E5%A4%8D"><span class="toc-number">4.3.2.</span> <span class="toc-text"> 漏洞一修复</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BA%8C%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">4.3.3.</span> <span class="toc-text"> 漏洞二：任意文件读取</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BA%8C%E4%BF%AE%E5%A4%8D"><span class="toc-number">4.3.4.</span> <span class="toc-text"> 漏洞二修复</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#admin%E8%B7%AF%E7%94%B1%E5%AE%A1%E8%AE%A1"><span class="toc-number">5.</span> <span class="toc-text"> ADMIN路由审计</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-[代码审计]bootplus" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/04/03/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-04-03T11:39:17.000Z" itemprop="datePublished">2026-04-03</time>
+    <time style="display: none;" id="post-update-time">2026-04-03</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" data-aos="zoom-in">代码审计</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="环境搭建"><a class="markdownIt-Anchor" href="#环境搭建"></a> 环境搭建</h2>
+<p><a target="_blank" rel="noopener" href="https://github.com/JoeyBling/bootplus">JoeyBling/bootplus: 基于SpringBoot + Shiro + MyBatisPlus的权限管理框架</a></p>
+<p>创建bootplus数据库</p>
+<p>导入sql文件</p>
+<p>修改数据库配置后用jdk8版本启动：<br />
+<img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403202914501.png" alt="image-20260403202914501" /></p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403203019708.png" alt="image-20260403203019708" /></p>
+<h2 id="项目结构介绍"><a class="markdownIt-Anchor" href="#项目结构介绍"></a> 项目结构/介绍</h2>
+<p><code>bootplus</code>是基于<code>SpringBoot + Shiro + MyBatisPlus</code>的权限管理框架</p>
+<p>项目结构：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">bootplus</span><br><span class="line">├── sql  -- 项目SQL语句</span><br><span class="line">│</span><br><span class="line">├── App -- 项目启动类</span><br><span class="line">│</span><br><span class="line">├── common -- 公用模块</span><br><span class="line">|    ├── enums -- 枚举工具类</span><br><span class="line">|    ├── hessian -- Hessian自定义配置</span><br><span class="line">|    ├── serializer -- 自定义序列化实现</span><br><span class="line">|    ├── typehandler -- 自定义MyBatis类型转换器</span><br><span class="line">│</span><br><span class="line">├── config -- 配置信息</span><br><span class="line">|    ├── aop -- Spring AOP深入实现</span><br><span class="line">|    ├── filter -- 过滤器</span><br><span class="line">|    ├── interceptor -- 拦截器</span><br><span class="line">|    ├── listener -- 监听器</span><br><span class="line">│</span><br><span class="line">├── controller -- 控制器</span><br><span class="line">|    ├── admin -- 后台管理员控制器</span><br><span class="line">|    ├── api -- Api接口开放层</span><br><span class="line">│</span><br><span class="line">├── dao -- 数据访问接口及对应的XML文件</span><br><span class="line">│</span><br><span class="line">├── entity -- 数据持久化实体类</span><br><span class="line">|    ├── enums -- 实体枚举类型</span><br><span class="line">│</span><br><span class="line">├── frame -- 框架公用模块</span><br><span class="line">|    ├── cache -- 缓存模块</span><br><span class="line">|    ├── constant -- 常量模块</span><br><span class="line">|    ├── controller -- 控制器模块</span><br><span class="line">|    ├── log -- 日志模块</span><br><span class="line">|    ├── prj -- 项目核心模块</span><br><span class="line">|    ├── spring -- spring模块</span><br><span class="line">│</span><br><span class="line">├── service -- 业务逻辑接口</span><br><span class="line">|    ├── impl -- 业务逻辑接口实现类</span><br><span class="line">│</span><br><span class="line">├── shiro -- Shiro验证框架</span><br><span class="line">│</span><br><span class="line">├── task -- 定时任务</span><br><span class="line">│</span><br><span class="line">├── util -- 工具类</span><br><span class="line">|    ├── db -- 数据库模块</span><br><span class="line">|    ├── encry -- 加解密模块</span><br><span class="line">|    ├── exception -- 自定义异常</span><br><span class="line">|    ├── file -- 文件工具类</span><br><span class="line">|    ├── freemaker -- 自定义FreeMarker标签</span><br><span class="line">|    ├── http -- http模块实现</span><br><span class="line">|    ├── sketch -- 字体、素描、图像</span><br><span class="line">|    ├── spring -- spring公用模块</span><br><span class="line">│</span><br><span class="line">├── resources</span><br><span class="line">|    ├── conf -- 不同环境配置</span><br><span class="line">|    ├── file -- 模板文件</span><br><span class="line">|    ├── jdk_fonts -- JDK字体</span><br><span class="line">|    ├── META-INF -- SpringBoot配置</span><br><span class="line">|    ├── statics -- 静态资源(css、js...)</span><br><span class="line">|    ├── templates -- 页面FreeMarker模版</span><br><span class="line">|    ├── upload -- 上传文件</span><br></pre></td></tr></table></figure>
+<p>技术栈：</p>
+<ul>
+<li>核心框架：<code>Spring Boot 2.3.1</code></li>
+<li>安全框架：<code>Apache Shiro</code></li>
+<li>视图框架：<code>Spring MVC</code></li>
+<li>持久层框架：<code>MyBatis</code>、<code>MyBatisPlus</code></li>
+<li>缓存技术：<code>EhCache</code>、<code>Redis</code></li>
+<li>定时器：<code>Quartz</code></li>
+<li>数据库连接池：<code>Druid</code></li>
+<li>日志实现：<code>SLF4J</code></li>
+<li>模版技术：<code>FreeMarker</code></li>
+<li>页面交互：<code>BootStrap</code>、<code>Layer</code>等</li>
+</ul>
+<h2 id="权限控制审计"><a class="markdownIt-Anchor" href="#权限控制审计"></a> 权限控制审计</h2>
+<p>首先看到权限控制，这里用的Shiro</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403204602054.png" alt="image-20260403204602054" /></p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403205201613.png" alt="image-20260403205201613" /></p>
+<p>我们能够访问的只有这些：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">filterChainDefinitionMap.put(<span class="string">&quot;/statics/**&quot;</span>, <span class="string">&quot;anon&quot;</span>);  <span class="comment">// 静态资源，匿名访问</span></span><br><span class="line">filterChainDefinitionMap.put(<span class="string">&quot;/admin/captcha.jpg&quot;</span>, <span class="string">&quot;anon&quot;</span>);  <span class="comment">// 验证码，匿名访问</span></span><br><span class="line">filterChainDefinitionMap.put(<span class="string">&quot;/share/qrcode&quot;</span>, <span class="string">&quot;anon&quot;</span>);  <span class="comment">// 共享二维码，匿名访问</span></span><br><span class="line">filterChainDefinitionMap.put(<span class="string">&quot;/admin/sys/login&quot;</span>, <span class="string">&quot;anon&quot;</span>);  <span class="comment">// 登录接口，匿名访问</span></span><br><span class="line">filterChainDefinitionMap.put(<span class="string">&quot;/admin/sys/logout&quot;</span>, <span class="string">&quot;anon&quot;</span>);  <span class="comment">// 退出接口，匿名访问</span></span><br></pre></td></tr></table></figure>
+<p>而其他<code>/admin/**</code>路由都是需要进行授权的：<code>filterChainDefinitionMap.put(&quot;/admin/**&quot;, &quot;authc&quot;);</code></p>
+<p>实战中是没有后台账密的，所以我们只能从其他路由下手</p>
+<h2 id="api路由审计"><a class="markdownIt-Anchor" href="#api路由审计"></a> API路由审计</h2>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403211842983.png" alt="image-20260403211842983" /></p>
+<h3 id="apicontroller"><a class="markdownIt-Anchor" href="#apicontroller"></a> ApiController</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(value = &quot;/app&quot;, produces = MediaType.APPLICATION_JSON_VALUE)</span></span><br><span class="line"><span class="keyword">public</span> TransBaseResponse <span class="title function_">app</span><span class="params">(HttpServletRequest request, HttpServletResponse response,</span></span><br><span class="line"><span class="params">                             TransBaseRequest transRequest, <span class="meta">@RequestBody(required = false)</span> String json)</span> &#123;</span><br><span class="line">    <span class="type">long</span> <span class="variable">startTime</span> <span class="operator">=</span> DateUtils.currentTimeStamp();</span><br><span class="line">    <span class="type">TransBaseResponse</span> <span class="variable">transResponse</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">sign</span> <span class="operator">=</span> request.getHeader(<span class="string">&quot;sign&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isNotBlank(json)) &#123;</span><br><span class="line">            transRequest = JSON.parseObject(json, TransBaseRequest.class);</span><br><span class="line">            logger.debug(<span class="string">&quot;API请求访问[&#123;&#125;], 请求参数[&#123;&#125;]&quot;</span>, transRequest.getService(), json);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            logger.debug(<span class="string">&quot;API请求访问[&#123;&#125;], 请求参数[&#123;&#125;]&quot;</span>, request.getParameter(<span class="string">&quot;service&quot;</span>),</span><br><span class="line">                    toJsonString(request.getParameterMap()));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isNotBlank(sign)) &#123;</span><br><span class="line">            transRequest.setSign(sign);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        transRequest.setTobj(tokenService.parseTokenObject(request));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 校验系统级参数</span></span><br><span class="line">        TransferResponseHandler.validTransHeader(transRequest);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置ip地址</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">ip</span> <span class="operator">=</span> transRequest.getIp();</span><br><span class="line">        <span class="keyword">if</span> (!GetIpAddress.isIPAddr(ip) || GetIpAddress.isLocalIPAddr(ip)) &#123;</span><br><span class="line">            transRequest.setIp(GetIpAddress.getIpAddress(request));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 签名验证</span></span><br><span class="line">        <span class="keyword">if</span> (!appConfigService.validateSign(transRequest.getSign(), json, request.getParameterMap())) &#123;</span><br><span class="line">            <span class="comment">// 数字签名校验错误</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">SysRuntimeException</span>(AppResponseCodeConst.ERROR_SIGN);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 接口定义校验</span></span><br><span class="line">        <span class="keyword">if</span> (!ApiServiceInitService.API_METHOD_MAP.containsKey(transRequest.getService())) &#123;</span><br><span class="line">            <span class="comment">// 请求类型未定义</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">SysRuntimeException</span>(AppResponseCodeConst.ERROR_SERVICE_NOT_FOUND);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// TODO：将appid、BillActor存入ThreadLocal</span></span><br><span class="line">        <span class="comment">// 获得业务处理对象</span></span><br><span class="line">        ApiServiceInitService.<span class="type">ApiMethodHandler</span> <span class="variable">apiMethodHandler</span> <span class="operator">=</span></span><br><span class="line">                ApiServiceInitService.API_METHOD_MAP.get(transRequest.getService());</span><br><span class="line"></span><br><span class="line">        Class&lt;?&gt;[] requestTypes = apiMethodHandler.getRequestTypes();</span><br><span class="line"></span><br><span class="line">        Object[] objects = ParameterHandler.bindRequestParams(requestTypes, request,</span><br><span class="line">                response, transRequest, json);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 对string类型做js校验并替换</span></span><br><span class="line">        <span class="comment">// ParamsValidateUtil.filterScript(objects[0]);</span></span><br><span class="line"></span><br><span class="line">        transResponse = (TransBaseResponse) apiMethodHandler.getHandlerMethod()</span><br><span class="line">                .invoke(apiMethodHandler.getHandler(), objects);</span><br><span class="line"></span><br><span class="line">    &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">        <span class="comment">// 这里自定义异常需要捕获并处理</span></span><br><span class="line">        <span class="keyword">if</span> (SysRuntimeException.class.isAssignableFrom(e.getTargetException().getClass())) &#123;</span><br><span class="line">            <span class="type">SysRuntimeException</span> <span class="variable">runtimeException</span> <span class="operator">=</span> (SysRuntimeException) e.getTargetException();</span><br><span class="line">            transResponse = TransferResponseHandler.getErrResponse(runtimeException.getCode(), runtimeException.getMsg());</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (RRException.class.isAssignableFrom(e.getTargetException().getClass())) &#123;</span><br><span class="line">            <span class="type">RRException</span> <span class="variable">rrException</span> <span class="operator">=</span> (RRException) e.getTargetException();</span><br><span class="line">            transResponse = TransferResponseHandler.getErrResponse(</span><br><span class="line">                    StringUtils.toString(rrException.getCode()), rrException.getMsg());</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            logger.error(<span class="string">&quot;系统错误，&quot;</span> + e.getMessage(), e);</span><br><span class="line">            <span class="comment">// 请求非法</span></span><br><span class="line">            transResponse = TransferResponseHandler.getErrResponse(AppResponseCodeConst.ERROR_ILLEGAL_REQUEST);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (SysRuntimeException e) &#123;</span><br><span class="line">        transResponse = TransferResponseHandler.getErrResponse(e.getCode(), e.getMsg());</span><br><span class="line">    &#125; <span class="keyword">catch</span> (JSONException e) &#123;</span><br><span class="line">        <span class="comment">// 参数格式错误</span></span><br><span class="line">        transResponse = TransferResponseHandler.getErrResponse(AppResponseCodeConst.ERROR_ILLEGAL_PARAMS);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        logger.error(<span class="string">&quot;[API请求] 请求非法, e=&#123;&#125;&quot;</span>, t.getMessage(), t);</span><br><span class="line">        <span class="comment">// 请求非法</span></span><br><span class="line">        transResponse = TransferResponseHandler.getErrResponse(AppResponseCodeConst.ERROR_ILLEGAL_REQUEST);</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="comment">// 这里可以对全局进行资源处理释放等...</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 返回结果</span></span><br><span class="line">    <span class="keyword">return</span> writeResponse(transResponse, transRequest, startTime);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段路由的作用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">解析请求参数（JSON、Header、URL 参数）。</span><br><span class="line">校验参数合法性（签名验证、IP 校验、系统级参数检查）。</span><br><span class="line">路由请求到具体的业务处理方法（根据 service 字段匹配对应的 API 处理方法）。</span><br><span class="line">处理异常，返回标准化的错误响应。</span><br><span class="line">记录日志，方便后续运维和排查问题。</span><br></pre></td></tr></table></figure>
+<p>看一下服务接口：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@api</span> &#123;POST&#125; bootplus.user.login 01.用户登录</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiPermission</span> 不需要token</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiDescription</span> 接口名：&lt;code&gt;bootplus.user.login&lt;/code&gt;&lt;p/&gt;</span></span><br><span class="line"><span class="comment"> * 用户登录，用传入的accessToken完成用户登录，并返回当前用户信息&lt;p/&gt;</span></span><br><span class="line"><span class="comment"> * **ADM test accessToken:**</span></span><br><span class="line"><span class="comment"> * 61466acb7a15d4ca2dbaacfa45fc7eb2c9af92c0f3b72aaa8d885b3b26e8c45757abd97fab3b2d996fce5c66050c0bd3dd432c6b4c603c18244798c36af22acf</span></span><br><span class="line"><span class="comment"> * **SYS test accessToken:**</span></span><br><span class="line"><span class="comment"> * 2da802d5495019986a2378eb3dd6cd95af6f1d3d94d3d9f1524c414ce50e246c57abd97fab3b2d996fce5c66050c0bd3dd432c6b4c603c18244798c36af22acf</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiGroup</span> 1.基础数据</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiParam</span> &#123;String&#125; accessToken 授权accessToken</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiSuccess</span> &#123;Object(TokenObject)&#125; obj 用户token</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiSuccess</span> &#123;String&#125;  obj.userId 用户id</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiSuccess</span> &#123;String&#125;  obj.userType 用户类型</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiSuccess</span> &#123;String&#125;  obj.appid 用户所属机构</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiVersion</span> 2.0.0</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiSampleRequest</span> /app</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiParamExample</span> &#123;json&#125; 请求示例</span></span><br><span class="line"><span class="comment"> * &#123; &quot;oper&quot;:&quot;127.0.0.1&quot;, &quot;appid&quot;:&quot;1001&quot;, &quot;random&quot;:&quot;1234&quot;,</span></span><br><span class="line"><span class="comment"> * &quot;service&quot;: &quot;bootplus.user.login&quot;, &quot;accessToken&quot;: &quot;61466acb7a15d4ca2dbaacfa45fc7eb2c9af92c0f3b72aaa8d885b3b26e8c45757abd97fab3b2d996fce5c66050c0bd3dd432c6b4c603c18244798c36af22acf&quot;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@apiSuccessExample</span> &#123;json&#125; 响应示例</span></span><br><span class="line"><span class="comment"> * &#123; &quot;code&quot;:&quot;0&quot;, &quot;succ&quot;:true,</span></span><br><span class="line"><span class="comment"> * &quot;obj&quot;:&#123;&quot;appid&quot;:&quot;1001&quot;, &quot;userId&quot;:&quot;1&quot;, &quot;userType&quot;:&quot;ADM&quot;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@ApiMethod(name = &quot;bootplus.user.login&quot;)</span></span><br><span class="line"><span class="keyword">public</span> TransBaseResponse <span class="title function_">login</span><span class="params">(TransAppLoginRequest request, HttpServletResponse resp)</span> &#123;</span><br><span class="line">    <span class="comment">// 执行校验</span></span><br><span class="line">    <span class="type">TransBaseResponse</span> <span class="variable">response</span> <span class="operator">=</span> Validate4Api.valid2Response(request, Lists.newArrayList(</span><br><span class="line">            Validate4ApiRule.required(<span class="string">&quot;accessToken&quot;</span>, <span class="string">&quot;accessToken&quot;</span>)</span><br><span class="line">    ));</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">null</span> != response) &#123;</span><br><span class="line">        <span class="keyword">return</span> response;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> TransBaseResponse.builder()</span><br><span class="line">            .code(ResponseCodeConst.SUCCESS)</span><br><span class="line">            .obj(appTokenService.login(request.getAppid(), request.getAccessToken(), resp)).build();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输入<br />
+<code>accessToken</code>：用户凭证，用于身份认证。<br />
+<code>appid</code>：应用 ID。<br />
+其他系统级参数（如 random、oper 等）。</p>
+<p>应该是用于检验用户登录的 api</p>
+<p>大概的请求类似于</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;oper&quot;</span><span class="punctuation">:</span> <span class="string">&quot;127.0.0.1&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;appid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1001&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;random&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1234&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;service&quot;</span><span class="punctuation">:</span> <span class="string">&quot;bootplus.user.login&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;accessToken&quot;</span><span class="punctuation">:</span> <span class="string">&quot;61466acb7a15d4ca2dbaacfa45fc7eb2c9af92c0f3b72aaa8d885b3b26e8c45757abd97fab3b2d996fce5c66050c0bd3dd432c6b4c603c18244798c36af22acf&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>然后返回</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;code&quot;</span><span class="punctuation">:</span> <span class="string">&quot;0&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;succ&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;obj&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;appid&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1001&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;userId&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;userType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ADM&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>基本没什么可利用的空间，就算签名能绕过也造成不了什么危害</p>
+<h3 id="qrcodecontroller"><a class="markdownIt-Anchor" href="#qrcodecontroller"></a> QrCodeController</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="comment">//@Controller</span></span><br><span class="line"><span class="comment">//@Component</span></span><br><span class="line"><span class="meta">@MyController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/share/qrcode&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">QrCodeController</span> <span class="keyword">extends</span> <span class="title class_">AbstractController</span>&lt;QrCodeController&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">MultiFormatWriter</span> <span class="variable">multiFormatWriter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MultiFormatWriter</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 二维码生成</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> width  宽度</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> height 高度</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> text   内容（可以为URL或者文本）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@MyLog</span></span><br><span class="line">    <span class="meta">@RequestMapping(value = &#123;&quot;&quot;, &quot;/&quot;&#125;, method = RequestMethod.GET)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">qrCode</span><span class="params">(<span class="meta">@RequestParam(required = false, value = &quot;w&quot;, defaultValue = &quot;200&quot;)</span> Integer width,</span></span><br><span class="line"><span class="params">                       <span class="meta">@RequestParam(required = false, value = &quot;h&quot;, defaultValue = &quot;200&quot;)</span> Integer height,</span></span><br><span class="line"><span class="params">                       <span class="meta">@RequestParam(required = false, defaultValue = &quot;https://github.com/JoeyBling&quot;)</span> String text,</span></span><br><span class="line"><span class="params">                       HttpServletResponse response)</span> <span class="keyword">throws</span> IOException, WriterException &#123;</span><br><span class="line">        response.setHeader(HttpHeaders.CACHE_CONTROL, <span class="string">&quot;no-store, no-cache&quot;</span>);</span><br><span class="line">        <span class="comment">// MediaType.IMAGE_JPEG_VALUE</span></span><br><span class="line">        response.setContentType(MediaType.IMAGE_PNG_VALUE);</span><br><span class="line">        Map&lt;EncodeHintType, Object&gt; hints = Maps.newConcurrentMap();</span><br><span class="line">        <span class="comment">// 生成二维码</span></span><br><span class="line">        hints.put(EncodeHintType.CHARACTER_SET, DEFAULT_CHARSET.name());</span><br><span class="line">        <span class="comment">// 容错级别，H是最高</span></span><br><span class="line">        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);</span><br><span class="line">        <span class="comment">// 上线左右的空白边距</span></span><br><span class="line">        hints.put(EncodeHintType.MARGIN, <span class="number">3</span>);</span><br><span class="line">        <span class="type">BitMatrix</span> <span class="variable">bitMatrix</span> <span class="operator">=</span> multiFormatWriter.encode(text,</span><br><span class="line">                BarcodeFormat.QR_CODE, width, height, hints);</span><br><span class="line">        <span class="type">BufferedImage</span> <span class="variable">bufferedImage</span> <span class="operator">=</span> QrCodeUtil.toBufferedImage(bitMatrix);</span><br><span class="line">        <span class="keyword">try</span> (<span class="type">ServletOutputStream</span> <span class="variable">out</span> <span class="operator">=</span> response.getOutputStream()) &#123;</span><br><span class="line">            <span class="comment">// MatrixToImageWriter.writeToStream(bitMatrix, &quot;png&quot;, out);</span></span><br><span class="line">            ImageIO.write(bufferedImage, <span class="string">&quot;png&quot;</span>, out);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 测试接口</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@RequestMapping(value = &quot;/test&quot;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">protected</span> Map&lt;?, ?&gt; test()</span><br><span class="line">            <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        Map&lt;String, CharSequence&gt; map = Maps.newConcurrentMap();</span><br><span class="line">        map.put(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;1&quot;</span>);</span><br><span class="line">        map.put(<span class="string">&quot;random&quot;</span>, StringUtils.join(T_VERSION, <span class="string">&quot;_&quot;</span>, secureRandom.nextInt(<span class="number">2</span> &lt;&lt; <span class="number">18</span>)));</span><br><span class="line">        Thread.sleep(<span class="number">3000L</span>);</span><br><span class="line">        <span class="keyword">return</span> map;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>用于生成二维码的，无用</p>
+<h3 id="sysfilecontroller"><a class="markdownIt-Anchor" href="#sysfilecontroller"></a> SysFileController</h3>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403212732697.png" alt="image-20260403212732697" /></p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403212926281.png" alt="image-20260403212926281" /></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">函数</th>
+<th style="text-align:left">功能</th>
+<th style="text-align:left">访问路径</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>upload()</code></td>
+<td style="text-align:left">文件上传，支持图片自动压缩</td>
+<td style="text-align:left">POST <code>/file/upload</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><code>fileHandle()</code></td>
+<td style="text-align:left">图片压缩处理（宽度&gt;800px时压缩）</td>
+<td style="text-align:left">内部调用</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>getTrueFileName()</code></td>
+<td style="text-align:left">生成自定义文件存储路径</td>
+<td style="text-align:left">内部调用</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>download()</code></td>
+<td style="text-align:left">文件下载</td>
+<td style="text-align:left">GET <code>/file/download?name=xxx</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="漏洞一任意文件上传"><a class="markdownIt-Anchor" href="#漏洞一任意文件上传"></a> 漏洞一：任意文件上传</h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="meta">@RequestMapping(value = &quot;/upload&quot;, method = RequestMethod.POST)</span></span><br><span class="line">    <span class="keyword">public</span> R <span class="title function_">upload</span><span class="params">(Integer uploadType, HttpServletRequest request)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        MultipartHttpServletRequest multipartRequest;</span><br><span class="line">        <span class="comment">// 判断request是否有文件上传</span></span><br><span class="line">        <span class="keyword">if</span> (ServletFileUpload.isMultipartContent(request)) &#123;</span><br><span class="line">            multipartRequest = (MultipartHttpServletRequest) request;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> R.error(<span class="string">&quot;请先选择上传的文件&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 存入数据库的相对路径</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">fileContextPath</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        Iterator&lt;String&gt; ite = multipartRequest.getFileNames();</span><br><span class="line">        <span class="keyword">while</span> (ite.hasNext()) &#123;</span><br><span class="line">            <span class="type">MultipartFile</span> <span class="variable">file</span> <span class="operator">=</span> multipartRequest.getFile(ite.next());</span><br><span class="line">            <span class="comment">// 判断上传的文件是否为空</span></span><br><span class="line">            <span class="keyword">if</span> (file == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> R.error(<span class="string">&quot;上传文件为空&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">// request.getServletContext().getRealPath(uploadPath)</span></span><br><span class="line">            <span class="comment">// 如果打成了jar包，Linux路径会变成/tmp/tomcat-docbase.*.*/</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">fileName</span> <span class="operator">=</span> file.getOriginalFilename();</span><br><span class="line">            logger.info(<span class="string">&quot;上传的文件原名称:&#123;&#125;&quot;</span>, fileName);</span><br><span class="line">            <span class="comment">// 上传文件类型</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">fileType</span> <span class="operator">=</span> fileName.indexOf(<span class="string">&quot;.&quot;</span>) != -<span class="number">1</span></span><br><span class="line">                    ? fileName.substring(fileName.lastIndexOf(<span class="string">&quot;.&quot;</span>) + <span class="number">1</span>) : <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">            logger.info(<span class="string">&quot;上传文件类型:&#123;&#125;&quot;</span>, StringUtils.defaultString(fileType));</span><br><span class="line">            <span class="comment">// 自定义的文件名称</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">trueFileName</span> <span class="operator">=</span> getTrueFileName(fileName, uploadType);</span><br><span class="line">            <span class="comment">// 防止火狐等浏览器不显示图片</span></span><br><span class="line">            fileContextPath = FileUtils.generateFileUrl(</span><br><span class="line">                    MyWebAppConfigurer.FILE_UPLOAD_PATH_EXT, trueFileName);</span><br><span class="line">            <span class="comment">// 上传文件保存的路径</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">uploadPath</span> <span class="operator">=</span> FileUtils.generateFileUrl(</span><br><span class="line">                    applicationProperties.getFileConfig().getUploadPath(), trueFileName);</span><br><span class="line">            logger.debug(<span class="string">&quot;存放文件的路径:&#123;&#125;&quot;</span>, uploadPath);</span><br><span class="line">            <span class="comment">// 上传文件后的保存路径</span></span><br><span class="line">            <span class="type">File</span> <span class="variable">fileUpload</span> <span class="operator">=</span> FileUtils.getFile(uploadPath);</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 创建父级目录(Linux需要注意启动用户的权限问题)</span></span><br><span class="line">            FileUtils.forceMkdirParent(fileUpload);</span><br><span class="line"></span><br><span class="line">            file.transferTo(fileUpload);</span><br><span class="line">            <span class="comment">// 进行文件处理</span></span><br><span class="line">            fileHandle(fileUpload);</span><br><span class="line">            <span class="comment">// 这里暂时只能上传一个文件</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> R.ok().put(<span class="string">&quot;filePath&quot;</span>, fileContextPath);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>无过滤无校验</p>
+<p>很明显的任意文件上传</p>
+<h4 id="漏洞一修复"><a class="markdownIt-Anchor" href="#漏洞一修复"></a> 漏洞一修复</h4>
+<p>用白名单就好了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修复1: 限制文件大小（10MB）</span></span><br><span class="line">    <span class="type">long</span> <span class="variable">maxSize</span> <span class="operator">=</span> <span class="number">10</span> * <span class="number">1024</span> * <span class="number">1024</span>;</span><br><span class="line">    <span class="keyword">if</span> (file.getSize() &gt; maxSize) &#123;</span><br><span class="line">        <span class="keyword">return</span> R.error(<span class="string">&quot;文件大小不能超过10MB&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 修复2: 获取原文件名并提取扩展名</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">originalFileName</span> <span class="operator">=</span> file.getOriginalFilename();</span><br><span class="line">    <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="keyword">if</span> (originalFileName != <span class="literal">null</span> &amp;&amp; originalFileName.contains(<span class="string">&quot;.&quot;</span>)) &#123;</span><br><span class="line">        extension = originalFileName.substring(originalFileName.lastIndexOf(<span class="string">&quot;.&quot;</span>)).toLowerCase();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 修复3: 白名单校验扩展名（只允许这些类型）</span></span><br><span class="line">    List&lt;String&gt; allowedTypes = Arrays.asList(<span class="string">&quot;.jpg&quot;</span>, <span class="string">&quot;.jpeg&quot;</span>, <span class="string">&quot;.png&quot;</span>, <span class="string">&quot;.gif&quot;</span>, <span class="string">&quot;.pdf&quot;</span>, <span class="string">&quot;.doc&quot;</span>, <span class="string">&quot;.docx&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!allowedTypes.contains(extension)) &#123;</span><br><span class="line">        <span class="keyword">return</span> R.error(<span class="string">&quot;不支持的文件类型，仅支持：&quot;</span> + String.join(<span class="string">&quot;, &quot;</span>, allowedTypes));</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>后面还能用uuid生成文件名，且不能用户自定义保存路径</p>
+<h4 id="漏洞二任意文件读取"><a class="markdownIt-Anchor" href="#漏洞二任意文件读取"></a> 漏洞二：任意文件读取</h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">@RequestMapping(&quot;/download&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">download</span><span class="params">(<span class="meta">@RequestParam(&quot;name&quot;)</span> String fileName, Boolean real, HttpServletRequest request,</span></span><br><span class="line"><span class="params">                         HttpServletResponse response)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">null</span> == fileName) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RRException</span>(<span class="string">&quot;未找到资源&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 默认编码</span></span><br><span class="line">        request.setCharacterEncoding(DEFAULT_CHARSET.name());</span><br><span class="line">        <span class="type">BufferedInputStream</span> <span class="variable">bis</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="type">BufferedOutputStream</span> <span class="variable">bos</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 解码</span></span><br><span class="line">        fileName = URLDecoder.decode(fileName, DEFAULT_CHARSET.name());</span><br><span class="line">        logger.info(<span class="string">&quot;下载文件的名称:&#123;&#125;&quot;</span>, fileName);</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">null</span> == real || !real) &#123;</span><br><span class="line">            fileName = request.getServletContext().getRealPath(fileName);</span><br><span class="line">        &#125;</span><br><span class="line">        logger.info(<span class="string">&quot;下载文件的绝对路径&quot;</span> + fileName);</span><br><span class="line">        <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            file = <span class="keyword">new</span> <span class="title class_">File</span>(fileName);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="literal">null</span> != file &amp;&amp; file.exists() &amp;&amp; file.isFile()) &#123;</span><br><span class="line">            <span class="comment">// 获取文件的长度</span></span><br><span class="line">            <span class="type">long</span> <span class="variable">fileLength</span> <span class="operator">=</span> file.length();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 设置文件输出类型</span></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);</span><br><span class="line">                <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> file.getName();</span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">null</span> == real || !real) &#123;</span><br><span class="line">                    name = name.length() &gt; <span class="number">13</span> ? name.substring(<span class="number">13</span>) : name;</span><br><span class="line">                &#125;</span><br><span class="line">                response.setHeader(<span class="string">&quot;Content-disposition&quot;</span>,</span><br><span class="line">                        <span class="string">&quot;attachment; filename=&quot;</span> + URLEncoder.encode(name, DEFAULT_CHARSET.name()));</span><br><span class="line">                <span class="comment">// 设置输出长度</span></span><br><span class="line">                response.setHeader(<span class="string">&quot;Content-Length&quot;</span>, String.valueOf(fileLength));</span><br><span class="line">                <span class="comment">// 获取输入流</span></span><br><span class="line">                bis = <span class="keyword">new</span> <span class="title class_">BufferedInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(file));</span><br><span class="line">                <span class="comment">// 输出流</span></span><br><span class="line">                bos = <span class="keyword">new</span> <span class="title class_">BufferedOutputStream</span>(response.getOutputStream());</span><br><span class="line">                <span class="type">byte</span>[] buff = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">2048</span>];</span><br><span class="line">                <span class="type">int</span> bytesRead;</span><br><span class="line">                <span class="keyword">while</span> (-<span class="number">1</span> != (bytesRead = bis.read(buff, <span class="number">0</span>, buff.length))) &#123;</span><br><span class="line">                    bos.write(buff, <span class="number">0</span>, bytesRead);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// 关闭流</span></span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RRException</span>(<span class="string">&quot;下载错误,请重试!&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">null</span> != bis) &#123;</span><br><span class="line">                    bis.close();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (<span class="literal">null</span> != bos) &#123;</span><br><span class="line">                    bos.close();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RRException</span>(<span class="string">&quot;未找到资源&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>未过滤目录穿越，尝试<code>/file/download?name=C:/Windows/win.ini</code>进行读取</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403213731830.png" alt="image-20260403213731830" /></p>
+<p>显示404，调试一下</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403214127240.png" alt="image-20260403214127240" /></p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403214249812.png" alt="image-20260403214249812" /></p>
+<p>发现有个real参数，继续跟</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403214438339.png" alt="image-20260403214438339" /></p>
+<p>这里判断real是否为空，如果为空则将进入<code>fileName = request.getServletContext().getRealPath(fileName);</code>，作用是<strong>将Web应用中的虚拟路径（相对路径）转换为操作系统中的真实绝对路径</strong>。</p>
+<p>例如：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">传入参数 <code>fileName</code></th>
+<th style="text-align:left">返回值（真实路径）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>/images/photo.jpg</code></td>
+<td style="text-align:left"><code>/usr/local/tomcat/webapps/myapp/images/photo.jpg</code></td>
+</tr>
+</tbody>
+</table>
+<p>其实就是<code>getRealPath()</code> 方法<strong>只接受相对路径</strong>，当传入<strong>绝对路径</strong>时，会返回 <code>null</code>。</p>
+<p>即在linux系统下可以用相对路径来读取任意文件</p>
+<p>在windows系统下可以设置<code>read=true | 1</code>来绕过这个赋值</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403214940329.png" alt="image-20260403214940329" /></p>
+<h4 id="漏洞二修复"><a class="markdownIt-Anchor" href="#漏洞二修复"></a> 漏洞二修复</h4>
+<p>最简单的方法就是<strong>维护一个文件ID到真实文件的映射</strong>，防止泄露敏感信息</p>
+<p>最详细的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/download&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">download</span><span class="params">(<span class="meta">@RequestParam(&quot;name&quot;)</span> String fileName, Boolean real, </span></span><br><span class="line"><span class="params">                     HttpServletRequest request, HttpServletResponse response)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 1. 基础校验</span></span><br><span class="line">    <span class="keyword">if</span> (StringUtils.isBlank(fileName)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RRException</span>(<span class="string">&quot;未指定下载文件&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 2. 解码（防止URL编码绕过）</span></span><br><span class="line">    fileName = URLDecoder.decode(fileName, StandardCharsets.UTF_8.name());</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 3. 关键修复：只提取文件名，丢弃任何路径信息</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">safeFileName</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(fileName).getName();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 4. 文件类型白名单（可选，根据业务需求）</span></span><br><span class="line">    Set&lt;String&gt; allowedExtensions = Set.of(<span class="string">&quot;jpg&quot;</span>, <span class="string">&quot;png&quot;</span>, <span class="string">&quot;pdf&quot;</span>, <span class="string">&quot;doc&quot;</span>, <span class="string">&quot;docx&quot;</span>, <span class="string">&quot;xls&quot;</span>, <span class="string">&quot;xlsx&quot;</span>);</span><br><span class="line">    <span class="type">String</span> <span class="variable">extension</span> <span class="operator">=</span> safeFileName.substring(safeFileName.lastIndexOf(<span class="string">&quot;.&quot;</span>) + <span class="number">1</span>).toLowerCase();</span><br><span class="line">    <span class="keyword">if</span> (!allowedExtensions.contains(extension)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RRException</span>(<span class="string">&quot;不支持的文件类型&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 5. 使用配置的下载目录（绝对路径，不从用户输入获取）</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">downloadBasePath</span> <span class="operator">=</span> applicationProperties.getFileConfig().getDownloadDir();</span><br><span class="line">    <span class="keyword">if</span> (StringUtils.isBlank(downloadBasePath)) &#123;</span><br><span class="line">        <span class="comment">// 如果没有配置，使用Web应用的固定目录</span></span><br><span class="line">        downloadBasePath = request.getServletContext().getRealPath(<span class="string">&quot;/downloads/&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 6. 构建安全的目标文件路径</span></span><br><span class="line">    <span class="type">File</span> <span class="variable">baseDir</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(downloadBasePath).getCanonicalFile();</span><br><span class="line">    <span class="type">File</span> <span class="variable">targetFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(baseDir, safeFileName).getCanonicalFile();</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 7. 路径遍历最终校验：确保文件在基础目录内</span></span><br><span class="line">    <span class="keyword">if</span> (!targetFile.getPath().startsWith(baseDir.getPath())) &#123;</span><br><span class="line">        logger.warn(<span class="string">&quot;路径遍历攻击尝试: &#123;&#125;&quot;</span>, fileName);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RRException</span>(<span class="string">&quot;非法文件访问&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 8. 文件存在性校验</span></span><br><span class="line">    <span class="keyword">if</span> (!targetFile.exists() || !targetFile.isFile()) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RRException</span>(<span class="string">&quot;文件不存在&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 9. 文件大小限制（防止下载超大文件导致DoS）</span></span><br><span class="line">    <span class="type">long</span> <span class="variable">maxFileSize</span> <span class="operator">=</span> <span class="number">100</span> * <span class="number">1024</span> * <span class="number">1024</span>; <span class="comment">// 100MB</span></span><br><span class="line">    <span class="keyword">if</span> (targetFile.length() &gt; maxFileSize) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RRException</span>(<span class="string">&quot;文件过大，无法下载&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 10. 安全下载</span></span><br><span class="line">    request.setCharacterEncoding(StandardCharsets.UTF_8.name());</span><br><span class="line">    response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);</span><br><span class="line">    response.setHeader(<span class="string">&quot;Content-Disposition&quot;</span>, </span><br><span class="line">        <span class="string">&quot;attachment; filename=&quot;</span> + URLEncoder.encode(safeFileName, StandardCharsets.UTF_8.name()));</span><br><span class="line">    response.setHeader(<span class="string">&quot;Content-Length&quot;</span>, String.valueOf(targetFile.length()));</span><br><span class="line">    <span class="comment">// 添加安全响应头</span></span><br><span class="line">    response.setHeader(<span class="string">&quot;X-Content-Type-Options&quot;</span>, <span class="string">&quot;nosniff&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 使用try-with-resources确保资源关闭</span></span><br><span class="line">    <span class="keyword">try</span> (<span class="type">BufferedInputStream</span> <span class="variable">bis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(targetFile));</span><br><span class="line">         <span class="type">BufferedOutputStream</span> <span class="variable">bos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedOutputStream</span>(response.getOutputStream())) &#123;</span><br><span class="line">        <span class="type">byte</span>[] buffer = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">8192</span>];</span><br><span class="line">        <span class="type">int</span> bytesRead;</span><br><span class="line">        <span class="keyword">while</span> ((bytesRead = bis.read(buffer)) != -<span class="number">1</span>) &#123;</span><br><span class="line">            bos.write(buffer, <span class="number">0</span>, bytesRead);</span><br><span class="line">        &#125;</span><br><span class="line">        bos.flush();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        logger.error(<span class="string">&quot;文件下载失败: &#123;&#125;&quot;</span>, safeFileName, e);</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RRException</span>(<span class="string">&quot;下载失败，请重试&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="admin路由审计"><a class="markdownIt-Anchor" href="#admin路由审计"></a> ADMIN路由审计</h2>
+<p>一个小风险：</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403215929531.png" alt="image-20260403215929531" /></p>
+<p><code>sort</code> 和 <code>order</code> 参数直接传入Mapper，可能拼接到SQL的 <code>ORDER BY</code> 子句</p>
+<p>虽然有简单的替换，但 <code>sort</code> 仍可能包含SQL注入语句</p>
+<p>例如:<code>GET /admin/sys/menu/list?sort=1;DROP TABLE sys_menu;-- &amp;order=asc</code></p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403215957477.png" alt="image-20260403215957477" /></p>
+<p>但由于这里配置了Druid防火墙：<br />
+<img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Dbootplus.assets/image-20260403220134158.png" alt="image-20260403220134158" /></p>
+<p>所以导致SQL注入没生效，但不代表该防火墙无法被绕过（但起码我绕不过）</p>
+<p><strong>修复方案：用白名单</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/list&quot;)</span></span><br><span class="line"><span class="keyword">public</span> R <span class="title function_">list</span><span class="params">(Integer offset, Integer limit, String sort, String order,</span></span><br><span class="line"><span class="params">              <span class="meta">@RequestParam(name = &quot;search&quot;, required = false)</span> String search)</span> &#123;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 白名单校验sort字段</span></span><br><span class="line">    Set&lt;String&gt; allowedSortFields = Set.of(<span class="string">&quot;menu_id&quot;</span>, <span class="string">&quot;name&quot;</span>, <span class="string">&quot;order_num&quot;</span>, <span class="string">&quot;parent_id&quot;</span>, <span class="string">&quot;type&quot;</span>, <span class="string">&quot;url&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (sort != <span class="literal">null</span> &amp;&amp; !allowedSortFields.contains(sort)) &#123;</span><br><span class="line">        sort = <span class="string">&quot;order_num&quot;</span>; <span class="comment">// 默认排序字段</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 白名单校验order方向</span></span><br><span class="line">    Set&lt;String&gt; allowedOrders = Set.of(<span class="string">&quot;asc&quot;</span>, <span class="string">&quot;desc&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (order != <span class="literal">null</span> &amp;&amp; !allowedOrders.contains(order.toLowerCase())) &#123;</span><br><span class="line">        order = <span class="string">&quot;asc&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    Map&lt;String, Object&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">    map.put(<span class="string">&quot;offset&quot;</span>, offset);</span><br><span class="line">    map.put(<span class="string">&quot;limit&quot;</span>, limit);</span><br><span class="line">    map.put(<span class="string">&quot;sort&quot;</span>, sort);</span><br><span class="line">    map.put(<span class="string">&quot;order&quot;</span>, <span class="string">&quot;asc&quot;</span>.equalsIgnoreCase(order) ? <span class="string">&quot;ASC&quot;</span> : <span class="string">&quot;DESC&quot;</span>);</span><br><span class="line">    <span class="comment">// ... 其余代码</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">代码审计</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/bg1.jpg" data-sizes="auto" alt="NCTF2026" class="lazyload">
+          
+        
+        <a href="/2026/04/04/NCTF2026/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            NCTF2026
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="[代码审计]泰山cms" class="lazyload">
+        
+      
+      <a href="/2026/03/31/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5D%E6%B3%B0%E5%B1%B1cms/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          [代码审计]泰山cms
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">1.</span> <span class="toc-text"> 环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.</span> <span class="toc-text"> 项目结构&#x2F;介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%83%E9%99%90%E6%8E%A7%E5%88%B6%E5%AE%A1%E8%AE%A1"><span class="toc-number">3.</span> <span class="toc-text"> 权限控制审计</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#api%E8%B7%AF%E7%94%B1%E5%AE%A1%E8%AE%A1"><span class="toc-number">4.</span> <span class="toc-text"> API路由审计</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#apicontroller"><span class="toc-number">4.1.</span> <span class="toc-text"> ApiController</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#qrcodecontroller"><span class="toc-number">4.2.</span> <span class="toc-text"> QrCodeController</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sysfilecontroller"><span class="toc-number">4.3.</span> <span class="toc-text"> SysFileController</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%B8%80%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">4.3.1.</span> <span class="toc-text"> 漏洞一：任意文件上传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%B8%80%E4%BF%AE%E5%A4%8D"><span class="toc-number">4.3.2.</span> <span class="toc-text"> 漏洞一修复</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BA%8C%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">4.3.3.</span> <span class="toc-text"> 漏洞二：任意文件读取</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BA%8C%E4%BF%AE%E5%A4%8D"><span class="toc-number">4.3.4.</span> <span class="toc-text"> 漏洞二修复</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#admin%E8%B7%AF%E7%94%B1%E5%AE%A1%E8%AE%A1"><span class="toc-number">5.</span> <span class="toc-text"> ADMIN路由审计</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "[代码审计]bootplus",
+          url: "http://example.com/2026/04/03/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]bootplus/",
+          excerpt: "",
+          description: "",
+          stripContent: " 环境搭建 JoeyBling/bootplus: 基于SpringBoot + Shiro + MyBatisPlus的权限管理框架 创建bootplus数据库 导入sql文件 修改数据库配置后用jdk8版本启动：    项目结构/介绍 bootplus是基于SpringBoot + Shiro + MyBatisPlus的权限管理框架 项目结构： 1234567891011121314151617181920212223242526272829303132333435363738394041",
+          date: "Fri Apr 03 2026 19:39:17 GMT+0800",
+          updated: "Fri Apr 03 2026 22:04:47 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

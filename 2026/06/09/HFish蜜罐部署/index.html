@@ -1,0 +1,766 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    HFish蜜罐部署 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="闲来无事，部署个蜜罐玩玩  安装 用的Ubuntu VPS 安装： 12bash &lt;(curl -sS -L https:&#x2F;&#x2F;hfish.net&#x2F;webinstall.sh)1   安装成功，查看默认监听端口：  然后访问https:&#x2F;&#x2F;VPS:4433&#x2F;web&#x2F; 账号：admin 密码：HFish2021 最好进去之后马上修改默认密码   模块管理  攻击列表 展示、聚合、搜索、分析和导出">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HFish蜜罐部署">
+<meta property="og:url" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="闲来无事，部署个蜜罐玩玩  安装 用的Ubuntu VPS 安装： 12bash &lt;(curl -sS -L https:&#x2F;&#x2F;hfish.net&#x2F;webinstall.sh)1   安装成功，查看默认监听端口：  然后访问https:&#x2F;&#x2F;VPS:4433&#x2F;web&#x2F; 账号：admin 密码：HFish2021 最好进去之后马上修改默认密码   模块管理  攻击列表 展示、聚合、搜索、分析和导出">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260609235238501.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260609235513686.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260609235605534.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610001354591.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610001507825.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610001819999.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002028426.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002120032.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002202176.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002245130.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002325741.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002400648.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002411088.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002424754.png">
+<meta property="og:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002533111.png">
+<meta property="article:published_time" content="2026-06-09T15:50:55.000Z">
+<meta property="article:modified_time" content="2026-06-09T16:25:34.219Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="HFish">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260609235238501.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="HFish蜜罐部署">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">HFish蜜罐部署</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number">1.</span> <span class="toc-text"> 安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9D%97%E7%AE%A1%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text"> 模块管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E5%88%97%E8%A1%A8"><span class="toc-number">2.1.</span> <span class="toc-text"> 攻击列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%AB%E6%8F%8F%E6%84%9F%E7%9F%A5"><span class="toc-number">2.2.</span> <span class="toc-text"> 扫描感知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%B1%E9%99%B7%E6%84%9F%E7%9F%A5"><span class="toc-number">2.3.</span> <span class="toc-text"> 失陷感知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E6%9D%A5%E6%BA%90"><span class="toc-number">2.4.</span> <span class="toc-text"> 攻击来源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B4%A6%E5%8F%B7%E8%B5%84%E4%BA%A7"><span class="toc-number">2.5.</span> <span class="toc-text"> 账号资产</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B7%E6%9C%AC%E6%A3%80%E6%B5%8B"><span class="toc-number">2.6.</span> <span class="toc-text"> 样本检测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%A8%A1%E6%8B%9F"><span class="toc-number">2.7.</span> <span class="toc-text"> 漏洞模拟</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E7%AE%A1%E7%90%86"><span class="toc-number">2.8.</span> <span class="toc-text"> 节点管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E7%AE%A1%E7%90%86"><span class="toc-number">2.9.</span> <span class="toc-text"> 模板管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="toc-number">2.10.</span> <span class="toc-text"> 服务管理</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-HFish蜜罐部署" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-06-09T15:50:55.000Z" itemprop="datePublished">2026-06-09</time>
+    <time style="display: none;" id="post-update-time">2026-06-10</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%9D%82/" data-aos="zoom-in">杂</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>闲来无事，部署个蜜罐玩玩</p>
+<h2 id="安装"><a class="markdownIt-Anchor" href="#安装"></a> 安装</h2>
+<p>用的Ubuntu VPS</p>
+<p>安装：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bash &lt;(curl -sS -L https://hfish.net/webinstall.sh)</span><br><span class="line">1</span><br></pre></td></tr></table></figure>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260609235238501.png" alt="image-20260609235238501" /></p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260609235513686.png" alt="image-20260609235513686" /></p>
+<p>安装成功，查看默认监听端口：<br />
+<img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260609235605534.png" alt="image-20260609235605534" /></p>
+<p>然后访问<code>https://VPS:4433/web/</code></p>
+<p>账号：admin 密码：HFish2021</p>
+<p>最好进去之后马上修改默认密码</p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610001354591.png" alt="image-20260610001354591" /></p>
+<h2 id="模块管理"><a class="markdownIt-Anchor" href="#模块管理"></a> 模块管理</h2>
+<h3 id="攻击列表"><a class="markdownIt-Anchor" href="#攻击列表"></a> 攻击列表</h3>
+<p>展示、聚合、搜索、分析和导出HFish蜜罐捕获攻击数据的页面</p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610001507825.png" alt="image-20260610001507825" /></p>
+<p>本页面展示的攻击数据有：</p>
+<ol>
+<li>被攻击蜜罐名称</li>
+<li>被攻击数量</li>
+<li>被攻击节点名称</li>
+<li>攻击来源IP和地理位置</li>
+<li>威胁情报</li>
+<li>最后一次攻击时间</li>
+<li>攻击时间</li>
+<li>攻击数据长度</li>
+<li>攻击详情</li>
+</ol>
+<h3 id="扫描感知"><a class="markdownIt-Anchor" href="#扫描感知"></a> 扫描感知</h3>
+<p>这里是展示HFish蜜罐节点被TCP、UDP和ICMP三种协议的全端口扫描探测行为</p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610001819999.png" alt="image-20260610001819999" /></p>
+<h3 id="失陷感知"><a class="markdownIt-Anchor" href="#失陷感知"></a> 失陷感知</h3>
+<p>这里是利用蜜饵来实现主机失陷感知威胁的</p>
+<p>可以把它理解成一个<strong>能帮你主动出击，在攻击者入侵的第一时间就发现他的“智能诱饵系统”</strong></p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002028426.png" alt="image-20260610002028426" /></p>
+<h3 id="攻击来源"><a class="markdownIt-Anchor" href="#攻击来源"></a> 攻击来源</h3>
+<p><strong>对攻击者进行画像和溯源</strong></p>
+<p>将所有尝试连接的攻击者IP进行聚合，可以清晰地看到<strong>某个IP发起过多少次攻击、地理位置、攻击了哪些蜜罐</strong>。如果配置了微步在线等API，还能自动获取该IP的威胁情报信息</p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002120032.png" alt="image-20260610002120032" /></p>
+<h3 id="账号资产"><a class="markdownIt-Anchor" href="#账号资产"></a> 账号资产</h3>
+<p>这里是存储着攻击者在所有HFish蜜罐登录界面中输入的账号、密码</p>
+<p>当攻击者尝试用暴力破解等方式登录SSH、Web登录页等蜜罐时，这里会<strong>自动记录下他们使用的所有用户名和密码组合</strong>，可以帮你了解攻击者常用的密码字典</p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002202176.png" alt="image-20260610002202176" /></p>
+<h3 id="样本检测"><a class="markdownIt-Anchor" href="#样本检测"></a> 样本检测</h3>
+<p><strong>当攻击者企图用恶意软件攻击你时，HFish 会自动把这个“罪证”送到专业的病毒分析中心，然后带回来一份详细的“体检报告”给你</strong></p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002245130.png" alt="image-20260610002245130" /></p>
+<h3 id="漏洞模拟"><a class="markdownIt-Anchor" href="#漏洞模拟"></a> 漏洞模拟</h3>
+<p>HFish <strong>故意在自己的“陷阱”里制造出一些看起来有漏洞的假象，以此来“引诱”和“欺骗”攻击者</strong>。</p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002325741.png" alt="image-20260610002325741" /></p>
+<h3 id="节点管理"><a class="markdownIt-Anchor" href="#节点管理"></a> 节点管理</h3>
+<p>HFish采用B/S架构，系统由控制端和节点端组成，控制端用来生成和管理节点端，并接收、分析和展示节点端回传的数据，节点端接受控制端的控制并负责构建蜜罐服务。</p>
+<p>默认设置管理端是内置节点，可以添加外部节点，输入节点信息之后，在节点处部署对应的安装包即可部署外界节点</p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002400648.png" alt="image-20260610002400648" /></p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002411088.png" alt="image-20260610002411088" /></p>
+<h3 id="模板管理"><a class="markdownIt-Anchor" href="#模板管理"></a> 模板管理</h3>
+<p>这里就是会有一些蜜罐的模板，可以把这些模板部署在节点上</p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002424754.png" alt="image-20260610002424754" /></p>
+<h3 id="服务管理"><a class="markdownIt-Anchor" href="#服务管理"></a> 服务管理</h3>
+<p>“服务管理”可以看作是 HFish 的“武器库”或“诱饵商店”<a target="_blank" rel="noopener" href="https://developer.aliyun.com/article/1001666">-2</a><a target="_blank" rel="noopener" href="https://blog.csdn.net/2401_86085351/article/details/145592065">-5</a>。你要用的所有蜜罐类型都在这里，可以把它理解成一个<strong>你可以随时挑选并部署到各个节点上的“诱饵菜单”</strong></p>
+<p><img src="HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2.assets/image-20260610002533111.png" alt="image-20260610002533111" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/HFish/" rel="tag">HFish</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="破阵阁-渗透实战挑战赛" class="lazyload">
+          
+        
+        <a href="/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            破阵阁-渗透实战挑战赛
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/bg1.jpg" data-sizes="auto" alt="H&amp;NCTF2026" class="lazyload">
+        
+      
+      <a href="/2026/06/07/H&NCTF2026/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          H&amp;NCTF2026
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number">1.</span> <span class="toc-text"> 安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9D%97%E7%AE%A1%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text"> 模块管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E5%88%97%E8%A1%A8"><span class="toc-number">2.1.</span> <span class="toc-text"> 攻击列表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%AB%E6%8F%8F%E6%84%9F%E7%9F%A5"><span class="toc-number">2.2.</span> <span class="toc-text"> 扫描感知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%B1%E9%99%B7%E6%84%9F%E7%9F%A5"><span class="toc-number">2.3.</span> <span class="toc-text"> 失陷感知</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E6%9D%A5%E6%BA%90"><span class="toc-number">2.4.</span> <span class="toc-text"> 攻击来源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B4%A6%E5%8F%B7%E8%B5%84%E4%BA%A7"><span class="toc-number">2.5.</span> <span class="toc-text"> 账号资产</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B7%E6%9C%AC%E6%A3%80%E6%B5%8B"><span class="toc-number">2.6.</span> <span class="toc-text"> 样本检测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%A8%A1%E6%8B%9F"><span class="toc-number">2.7.</span> <span class="toc-text"> 漏洞模拟</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8A%82%E7%82%B9%E7%AE%A1%E7%90%86"><span class="toc-number">2.8.</span> <span class="toc-text"> 节点管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E7%AE%A1%E7%90%86"><span class="toc-number">2.9.</span> <span class="toc-text"> 模板管理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AE%A1%E7%90%86"><span class="toc-number">2.10.</span> <span class="toc-text"> 服务管理</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "HFish蜜罐部署",
+          url: "http://example.com/2026/06/09/HFish%E8%9C%9C%E7%BD%90%E9%83%A8%E7%BD%B2/",
+          excerpt: "",
+          description: "",
+          stripContent: "闲来无事，部署个蜜罐玩玩  安装 用的Ubuntu VPS 安装： 12bash &amp;lt;(curl -sS -L https://hfish.net/webinstall.sh)1   安装成功，查看默认监听端口：  然后访问https://VPS:4433/web/ 账号：admin 密码：HFish2021 最好进去之后马上修改默认密码   模块管理  攻击列表 展示、聚合、搜索、分析和导出HFish蜜罐捕获攻击数据的页面  本页面展示的攻击数据有：  被攻击蜜罐名称 被攻击数量 被攻击节",
+          date: "Tue Jun 09 2026 23:50:55 GMT+0800",
+          updated: "Wed Jun 10 2026 00:25:34 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

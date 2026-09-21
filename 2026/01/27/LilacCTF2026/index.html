@@ -1,0 +1,766 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    LilacCTF2026 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="Web  Keep(php-S源码泄露+xxx以php解析) 进去只发现一个Hello World，扫目录全是404，且404页面很明显是php -S起的服务 通过PHP&lt;&#x3D;7.4.21 Development Server源码泄露漏洞读源码   比赛的时候我到这就没思路了，这个php文件还是404 这里有个知识点：一个扩展名为 .xxx(任意三字后缀，例如.png .jpg .bak .">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LilacCTF2026">
+<meta property="og:url" content="http://example.com/2026/01/27/LilacCTF2026/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="Web  Keep(php-S源码泄露+xxx以php解析) 进去只发现一个Hello World，扫目录全是404，且404页面很明显是php -S起的服务 通过PHP&lt;&#x3D;7.4.21 Development Server源码泄露漏洞读源码   比赛的时候我到这就没思路了，这个php文件还是404 这里有个知识点：一个扩展名为 .xxx(任意三字后缀，例如.png .jpg .bak .">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/01/27/images/image-20260127162742572.png">
+<meta property="og:image" content="http://example.com/2026/01/27/images/image-20260127162753731.png">
+<meta property="og:image" content="http://example.com/2026/01/27/images/image-20260127163207987.png">
+<meta property="og:image" content="http://example.com/2026/01/27/images/image-20260127163451500.png">
+<meta property="og:image" content="http://example.com/2026/01/27/images/image-20260127173055402.png">
+<meta property="og:image" content="http://example.com/2026/01/27/images/image-20260127175438992.png">
+<meta property="og:image" content="http://example.com/2026/01/27/images/image-20260127180416574.png">
+<meta property="og:image" content="http://example.com/2026/01/27/images/image-20260127180924014.png">
+<meta property="og:image" content="http://example.com/2026/01/27/images/image-20260127181033016.png">
+<meta property="article:published_time" content="2026-01-27T08:19:09.000Z">
+<meta property="article:modified_time" content="2026-01-27T11:09:44.581Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/01/27/images/image-20260127162742572.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="LilacCTF2026">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">LilacCTF2026</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#keepphp-s%E6%BA%90%E7%A0%81%E6%B3%84%E9%9C%B2xxx%E4%BB%A5php%E8%A7%A3%E6%9E%90"><span class="toc-number">1.1.</span> <span class="toc-text"> Keep(php-S源码泄露+xxx以php解析)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#checkinpython%E6%B2%99%E7%AE%B1"><span class="toc-number">1.2.</span> <span class="toc-text"> CheckIn(python沙箱)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%99%BD%E7%9B%92"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 白盒</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%BB%91%E7%9B%92"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 黑盒</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-LilacCTF2026" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/01/27/LilacCTF2026/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-01-27T08:19:09.000Z" itemprop="datePublished">2026-01-27</time>
+    <time style="display: none;" id="post-update-time">2026-01-27</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="web"><a class="markdownIt-Anchor" href="#web"></a> Web</h2>
+<h3 id="keepphp-s源码泄露xxx以php解析"><a class="markdownIt-Anchor" href="#keepphp-s源码泄露xxx以php解析"></a> Keep(php-S源码泄露+xxx以php解析)</h3>
+<p>进去只发现一个Hello World，扫目录全是404，且404页面很明显是php -S起的服务</p>
+<p>通过<strong>PHP&lt;=7.4.21 Development Server源码泄露</strong>漏洞读源码</p>
+<p><img src="../images/image-20260127162742572.png" alt="image-20260127162742572" /></p>
+<p><img src="../images/image-20260127162753731.png" alt="image-20260127162753731" /></p>
+<p>比赛的时候我到这就没思路了，这个php文件还是404</p>
+<p>这里有个知识点：<strong>一个扩展名为 .xxx(任意三字后缀，例如.png .jpg .bak .gif .zip .rar .wav等等) 的文件会因为扩展名被错误地更新为 .php，而被 PHP 解释器当作脚本执行</strong></p>
+<p>调用原理：</p>
+<blockquote>
+<p>攻击者发送两个连续请求（如 GET /shell.jpg 紧接 GET /phantom.php）</p>
+<p>利用 <code>PHP Built-in Server</code> 在 <code>php_http_parser_execute() </code>单次调用中处理多请求时的状态分裂缺陷：第一个请求让 <code>translate_vpath()</code> 检测到 <code>shell.jpg</code> 存在后设置 <code>path_translated = &quot;/path/to/shell.jpg&quot;；</code>第二个请求因 phantom.php 不存在导致<code>translate_vpath()</code>提前返回而不更新 path_translated，但 <code>extract_extension()  </code>仍从新的 vpath 提取并更新<code> ext = &quot;php&quot;；</code></p>
+<p>最终 dispatch()  在检查<code> if (ext_len != 3 || memcmp(ext, &quot;php&quot;, 3) || !path_translated)</code>时发现三个条件全部不满足（ext_len=3 且 ext=“php” 且 path_translated 非空），导致 is_static_file = 0，服务器误判将 path_translated 指向的 .jpg 静态文件当作PHP脚本执行——关键在于第一个文件（任意三字符后缀的后门文件，必须存在）的处理方式由第二个文件（.php 结尾，不需要存在）的扩展名决定，当第二个请求的 ext被识别为 “php” 时，is_static_file 被设为 0，触发 <code>php_cli_server_dispatch_script() </code>将第一个请求的静态文件作为 PHP 代码执行。</p>
+</blockquote>
+<p>而这里就是：<br />
+<img src="../images/image-20260127163207987.png" alt="image-20260127163207987" /></p>
+<p>让bak文件以php解析</p>
+<p><img src="../images/image-20260127163451500.png" alt="image-20260127163451500" /></p>
+<blockquote>
+<p>这个知识点之前没深入过，罪过罪过</p>
+</blockquote>
+<h3 id="checkinpython沙箱"><a class="markdownIt-Anchor" href="#checkinpython沙箱"></a> CheckIn(python沙箱)</h3>
+<p>进去是一个python代码执行页面，一眼沙箱逃逸，但是黑盒？不可能（好像还真可能，官方WP有黑白盒两种解）</p>
+<h4 id="白盒"><a class="markdownIt-Anchor" href="#白盒"></a> 白盒</h4>
+<p>扫目录发现backup.zip</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Python 3.14.2</span></span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">from</span> collections <span class="keyword">import</span> UserList</span><br><span class="line"><span class="keyword">from</span> sys <span class="keyword">import</span> argv</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LockedList</span>(<span class="title class_ inherited__">UserList</span>):</span><br><span class="line">    <span class="comment">#重写了 __setitem__ 方法，直接赋值会抛出异常,不能直接使用 status[0] = True 来修改值</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__setitem__</span>(<span class="params">self, key, value</span>):</span><br><span class="line">        <span class="keyword">raise</span> Exception(<span class="string">&quot;Assignment blocked!&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sandbox</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(argv) != <span class="number">2</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;ERROR: Missing code&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment">#创建LockedList对象</span></span><br><span class="line">        status = LockedList([<span class="literal">False</span>])</span><br><span class="line">        <span class="comment">#获取对象的内存id</span></span><br><span class="line">        status_id = <span class="built_in">id</span>(status)</span><br><span class="line">        <span class="comment">#将输入通过 idna 编码再解码</span></span><br><span class="line">        user_input = argv[<span class="number">1</span>].encode(<span class="string">&#x27;idna&#x27;</span>).decode(<span class="string">&#x27;ascii&#x27;</span>).rstrip(<span class="string">&#x27;-&#x27;</span>)</span><br><span class="line">		<span class="comment">#禁止数字和大写字母</span></span><br><span class="line">        <span class="keyword">if</span> re.search(<span class="string">r&#x27;[0-9A-Z]&#x27;</span>, user_input):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;FORBIDDEN: No numbers or alphas&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">		<span class="comment">#禁止特殊字符（能用 . ( ) ! ? / ~ `）</span></span><br><span class="line">        <span class="keyword">if</span> re.search(<span class="string">r&#x27;[_\s=+\[\],&quot;\&#x27;\&lt;\&gt;\-\*@#$%^&amp;\\\|\&#123;\&#125;\:;]&#x27;</span>, user_input):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;FORBIDDEN: Incorrect symbol detected&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">		<span class="comment">#禁止关键字</span></span><br><span class="line">        <span class="keyword">if</span> re.search(<span class="string">r&#x27;(status|flag|update|setattr|getattr|eval|exec|import|locals|os|sys|builtins|open|or|and|not|is|breakpoint|exit|print|quit|help|input|globals)&#x27;</span>, user_input.casefold()):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;FORBIDDEN: Keywords detected&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">		<span class="comment">#长度限制</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(user_input) &gt; <span class="number">60</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;FORBIDDEN: Input too long! Keep it concise and it is very simple.&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">		<span class="comment">#执行过滤后的输入</span></span><br><span class="line">        <span class="built_in">eval</span>(user_input)</span><br><span class="line">        <span class="comment">#status[0] 必须为 True 且 status 对象的id必须与原来的相同</span></span><br><span class="line">        <span class="keyword">if</span> status[<span class="number">0</span>] <span class="keyword">and</span> <span class="built_in">id</span>(status) == status_id:</span><br><span class="line">            <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;/flag&#x27;</span>, <span class="string">&#x27;r&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">                flag = f.read().strip()</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;SUCCESS! Flag: <span class="subst">&#123;flag&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;FAILURE: status is still <span class="subst">&#123;status&#125;</span>&quot;</span>)</span><br><span class="line">            </span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Don&#x27;t be evil~ And I won&#x27;t show you this error :)&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    sandbox()</span><br></pre></td></tr></table></figure>
+<p>总的来说就是要修改原对象的<code>status[0]</code>的值为true，又它是一个List对象</p>
+<p>只ban了 status、locals、globals等函数，但没ban以下List操作函数：</p>
+<ul>
+<li><strong><code>append()</code></strong>：添加元素到列表末尾</li>
+<li><strong><code>pop()</code></strong>：移除并返回列表的一个元素</li>
+<li><strong><code>insert()</code></strong>：在指定位置插入元素</li>
+<li><strong><code>clear()</code></strong>：清空列表</li>
+<li><strong><code>extend()</code></strong>：扩展列表</li>
+<li><strong><code>remove()</code></strong>：移除指定元素</li>
+<li><strong><code>dir()</code></strong>：返回当前作用域的变量名列表（按字母顺序排列）</li>
+<li><strong><code>vars()</code></strong>：返回当前作用域的局部变量字典</li>
+<li><strong><code>get()</code></strong>：通常用于字典：<code>dict.get(key)</code></li>
+</ul>
+<p>首先我们需要构造出<code>status</code>关键字：在 <code>sandbox() </code>函数中，变量顺序是<code> ['status', 'status_id', 'user_input']</code></p>
+<p>因此可以用<code>min(dir())</code>来表示<code>status</code></p>
+<p><img src="../images/image-20260127173055402.png" alt="image-20260127173055402" /></p>
+<p>这里构造出来的只是字符串而非对象，所以我们需要通过字符串获取到对象</p>
+<p><code>vars().get(min(dir()))</code></p>
+<p><img src="../images/image-20260127175438992.png" alt="image-20260127175438992" /></p>
+<p>接下来就是对status[0]这个值进行操作，但由于重写 <code>__setitem__</code>的限制我们不能直接赋值，但我们能用<code>append()</code>和<code>pop()</code>直接操作内部的<code> self.data</code></p>
+<p>一开始想的是pop掉false，再append一个True，但后面发现pop()是删除并返回列表中的元素：<br />
+<img src="../images/image-20260127180416574.png" alt="image-20260127180416574" /></p>
+<p>但我们是不是能进行取反将其变成True然后append()，这样就不用构造True了</p>
+<p>这里not被ban了（否则直接<code>not False</code>返回True）</p>
+<p>尝试按位取反<br />
+<strong><code>~False = -1（truthy）</code></strong></p>
+<p><strong><code>~True = -2（truthy）</code></strong></p>
+<p>在布尔上下文中：</p>
+<ul>
+<li>非零数字是 <strong>truthy</strong>（为真）</li>
+<li>零是 <strong>falsy</strong>（为假）</li>
+</ul>
+<p><img src="../images/image-20260127180924014.png" alt="image-20260127180924014" /></p>
+<p>成功构造出True，那只需要嵌套一层即可：<br />
+最终payload:</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vars</span>().get(<span class="built_in">min</span>(<span class="built_in">dir</span>())).append(~<span class="built_in">vars</span>().get(<span class="built_in">min</span>(<span class="built_in">dir</span>())).pop())</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260127181033016.png" alt="image-20260127181033016" /></p>
+<h4 id="黑盒"><a class="markdownIt-Anchor" href="#黑盒"></a> 黑盒</h4>
+<p>瑟瑟发抖了</p>
+<p>直接给官方WP吧</p>
+<p><a target="_blank" rel="noopener" href="https://lilachit.notion.site/Web-2f44c775ef0e80139e8bd869bf5e86da#2f44c775ef0e804e996af0c641ebf048">Web</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="N1CTF Junior 2026 1/2" class="lazyload">
+          
+        
+        <a href="/2026/01/28/N1CTF%20Junior%202026%20/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            N1CTF Junior 2026 1/2
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/background-2.jpg" data-sizes="auto" alt="[Vulnhub靶机通关]DC-3" class="lazyload">
+        
+      
+      <a href="/2026/01/26/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DDC-3/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          [Vulnhub靶机通关]DC-3
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#keepphp-s%E6%BA%90%E7%A0%81%E6%B3%84%E9%9C%B2xxx%E4%BB%A5php%E8%A7%A3%E6%9E%90"><span class="toc-number">1.1.</span> <span class="toc-text"> Keep(php-S源码泄露+xxx以php解析)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#checkinpython%E6%B2%99%E7%AE%B1"><span class="toc-number">1.2.</span> <span class="toc-text"> CheckIn(python沙箱)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%99%BD%E7%9B%92"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 白盒</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%BB%91%E7%9B%92"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 黑盒</span></a></li></ol></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "LilacCTF2026",
+          url: "http://example.com/2026/01/27/LilacCTF2026/",
+          excerpt: "",
+          description: "",
+          stripContent: " Web  Keep(php-S源码泄露+xxx以php解析) 进去只发现一个Hello World，扫目录全是404，且404页面很明显是php -S起的服务 通过PHP&amp;lt;=7.4.21 Development Server源码泄露漏洞读源码   比赛的时候我到这就没思路了，这个php文件还是404 这里有个知识点：一个扩展名为 .xxx(任意三字后缀，例如.png .jpg .bak .gif .zip .rar .wav等等) 的文件会因为扩展名被错误地更新为 .php，而被 PHP",
+          date: "Tue Jan 27 2026 16:19:09 GMT+0800",
+          updated: "Tue Jan 27 2026 19:09:44 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

