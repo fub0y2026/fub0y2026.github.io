@@ -30,21 +30,21 @@
     <meta name="description" content="[TOC]  题目分析 开题，看看依赖： 123456789101112131415161718&lt;dependencies&gt;       &lt;dependency&gt;           &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;           &lt;artifactId&gt;spring-boot-">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CISCN2023西南-seaclouds">
-<meta property="og:url" content="http://example.com/2025/10/11/CISCN2023%E8%A5%BF%E5%8D%97-seaclouds/index.html">
+<meta property="og:url" content="https://fub0y2026.github.io/2025/10/11/CISCN2023%E8%A5%BF%E5%8D%97-seaclouds/index.html">
 <meta property="og:site_name" content="KL">
 <meta property="og:description" content="[TOC]  题目分析 开题，看看依赖： 123456789101112131415161718&lt;dependencies&gt;       &lt;dependency&gt;           &lt;groupId&gt;org.springframework.boot&lt;&#x2F;groupId&gt;           &lt;artifactId&gt;spring-boot-">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2025/10/11/images/30113e1446286cdd526c4d9e8cb570fb.png">
-<meta property="og:image" content="http://example.com/2025/10/11/images/20240119205418-dbc36544-b6c9-1.png">
-<meta property="og:image" content="http://example.com/2025/10/11/images/image164513908.png">
-<meta property="og:image" content="http://example.com/2025/10/11/images/image164541135.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/30113e1446286cdd526c4d9e8cb570fb.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/20240119205418-dbc36544-b6c9-1.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image164513908.png">
+<meta property="og:image" content="https://fub0y2026.github.io/images/image164541135.png">
 <meta property="article:published_time" content="2025-10-11T05:31:14.000Z">
 <meta property="article:modified_time" content="2025-12-16T16:25:48.676Z">
 <meta property="article:author" content="FuB0Y">
 <meta property="article:tag" content="JAVA安全">
 <meta property="article:tag" content="JAVA反序列化">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2025/10/11/images/30113e1446286cdd526c4d9e8cb570fb.png">
+<meta name="twitter:image" content="https://fub0y2026.github.io/images/30113e1446286cdd526c4d9e8cb570fb.png">
   
   
     <link rel="alternate" href="/atom.xml" title="KL" type="application/atom+xml">
@@ -326,9 +326,9 @@
 <p>接受一个base64编码的message参数</p>
 <p>然后传入<code>codecMessageConverter.toMessage</code>中</p>
 <p>看一下CodecMessageConverter是什么东西：</p>
-<p><img src="../images/30113e1446286cdd526c4d9e8cb570fb.png" alt="img" /></p>
+<p><img src="/images/30113e1446286cdd526c4d9e8cb570fb.png" alt="img" /></p>
 <p>分别有两个对应方法<code>fromMessage</code>和<code>ToMessage</code>，分别对应<code>encode</code>和<code>decode</code>方法，使用<code>GenericMessage</code>进行封装。</p>
-<p><img src="../images/20240119205418-dbc36544-b6c9-1.png" alt="img" /></p>
+<p><img src="/images/20240119205418-dbc36544-b6c9-1.png" alt="img" /></p>
 <p>对<code>decode</code>方法进行调试，发现它会进到<code>kryo.readObject()</code>中，也就是说这里可以触发<code>kyro</code>反序列化的打法，<code>kyro</code>和<code>Hessian</code>是一类的，都是基于<code>Field</code>机制，会进入到<code>hashMap.put</code>中，因此可以用<code>Hessian</code>的链子来打</p>
 <p>在<code>Message&lt;?&gt; decoded = (Message)this.codec.decode((byte[])((byte[])payload), this.messageClass);</code>中指定了解码的类型为this.messageClass(GenericMessage)，所以后面构造的时候要用GenericMessage将payload封装起来(显然不影响HashMap的属性被put)</p>
 <h2 id="利用链构造"><a class="markdownIt-Anchor" href="#利用链构造"></a> 利用链构造</h2>
@@ -346,8 +346,8 @@
 <p><code>writeReplace</code> 方法是 Java 中的一个特殊方法，它在序列化过程中起着重要作用。当对象被序列化时，Java 虚拟机会自动调用 <code>writeReplace</code> 方法（如果存在），并用其返回的对象来替换原始对象。这个方法的主要作用是允许开发者在序列化过程中控制对象的替换行为。</p>
 <p>所以我们要重写BaseJsonNode的writeReplace方法</p>
 <p>并把writeReplace注释掉</p>
-<p><img src="../images/image164513908.png" alt="image164513908" /></p>
-<p><img src="../images/image164541135.png" alt="image164541135" /></p>
+<p><img src="/images/image164513908.png" alt="image164513908" /></p>
+<p><img src="/images/image164541135.png" alt="image164541135" /></p>
 <p>成功了，但这题不出网，要注内存马，不写了，反正看不懂</p>
 <h2 id="完整调用链"><a class="markdownIt-Anchor" href="#完整调用链"></a> 完整调用链</h2>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">CodecMessageConverter</span><br><span class="line">	-&gt; toMessage(decodemsg, ...)</span><br><span class="line">  	 this.codec.decode(decodemsg, ...)</span><br><span class="line"></span><br><span class="line">AbstractKryoCodec</span><br><span class="line">	-&gt; decode(decodemsg, ...)</span><br><span class="line"></span><br><span class="line">PojoCodec</span><br><span class="line">	-&gt; doDecode(...)</span><br><span class="line"></span><br><span class="line">Kryo</span><br><span class="line">	-&gt; readObject(...)</span><br><span class="line"></span><br><span class="line">MapSerializer</span><br><span class="line">	-&gt; read(...)</span><br><span class="line">  	 Map#put(hotSwappableTargetSource, ...)</span><br><span class="line"></span><br><span class="line">HotSwappableTargetSource</span><br><span class="line">	-&gt; equals(...)</span><br><span class="line"></span><br><span class="line">XString</span><br><span class="line">	-&gt; equals(pojoNode)</span><br><span class="line"></span><br><span class="line">BaseJsonNode</span><br><span class="line">	-&gt; toString()</span><br><span class="line">  	 InternalNodeMapper#nodeToString(this)</span><br><span class="line"></span><br><span class="line">SignedObject</span><br><span class="line">	-&gt; getObject()</span><br><span class="line">  	 a.readObject()</span><br><span class="line"></span><br><span class="line">BadAttributeValueExpException</span><br><span class="line">	-&gt; readObject()</span><br><span class="line">  	 valObj.toString()</span><br><span class="line"></span><br><span class="line">BaseJsonNode</span><br><span class="line">	-&gt; toString()</span><br><span class="line">  	 InternalNodeMapper#nodeToString(this)</span><br><span class="line"></span><br><span class="line">TemplatesImpl</span><br><span class="line">	-&gt; getOutputProperties()</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
@@ -378,7 +378,7 @@
         
           
           
-            <img data-src="/images/1737907114de8a.jpg" data-sizes="auto" alt="AWDP赛前准备" class="lazyload">
+            <img data-src="/images/background-2.jpg" data-sizes="auto" alt="AWDP赛前准备" class="lazyload">
           
         
         <a href="/2025/10/11/AWDP%E8%B5%9B%E5%89%8D%E5%87%86%E5%A4%87/"></a>
@@ -395,7 +395,7 @@
       
         
         
-          <img data-src="/images/1737907114de8a.jpg" data-sizes="auto" alt="JAVA反序列化-SnakeYaml反序列化" class="lazyload">
+          <img data-src="/images/124691006_p0_master1200.jpg" data-sizes="auto" alt="JAVA反序列化-SnakeYaml反序列化" class="lazyload">
         
       
       <a href="/2025/10/10/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"></a>
@@ -620,7 +620,7 @@
         window.REIMU_POST = {
           author: "FuB0Y",
           title: "CISCN2023西南-seaclouds",
-          url: "http://example.com/2025/10/11/CISCN2023%E8%A5%BF%E5%8D%97-seaclouds/",
+          url: "https://fub0y2026.github.io/2025/10/11/CISCN2023%E8%A5%BF%E5%8D%97-seaclouds/",
           excerpt: "",
           description: "",
           stripContent: "[TOC]  题目分析 开题，看看依赖： 123456789101112131415161718&amp;lt;dependencies&amp;gt;       &amp;lt;dependency&amp;gt;           &amp;lt;groupId&amp;gt;org.springframework.boot&amp;lt;/groupId&amp;gt;           &amp;lt;artifactId&amp;gt;spring-boot-starter-web&amp;lt;/artifactId&amp;gt;           &amp;lt;versi",
